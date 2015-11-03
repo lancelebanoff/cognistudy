@@ -29,6 +29,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.ParseObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +94,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        ParseObject testObject = new ParseObject("AndroidTestObject");
+        testObject.put("foo", "bar");
+        testObject.saveInBackground();
     }
 
     private void populateAutoComplete() {

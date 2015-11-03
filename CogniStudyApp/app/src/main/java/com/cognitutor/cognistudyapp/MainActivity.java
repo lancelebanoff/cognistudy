@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.parse.Parse;
+
 public class MainActivity extends AppCompatActivity {
 
     /**
@@ -60,6 +62,11 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        // Enable Local Datastore.
+
+        Parse.enableLocalDatastore(this);
+        Parse.initialize(this, "iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY", "mtCu0UsCYrVvQVIEkMlNkLoEFLlsIabVnWhTXvdA");
 
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
