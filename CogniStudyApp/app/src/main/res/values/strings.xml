@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CogniStudyApp</string>
+    <string name="app_name">CogniStudy</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_login">Sign in</string>
@@ -16,4 +16,13 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_question">Question</string>
+    <string name="title_activity_registration">Sign In</string>
+    <string name="title_activity_new_challenge">New Challenge</string>
+    <string name="title_activity_choose_board_configuration">Set Up Board</string>
+    <string name="title_activity_challenge">Challenge</string>
+    <string name="title_activity_battleship_attack">Attack</string>
+    <string name="title_activity_question_history">Question History</string>
+    <string name="title_activity_past_question">Question</string>
+    <string name="title_activity_challenge_analytics">Challenge Stats</string>
 </resources>

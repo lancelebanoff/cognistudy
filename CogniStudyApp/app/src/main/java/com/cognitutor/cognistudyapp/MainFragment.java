@@ -6,12 +6,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 /**
  * Created by Lance on 12/27/2015.
  */
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements View.OnClickListener {
 
     public MainFragment() {
     }
@@ -25,19 +26,24 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);
+        b.setOnClickListener(this);
+
         return rootView;
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onClick(View view) {
+        switch(view.getId()) {
+            case R.id.btnStartChallenge:
+                navigateToNewChallengeActivity();
+                break;
+        }
+    }
 
-        View btnStartChallenge = getActivity().findViewById(R.id.btnStartChallenge);
-        btnStartChallenge.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NewChallengeActivity.class);
-                startActivity(intent);
-            }
-        });
+    public void navigateToNewChallengeActivity() {
+        Intent intent = new Intent(getActivity(), NewChallengeActivity.class);
+        startActivity(intent);
     }
 }

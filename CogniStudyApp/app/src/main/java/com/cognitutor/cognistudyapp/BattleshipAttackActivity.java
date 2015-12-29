@@ -5,17 +5,16 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-public class RegistrationActivity extends AppCompatActivity {
+public class BattleshipAttackActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration);
+        setContentView(R.layout.activity_battleship_attack);
     }
 
-    public void navigateToMainActivity(View view) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+    public void navigateToChallengeActivity(View view) {
+        Intent intent = new Intent(this, ChallengeActivity.class);
         startActivity(intent);
     }
 }

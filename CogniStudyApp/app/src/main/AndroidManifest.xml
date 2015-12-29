@@ -16,6 +16,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         <activity
@@ -27,17 +28,53 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".RegistrationActivity"
-            android:label="@string/app_name" >
+            android:label="@string/title_activity_registration"
+            android:parentActivityName=".RegistrationActivity" >
         </activity>
         <activity
             android:name=".NewChallengeActivity"
-            android:label="@string/app_name"
+            android:label="@string/title_activity_new_challenge"
             android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".ChooseBoardConfigurationActivity"
+            android:label="@string/title_activity_choose_board_configuration"
+            android:parentActivityName=".NewChallengeActivity" >
+        </activity>
+        <activity
+            android:name=".ChallengeActivity"
+            android:label="@string/title_activity_challenge"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".QuestionActivity"
+            android:label="@string/title_activity_question"
+            android:parentActivityName=".ChallengeActivity" >
+        </activity>
+        <activity
+            android:name=".BattleshipAttackActivity"
+            android:label="@string/title_activity_battleship_attack"
+            android:parentActivityName=".ChallengeActivity" >
+        </activity>
+        <activity
+            android:name=".QuestionHistoryActivity"
+            android:label="@string/title_activity_question_history"
+            android:parentActivityName=".ChallengeActivity" >
+        </activity>
+        <activity
+            android:name=".PastQuestionActivity"
+            android:label="@string/title_activity_past_question"
+            android:parentActivityName=".QuestionHistoryActivity" >
+        </activity>
+        <activity android:name=".ChallengeAnalyticsActivity"
+            android:label="@string/title_activity_challenge_analytics"
+            android:parentActivityName=".ChallengeActivity" >
         </activity>
     </application>
 

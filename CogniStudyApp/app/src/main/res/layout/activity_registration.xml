@@ -13,7 +13,8 @@
         android:text="Sign in with Facebook"
         android:id="@+id/btnFacebookSignIn"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="navigateToMainActivity" />
 
     <Button
         android:layout_width="wrap_content"
@@ -22,7 +23,8 @@
         android:id="@+id/btnEmailSignIn"
         android:layout_below="@+id/btnFacebookSignIn"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="56dp" />
+        android:layout_marginTop="56dp"
+        android:onClick="navigateToMainActivity" />
 
     <ImageView
         android:layout_width="wrap_content"
