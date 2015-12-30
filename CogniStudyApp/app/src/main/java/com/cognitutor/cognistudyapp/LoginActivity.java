@@ -29,7 +29,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -305,6 +308,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         private final String mEmail;
         private final String mPassword;
 
+        boolean success;
+
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
@@ -329,8 +334,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             }
 
-            // TODO: register the new account here.
-            return true;
+            return signUpNewUser();
+        }
+
+        private boolean signUpNewUser() {
+            ParseUser user = new ParseUser();
+            user.setUsername(mEmail);
+            user.setEmail(mEmail);
+            user.setPassword(mPassword);
+
+            user.signUpInBackground(new SignUpCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                       success = true;
+                    } else {
+                       success = false;
+                    }
+                }
+            });
+
+            return success;
         }
 
         @Override
