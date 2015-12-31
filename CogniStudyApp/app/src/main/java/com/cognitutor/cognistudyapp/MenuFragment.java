@@ -92,5 +92,6 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
     private void logout() {
         Intent intent = new Intent(getActivity(), RegistrationActivity.class);
         startActivity(intent);
+        getActivity().finish();
     }
 }

@@ -2,17 +2,14 @@ package com.cognitutor.cognistudyapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-public class StudentProfileActivity extends AppCompatActivity {
+public class StudentProfileActivity extends CogniActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_profile);
-        // TODO:1 back button goes to people fragment
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public void navigateToNewChallengeActivity(View view) {

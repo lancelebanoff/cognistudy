@@ -3,7 +3,7 @@ package com.cognitutor.cognistudyapp;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class ChallengeAnalyticsActivity extends AppCompatActivity {
+public class ChallengeAnalyticsActivity extends CogniActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

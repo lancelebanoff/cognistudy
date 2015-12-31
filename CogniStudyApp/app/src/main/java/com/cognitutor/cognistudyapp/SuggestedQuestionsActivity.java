@@ -1,11 +1,10 @@
 package com.cognitutor.cognistudyapp;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-public class SuggestedQuestionsActivity extends AppCompatActivity {
+public class SuggestedQuestionsActivity extends CogniActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

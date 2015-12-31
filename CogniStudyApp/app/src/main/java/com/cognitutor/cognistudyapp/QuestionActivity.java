@@ -5,19 +5,16 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ViewSwitcher;
 
-public class QuestionActivity extends AppCompatActivity
+public class QuestionActivity extends CogniActivity
         implements QuestionFragment.OnFragmentInteractionListener, ResponseFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question);
-        // TODO:1 back button goes to challenge activity
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Fragment fragment = new QuestionFragment();
         FragmentManager fragmentManager = getFragmentManager();
@@ -44,6 +41,7 @@ public class QuestionActivity extends AppCompatActivity
     public void navigateToBattleshipAttackActivity(View view) {
         Intent intent = new Intent(this, BattleshipAttackActivity.class);
         startActivity(intent);
+        finish();
     }
 
     @Override

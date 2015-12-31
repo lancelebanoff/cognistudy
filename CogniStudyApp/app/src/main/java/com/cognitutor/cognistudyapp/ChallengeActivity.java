@@ -2,16 +2,14 @@ package com.cognitutor.cognistudyapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-public class ChallengeActivity extends AppCompatActivity {
+public class ChallengeActivity extends CogniActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //TODO:1 handle if opponent is already chosen (get from intent extras)
     }
