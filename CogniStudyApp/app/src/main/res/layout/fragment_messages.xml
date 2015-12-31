@@ -3,11 +3,10 @@
     android:layout_height="match_parent"
     tools:context="com.cognitutor.cognistudyapp.MessagesFragment">
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Conversation Fragment"
-        android:id="@+id/txtConversationFragment"
-        android:layout_gravity="center" />
+        android:id="@+id/btnConversationFragment"
+        android:layout_gravity="center_horizontal|top" />
 </FrameLayout>

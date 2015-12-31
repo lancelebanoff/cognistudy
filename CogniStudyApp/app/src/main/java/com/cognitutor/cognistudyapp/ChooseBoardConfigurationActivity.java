@@ -11,7 +11,7 @@ public class ChooseBoardConfigurationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_board_configuration);
-        // TODO:L2 Delete challenge from database when hitting back button
+        // TODO:2 Delete challenge from database when hitting back button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 

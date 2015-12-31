@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            // TODO:L2 make these images
+            // TODO:2 make these images
             switch (position) {
                 case 0:
                     return "Home";

@@ -16,12 +16,16 @@ public class QuestionActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question);
+        // TODO:1 back button goes to challenge activity
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Fragment fragment = new QuestionFragment();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.contentFrame, fragment)
                 .commit();
+
+        //TODO:1 handle if from suggested questions (get from intent extras)
     }
 
     public void showAnswer(View view) {

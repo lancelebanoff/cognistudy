@@ -42,7 +42,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public void navigateToNewChallengeActivity() {
+    private void navigateToNewChallengeActivity() {
         Intent intent = new Intent(getActivity(), NewChallengeActivity.class);
         startActivity(intent);
     }

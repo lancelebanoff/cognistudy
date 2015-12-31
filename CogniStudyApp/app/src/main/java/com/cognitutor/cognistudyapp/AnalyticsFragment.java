@@ -11,10 +11,6 @@ import android.view.ViewGroup;
  */
 public class AnalyticsFragment extends Fragment {
 
-    public static AnalyticsFragment newInstance() {
-        return new AnalyticsFragment();
-    }
-
     public AnalyticsFragment() {
     }
 

@@ -11,7 +11,7 @@ public class LoadingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
 
-        // TODO:l2 determine if logged in
+        // TODO:2 determine if logged in
         boolean loggedIn = false;
 
         if(loggedIn) {

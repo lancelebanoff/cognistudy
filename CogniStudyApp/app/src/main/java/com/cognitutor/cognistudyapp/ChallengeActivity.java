@@ -12,6 +12,8 @@ public class ChallengeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //TODO:1 handle if opponent is already chosen (get from intent extras)
     }
 
     public void navigateToQuestionActivity(View view) {

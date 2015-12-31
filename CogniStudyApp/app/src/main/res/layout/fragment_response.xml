@@ -3,8 +3,6 @@
     android:layout_height="match_parent"
     tools:context="com.cognitutor.cognistudyapp.ResponseFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <RadioGroup
         android:layout_width="284dp"
         android:layout_height="357dp"

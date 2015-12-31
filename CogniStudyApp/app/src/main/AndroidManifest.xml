@@ -72,9 +72,52 @@
             android:label="@string/title_activity_past_question"
             android:parentActivityName=".QuestionHistoryActivity" >
         </activity>
-        <activity android:name=".ChallengeAnalyticsActivity"
+        <activity
+            android:name=".ChallengeAnalyticsActivity"
             android:label="@string/title_activity_challenge_analytics"
             android:parentActivityName=".ChallengeActivity" >
+        </activity>
+        <activity
+            android:name=".StudentProfileActivity"
+            android:label="@string/title_activity_student_profile"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".ConversationActivity"
+            android:label="@string/title_activity_conversation"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".SuggestedQuestionsActivity"
+            android:label="@string/title_activity_suggested_questions"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".BookmarksActivity"
+            android:label="@string/title_activity_bookmarks"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".AchievementsActivity"
+            android:label="@string/title_activity_achievements"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".ShopActivity"
+            android:label="@string/title_activity_shop"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".HelpActivity"
+            android:label="@string/title_activity_help"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity android:name=".TutorProfileActivity" >
         </activity>
     </application>
 
