@@ -1,15 +1,46 @@
 package com.cognitutor.cognistudyapp;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ViewSwitcher;
 
-public class PastQuestionActivity extends CogniActivity {
+public class PastQuestionActivity extends CogniActivity
+        implements QuestionFragment.OnFragmentInteractionListener, ResponseFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_past_question);
 
-        // TODO:1 handle if it came from bookmarks or question history
+        Fragment fragment = new QuestionFragment();
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.contentFrame, fragment)
+                .commit();
+    }
+
+    public void showAnswer(View view) {
+        // Replace QuestionFragment with ResponseFragment
+        Fragment fragment = new ResponseFragment();
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.contentFrame, fragment)
+                .commit();
+
+        // Switch Submit button to Continue button
+        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+        viewSwitcher.showNext();
+    }
+
+    public void navigateToPreviousActivity(View view) {
+        finish();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

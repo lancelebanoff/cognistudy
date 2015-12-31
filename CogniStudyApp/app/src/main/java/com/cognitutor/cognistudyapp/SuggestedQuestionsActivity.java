@@ -14,6 +14,7 @@ public class SuggestedQuestionsActivity extends CogniActivity {
 
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, QuestionActivity.class);
+        intent.putExtra(Constants.Extra.ParentActivity.PARENT_ACTIVITY, Constants.Extra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY);
         startActivity(intent);
     }
 }

@@ -10,8 +10,6 @@ public class ChallengeActivity extends CogniActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
-
-        //TODO:1 handle if opponent is already chosen (get from intent extras)
     }
 
     public void navigateToQuestionActivity(View view) {
@@ -21,6 +19,7 @@ public class ChallengeActivity extends CogniActivity {
 
     public void navigateToQuestionHistoryActivity(View view) {
         Intent intent = new Intent(this, QuestionHistoryActivity.class);
+        intent.putExtra(Constants.Extra.ParentActivity.PARENT_ACTIVITY, Constants.Extra.ParentActivity.CHALLENGE_ACTIVITY);
         startActivity(intent);
     }
 

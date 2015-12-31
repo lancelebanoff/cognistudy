@@ -14,7 +14,6 @@ public class QuestionHistoryActivity extends CogniActivity {
 
     public void navigateToPastQuestionActivity(View view) {
         Intent intent = new Intent(this, PastQuestionActivity.class);
-        // TODO:1 put extras saying it came from question history
         startActivity(intent);
     }
 }

@@ -1,7 +1,6 @@
 package com.cognitutor.cognistudyapp;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +25,19 @@ public class Constants {
         }
         return constants;
 }
+
+    public static class Extra {
+        public static class ParentActivity {
+            public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
+            public static final String CHALLENGE_ACTIVITY = "CHALLENGE_ACTIVITY";
+            public static final String SUGGESTED_QUESTIONS_ACTIVITY = "SUGGESTED_QUESTIONS_ACTIVITY";
+        }
+
+        public static class OpponentId {
+            public static final String OPPONENT_ID = "OPPONENT_ID";
+            public static final int UNKNOWN = -1;
+        }
+    }
 
     // <editor-fold desc="Tests, Subjects and Categories">
     public static class Test {

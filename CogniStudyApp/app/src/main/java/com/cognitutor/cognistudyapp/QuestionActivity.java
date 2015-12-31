@@ -11,18 +11,23 @@ import android.widget.ViewSwitcher;
 public class QuestionActivity extends CogniActivity
         implements QuestionFragment.OnFragmentInteractionListener, ResponseFragment.OnFragmentInteractionListener {
 
+    /**
+     * Extras:
+     *      PARENT_ACTIVITY: string
+     */
+    private Intent mIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question);
+        mIntent = getIntent();
 
         Fragment fragment = new QuestionFragment();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.contentFrame, fragment)
                 .commit();
-
-        //TODO:1 handle if from suggested questions (get from intent extras)
     }
 
     public void showAnswer(View view) {
@@ -38,7 +43,23 @@ public class QuestionActivity extends CogniActivity
         viewSwitcher.showNext();
     }
 
-    public void navigateToBattleshipAttackActivity(View view) {
+    public void navigateToNextActivity(View view) {
+        String parentActivity = mIntent.getStringExtra(Constants.Extra.ParentActivity.PARENT_ACTIVITY);
+        switch(parentActivity) {
+            case Constants.Extra.ParentActivity.CHALLENGE_ACTIVITY:
+                navigateToBattleshipAttackActivity();
+                break;
+            case Constants.Extra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
+                navigateToParentActivity();
+                break;
+        }
+    }
+
+    private void navigateToParentActivity() {
+        finish();
+    }
+
+    private void navigateToBattleshipAttackActivity() {
         Intent intent = new Intent(this, BattleshipAttackActivity.class);
         startActivity(intent);
         finish();

@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 public class MainActivity extends CogniActivity {
@@ -71,7 +70,7 @@ public class MainActivity extends CogniActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            // TODO:2 make these images
+            // TODO:3 make these images
             switch (position) {
                 case 0:
                     return "Home";

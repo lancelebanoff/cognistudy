@@ -14,7 +14,8 @@ public class StudentProfileActivity extends CogniActivity {
 
     public void navigateToNewChallengeActivity(View view) {
         Intent intent = new Intent(this, NewChallengeActivity.class);
-        // TODO:1 opponent is already chosen
+        // TODO:2 put opponent's user id
+        intent.putExtra(Constants.Extra.OpponentId.OPPONENT_ID, 23);
         startActivity(intent);
     }
 }

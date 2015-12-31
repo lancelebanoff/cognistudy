@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:text="Continue"
             android:id="@+id/btnContinue"
-            android:onClick="navigateToBattleshipAttackActivity" />
+            android:onClick="navigateToNextActivity" />
     </ViewSwitcher>
 
 </RelativeLayout>

@@ -44,6 +44,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     private void navigateToNewChallengeActivity() {
         Intent intent = new Intent(getActivity(), NewChallengeActivity.class);
+        intent.putExtra(Constants.Extra.OpponentId.OPPONENT_ID, Constants.Extra.OpponentId.UNKNOWN);
         startActivity(intent);
     }
 }

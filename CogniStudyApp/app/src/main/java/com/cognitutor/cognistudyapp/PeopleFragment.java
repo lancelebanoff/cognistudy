@@ -31,12 +31,12 @@ public class PeopleFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnPersonFragment:
-                goToProfile();
+                navigateToProfile();
                 break;
         }
     }
 
-    private void goToProfile() {
+    private void navigateToProfile() {
         // TODO:2 check which user type
         String userType = "student";
         if(userType.equals("student")) {
