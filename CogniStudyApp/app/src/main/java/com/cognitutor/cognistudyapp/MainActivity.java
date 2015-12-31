@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
-        Parse.initialize(this, "iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY", "mtCu0UsCYrVvQVIEkMlNkLoEFLlsIabVnWhTXvdA");
+        Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);
 
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
