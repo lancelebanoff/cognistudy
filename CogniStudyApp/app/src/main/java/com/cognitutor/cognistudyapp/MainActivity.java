@@ -11,7 +11,7 @@ import android.view.MenuItem;
 
 import com.parse.Parse;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AuthenticationActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

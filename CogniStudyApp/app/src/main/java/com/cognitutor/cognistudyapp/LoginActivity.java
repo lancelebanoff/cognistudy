@@ -228,7 +228,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
             text = "Error looking up email. Please try again.";
             duration = Toast.LENGTH_SHORT;
             Log.d(tag, "Logging out current user: " + user.getObjectId());
-            ParseUser.logOut();
+            logoutUser();
         }
 
         Toast.makeText(getApplicationContext(), text, duration).show();

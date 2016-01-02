@@ -1,7 +1,9 @@
 package com.cognitutor.cognistudyapp;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -11,21 +13,9 @@ import com.parse.ParseUser;
  */
 class AuthenticationActivity extends AppCompatActivity {
 
-    private Class getDestination() {
-
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if(currentUser == null)
-            return RegistrationActivity.class;
-        if(!currentUser.getBoolean("emailVerified"))
-            return VerityEmailActivity.class;
-        if( ((ParseObject) currentUser.get("publicUserData")).getString("displayName").isEmpty() )
-            return ChooseDisplayNameActivity.class;
-        return MainActivity.class;
-    }
-
     protected void navigateToNewDestination() {
 
-        Class dest = getDestination();
+        Class dest = LoadingActivity.getDestination();
         if(dest == getClass())
             return;
 
@@ -39,6 +29,11 @@ class AuthenticationActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void logoutUser() {
+        ParseUser.logOut();
+        navigateToNewDestination();
+    }
+
     //TODO: Remove this
     public void navigateToMainActivity(View view) {
         doNavigate(MainActivity.class);
@@ -50,5 +45,13 @@ class AuthenticationActivity extends AppCompatActivity {
 
     public void navigateToRegistrationActivity() {
         doNavigate(RegistrationActivity.class);
+    }
+
+    private void handleError(Exception e, String tag) {
+
+        CharSequence text = "Error processing request";
+        int duration = Toast.LENGTH_SHORT;
+        Toast.makeText(getApplicationContext(), text, duration).show();
+        e.printStackTrace();
     }
 }

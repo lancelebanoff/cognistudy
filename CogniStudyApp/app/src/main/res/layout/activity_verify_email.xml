@@ -42,5 +42,16 @@
         android:layout_alignEnd="@+id/btnContinue"
         android:layout_gravity="center_horizontal" />
 
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Resend confirmation email"
+        android:id="@+id/btnResendLink"
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/btnLogout"
+        android:layout_alignStart="@+id/btnLogout"
+        android:onClick="resendConfirmationEmail"/>
+
 
 </RelativeLayout>

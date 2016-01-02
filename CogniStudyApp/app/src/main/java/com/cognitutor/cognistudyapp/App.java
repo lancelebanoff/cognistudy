@@ -3,6 +3,8 @@ package com.cognitutor.cognistudyapp;
 import android.app.Application;
 
 import com.parse.Parse;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 /**
  * Created by Kevin on 12/30/2015.

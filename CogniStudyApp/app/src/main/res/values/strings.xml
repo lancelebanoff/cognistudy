@@ -16,6 +16,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="prompt_display_name">Display Name</string>
     <string name="title_activity_question">Question</string>
     <string name="title_activity_registration">Sign In</string>
     <string name="title_activity_new_challenge">New Challenge</string>

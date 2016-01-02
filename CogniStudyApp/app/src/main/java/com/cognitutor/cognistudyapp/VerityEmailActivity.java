@@ -54,11 +54,14 @@ public class VerityEmailActivity extends AuthenticationActivity {
         }
 
         Toast.makeText(getApplicationContext(), text, duration).show();
+        logoutUser();
         e.printStackTrace();
     }
 
-    public void logout(View view) {
-        ParseUser.logOut();
-        navigateToRegistrationActivity();
+    public void resendConfirmationEmail(View view) {
+        currentUser.setEmail("");
+        currentUser.saveInBackground();
+        currentUser.setEmail(currentUser.getString("username"));
+        currentUser.saveInBackground();
     }
 }
