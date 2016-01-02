@@ -18,10 +18,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Enable Local Datastore.
-        Parse.enableLocalDatastore(this);
-        Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);
-
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);

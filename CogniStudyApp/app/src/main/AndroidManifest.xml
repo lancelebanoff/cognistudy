@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cognitutor.cognistudyapp" >
+    package="com.cognitutor.cognistudyapp">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -14,29 +14,31 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <permission android:protectionLevel="signature"
-        android:name="com.cognitutor.cognistudyapp.permission.C2D_MESSAGE" />
+
+    <permission
+        android:name="com.cognitutor.cognistudyapp.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="com.cognitutor.cognistudyapp.permission.C2D_MESSAGE" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login" >
-        </activity>
+            android:label="@string/title_activity_login" />
         <activity
             android:name=".LoadingActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,49 +48,44 @@
         <activity
             android:name=".RegistrationActivity"
             android:label="@string/title_activity_registration"
-            android:parentActivityName=".RegistrationActivity" >
-        </activity>
+            android:parentActivityName=".RegistrationActivity" />
         <activity
             android:name=".NewChallengeActivity"
             android:label="@string/title_activity_new_challenge"
-            android:parentActivityName=".MainActivity" >
-        </activity>
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ChooseBoardConfigurationActivity"
             android:label="@string/title_activity_choose_board_configuration"
-            android:parentActivityName=".NewChallengeActivity" >
-        </activity>
+            android:parentActivityName=".NewChallengeActivity" />
         <activity
             android:name=".ChallengeActivity"
             android:label="@string/title_activity_challenge"
-            android:parentActivityName=".MainActivity" >
-        </activity>
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".QuestionActivity"
             android:label="@string/title_activity_question"
-            android:parentActivityName=".ChallengeActivity" >
-        </activity>
+            android:parentActivityName=".ChallengeActivity" />
         <activity
             android:name=".BattleshipAttackActivity"
             android:label="@string/title_activity_battleship_attack"
-            android:parentActivityName=".ChallengeActivity" >
-        </activity>
+            android:parentActivityName=".ChallengeActivity" />
         <activity
             android:name=".QuestionHistoryActivity"
             android:label="@string/title_activity_question_history"
-            android:parentActivityName=".ChallengeActivity" >
-        </activity>
+            android:parentActivityName=".ChallengeActivity" />
         <activity
             android:name=".PastQuestionActivity"
             android:label="@string/title_activity_past_question"
-            android:parentActivityName=".QuestionHistoryActivity" >
-        </activity>
-        <activity android:name=".ChallengeAnalyticsActivity"
+            android:parentActivityName=".QuestionHistoryActivity" />
+        <activity
+            android:name=".ChallengeAnalyticsActivity"
             android:label="@string/title_activity_challenge_analytics"
-            android:parentActivityName=".ChallengeActivity" >
-        </activity>
+            android:parentActivityName=".ChallengeActivity" />
+
         <service android:name="com.parse.PushService" />
-        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
+
+        <receiver
+            android:name="com.parse.ParsePushBroadcastReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
@@ -96,14 +93,19 @@
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
                 <category android:name="com.cognitutor.cognistudyapp" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".VerityEmailActivity" />
+        <activity android:name=".ChooseDisplayNameActivity"></activity>
     </application>
 
 </manifest>

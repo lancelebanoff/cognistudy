@@ -114,6 +114,12 @@ public class Constants {
 
     // <editor-fold desc="Other Static Data Classes">
 
+    public static class UserType {
+        public static final String STUDENT = "STUDENT";
+        public static final String TUTOR = "TUTOR";
+        public static final String ADMIN = "ADMIN";
+    }
+
     public static class AchievementGroupType {
         public static final String TOTAL_Q_CORRECT = "TOTAL_Q_CORRECT";
         public static final String STREAK_Q_CORRECT = "STREAK_Q_CORRECT";

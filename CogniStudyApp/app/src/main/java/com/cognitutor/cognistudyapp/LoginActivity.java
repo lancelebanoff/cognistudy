@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -13,12 +14,12 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,13 +29,19 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.parse.FunctionCallback;
+import com.parse.LogInCallback;
+import com.parse.ParseACL;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -42,24 +49,12 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AuthenticationActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -67,10 +62,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
 
+    private boolean waiting = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -97,10 +95,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-
-        ParseObject testObject = new ParseObject("AndroidTestObject");
-        testObject.put("foo", "bar");
-        testObject.saveInBackground();
     }
 
     private void populateAutoComplete() {
@@ -146,6 +140,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    private void setWaiting(boolean value) {
+        waiting = value;
+        showProgress(value);
+    }
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -153,7 +151,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
+        if (waiting) {
             return;
         }
 
@@ -162,51 +160,153 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String email = mEmailView.getText().toString().toLowerCase();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        }
+        else if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+        else if (!isEmailValid(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
         }
-
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            return;
         }
+
+        checkEmailExistsAsync(email, password);
+    }
+
+    private boolean doesEmailExist(String email) throws Exception {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("email", email);
+        return ParseCloud.callFunction("doesEmailExist", params);
+    }
+
+    private void checkEmailExistsAsync(final String email, final String password) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("email", email);
+        setWaiting(true);
+        ParseCloud.callFunctionInBackground("doesEmailExist", params, new FunctionCallback<Boolean>() {
+                    @Override
+                    public void done(Boolean emailExists, ParseException e) {
+                        setWaiting(false);
+                        if (e == null) {
+                            if (emailExists)
+                                loginUser(email, password);
+                            else
+                                signUpUser(email, password);
+                        } else {
+                            setWaiting(false);
+                            handleError(e, "checkEmailExistsAsync");
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
+    }
+
+    private void handleError(Exception e, String tag) {
+
+        ParseUser user = ParseUser.getCurrentUser();
+        CharSequence text = "Error processing request";
+        int duration = Toast.LENGTH_SHORT;
+
+        if(user != null && e.getMessage().contains("invalid session token")) {
+            text = "Error looking up email. Please try again.";
+            duration = Toast.LENGTH_SHORT;
+            Log.d(tag, "Logging out current user: " + user.getObjectId());
+            ParseUser.logOut();
+        }
+
+        Toast.makeText(getApplicationContext(), text, duration).show();
+        e.printStackTrace();
+    }
+
+    private void loginUser(final String email, String password) {
+
+        setWaiting(true);
+        ParseUser.logInInBackground(email, password, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                setWaiting(false);
+                if (e != null) {
+                    handleError(e, "logInInBackground");
+                }
+                if (user != null) {
+                    navigateToNewDestination();
+                } else {
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
+            }
+        });
+    }
+
+    private boolean signUpUser(final String email, final String password) {
+
+        if (!isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            mPasswordView.requestFocus();
+            return false;
+        }
+
+        final ParseUser user = new ParseUser();
+        user.setUsername(email);
+        user.setPassword(password);
+        user.setEmail(email);
+
+        setWaiting(true);
+        user.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+
+                setWaiting(false);
+                ParseACL acl = new ParseACL(user);
+                acl.setPublicReadAccess(false);
+                user.setACL(acl);
+                //TODO: Give admins access as well (Tutor access will be added when a student is linked to a tutor)
+
+                ParseObject publicUserData = new ParseObject("PublicUserData");
+                ParseACL publicDataACL = new ParseACL(user);
+                publicDataACL.setPublicReadAccess(true);
+                publicUserData.setACL(publicDataACL);
+
+                publicUserData.put("userType", Constants.UserType.STUDENT);
+                publicUserData.put("baseUserId", user.getObjectId());
+                publicUserData.saveInBackground();
+
+                //user.put("publicUserData", ParseObject.createWithoutData("PublicUserData", publicUserData.getObjectId()));
+                user.put("publicUserData", publicUserData);
+                user.saveInBackground();
+
+                loginUser(email, password);
+            }
+        });
+
+        return true;
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
+        //TODO: Add more verification
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
+        //TODO: Add more verification
+        return password.length() > 5;
     }
 
     /**
@@ -289,7 +389,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
-
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
@@ -297,84 +396,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        boolean success;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            return signUpNewUser();
-        }
-
-        private boolean signUpNewUser() {
-            ParseUser user = new ParseUser();
-            user.setUsername(mEmail);
-            user.setEmail(mEmail);
-            user.setPassword(mPassword);
-
-            user.signUpInBackground(new SignUpCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if (e == null) {
-                       success = true;
-                    } else {
-                       success = false;
-                    }
-                }
-            });
-
-            return success;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
 }
 
