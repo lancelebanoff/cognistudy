@@ -24,7 +24,7 @@ public class Constants {
             constants[i] = (String) s;
         }
         return constants;
-}
+    }
 
     public static class Extra {
         public static class ParentActivity {
@@ -36,6 +36,19 @@ public class Constants {
         public static class OpponentId {
             public static final String OPPONENT_ID = "OPPONENT_ID";
             public static final int UNKNOWN = -1;
+        }
+    }
+
+    public static class GameBoard {
+        public static int NUM_ROWS = 11;
+        public static int NUM_COLUMNS = 8;
+    }
+
+    public static class ShipAttribute {
+        public static class Orientation {
+            public static final String ORIENTATION = "ORIENTATION";
+            public static final String VERTICAL = "VERTICAL";
+            public static final String HORIZONTAL = "HORIZONTAL";
         }
     }
 
