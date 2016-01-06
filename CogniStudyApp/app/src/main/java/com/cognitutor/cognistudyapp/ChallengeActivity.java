@@ -11,7 +11,7 @@ import android.widget.GridLayout;
 public class ChallengeActivity extends CogniActivity {
 
     private GridLayout mShipsGridLayout;
-    private GridLayout mBoardSpacesGridLayout;
+    private GridLayout mTargetsGridLayout;
     private BattleshipBoardManager mBattleshipBoardManager;
 
     @Override
@@ -35,14 +35,14 @@ public class ChallengeActivity extends CogniActivity {
             }
         });
 
-        mBoardSpacesGridLayout = (GridLayout) findViewById(R.id.boardSpacesGridLayout);
-        mBattleshipBoardManager.setBoardSpacesGridLayout(mBoardSpacesGridLayout);
-        observer = mBoardSpacesGridLayout.getViewTreeObserver();
+        mTargetsGridLayout = (GridLayout) findViewById(R.id.targetsGridLayout);
+        mBattleshipBoardManager.setTargetsGridLayout(mTargetsGridLayout);
+        observer = mTargetsGridLayout.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mBattleshipBoardManager.drawBoardSpaces();
-                removeOnGlobalLayoutListener(mBoardSpacesGridLayout, this);
+                mBattleshipBoardManager.drawTargets();
+                removeOnGlobalLayoutListener(mTargetsGridLayout, this);
             }
         });
     }
