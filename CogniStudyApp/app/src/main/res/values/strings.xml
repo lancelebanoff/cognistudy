@@ -26,4 +26,5 @@
     <string name="title_activity_question_history">Question History</string>
     <string name="title_activity_past_question">Question</string>
     <string name="title_activity_challenge_analytics">Challenge Stats</string>
+    <string name="facebook_app_id">929284720487933</string>
 </resources>

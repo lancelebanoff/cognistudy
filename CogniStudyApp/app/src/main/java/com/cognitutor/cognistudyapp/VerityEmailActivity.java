@@ -64,4 +64,8 @@ public class VerityEmailActivity extends AuthenticationActivity {
         currentUser.setEmail(currentUser.getString("username"));
         currentUser.saveInBackground();
     }
+
+    public void logout(View view) {
+        logoutUser();
+    }
 }

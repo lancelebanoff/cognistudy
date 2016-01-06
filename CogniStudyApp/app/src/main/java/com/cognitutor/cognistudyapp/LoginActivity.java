@@ -38,6 +38,7 @@ import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
@@ -272,27 +273,13 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
         user.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
-
-                setWaiting(false);
-                ParseACL acl = new ParseACL(user);
-                acl.setPublicReadAccess(false);
-                user.setACL(acl);
-                //TODO: Give admins access as well (Tutor access will be added when a student is linked to a tutor)
-
                 ParseObject publicUserData = new ParseObject("PublicUserData");
-                ParseACL publicDataACL = new ParseACL(user);
-                publicDataACL.setPublicReadAccess(true);
-                publicUserData.setACL(publicDataACL);
-
-                publicUserData.put("userType", Constants.UserType.STUDENT);
-                publicUserData.put("baseUserId", user.getObjectId());
-                publicUserData.saveInBackground();
-
-                //user.put("publicUserData", ParseObject.createWithoutData("PublicUserData", publicUserData.getObjectId()));
-                user.put("publicUserData", publicUserData);
-                user.saveInBackground();
-
-                loginUser(email, password);
+                setUpStudentObjects(user, publicUserData, false, new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        loginUser(email, password);
+                    }
+                });
             }
         });
 

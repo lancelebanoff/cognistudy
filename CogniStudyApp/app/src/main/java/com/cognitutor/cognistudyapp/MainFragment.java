@@ -1,6 +1,8 @@
 package com.cognitutor.cognistudyapp;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -8,7 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 
+import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 /**
@@ -35,6 +40,18 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
         b = (Button) rootView.findViewById(R.id.btnLogout);
         b.setOnClickListener(this);
+
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.imgProfile);
+        ParseFile parseFile;
+        byte[] data;
+        try {
+            parseFile = ParseUser.getCurrentUser().getParseObject("publicUserData").fetchIfNeeded().getParseFile("profilePic");
+            data = parseFile.getData();
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            imageView.setImageBitmap(bitmap);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         return rootView;
     }

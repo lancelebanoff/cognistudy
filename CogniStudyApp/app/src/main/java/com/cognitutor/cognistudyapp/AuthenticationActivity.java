@@ -5,8 +5,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.parse.ParseACL;
+import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 /**
  * Created by Kevin on 1/1/2016.
@@ -23,9 +27,10 @@ class AuthenticationActivity extends AppCompatActivity {
     }
 
     private void doNavigate(Class dest) {
-        finish();
+        //finish();
         Intent intent = new Intent(this, dest);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
@@ -53,5 +58,32 @@ class AuthenticationActivity extends AppCompatActivity {
         int duration = Toast.LENGTH_SHORT;
         Toast.makeText(getApplicationContext(), text, duration).show();
         e.printStackTrace();
+    }
+
+    protected void setUpStudentObjects(final ParseUser user, final ParseObject publicUserData, boolean fbLinked, final SaveCallback callback) {
+
+        user.put("fbLinked", fbLinked);
+        ParseACL acl = new ParseACL(user);
+        acl.setPublicReadAccess(false);
+        user.setACL(acl);
+        //TODO: Give admins access as well (Tutor access will be added when a student is linked to a tutor)
+
+        ParseACL publicDataACL = new ParseACL(user);
+        publicDataACL.setPublicReadAccess(true);
+        publicUserData.setACL(publicDataACL);
+
+        publicUserData.put("userType", Constants.UserType.STUDENT);
+        publicUserData.put("baseUserId", user.getObjectId());
+        publicUserData.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                user.put("publicUserData", publicUserData);
+                user.saveInBackground(callback);
+            }
+        });
+
+        //user.put("publicUserData", ParseObject.createWithoutData("PublicUserData", publicUserData.getObjectId()));
+
+        //TODO: Set up Student object
     }
 }
