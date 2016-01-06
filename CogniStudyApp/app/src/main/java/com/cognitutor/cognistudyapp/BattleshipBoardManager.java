@@ -5,6 +5,8 @@ import android.util.Log;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+
 /**
  * Created by Lance on 1/5/2016.
  */
@@ -14,9 +16,11 @@ public class BattleshipBoardManager {
     private GridLayout mBoardSpacesGridLayout;
     private boolean[][] mSpaceIsOccupied;
     private Activity mActivity;
+    private ArrayList<ShipData> mShipDatas;
 
     public BattleshipBoardManager(Activity activity) {
         mActivity = activity;
+        retrieveShipDatas();
     }
 
     public void setShipsGridLayout(GridLayout shipsGridLayout) {
@@ -64,6 +68,14 @@ public class BattleshipBoardManager {
         }
     }
 
+    public void drawShips() {
+        addPlaceholderSpaces();
+        for(ShipData shipData : mShipDatas) {
+            drawShip(shipData.shipRow, shipData.shipColumn, shipData.shipHeight, shipData.shipWidth,
+                    shipData.shipDrawableId);
+        }
+    }
+
     // Fill the GridLayout with placeholder ImageViews so that the cells will be the correct size
     private void addPlaceholderSpaces() {
         for(int row = 0; row < mShipsGridLayout.getRowCount(); row++) {
@@ -82,54 +94,41 @@ public class BattleshipBoardManager {
     }
 
     private void placeShip(String shipType) {
-        // TODO:2 get ship height and width from database
-        int shipHeight = 0;
-        int shipWidth = 0;
-        int shipDrawableIdVertical = 0;
-        int shipDrawableIdHorizontal = 0;
+        ShipInfo shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(shipType);
+
+        int shipDrawableIdVertical = 0, shipDrawableIdHorizontal = 0;
 
         switch(shipType) {
             case Constants.ShipType.ERASER:
-                shipHeight = 2;
-                shipWidth = 1;
-                shipDrawableIdVertical = R.drawable.eraser;
-                shipDrawableIdHorizontal = R.drawable.eraser_horiz;
+                shipDrawableIdVertical = R.drawable.skin_eraser_original_vert;
+                shipDrawableIdHorizontal = R.drawable.skin_eraser_original_horiz;
                 break;
             case Constants.ShipType.YELLOW_PENCIL:
-                shipHeight = 3;
-                shipWidth = 1;
-                shipDrawableIdVertical = R.drawable.yellow_pencil;
-                shipDrawableIdHorizontal = R.drawable.yellow_pencil_horiz;
+                shipDrawableIdVertical = R.drawable.skin_yellowpencil_original_vert;
+                shipDrawableIdHorizontal = R.drawable.skin_yellowpencil_horiz;
                 break;
             case Constants.ShipType.GREEN_PENCIL:
-                shipHeight = 3;
-                shipWidth = 1;
-                shipDrawableIdVertical = R.drawable.green_pencil;
-                shipDrawableIdHorizontal = R.drawable.green_pencil_horiz;
+                shipDrawableIdVertical = R.drawable.skin_greenpencil_original_vert;
+                shipDrawableIdHorizontal = R.drawable.skin_greenpencil_original_horiz;
                 break;
             case Constants.ShipType.PEN:
-                shipHeight = 4;
-                shipWidth = 1;
-                shipDrawableIdVertical = R.drawable.pen;
-                shipDrawableIdHorizontal = R.drawable.pen_horiz;
+                shipDrawableIdVertical = R.drawable.skin_pen_original_vert;
+                shipDrawableIdHorizontal = R.drawable.skin_pen_original_horiz;
                 break;
             case Constants.ShipType.CALCULATOR:
-                shipHeight = 2;
-                shipWidth = 2;
-                shipDrawableIdVertical = R.drawable.calculator;
-                shipDrawableIdHorizontal = R.drawable.calculator_horiz;
+                shipDrawableIdVertical = R.drawable.skin_calculator_original_vert;
+                shipDrawableIdHorizontal = R.drawable.skin_calculator_original_horiz;
                 break;
             case Constants.ShipType.RULER:
-                shipHeight = 5;
-                shipWidth = 1;
-                shipDrawableIdVertical = R.drawable.ruler;
-                shipDrawableIdHorizontal = R.drawable.ruler_horiz;
+                shipDrawableIdVertical = R.drawable.skin_ruler_original_vert;
+                shipDrawableIdHorizontal = R.drawable.skin_ruler_original_horiz;
                 break;
         }
 
+        // Keep trying to place the ship until a valid position is found
         boolean successfullyPlacedShip;
         do {
-            successfullyPlacedShip = tryToPlaceShip(shipType, shipHeight, shipWidth,
+            successfullyPlacedShip = tryToPlaceShip(shipType, shipInfo.height, shipInfo.width,
                     shipDrawableIdVertical, shipDrawableIdHorizontal);
         }
         while(!successfullyPlacedShip);
@@ -195,5 +194,53 @@ public class BattleshipBoardManager {
         layoutParams.width = mShipsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * shipWidth;
         imgShip.setLayoutParams(layoutParams);
         mShipsGridLayout.addView(imgShip);
+    }
+
+    private void retrieveShipDatas() {
+        // TODO:2 get ShipDatas from database
+        mShipDatas = new ArrayList<>();
+        ShipData shipData;
+        ShipInfo shipInfo;
+
+        shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.ERASER);
+        shipData = new ShipData(0, 0, shipInfo.height, shipInfo.width,
+                R.drawable.skin_eraser_original_vert);
+        mShipDatas.add(shipData);
+        shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.YELLOW_PENCIL);
+        shipData = new ShipData(0, 1, shipInfo.height, shipInfo.width,
+                R.drawable.skin_yellowpencil_original_vert);
+        mShipDatas.add(shipData);
+        shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.GREEN_PENCIL);
+        shipData = new ShipData(0, 2, shipInfo.height, shipInfo.width,
+                R.drawable.skin_greenpencil_original_vert);
+        mShipDatas.add(shipData);
+        shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.PEN);
+        shipData = new ShipData(0, 3, shipInfo.height, shipInfo.width,
+                R.drawable.skin_pen_original_vert);
+        mShipDatas.add(shipData);
+        shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.CALCULATOR);
+        shipData = new ShipData(0, 4, shipInfo.height, shipInfo.width,
+                R.drawable.skin_calculator_original_vert);
+        mShipDatas.add(shipData);
+        shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.RULER);
+        shipData = new ShipData(0, 7, shipInfo.height, shipInfo.width,
+                R.drawable.skin_ruler_original_vert);
+        mShipDatas.add(shipData);
+    }
+
+    public static class ShipData {
+        public int shipRow;
+        public int shipColumn;
+        public int shipHeight;
+        public int shipWidth;
+        public int shipDrawableId;
+
+        public ShipData(int shipRow, int shipColumn, int shipHeight, int shipWidth, int shipDrawableId) {
+            this.shipRow = shipRow;
+            this.shipColumn = shipColumn;
+            this.shipHeight = shipHeight;
+            this.shipWidth = shipWidth;
+            this.shipDrawableId = shipDrawableId;
+        }
     }
 }
