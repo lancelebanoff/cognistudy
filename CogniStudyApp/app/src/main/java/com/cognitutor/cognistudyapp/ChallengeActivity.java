@@ -14,12 +14,12 @@ public class ChallengeActivity extends CogniActivity {
 
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, QuestionActivity.class);
+        intent.putExtra(Constants.Extra.ParentActivity.PARENT_ACTIVITY, Constants.Extra.ParentActivity.CHALLENGE_ACTIVITY);
         startActivity(intent);
     }
 
     public void navigateToQuestionHistoryActivity(View view) {
         Intent intent = new Intent(this, QuestionHistoryActivity.class);
-        intent.putExtra(Constants.Extra.ParentActivity.PARENT_ACTIVITY, Constants.Extra.ParentActivity.CHALLENGE_ACTIVITY);
         startActivity(intent);
     }
 

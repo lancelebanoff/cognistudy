@@ -17,7 +17,8 @@
         android:id="@+id/btnRandomize"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:onClick="onClick_Randomize" />
 
     <Button
         android:layout_width="wrap_content"
@@ -29,14 +30,21 @@
         android:layout_alignParentEnd="true"
         android:onClick="navigateToChallengeActivity" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imgGameBoard"
+    <GridLayout
+        android:id="@+id/shipsGridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/btnStartChallenge"
-        android:src="@drawable/gameboard"
-        android:layout_above="@+id/btnRandomize"
-        android:layout_alignRight="@+id/btnStartChallenge"
-        android:layout_alignEnd="@+id/btnStartChallenge" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/btnRandomize"></GridLayout>
+
+    <GridLayout
+        android:id="@+id/boardSpacesGridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/btnRandomize"></GridLayout>
 </RelativeLayout>
