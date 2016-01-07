@@ -5,12 +5,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
+import java.util.ArrayList;
 
 /**
  * Created by Kevin on 1/1/2016.
@@ -23,33 +28,26 @@ class AuthenticationActivity extends AppCompatActivity {
         if(dest == getClass())
             return;
 
-        doNavigate(dest);
+        doNavigate(dest, true);
     }
 
-    private void doNavigate(Class dest) {
-        //finish();
+    private void doNavigate(Class dest, boolean finish) {
+        if(finish)
+            finish();
         Intent intent = new Intent(this, dest);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
-    public void logoutUser() {
-        ParseUser.logOut();
-        navigateToNewDestination();
-    }
-
-    //TODO: Remove this
-    public void navigateToMainActivity(View view) {
-        doNavigate(MainActivity.class);
+    public void navigateToMainActivity() {
+        doNavigate(MainActivity.class, true);
     }
 
     public void navigateToLoginActivity(View view) {
-        doNavigate(LoginActivity.class);
+        doNavigate(LoginActivity.class, false);
     }
 
     public void navigateToRegistrationActivity() {
-        doNavigate(RegistrationActivity.class);
+        doNavigate(RegistrationActivity.class, true);
     }
 
     private void handleError(Exception e, String tag) {
@@ -60,30 +58,54 @@ class AuthenticationActivity extends AppCompatActivity {
         e.printStackTrace();
     }
 
-    protected void setUpStudentObjects(final ParseUser user, final ParseObject publicUserData, boolean fbLinked, final SaveCallback callback) {
+    protected void setUpStudentObjects(final ParseUser user, final PublicUserData publicUserData, boolean fbLinked, final SaveCallback callback) {
 
         user.put("fbLinked", fbLinked);
-        ParseACL acl = new ParseACL(user);
-        acl.setPublicReadAccess(false);
-        user.setACL(acl);
+        final ParseACL privateACL = new ParseACL(user);
+        privateACL.setPublicReadAccess(false);
+        user.setACL(privateACL);
         //TODO: Give admins access as well (Tutor access will be added when a student is linked to a tutor)
 
-        ParseACL publicDataACL = new ParseACL(user);
+        final ParseACL publicDataACL = new ParseACL(user);
         publicDataACL.setPublicReadAccess(true);
         publicUserData.setACL(publicDataACL);
 
         publicUserData.put("userType", Constants.UserType.STUDENT);
         publicUserData.put("baseUserId", user.getObjectId());
-        publicUserData.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
                 user.put("publicUserData", publicUserData);
-                user.saveInBackground(callback);
-            }
-        });
+                user.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        final PrivateStudentData privateStudentData = setUpPrivateStudentData(privateACL);
+                        privateStudentData.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                final ParseObject student = new Student(user, publicUserData, privateStudentData);
+                                publicUserData.put("student", student);
+                                publicUserData.saveInBackground(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        student.saveInBackground(callback);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+    }
 
-        //user.put("publicUserData", ParseObject.createWithoutData("PublicUserData", publicUserData.getObjectId()));
-
-        //TODO: Set up Student object
+    private PrivateStudentData setUpPrivateStudentData(ParseACL acl) {
+        PrivateStudentData privateStudentData = new PrivateStudentData();
+        privateStudentData.setACL(acl);
+        privateStudentData.put("numCoins", 0);
+        privateStudentData.put("friends", new ArrayList<ParseObject>());
+        privateStudentData.put("tutors", new ArrayList<ParseObject>());
+        privateStudentData.put("blocked", new ArrayList<ParseObject>());
+        privateStudentData.put("recentChallenges", new ArrayList<ParseObject>());
+        privateStudentData.put("requestsFromTutors", new ArrayList<ParseObject>());
+        privateStudentData.put("totalResponses", 0);
+        privateStudentData.put("correctResponses", 0);
+        privateStudentData.put("suggestedQuestions", new ArrayList<ParseObject>());
+        return privateStudentData;
     }
 }

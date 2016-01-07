@@ -55,7 +55,6 @@ public class RegistrationActivity extends AuthenticationActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
-        navigateToNewDestination();
 
         /*
         try {
@@ -94,7 +93,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     getUserDetailsFromFB();
                                 }
                                 else {
-                                    navigateToNewDestination();
+                                    navigateToMainActivity();
                                 }
                             }
                         });
@@ -198,7 +197,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                 setUpStudentObjects(user, publicUserData, true, new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        navigateToNewDestination();
+                        navigateToMainActivity();
                     }
                 });
             }

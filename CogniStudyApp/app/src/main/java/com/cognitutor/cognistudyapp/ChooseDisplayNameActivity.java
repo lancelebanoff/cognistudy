@@ -37,16 +37,10 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e == null) {
                     if(objects.size() == 0) {
-                        try {
-                            ParseObject publicUserData = ParseUser.getCurrentUser().getParseObject("publicUserData").fetchIfNeeded();
-                            publicUserData.put("displayName", name);
-                            publicUserData.saveInBackground();
-                        }
-                        catch (Exception exception) {
-                            handleError(exception, "getPublicUserData");
-                        }
-
-                        navigateToMainActivity(null);
+                        ParseObject publicUserData = UserUtils.getPublicUserData();
+                        publicUserData.put("displayName", name);
+                        publicUserData.saveInBackground();
+                        navigateToMainActivity();
                     }
                     else {
                         txtDisplayName.setError("This name is already taken");

@@ -229,7 +229,8 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
             text = "Error looking up email. Please try again.";
             duration = Toast.LENGTH_SHORT;
             Log.d(tag, "Logging out current user: " + user.getObjectId());
-            logoutUser();
+            ParseUser.logOut();
+            navigateToRegistrationActivity();
         }
 
         Toast.makeText(getApplicationContext(), text, duration).show();
@@ -247,7 +248,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
                     handleError(e, "logInInBackground");
                 }
                 if (user != null) {
-                    navigateToNewDestination();
+                    navigateToNewDestination(); //Will go to main activity if user has verified email and chosen display name, or appropriate activity otherwise
                 } else {
                     mPasswordView.setError(getString(R.string.error_incorrect_password));
                     mPasswordView.requestFocus();

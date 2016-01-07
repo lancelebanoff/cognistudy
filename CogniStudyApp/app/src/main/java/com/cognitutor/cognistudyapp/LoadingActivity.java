@@ -17,41 +17,18 @@ public class LoadingActivity extends Activity {
         setContentView(R.layout.activity_loading);
 
         doNavigate(getDestination());
-
-        /*
-        // TODO:l2 determine if logged in
-        boolean loggedIn = false;
-
-        if(loggedIn) {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
-        else {
-            Intent intent = new Intent(this, RegistrationActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
-        */
     }
 
     public static Class getDestination() {
-
-        //return LoginActivity.class;
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if(currentUser == null)
             return RegistrationActivity.class;
         if(!currentUser.getBoolean("fbLinked") && !currentUser.getBoolean("emailVerified"))
             return VerityEmailActivity.class;
-        try {
-            String displayName = currentUser.getParseObject("publicUserData").fetchIfNeeded().getString("displayName");
-            if(displayName == null || displayName.isEmpty())
-                return ChooseDisplayNameActivity.class;
-        }
-        catch (Exception e) {
-            handleError(e, "getPublicUserData");
-        }
+        String displayName = UserUtils.getPublicUserData().getString("displayName");
+        if(displayName == null || displayName.isEmpty())
+            return ChooseDisplayNameActivity.class;
         return MainActivity.class;
     }
 

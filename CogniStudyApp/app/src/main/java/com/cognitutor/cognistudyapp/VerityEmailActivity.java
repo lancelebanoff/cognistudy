@@ -41,7 +41,7 @@ public class VerityEmailActivity extends AuthenticationActivity {
         boolean isVerified = currentUser.getBoolean("emailVerified");
         Toast.makeText(getApplicationContext(), "Email verified: " + isVerified, Toast.LENGTH_SHORT).show();
         if(isVerified)
-            navigateToNewDestination();
+            navigateToNewDestination(); //Will almost always go to ChooseDisplayNameActivity
     }
 
     private void handleError(Exception e, String tag) {
@@ -54,7 +54,8 @@ public class VerityEmailActivity extends AuthenticationActivity {
         }
 
         Toast.makeText(getApplicationContext(), text, duration).show();
-        logoutUser();
+        ParseUser.logOut();
+        navigateToRegistrationActivity();
         e.printStackTrace();
     }
 
@@ -66,6 +67,7 @@ public class VerityEmailActivity extends AuthenticationActivity {
     }
 
     public void logout(View view) {
-        logoutUser();
+        ParseUser.logOut();
+        navigateToRegistrationActivity();
     }
 }
