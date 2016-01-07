@@ -24,8 +24,8 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void displayOpponent() {
-        int opponentId = mIntent.getIntExtra(Constants.Extra.OpponentId.OPPONENT_ID, Constants.Extra.OpponentId.UNKNOWN);
-        if(opponentId == Constants.Extra.OpponentId.UNKNOWN) {
+        int opponentId = mIntent.getIntExtra(Constants.IntentExtra.OpponentId.OPPONENT_ID, Constants.IntentExtra.OpponentId.UNKNOWN);
+        if(opponentId == Constants.IntentExtra.OpponentId.UNKNOWN) {
             // Switch Submit button to Continue button
             ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
             viewSwitcher.showNext();

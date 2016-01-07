@@ -26,7 +26,9 @@ public class Constants {
         return constants;
     }
 
-    public static class Extra {
+    public static class IntentExtra {
+        public static final String FINISH_CHALLENGE_ACTIVITY = "FINISH_CHALLENGE_ACTIVITY";
+
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
             public static final String CHALLENGE_ACTIVITY = "CHALLENGE_ACTIVITY";

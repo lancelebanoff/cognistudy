@@ -1,7 +1,10 @@
 package com.cognitutor.cognistudyapp;
 
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -13,11 +16,13 @@ public class ChallengeActivity extends CogniActivity {
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
     private BattleshipBoardManager mBattleshipBoardManager;
+    private BroadcastReceiver mBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
+        initializeBroadcastReceiver();
 
         mBattleshipBoardManager = new BattleshipBoardManager(this);
         initializeGridLayouts();
@@ -49,7 +54,7 @@ public class ChallengeActivity extends CogniActivity {
 
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, QuestionActivity.class);
-        intent.putExtra(Constants.Extra.ParentActivity.PARENT_ACTIVITY, Constants.Extra.ParentActivity.CHALLENGE_ACTIVITY);
+        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
         startActivity(intent);
     }
 
@@ -70,5 +75,25 @@ public class ChallengeActivity extends CogniActivity {
         } else {
             v.getViewTreeObserver().removeOnGlobalLayoutListener(listener);
         }
+    }
+
+    // Exits this activity when finishing BattleshipAttackActivity
+    private void initializeBroadcastReceiver() {
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, Intent intent) {
+                String action = intent.getAction();
+                if (action.equals(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY)) {
+                    finish();
+                }
+            }
+        };
+        registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY));
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(mBroadcastReceiver);
+        super.onDestroy();
     }
 }

@@ -69,18 +69,6 @@ public class BattleshipBoardManager {
         }
     }
 
-    // Build the image filename based on the skin and position status, then set image resource
-    private void setTargetImageResource(ImageView imgSpace, String positionStatus) {
-        // TODO:2 get selected target skin from database
-        String targetSkin = Constants.ShopItemType.SKIN_TARGET_DEFAULT;
-        String skinBaseString = targetSkin.replace("SKIN_", "").toLowerCase();
-        String statusBaseString = positionStatus.toLowerCase();
-        String imageResourceString = skinBaseString + "_" + statusBaseString;
-        int imageResourceID = mActivity.getResources().getIdentifier(imageResourceString,
-                "drawable", mActivity.getPackageName());
-        imgSpace.setImageResource(imageResourceID);
-    }
-
     public void placeShips() {
         mSpaceIsOccupied = new boolean[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
         mShipsGridLayout.removeAllViews();
@@ -104,6 +92,28 @@ public class BattleshipBoardManager {
             drawShip(shipData.shipRow, shipData.shipColumn, shipData.shipHeight, shipData.shipWidth,
                     shipData.shipDrawableId);
         }
+    }
+
+    public void drawDeadShips() {
+        addPlaceholderSpaces();
+        for(ShipData shipData : mShipDatas) {
+            if(!shipData.shipIsAlive) {
+                drawShip(shipData.shipRow, shipData.shipColumn, shipData.shipHeight, shipData.shipWidth,
+                        shipData.shipDrawableId);
+            }
+        }
+    }
+
+    // Build the image filename based on the skin and position status, then set image resource
+    private void setTargetImageResource(ImageView imgSpace, String positionStatus) {
+        // TODO:2 get selected target skin from database
+        String targetSkin = Constants.ShopItemType.SKIN_TARGET_DEFAULT;
+        String skinBaseString = targetSkin.replace("SKIN_", "").toLowerCase();
+        String statusBaseString = positionStatus.toLowerCase();
+        String imageResourceString = skinBaseString + "_" + statusBaseString;
+        int imageResourceID = mActivity.getResources().getIdentifier(imageResourceString,
+                "drawable", mActivity.getPackageName());
+        imgSpace.setImageResource(imageResourceID);
     }
 
     // Fill the GridLayout with placeholder ImageViews so that the cells will be the correct size
@@ -234,27 +244,27 @@ public class BattleshipBoardManager {
 
         shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.ERASER);
         shipData = new ShipData(0, 0, shipInfo.height, shipInfo.width,
-                R.drawable.skin_eraser_default_vert);
+                R.drawable.skin_eraser_default_vert, true);
         mShipDatas.add(shipData);
         shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.YELLOW_PENCIL);
         shipData = new ShipData(0, 1, shipInfo.height, shipInfo.width,
-                R.drawable.skin_yellowpencil_default_vert);
+                R.drawable.skin_yellowpencil_default_vert, false);
         mShipDatas.add(shipData);
         shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.GREEN_PENCIL);
         shipData = new ShipData(0, 2, shipInfo.height, shipInfo.width,
-                R.drawable.skin_greenpencil_default_vert);
+                R.drawable.skin_greenpencil_default_vert, true);
         mShipDatas.add(shipData);
         shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.PEN);
         shipData = new ShipData(0, 3, shipInfo.height, shipInfo.width,
-                R.drawable.skin_pen_default_vert);
+                R.drawable.skin_pen_default_vert, true);
         mShipDatas.add(shipData);
         shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.CALCULATOR);
         shipData = new ShipData(0, 4, shipInfo.height, shipInfo.width,
-                R.drawable.skin_calculator_default_vert);
+                R.drawable.skin_calculator_default_vert, true);
         mShipDatas.add(shipData);
         shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.RULER);
         shipData = new ShipData(0, 7, shipInfo.height, shipInfo.width,
-                R.drawable.skin_ruler_default_vert);
+                R.drawable.skin_ruler_default_vert, true);
         mShipDatas.add(shipData);
     }
 
@@ -277,6 +287,10 @@ public class BattleshipBoardManager {
                         mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.UNKNOWN;
                         break;
                 }
+
+                if(j == 1) {
+                    mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.HIT;
+                }
             }
         }
     }
@@ -287,13 +301,16 @@ public class BattleshipBoardManager {
         public int shipHeight;
         public int shipWidth;
         public int shipDrawableId;
+        public boolean shipIsAlive;
 
-        public ShipData(int shipRow, int shipColumn, int shipHeight, int shipWidth, int shipDrawableId) {
+        public ShipData(int shipRow, int shipColumn, int shipHeight, int shipWidth, int shipDrawableId,
+                        boolean shipIsAlive) {
             this.shipRow = shipRow;
             this.shipColumn = shipColumn;
             this.shipHeight = shipHeight;
             this.shipWidth = shipWidth;
             this.shipDrawableId = shipDrawableId;
+            this.shipIsAlive = shipIsAlive;
         }
     }
 }
