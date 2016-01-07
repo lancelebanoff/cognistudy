@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 
-public class MainActivity extends CogniActivity {
+public class MainActivity extends AuthenticationActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

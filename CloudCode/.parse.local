@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "CogniStudy": {
+      "applicationId": "iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY"
+    },
+    "_default": {
+      "link": "CogniStudy"
+    }
+  }
+}
