@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp;
 
 import android.app.Activity;
 import android.util.Log;
+import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
@@ -18,9 +19,11 @@ public class BattleshipBoardManager {
     private Activity mActivity;
     private ArrayList<ShipData> mShipDatas;
     private String[][] mBoardPositionStatus;
+    private boolean mCanBeAttacked;
 
-    public BattleshipBoardManager(Activity activity) {
+    public BattleshipBoardManager(Activity activity, boolean canBeAttacked) {
         mActivity = activity;
+        mCanBeAttacked = canBeAttacked;
         retrieveShipDatas();
         retrieveBoardPositionStatus();
     }
@@ -53,9 +56,10 @@ public class BattleshipBoardManager {
         }
     }
 
-    public void drawTargets() {
+    public void initializeTargets() {
         for(int row = 0; row < mTargetsGridLayout.getRowCount(); row++) {
             for(int col = 0; col < mTargetsGridLayout.getColumnCount(); col++) {
+                // Draw target
                 ImageView imgSpace = new ImageView(mActivity);
                 setTargetImageResource(imgSpace, mBoardPositionStatus[row][col]);
                 GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
@@ -65,6 +69,11 @@ public class BattleshipBoardManager {
                 layoutParams.rowSpec = GridLayout.spec(row);
                 imgSpace.setLayoutParams(layoutParams);
                 mTargetsGridLayout.addView(imgSpace);
+
+                // Set what happens when target is clicked
+                if(mCanBeAttacked) {
+                    setTargetOnClickListener(imgSpace, row, col);
+                }
             }
         }
     }
@@ -114,6 +123,63 @@ public class BattleshipBoardManager {
         int imageResourceID = mActivity.getResources().getIdentifier(imageResourceString,
                 "drawable", mActivity.getPackageName());
         imgSpace.setImageResource(imageResourceID);
+    }
+
+    private void setTargetOnClickListener(final ImageView imgSpace, final int row, final int col) {
+        imgSpace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shoot(imgSpace, row, col);
+            }
+        });
+    }
+
+    private void shoot(ImageView imgSpace, int row, int col) {
+        switch(mBoardPositionStatus[row][col]) {
+            case Constants.GameBoardPositionStatus.UNKNOWN:
+            case Constants.GameBoardPositionStatus.DETECTION:
+                ShipData shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
+                if(shipThatOccupiesPosition == null) {
+                    mBoardPositionStatus[row][col] = Constants.GameBoardPositionStatus.MISS;
+                    // TODO:2 set in database too
+                }
+                else {
+                    mBoardPositionStatus[row][col] = Constants.GameBoardPositionStatus.HIT;
+                    if(shipIsDead(shipThatOccupiesPosition)) {
+                        shipThatOccupiesPosition.shipIsAlive = false;
+                        drawShip(shipThatOccupiesPosition.shipRow, shipThatOccupiesPosition.shipColumn,
+                                shipThatOccupiesPosition.shipHeight, shipThatOccupiesPosition.shipWidth,
+                                shipThatOccupiesPosition.shipDrawableId);
+                    }
+                    // TODO:2 set in database too
+                }
+                setTargetImageResource(imgSpace, mBoardPositionStatus[row][col]);
+        }
+    }
+
+    private ShipData findShipThatOccupiesPosition(int row, int col) {
+        for(ShipData shipData : mShipDatas) {
+            if(row >= shipData.shipRow &&
+                    row < shipData.shipRow + shipData.shipHeight &&
+                    col >= shipData.shipColumn &&
+                    col < shipData.shipColumn + shipData.shipWidth) {
+                return shipData;
+            }
+        }
+        return null;
+    }
+
+    private boolean shipIsDead(ShipData shipData) {
+        for(int row = shipData.shipRow; row < shipData.shipRow + shipData.shipHeight; row++) {
+            for(int col = shipData.shipColumn; col < shipData.shipColumn + shipData.shipWidth; col++) {
+                switch(mBoardPositionStatus[row][col]) {
+                    case Constants.GameBoardPositionStatus.UNKNOWN:
+                    case Constants.GameBoardPositionStatus.DETECTION:
+                        return false;
+                }
+            }
+        }
+        return true;
     }
 
     // Fill the GridLayout with placeholder ImageViews so that the cells will be the correct size
@@ -277,11 +343,11 @@ public class BattleshipBoardManager {
                     case 0:
                         mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.HIT;
                         break;
-                    case 1:
-                        mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.MISS;
-                        break;
-                    case 2:
+                    case 6:
                         mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.DETECTION;
+                        break;
+                    case 7:
+                        mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.MISS;
                         break;
                     default:
                         mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.UNKNOWN;

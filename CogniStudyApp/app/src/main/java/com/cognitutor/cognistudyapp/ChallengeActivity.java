@@ -24,7 +24,7 @@ public class ChallengeActivity extends CogniActivity {
         setContentView(R.layout.activity_challenge);
         initializeBroadcastReceiver();
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this);
+        mBattleshipBoardManager = new BattleshipBoardManager(this, false);
         initializeGridLayouts();
     }
 
@@ -46,7 +46,7 @@ public class ChallengeActivity extends CogniActivity {
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mBattleshipBoardManager.drawTargets();
+                mBattleshipBoardManager.initializeTargets();
                 removeOnGlobalLayoutListener(mTargetsGridLayout, this);
             }
         });

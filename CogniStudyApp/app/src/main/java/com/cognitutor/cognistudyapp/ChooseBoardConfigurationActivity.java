@@ -20,7 +20,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         setContentView(R.layout.activity_choose_board_configuration);
         // TODO:2 Delete challenge from database when hitting back button
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this);
+        mBattleshipBoardManager = new BattleshipBoardManager(this, false);
         initializeGridLayouts();
     }
 

@@ -19,7 +19,7 @@ public class BattleshipAttackActivity extends CogniActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_battleship_attack);
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this);
+        mBattleshipBoardManager = new BattleshipBoardManager(this, true);
         initializeGridLayouts();
     }
 
@@ -41,7 +41,7 @@ public class BattleshipAttackActivity extends CogniActivity {
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mBattleshipBoardManager.drawTargets();
+                mBattleshipBoardManager.initializeTargets();
                 removeOnGlobalLayoutListener(mTargetsGridLayout, this);
             }
         });
