@@ -26,7 +26,9 @@ public class Constants {
         return constants;
     }
 
-    public static class Extra {
+    public static class IntentExtra {
+        public static final String FINISH_CHALLENGE_ACTIVITY = "FINISH_CHALLENGE_ACTIVITY";
+
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
             public static final String CHALLENGE_ACTIVITY = "CHALLENGE_ACTIVITY";
@@ -50,6 +52,13 @@ public class Constants {
             public static final String VERTICAL = "VERTICAL";
             public static final String HORIZONTAL = "HORIZONTAL";
         }
+    }
+
+    public static class GameBoardPositionStatus {
+        public static final String UNKNOWN = "UNKNOWN";
+        public static final String HIT = "HIT";
+        public static final String MISS = "MISS";
+        public static final String DETECTION = "DETECTION";
     }
 
     // <editor-fold desc="Tests, Subjects and Categories">
@@ -180,7 +189,7 @@ public class Constants {
         public static final String ABILITY_PEN = "ABILITY_PEN";
         public static final String ABILITY_CALCULATOR = "ABILITY_CALCULATOR";
         public static final String ABILITY_RULER = "ABILITY_RULER";
-        public static final String SHOT = "SHOT";
+        public static final String TARGET = "TARGET";
     }
 
     public static class ShopItemType {
@@ -207,11 +216,11 @@ public class Constants {
         public static final String SKIN_RULER_DEFAULT = "SKIN_RULER_DEFAULT";
         public static final String SKIN_RULER_GOLDEN = "SKIN_RULER_GOLDEN";
         public static final String SKIN_RULER_MEASURING_TAPE = "SKIN_RULER_MEASURING_TAPE";
-        public static final String SKIN_SHOT_DEFAULT = "SKIN_SHOT_DEFAULT";
-        public static final String SKIN_SHOT_CHECK_MARK = "SKIN_SHOT_CHECK_MARK";
-        public static final String SKIN_SHOT_X_MARK = "SKIN_SHOT_X_MARK";
-        public static final String SKIN_SHOT_SMILEY_FACE = "SKIN_SHOT_SMILEY_FACE";
-        public static final String SKIN_SHOT_TARGET = "SKIN_SHOT_TARGET";
+        public static final String SKIN_TARGET_DEFAULT = "SKIN_TARGET_DEFAULT";
+        public static final String SKIN_TARGET_CHECK_MARK = "SKIN_TARGET_CHECK_MARK";
+        public static final String SKIN_TARGET_X_MARK = "SKIN_TARGET_X_MARK";
+        public static final String SKIN_TARGET_SMILEY_FACE = "SKIN_TARGET_SMILEY_FACE";
+        public static final String SKIN_TARGET_TARGET = "SKIN_TARGET_TARGET";
     }
 
     public static class RotationType {
@@ -239,7 +248,7 @@ public class Constants {
         try { map.put(ShopItemGroupType.SHIP_SKIN, getAllConstants(ShipType.class)); }
         catch(IllegalAccessException e) { e.printStackTrace(); }
         map.put(ShopItemGroupType.SHOT_SKIN, new String[] {
-                CustomizableType.SHOT
+                CustomizableType.TARGET
         });
         ShopItemGroupTypeToCustomizableTypes = Collections.unmodifiableMap(map);
     }
@@ -282,12 +291,12 @@ public class Constants {
                 ShopItemType.SKIN_RULER_GOLDEN,
                 ShopItemType.SKIN_RULER_MEASURING_TAPE
         });
-        map.put(CustomizableType.SHOT, new String[] {
-                ShopItemType.SKIN_SHOT_DEFAULT,
-                ShopItemType.SKIN_SHOT_CHECK_MARK,
-                ShopItemType.SKIN_SHOT_X_MARK,
-                ShopItemType.SKIN_SHOT_SMILEY_FACE,
-                ShopItemType.SKIN_SHOT_TARGET,
+        map.put(CustomizableType.TARGET, new String[] {
+                ShopItemType.SKIN_TARGET_DEFAULT,
+                ShopItemType.SKIN_TARGET_CHECK_MARK,
+                ShopItemType.SKIN_TARGET_X_MARK,
+                ShopItemType.SKIN_TARGET_SMILEY_FACE,
+                ShopItemType.SKIN_TARGET_TARGET,
         });
         CustomizableTypeToShopItemTypes = Collections.unmodifiableMap(map);
     }

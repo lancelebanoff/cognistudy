@@ -44,12 +44,12 @@ public class QuestionActivity extends CogniActivity
     }
 
     public void navigateToNextActivity(View view) {
-        String parentActivity = mIntent.getStringExtra(Constants.Extra.ParentActivity.PARENT_ACTIVITY);
+        String parentActivity = mIntent.getStringExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY);
         switch(parentActivity) {
-            case Constants.Extra.ParentActivity.CHALLENGE_ACTIVITY:
+            case Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY:
                 navigateToBattleshipAttackActivity();
                 break;
-            case Constants.Extra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
+            case Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
                 navigateToParentActivity();
                 break;
         }

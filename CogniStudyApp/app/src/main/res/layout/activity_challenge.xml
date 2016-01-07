@@ -8,9 +8,10 @@
     tools:context="com.cognitutor.cognistudyapp.ChallengeActivity">
 
     <Button
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Resign"
+        android:text="R"
         android:id="@+id/btnResign"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
@@ -21,28 +22,48 @@
         android:layout_height="wrap_content"
         android:text="Your turn!"
         android:id="@+id/btnYourTurn"
+        android:onClick="navigateToQuestionActivity"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="navigateToQuestionActivity" />
+        android:layout_centerHorizontal="true" />
 
     <Button
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Question History"
+        android:text="Q"
         android:id="@+id/btnQuestionHistory"
-        android:layout_marginBottom="56dp"
-        android:layout_above="@+id/btnYourTurn"
-        android:layout_alignLeft="@+id/btnYourTurn"
-        android:layout_alignStart="@+id/btnYourTurn"
-        android:onClick="navigateToQuestionHistoryActivity" />
+        android:onClick="navigateToQuestionHistoryActivity"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/btnChallengeAnalytics"
+        android:layout_toStartOf="@+id/btnChallengeAnalytics" />
 
     <Button
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Challenge Analytics"
+        android:text="C"
         android:id="@+id/btnChallengeAnalytics"
-        android:layout_centerVertical="true"
+        android:onClick="navigateToChallengeAnalyticsActivity"
+        android:layout_alignTop="@+id/btnQuestionHistory"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="navigateToChallengeAnalyticsActivity" />
+        android:layout_alignParentEnd="true" />
+
+    <GridLayout
+        android:id="@+id/shipsGridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/btnYourTurn" />
+
+    <GridLayout
+        android:id="@+id/targetsGridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/btnYourTurn" />
+
 </RelativeLayout>
