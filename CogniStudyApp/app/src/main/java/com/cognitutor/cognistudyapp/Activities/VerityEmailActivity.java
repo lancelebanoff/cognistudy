@@ -31,19 +31,16 @@ public class VerityEmailActivity extends AuthenticationActivity {
 
     public void checkEmailVerified(View view) {
 
-        if(currentUser.getBoolean("emailVerified"))
-            Toast.makeText(getApplicationContext(), "Email verified: true", Toast.LENGTH_SHORT).show();
-
         try {
             currentUser = ParseUser.getCurrentUser().fetch();
         }
-        catch (ParseException e) {
-            handleParseError(e);
-        }
+        catch (ParseException e) { handleParseError(e); return; }
+
         boolean isVerified = currentUser.getBoolean("emailVerified");
+
         Toast.makeText(getApplicationContext(), "Email verified: " + isVerified, Toast.LENGTH_SHORT).show();
         if(isVerified)
-            navigateToNewDestination(); //Will almost always go to ChooseDisplayNameActivity
+            navigateToNewDestination(); //Should almost always go to ChooseDisplayNameActivity
     }
 
     public void resendConfirmationEmail(View view) {

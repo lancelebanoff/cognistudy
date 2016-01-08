@@ -32,21 +32,16 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
 
     public void checkDisplayName(View view) {
 
-        final String name = txtDisplayName.getText().toString();
+        final String displayName = txtDisplayName.getText().toString();
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("PublicUserData");
-        query.whereEqualTo("displayName", name);
+        query.whereEqualTo("displayName", displayName);
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
                     if (objects.size() == 0) {
-                        PublicUserData publicUserData;
-                        try {
-                            publicUserData = UserUtils.getPublicUserData();
-                        } catch (ParseException e2) { handleParseError(e2); return; }
-                        publicUserData.put("displayName", name);
-                        publicUserData.saveInBackground(new SaveCallback() {
+                        setUpStudentObjects(ParseUser.getCurrentUser(), false, displayName, null, new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
                                 navigateToMainActivity();
