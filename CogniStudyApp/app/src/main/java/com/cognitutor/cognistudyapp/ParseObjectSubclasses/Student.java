@@ -20,7 +20,7 @@ public class Student extends ParseObject{
         acl.setPublicReadAccess(true);
         setACL(acl);
 
-        put("PublicUserData", publicUserData);
+        put("publicUserData", publicUserData);
         put("privateStudentData", privateStudentData);
         put("achievements", new ArrayList<ParseObject>());
         put("shopItemsBought", new ArrayList<ParseObject>());

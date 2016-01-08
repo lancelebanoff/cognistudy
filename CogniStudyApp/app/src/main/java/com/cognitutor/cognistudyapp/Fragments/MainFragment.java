@@ -52,16 +52,18 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         b = (Button) rootView.findViewById(R.id.btnDeleteUser);
         b.setOnClickListener(this);
 
-        ImageView imageView = (ImageView) rootView.findViewById(R.id.imgProfile);
-        ParseFile parseFile;
-        byte[] data;
-        try {
-            parseFile = UserUtils.getPublicUserData().getParseFile("profilePic");
-            data = parseFile.getData();
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            imageView.setImageBitmap(bitmap);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if(ParseUser.getCurrentUser().getBoolean("fbLinked") ) {
+            ImageView imageView = (ImageView) rootView.findViewById(R.id.imgProfile);
+            ParseFile parseFile;
+            byte[] data;
+            try {
+                parseFile = UserUtils.getPublicUserData().getParseFile("profilePic");
+                data = parseFile.getData();
+                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                imageView.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return rootView;

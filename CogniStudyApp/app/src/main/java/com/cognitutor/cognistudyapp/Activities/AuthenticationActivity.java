@@ -70,26 +70,35 @@ class AuthenticationActivity extends CogniActivity {
 
         publicUserData.put("userType", Constants.UserType.STUDENT);
         publicUserData.put("baseUserId", user.getObjectId());
-                user.put("publicUserData", publicUserData);
-                user.saveInBackground(new SaveCallback() {
+        user.put("publicUserData", publicUserData);
+        user.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                //final PrivateStudentData privateStudentData = setUpPrivateStudentData(privateACL);
+                final PrivateStudentData privateStudentData = new PrivateStudentData(user);
+                privateStudentData.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        final PrivateStudentData privateStudentData = setUpPrivateStudentData(privateACL);
-                        privateStudentData.saveInBackground(new SaveCallback() {
+                        final Student student = new Student(user, publicUserData, privateStudentData);
+                        student.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
-                                final ParseObject student = new Student(user, publicUserData, privateStudentData);
                                 publicUserData.put("student", student);
-                                publicUserData.saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        student.saveInBackground(callback);
-                                    }
-                                });
+                                publicUserData.saveInBackground(callback);
                             }
                         });
+                                    /*
+                                    publicUserData.put("student", student);
+                            publicUserData.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    student.saveInBackground(callback);
+                                }
+                                    */
                     }
                 });
+            }
+        });
     }
 
     private PrivateStudentData setUpPrivateStudentData(ParseACL acl) {

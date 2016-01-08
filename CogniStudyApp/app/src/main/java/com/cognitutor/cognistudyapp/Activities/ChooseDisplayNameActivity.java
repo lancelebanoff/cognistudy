@@ -11,6 +11,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -39,8 +40,12 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
                     if(objects.size() == 0) {
                         ParseObject publicUserData = UserUtils.getPublicUserData();
                         publicUserData.put("displayName", name);
-                        publicUserData.saveInBackground();
-                        navigateToMainActivity();
+                        publicUserData.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                navigateToMainActivity();
+                            }
+                        });
                     }
                     else {
                         txtDisplayName.setError("This name is already taken");

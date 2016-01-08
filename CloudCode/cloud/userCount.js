@@ -29,7 +29,7 @@ Parse.Cloud.afterSave("Student", function(request) {
                     amount = 1;
                 else
                     amount = -1;
-                userCount.increment("randomEnabled", amount);
+                userCount.increment("numStudentsRandom", amount);
             }
             userCount.save();
         },
@@ -46,7 +46,7 @@ Parse.Cloud.afterDelete("Student", function(request) {
             userCount.increment("numStudents", -1);
             userCount.increment("totalUsers", -1);
             if(student.get("randomEnabled"))
-                userCount.increment("randomEnabled", -1);
+                userCount.increment("numStudentsRandom", -1);
             userCount.save();
         },
         function(error) {
@@ -64,7 +64,7 @@ function getUserCount() {
     Parse.Cloud.useMasterKey();
     var promise = new Parse.Promise();
     var query = new Parse.Query("UserCount");
-    query.get("DgQ0NUErzw", {
+    query.get("gmh73YNe0F", {
         success: function(object) {
             promise.resolve(object);
         },
