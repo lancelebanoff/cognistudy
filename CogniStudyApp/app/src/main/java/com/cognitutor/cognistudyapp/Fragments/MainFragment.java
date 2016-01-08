@@ -11,13 +11,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
-import com.cognitutor.cognistudyapp.R;
 import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
+import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
-import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -74,8 +73,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         ParseObject student = UserUtils.getStudent();
         switch(view.getId()) {
             case R.id.btnStartChallenge:
-                //navigateToNewChallengeActivity();
-                student.put("randomEnabled", false);
+                navigateToNewChallengeActivity();
                 student.saveInBackground();
                 break;
             case R.id.btnLogout:
