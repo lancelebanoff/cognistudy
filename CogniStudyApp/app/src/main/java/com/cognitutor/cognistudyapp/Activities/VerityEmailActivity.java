@@ -38,7 +38,7 @@ public class VerityEmailActivity extends AuthenticationActivity {
             currentUser = ParseUser.getCurrentUser().fetch();
         }
         catch (ParseException e) {
-            handleParseError(ErrorHandler.ErrorMsg.GET_ERROR, e);
+            handleParseError(e);
         }
         boolean isVerified = currentUser.getBoolean("emailVerified");
         Toast.makeText(getApplicationContext(), "Email verified: " + isVerified, Toast.LENGTH_SHORT).show();

@@ -22,18 +22,25 @@ public class LoadingActivity extends Activity {
     public static Class getDestination() {
 
         try {
+            Log.d("LoadingActivity", "Before getCurrentUser");
             ParseUser currentUser = ParseUser.getCurrentUser();
+            Log.d("LoadingActivity", "Past getCurrentUser");
             if (currentUser == null)
                 return RegistrationActivity.class;
             if (!currentUser.getBoolean("fbLinked") && !currentUser.getBoolean("emailVerified"))
                 return VerityEmailActivity.class;
+            Log.d("LoadingActivity", "Before getPublicUserData");
             String displayName = UserUtils.getPublicUserData().getString("displayName");
+            Log.d("LoadingActivity", "After getPublicUserData");
             if (displayName == null || displayName.isEmpty())
                 return ChooseDisplayNameActivity.class;
             return MainActivity.class;
         }
         catch (ParseException e) {
             //TODO: Handle this differently?
+            Log.d("LoadingActivity", "Error");
+            Log.d("LoadingActivity", "Error code: " + e.getCode());
+            e.printStackTrace();
             ParseUser.logOut();
             return RegistrationActivity.class;
         }

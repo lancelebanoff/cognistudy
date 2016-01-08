@@ -63,7 +63,7 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 imageView.setImageBitmap(bitmap);
             } catch (ParseException e) {
-                handleParseError(ErrorHandler.ErrorMsg.GET_ERROR, e);
+                handleParseError(e);
             }
         }
 
@@ -75,7 +75,7 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         ParseObject student;
         try {
             student = UserUtils.getStudent();
-        } catch (ParseException e) { handleParseError(ErrorHandler.ErrorMsg.GET_ERROR, e); return; }
+        } catch (ParseException e) { handleParseError(e); return; }
         switch(view.getId()) {
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
