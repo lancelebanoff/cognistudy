@@ -34,6 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class RegistrationActivity extends AuthenticationActivity {
 
@@ -173,18 +174,15 @@ public class RegistrationActivity extends AuthenticationActivity {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] data = stream.toByteArray();
         String thumbName = user.getUsername().replaceAll("\\s+", "");
-        final ParseFile parseFile = new ParseFile(thumbName + "_thumb.png", data);
+        final ParseFile profilePic = new ParseFile(thumbName + "_thumb.png", data);
 
-        parseFile.saveInBackground(new SaveCallback() {
+        profilePic.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if(e != null) {
                     //TODO: Handle error
                 }
-                PublicUserData publicUserData = new PublicUserData();
-                publicUserData.put("profilePic", parseFile);
-                publicUserData.put("displayName", displayName);
-                setUpStudentObjects(user, publicUserData, true, new SaveCallback() {
+                setUpStudentObjects(user, true, displayName, profilePic, new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
                         navigateToMainActivity();

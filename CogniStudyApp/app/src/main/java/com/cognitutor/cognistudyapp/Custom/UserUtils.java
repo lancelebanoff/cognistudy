@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.Custom;
 
+import android.util.Log;
+
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
@@ -13,6 +15,12 @@ import com.parse.ParseUser;
 public class UserUtils {
 
     public static PublicUserData getPublicUserData() throws ParseException {
+        if (ParseUser.getCurrentUser().getParseObject("publicUserData").isDataAvailable()) {
+            Log.d("UserUtil getPubUserData", "Data is not available");
+        }
+        else {
+            Log.d("UserUtil getPubUserData", "Data is available");
+        }
         return (PublicUserData) ParseUser.getCurrentUser().getParseObject("publicUserData").fetchIfNeeded();
     }
 
@@ -22,5 +30,8 @@ public class UserUtils {
 
     public static PrivateStudentData getPrivateStudentData() throws ParseException {
         return getStudent().getPrivateStudentData();
+    }
+
+    public static void pinStudentObjects() {
     }
 }

@@ -15,12 +15,11 @@ import java.util.ArrayList;
 public class Student extends ParseObject{
 
     public Student() {}
-    public Student(ParseUser user, PublicUserData publicUserData, PrivateStudentData privateStudentData) {
+    public Student(ParseUser user, PrivateStudentData privateStudentData) {
         ParseACL acl = new ParseACL(user);
         acl.setPublicReadAccess(true);
         setACL(acl);
 
-        put("publicUserData", publicUserData);
         put("privateStudentData", privateStudentData);
         put("achievements", new ArrayList<ParseObject>());
         put("shopItemsBought", new ArrayList<ParseObject>());
@@ -36,9 +35,6 @@ public class Student extends ParseObject{
     public void setPublicAnalytics(boolean val) { put("publicAnalytics", val); }
     public boolean getPublicAnalytics() { return getBoolean("publicAnalytics"); }
 
-    public PublicUserData getPublicUserData() throws ParseException {
-        return getParseObject("publicUserData").fetchIfNeeded();
-    }
     public PrivateStudentData getPrivateStudentData() throws ParseException {
         return getParseObject("privateStudentData").fetchIfNeeded();
     }

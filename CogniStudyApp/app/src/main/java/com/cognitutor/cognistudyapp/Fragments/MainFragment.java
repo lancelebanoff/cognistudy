@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +59,9 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
             ParseFile parseFile;
             byte[] data;
             try {
+                Log.d("MainFragment fbLoad", "Before getPublicUserData");
                 parseFile = UserUtils.getPublicUserData().getParseFile("profilePic");
+                Log.d("MainFragment fbLoad", "After getPublicUserData");
                 data = parseFile.getData();
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 imageView.setImageBitmap(bitmap);
@@ -72,10 +75,6 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
-        ParseObject student;
-        try {
-            student = UserUtils.getStudent();
-        } catch (ParseException e) { handleParseError(e); return; }
         switch(view.getId()) {
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
@@ -85,9 +84,10 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
                 navigateToRegistrationActivity();
                 break;
             case R.id.btnDeleteUser:
+                String userId = ParseUser.getCurrentUser().getObjectId();
                 ParseUser.logOut();
                 final HashMap<String, Object> params = new HashMap<>();
-                params.put("studentId", student.getObjectId());
+                params.put("userId", userId);
                 ParseCloud.callFunctionInBackground("deleteStudent", params);
                 navigateToRegistrationActivity();
         }

@@ -267,18 +267,14 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
         user.setUsername(email);
         user.setPassword(password);
         user.setEmail(email);
+        user.put("fbLinked", false);
+        user.put("displayNameSet", false);
 
         setWaiting(true);
         user.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
-                PublicUserData publicUserData = new PublicUserData();
-                setUpStudentObjects(user, publicUserData, false, new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        loginUser(email, password);
-                    }
-                });
+                loginUser(email, password);
             }
         });
 
