@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import com.cognitutor.cognistudyapp.R;
 
 
-public class AbilitiesFragment extends Fragment {
+public class AbilitiesFragment extends CogniFragment {
 
     public AbilitiesFragment() {
     }

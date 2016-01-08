@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.R;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
+import com.parse.ParseException;
 import com.parse.ParseUser;
 
 public class LoadingActivity extends Activity {
@@ -31,7 +32,8 @@ public class LoadingActivity extends Activity {
                 return ChooseDisplayNameActivity.class;
             return MainActivity.class;
         }
-        catch (Exception e) {
+        catch (ParseException e) {
+            //TODO: Handle this differently?
             ParseUser.logOut();
             return RegistrationActivity.class;
         }

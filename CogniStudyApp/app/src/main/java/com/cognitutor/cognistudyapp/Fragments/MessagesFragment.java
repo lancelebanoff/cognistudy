@@ -14,7 +14,7 @@ import com.cognitutor.cognistudyapp.R;
 /**
  * Created by Lance on 12/27/2015.
  */
-public class MessagesFragment extends Fragment implements View.OnClickListener {
+public class MessagesFragment extends CogniFragment implements View.OnClickListener {
 
     public MessagesFragment() {
     }

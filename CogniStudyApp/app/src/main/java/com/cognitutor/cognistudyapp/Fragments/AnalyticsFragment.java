@@ -11,7 +11,7 @@ import com.cognitutor.cognistudyapp.R;
 /**
  * Created by Lance on 12/27/2015.
  */
-public class AnalyticsFragment extends Fragment {
+public class AnalyticsFragment extends CogniFragment {
 
     public AnalyticsFragment() {
     }

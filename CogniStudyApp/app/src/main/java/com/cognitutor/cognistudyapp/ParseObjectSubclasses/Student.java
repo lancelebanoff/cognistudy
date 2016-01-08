@@ -39,4 +39,7 @@ public class Student extends ParseObject{
     public PublicUserData getPublicUserData() throws ParseException {
         return getParseObject("publicUserData").fetchIfNeeded();
     }
+    public PrivateStudentData getPrivateStudentData() throws ParseException {
+        return getParseObject("privateStudentData").fetchIfNeeded();
+    }
 }

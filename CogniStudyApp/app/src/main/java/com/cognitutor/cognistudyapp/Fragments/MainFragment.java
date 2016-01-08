@@ -13,9 +13,11 @@ import android.widget.ImageView;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
+import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.R;
 import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
+import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -28,7 +30,7 @@ import java.util.HashMap;
  * Created by Lance on 12/27/2015.
  */
 
-public class MainFragment extends Fragment implements View.OnClickListener {
+public class MainFragment extends CogniFragment implements View.OnClickListener {
 
     public MainFragment() {
     }
@@ -61,8 +63,8 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 data = parseFile.getData();
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 imageView.setImageBitmap(bitmap);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (ParseException e) {
+                handleParseError(ErrorHandler.ErrorMsg.GET_ERROR, e);
             }
         }
 
@@ -71,12 +73,13 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        ParseObject student = UserUtils.getStudent();
+        ParseObject student;
+        try {
+            student = UserUtils.getStudent();
+        } catch (ParseException e) { handleParseError(ErrorHandler.ErrorMsg.GET_ERROR, e); return; }
         switch(view.getId()) {
             case R.id.btnStartChallenge:
-                //navigateToNewChallengeActivity();
-                student.put("randomEnabled", false);
-                student.saveInBackground();
+                navigateToNewChallengeActivity();
                 break;
             case R.id.btnLogout:
                 ParseUser.logOut();

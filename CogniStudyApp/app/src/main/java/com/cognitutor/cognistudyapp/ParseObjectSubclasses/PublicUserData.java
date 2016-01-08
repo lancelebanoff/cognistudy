@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 
 /**
@@ -8,4 +9,8 @@ import com.parse.ParseObject;
  */
 @ParseClassName("PublicUserData")
 public class PublicUserData extends ParseObject{
+
+    public Student getStudent() throws ParseException {
+        return (Student) getParseObject("student").fetchIfNeeded();
+    }
 }

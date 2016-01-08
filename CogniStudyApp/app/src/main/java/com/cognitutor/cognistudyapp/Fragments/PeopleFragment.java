@@ -15,7 +15,7 @@ import com.cognitutor.cognistudyapp.Activities.TutorProfileActivity;
 /**
  * Created by Lance on 12/27/2015.
  */
-public class PeopleFragment extends Fragment implements View.OnClickListener {
+public class PeopleFragment extends CogniFragment implements View.OnClickListener {
 
     public PeopleFragment() {
     }

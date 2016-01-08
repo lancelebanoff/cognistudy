@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import com.cognitutor.cognistudyapp.R;
 
 
-public class SkinsFragment extends Fragment {
+public class SkinsFragment extends CogniFragment {
 
     public SkinsFragment() {
     }

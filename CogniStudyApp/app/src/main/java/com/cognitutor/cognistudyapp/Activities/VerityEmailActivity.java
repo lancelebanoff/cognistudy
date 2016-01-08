@@ -6,7 +6,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseException;
 import com.parse.ParseUser;
 
 public class VerityEmailActivity extends AuthenticationActivity {
@@ -35,28 +37,13 @@ public class VerityEmailActivity extends AuthenticationActivity {
         try {
             currentUser = ParseUser.getCurrentUser().fetch();
         }
-        catch (Exception e) {
-            handleError(e, "checkEmailVerified");
+        catch (ParseException e) {
+            handleParseError(ErrorHandler.ErrorMsg.GET_ERROR, e);
         }
         boolean isVerified = currentUser.getBoolean("emailVerified");
         Toast.makeText(getApplicationContext(), "Email verified: " + isVerified, Toast.LENGTH_SHORT).show();
         if(isVerified)
             navigateToNewDestination(); //Will almost always go to ChooseDisplayNameActivity
-    }
-
-    private void handleError(Exception e, String tag) {
-
-        CharSequence text = "Error processing request";
-        int duration = Toast.LENGTH_SHORT;
-
-        if(tag.equals("checkEmailVerified")) {
-            Log.d(tag, "Error checking emailVerified");
-        }
-
-        Toast.makeText(getApplicationContext(), text, duration).show();
-        ParseUser.logOut();
-        navigateToRegistrationActivity();
-        e.printStackTrace();
     }
 
     public void resendConfirmationEmail(View view) {

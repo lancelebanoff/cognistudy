@@ -1,5 +1,9 @@
 package com.cognitutor.cognistudyapp.Custom;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -8,41 +12,15 @@ import com.parse.ParseUser;
  */
 public class UserUtils {
 
-    public static ParseObject getPublicUserData() {
-        return getObjectFromPointer(ParseUser.getCurrentUser(), "publicUserData");
+    public static PublicUserData getPublicUserData() throws ParseException {
+        return (PublicUserData) ParseUser.getCurrentUser().getParseObject("publicUserData").fetchIfNeeded();
     }
 
-    public static ParseObject getStudent() {
-        return getObjectFromPointer(getPublicUserData(), "student");
+    public static Student getStudent() throws ParseException {
+        return getPublicUserData().getStudent();
     }
 
-    public static ParseObject getPrivateStudentData() {
-        return getObjectFromPointer(getStudent(), "privateStudentData");
-    }
-
-    //Should these use fetchIfNeeded? Or local datastore, etc.????????
-    ///////////////////////////////
-    public static ParseObject getPublicUserDataFromStudentOrTutor(ParseObject object) {
-        return getObjectFromPointer(object, "publicUserData");
-    }
-
-    public static ParseObject getStudentFromPublicUserData(ParseObject publicUserData) {
-        return getObjectFromPointer(publicUserData, "student");
-    }
-
-    public static ParseObject getTutorFromPublicUserData(ParseObject publicUserData) {
-        return getObjectFromPointer(publicUserData, "tutor");
-    }
-    //////////////////////////////
-
-    private static ParseObject getObjectFromPointer(ParseObject parent, String pointerClass) {
-        ParseObject returnObject = null;
-        try {
-            returnObject = parent.getParseObject(pointerClass).fetchIfNeeded();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return returnObject;
+    public static PrivateStudentData getPrivateStudentData() throws ParseException {
+        return getStudent().getPrivateStudentData();
     }
 }

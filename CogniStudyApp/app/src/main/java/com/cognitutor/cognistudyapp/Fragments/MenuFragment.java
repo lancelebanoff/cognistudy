@@ -22,7 +22,7 @@ import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsActivity;
 /**
  * Created by Lance on 12/27/2015.
  */
-public class MenuFragment extends Fragment implements View.OnClickListener {
+public class MenuFragment extends CogniFragment implements View.OnClickListener {
 
     public MenuFragment() {
     }
