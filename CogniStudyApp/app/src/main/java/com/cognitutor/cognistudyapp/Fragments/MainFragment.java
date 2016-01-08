@@ -11,18 +11,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
-import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
-import com.cognitutor.cognistudyapp.R;
 import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.parse.Parse;
+import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 
 import java.util.HashMap;
 
