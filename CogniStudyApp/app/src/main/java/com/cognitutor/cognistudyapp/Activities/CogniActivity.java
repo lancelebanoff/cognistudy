@@ -36,18 +36,18 @@ public class CogniActivity extends AppCompatActivity {
         return(super.onOptionsItemSelected(item));
     }
 
-    public void handleParseError(String errorMsg, ParseException e) {
+    public void handleParseError(ParseException e) {
         e.printStackTrace();
-        String action = ErrorHandler.determineAction(e);
-        switch (action) {
-            case ErrorHandler.Action.LOGOUT:
+        String errorMsg = ErrorHandler.determineAction(e);
+        switch (errorMsg) {
+            case ErrorHandler.ErrorMsg.LOGIN_AGAIN:
                 ParseUser.logOut();
                 Intent intent = new Intent(this, RegistrationActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("toastMessage", ErrorHandler.ErrorMsg.LOGIN_AGAIN);
                 startActivity(intent);
                 break;
-            case ErrorHandler.Action.SHOW_MESSAGE:
+            default:
                 Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
         }
     }

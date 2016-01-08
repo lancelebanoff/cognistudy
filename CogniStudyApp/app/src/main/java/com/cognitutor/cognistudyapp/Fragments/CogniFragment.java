@@ -10,7 +10,7 @@ import com.parse.ParseException;
  */
 public class CogniFragment extends Fragment {
 
-    public void handleParseError(String errorMsg, ParseException e) {
-        ((CogniActivity) getActivity()).handleParseError(errorMsg, e);
+    public void handleParseError(ParseException e) {
+        ((CogniActivity) getActivity()).handleParseError(e);
     }
 }

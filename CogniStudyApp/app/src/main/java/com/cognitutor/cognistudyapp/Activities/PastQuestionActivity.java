@@ -19,15 +19,18 @@ public class PastQuestionActivity extends CogniActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_past_question);
 
+        /*
         Fragment fragment = new QuestionFragment();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.contentFrame, fragment)
                 .commit();
+                */
     }
 
     public void showAnswer(View view) {
         // Replace QuestionFragment with ResponseFragment
+        /*
         Fragment fragment = new ResponseFragment();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
@@ -37,6 +40,7 @@ public class PastQuestionActivity extends CogniActivity
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.showNext();
+        */
     }
 
     public void navigateToPreviousActivity(View view) {

@@ -44,7 +44,7 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
                         PublicUserData publicUserData;
                         try {
                             publicUserData = UserUtils.getPublicUserData();
-                        } catch (ParseException e2) { handleParseError(ErrorHandler.ErrorMsg.GET_ERROR, e2); return; }
+                        } catch (ParseException e2) { handleParseError(e2); return; }
                         publicUserData.put("displayName", name);
                         publicUserData.saveInBackground(new SaveCallback() {
                             @Override
@@ -57,7 +57,7 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
                         txtDisplayName.requestFocus();
                     }
                 } else {
-                    handleParseError(ErrorHandler.ErrorMsg.GET_ERROR, e);
+                    handleParseError(e);
                 }
             }
         });
