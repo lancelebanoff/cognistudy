@@ -33,8 +33,7 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     private void doNavigate(Class dest, boolean finish) {
-        if(finish)
-            finish();
+
         Intent intent = new Intent(this, dest);
         if(finish)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
