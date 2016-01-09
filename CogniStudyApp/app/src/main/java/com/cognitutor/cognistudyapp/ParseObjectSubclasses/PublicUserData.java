@@ -55,6 +55,7 @@ public class PublicUserData extends ParseObject{
     }
 
     public Student getStudent() throws ParseException {
+        //TODO: Finish this
         return (Student) getParseObject(Columns.student).fetchIfNeeded();
     }
 
@@ -66,4 +67,35 @@ public class PublicUserData extends ParseObject{
     public ParseFile getProfilePic() { return getParseFile(Columns.profilePic); }
     public byte[] getProfilePicData() { return getBytes(Columns.profilePicData); }
     public String getBaseUserId() { return getString(Columns.baseUserId); }
+
+    public static ParseQuery<PublicUserData> getQuery() {
+        return ParseQuery.getQuery(PublicUserData.class);
+    }
+
+    public static PublicUserData getPublicUserData() {
+        return getPublicUserData(ParseUser.getCurrentUser().getObjectId());
+    }
+
+    public static PublicUserData getPublicUserData(String baseUserId) {
+
+        try {
+            return PublicUserData.getQuery()
+                    .fromLocalDatastore()
+                    .whereEqualTo(Columns.baseUserId, baseUserId)
+                    .getFirst();
+        }
+        catch (ParseException e) { e.printStackTrace(); return null; }
+    }
+
+    public static Task<PublicUserData> getPublicUserDataInBackground() {
+        return getPublicUserDataInBackground(ParseUser.getCurrentUser().getObjectId());
+    }
+
+    public static Task<PublicUserData> getPublicUserDataInBackground(String baseUserId) {
+
+        return PublicUserData.getQuery()
+                .fromLocalDatastore()
+                .whereEqualTo(Columns.baseUserId, baseUserId)
+                .getFirstInBackground();
+    }
 }

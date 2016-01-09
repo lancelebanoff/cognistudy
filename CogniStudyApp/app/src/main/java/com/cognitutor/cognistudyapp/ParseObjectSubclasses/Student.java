@@ -4,9 +4,12 @@ import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/7/2016.
@@ -46,7 +49,34 @@ public class Student extends ParseObject{
     public void setPublicAnalytics(boolean val) { put(Columns.publicAnalytics, val); }
     public boolean getPublicAnalytics() { return getBoolean(Columns.publicAnalytics); }
 
-    public PrivateStudentData getPrivateStudentData() throws ParseException {
-        return getParseObject(Columns.privateStudentData).fetchIfNeeded();
+    public static ParseQuery<Student> getQuery() {
+        return ParseQuery.getQuery(Student.class);
+    }
+
+    public static Student getStudent() {
+        return getStudent(ParseUser.getCurrentUser().getObjectId());
+    }
+
+    public static Student getStudent(String baseUserId) {
+
+        try {
+            return Student.getQuery()
+                    .fromLocalDatastore()
+                    .whereEqualTo(Columns.baseUserId, baseUserId)
+                    .getFirst();
+        }
+        catch (ParseException e) { e.printStackTrace(); return null; }
+    }
+
+    public static Task<Student> getStudentInBackground() {
+        return getStudentInBackground(ParseUser.getCurrentUser().getObjectId());
+    }
+
+    public static Task<Student> getStudentInBackground(String baseUserId) {
+
+        return Student.getQuery()
+                .fromLocalDatastore()
+                .whereEqualTo(Columns.baseUserId, baseUserId)
+                .getFirstInBackground();
     }
 }

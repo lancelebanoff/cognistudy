@@ -2,10 +2,14 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/7/2016.
@@ -41,5 +45,36 @@ public class PrivateStudentData extends ParseObject{
         put(Columns.correctResponses, 0);
         put(Columns.suggestedQuestions, new ArrayList<ParseObject>());
         put(Columns.baseUserId, user.getObjectId());
+    }
+
+    public static ParseQuery<PrivateStudentData> getQuery() {
+        return ParseQuery.getQuery(PrivateStudentData.class);
+    }
+
+    public static PrivateStudentData getPrivateStudentData() {
+        return getPrivateStudentData(ParseUser.getCurrentUser().getObjectId());
+    }
+
+    private static PrivateStudentData getPrivateStudentData(String baseUserId) {
+
+        try {
+            return PrivateStudentData.getQuery()
+                    .fromLocalDatastore()
+                    .whereEqualTo(Columns.baseUserId, baseUserId)
+                    .getFirst();
+        }
+        catch (ParseException e) { e.printStackTrace(); return null; }
+    }
+
+    public static Task<PrivateStudentData> getPrivateStudentDataInBackground() {
+        return getPrivateStudentDataInBackground(ParseUser.getCurrentUser().getObjectId());
+    }
+
+    private static Task<PrivateStudentData> getPrivateStudentDataInBackground(String baseUserId) {
+
+        return PrivateStudentData.getQuery()
+                .fromLocalDatastore()
+                .whereEqualTo(Columns.baseUserId, baseUserId)
+                .getFirstInBackground();
     }
 }

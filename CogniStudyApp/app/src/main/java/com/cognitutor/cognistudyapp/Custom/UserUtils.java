@@ -66,7 +66,7 @@ public class UserUtils {
 
         PrivateStudentData privateStudentData1 = ParseQuery.getQuery(PrivateStudentData.class)
                 .fromLocalDatastore()
-                .whereEqualTo("objectId", "bBHKRsQM1c")
+                .whereEqualTo(PrivateStudentData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId())
                 .getFirst();
         /*
         Log.d("After client fetch", "publicUserData objectId is " + publicUserDataFromPin.getObjectId());
