@@ -25,15 +25,15 @@ import bolts.Task;
 @ParseClassName("PublicUserData")
 public class PublicUserData extends ParseObject{
 
-    private class Columns {
-        private static final String userType = "userType";
-        private static final String displayName = "displayName";
-        private static final String lastSeen = "lastSeen";
-        private static final String profilePic = "profilePic";
-        private static final String profilePicData = "profilePicData";
-        private static final String baseUserId = "baseUserId";
-        private static final String student = "student";
-        private static final String tutor = "tutor";
+    public class Columns {
+        public static final String userType = "userType";
+        public static final String displayName = "displayName";
+        public static final String lastSeen = "lastSeen";
+        public static final String profilePic = "profilePic";
+        public static final String profilePicData = "profilePicData";
+        public static final String baseUserId = "baseUserId";
+        public static final String student = "student";
+        public static final String tutor = "tutor";
     }
 
     public PublicUserData() {

@@ -10,18 +10,14 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.List;
+
 /**
  * Created by Kevin on 1/7/2016.
  */
 public class UserUtils {
 
     public static PublicUserData getPublicUserData() throws ParseException {
-        if (ParseUser.getCurrentUser().getParseObject("publicUserData").isDataAvailable()) {
-            Log.d("UserUtil getPubUserData", "Data is not available");
-        }
-        else {
-            Log.d("UserUtil getPubUserData", "Data is available");
-        }
         return (PublicUserData) ParseUser.getCurrentUser().getParseObject("publicUserData").fetchIfNeeded();
     }
 
@@ -57,20 +53,45 @@ public class UserUtils {
     public static void getPinTest() throws ParseException {
 
         PublicUserData publicUserDataFromPin = ParseQuery.getQuery(PublicUserData.class)
-                .fromPin("CurrentUser")
+                //.fromPin("CurrentUser")
+                .fromLocalDatastore()
+                .whereEqualTo("baseUserId", ParseUser.getCurrentUser().getObjectId())
                 .include("student")
                 .include("privateStudentData")
                 .getFirst();
 
+        PrivateStudentData privateStudentData = (PrivateStudentData) publicUserDataFromPin
+                .getParseObject("student")
+                .getParseObject("privateStudentData");
+
+        PrivateStudentData privateStudentData1 = ParseQuery.getQuery(PrivateStudentData.class)
+                .fromLocalDatastore()
+                .whereEqualTo("objectId", "bBHKRsQM1c")
+                .getFirst();
+        /*
         Log.d("After client fetch", "publicUserData objectId is " + publicUserDataFromPin.getObjectId());
         Log.d("After client fetch", "student objectId is " + publicUserDataFromPin.getStudent().getObjectId());
         Log.d("After client fetch", "privateStudentData objectId is " + publicUserDataFromPin.getStudent().getPrivateStudentData().getObjectId());
+        */
+        Log.d("After client fetch", "privateStudentData objectId is " + privateStudentData.getObjectId());
+        Log.d("After client fetch", "privateStudentData1 objectId is " + privateStudentData1.getObjectId());
+
+        /*
+        List<PublicUserData> list = ParseQuery.getQuery(PublicUserData.class)
+                .fromPin("CurrentUser")
+                .include("student")
+                .include("privateStudentData")
+                .find();
+
+        Log.d("After client fetch", "Here are the users");
+        for(int i=1; i<=list.size(); i++) {
+            PublicUserData p = list.get(i-1);
+            Log.d("User " + i, "publicUserData objectId is " + p.getObjectId());
+            Log.d("User " + i, "student objectId is " + p.getStudent().getObjectId());
+            Log.d("User " + i, "privateStudentData objectId is " + p.getStudent().getPrivateStudentData().getObjectId());
+        }
+        */
 
         //Log.d("getPinTest", "Skipping method");
-    }
-
-    public static void unpinTest() throws ParseException {
-
-        ParseObject.unpinAll("CurrentUser");
     }
 }

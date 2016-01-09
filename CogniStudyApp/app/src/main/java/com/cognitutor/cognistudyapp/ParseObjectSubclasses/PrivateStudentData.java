@@ -13,17 +13,18 @@ import java.util.ArrayList;
 @ParseClassName("PrivateStudentData")
 public class PrivateStudentData extends ParseObject{
 
-    private class Columns {
-        private static final String numCoins = "numCoins";
-        private static final String responses = "responses";
-        private static final String friends = "friends";
-        private static final String tutors = "tutors";
-        private static final String blocked = "blocked";
-        private static final String recentChallenges = "recentChallenges";
-        private static final String requestsFromTutors = "requestsFromTutors";
-        private static final String totalResponses = "totalResponses";
-        private static final String correctResponses = "correctResponses";
-        private static final String suggestedQuestions = "suggestedQuestions";
+    public class Columns {
+        public static final String numCoins = "numCoins";
+        public static final String responses = "responses";
+        public static final String friends = "friends";
+        public static final String tutors = "tutors";
+        public static final String blocked = "blocked";
+        public static final String recentChallenges = "recentChallenges";
+        public static final String requestsFromTutors = "requestsFromTutors";
+        public static final String totalResponses = "totalResponses";
+        public static final String correctResponses = "correctResponses";
+        public static final String suggestedQuestions = "suggestedQuestions";
+        public static final String baseUserId = "baseUserId";
     }
     public PrivateStudentData() {}
     public PrivateStudentData(ParseUser user) {
@@ -39,5 +40,6 @@ public class PrivateStudentData extends ParseObject{
         put(Columns.totalResponses, 0);
         put(Columns.correctResponses, 0);
         put(Columns.suggestedQuestions, new ArrayList<ParseObject>());
+        put(Columns.baseUserId, user.getObjectId());
     }
 }

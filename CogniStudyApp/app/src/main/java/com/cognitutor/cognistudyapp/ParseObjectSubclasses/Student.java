@@ -14,13 +14,14 @@ import java.util.ArrayList;
 @ParseClassName("Student")
 public class Student extends ParseObject{
 
-    private class Columns {
-        private static final String achievements = "achievements";
-        private static final String shopItemsBought = "shopItemsBought";
-        private static final String skinSelections = "skinSelections";
-        private static final String randomEnabled = "randomEnabled";
-        private static final String publicAnalytics = "publicAnalytics";
-        private static final String privateStudentData = "privateStudentData";
+    public class Columns {
+        public static final String achievements = "achievements";
+        public static final String shopItemsBought = "shopItemsBought";
+        public static final String skinSelections = "skinSelections";
+        public static final String randomEnabled = "randomEnabled";
+        public static final String publicAnalytics = "publicAnalytics";
+        public static final String privateStudentData = "privateStudentData";
+        public static final String baseUserId = "baseUserId";
     }
 
     public Student() {}
@@ -35,6 +36,7 @@ public class Student extends ParseObject{
         put(Columns.skinSelections, new ArrayList<ParseObject>());
         setRandomEnabled(true);
         setPublicAnalytics(true);
+        put(Columns.baseUserId, user.getObjectId());
     }
 
     //public ArrayList<Achievement> getAchievements() { return getList("achievements"); }
