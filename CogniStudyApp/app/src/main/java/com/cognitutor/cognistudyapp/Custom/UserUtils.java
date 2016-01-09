@@ -56,7 +56,6 @@ public class UserUtils {
 
     public static void getPinTest() throws ParseException {
 
-        /*
         PublicUserData publicUserDataFromPin = ParseQuery.getQuery(PublicUserData.class)
                 .fromPin("CurrentUser")
                 .include("student")
@@ -66,9 +65,8 @@ public class UserUtils {
         Log.d("After client fetch", "publicUserData objectId is " + publicUserDataFromPin.getObjectId());
         Log.d("After client fetch", "student objectId is " + publicUserDataFromPin.getStudent().getObjectId());
         Log.d("After client fetch", "privateStudentData objectId is " + publicUserDataFromPin.getStudent().getPrivateStudentData().getObjectId());
-        */
 
-        Log.d("getPinTest", "Skipping method");
+        //Log.d("getPinTest", "Skipping method");
     }
 
     public static void unpinTest() throws ParseException {

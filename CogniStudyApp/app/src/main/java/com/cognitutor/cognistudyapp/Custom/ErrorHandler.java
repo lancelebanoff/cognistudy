@@ -28,6 +28,7 @@ public class ErrorHandler {
         public static final int INVALID_SESSION_TOKEN = 209;
         public static final int CONNECTION_FAILED = 100;
         public static final int INVALID_LOGIN_PARAMS = 101;
+        public static final int OBJECT_NOT_FOUND = 101;
     }
 
     public static class ErrorMsg {

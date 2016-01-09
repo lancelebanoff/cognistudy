@@ -29,6 +29,13 @@ class AuthenticationActivity extends CogniActivity {
         if(dest == getClass())
             return;
 
+        if(dest == MainActivity.class) {
+            try {
+                UserUtils.pinTest();
+            } catch (ParseException e) { handleParseError(e); ParseUser.logOut(); navigateToRegistrationActivity(); return; }
+
+        }
+
         doNavigate(dest, true);
     }
 
