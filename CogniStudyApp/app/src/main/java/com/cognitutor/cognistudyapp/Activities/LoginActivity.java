@@ -29,6 +29,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FunctionCallback;
@@ -209,8 +210,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
                                 signUpUser(email, password);
                         } else {
                             setWaiting(false);
-                            handleError(e, "checkEmailExistsAsync");
-                            e.printStackTrace();
+                            handleParseError(e);
                         }
                     }
                 }
@@ -243,13 +243,17 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
             public void done(ParseUser user, ParseException e) {
                 setWaiting(false);
                 if (e != null) {
-                    handleError(e, "logInInBackground");
+                    if(e.getCode() == ErrorHandler.ErrorCode.INVALID_LOGIN_PARAMS) {
+                        mPasswordView.setError(getString(R.string.error_incorrect_password));
+                        mPasswordView.requestFocus();
+                    }
+                    else {
+                        handleParseError(e);
+                        return;
+                    }
                 }
-                if (user != null) {
+                else {
                     navigateToNewDestination(); //Will go to main activity if user has verified email and chosen display name, or appropriate activity otherwise
-                } else {
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    mPasswordView.requestFocus();
                 }
             }
         });

@@ -36,17 +36,16 @@ class AuthenticationActivity extends CogniActivity {
         if(finish)
             finish();
         Intent intent = new Intent(this, dest);
+        if(finish)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
     public void navigateToMainActivity() {
-        /*
         try {
-            UserUtils.setUpUserUtils();
+            UserUtils.pinTest();
         }
-        catch(ParseException e) { handleParseError(e); ParseUser.logOut(); navigateToRegistrationActivity(); return; }
-        */
-
+        catch (ParseException e) { handleParseError(e); return; }
         doNavigate(MainActivity.class, true);
     }
 
@@ -59,7 +58,7 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     protected void setUpStudentObjects(final ParseUser user, final boolean fbLinked, final String displayName,
-                                       final ParseFile profilePic, final SaveCallback callback) {
+                                       final ParseFile profilePic, final byte[] profilePicData, final SaveCallback callback) {
 
         final PrivateStudentData privateStudentData = new PrivateStudentData(user);
         privateStudentData.saveInBackground(new SaveCallback() {
@@ -69,7 +68,7 @@ class AuthenticationActivity extends CogniActivity {
                 student.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        final PublicUserData publicUserData = new PublicUserData(user, student, displayName, profilePic);
+                        final PublicUserData publicUserData = new PublicUserData(user, student, displayName, profilePic, profilePicData);
                         publicUserData.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {

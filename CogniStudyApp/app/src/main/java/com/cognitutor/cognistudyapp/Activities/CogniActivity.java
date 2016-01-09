@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 public class CogniActivity extends AppCompatActivity {
@@ -41,7 +42,9 @@ public class CogniActivity extends AppCompatActivity {
         String errorMsg = ErrorHandler.determineAction(e);
         switch (errorMsg) {
             case ErrorHandler.ErrorMsg.LOGIN_AGAIN:
-                ParseUser.logOut();
+                try {
+                    logout();
+                } catch (ParseException secondException) { secondException.printStackTrace(); ParseUser.logOut(); }
                 Intent intent = new Intent(this, RegistrationActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("toastMessage", ErrorHandler.ErrorMsg.LOGIN_AGAIN);
@@ -50,5 +53,10 @@ public class CogniActivity extends AppCompatActivity {
             default:
                 Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void logout() throws ParseException {
+        ParseObject.unpinAll("CurrentUser");
+        ParseUser.logOut();
     }
 }

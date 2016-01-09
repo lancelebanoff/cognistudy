@@ -7,6 +7,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 /**
@@ -32,6 +33,46 @@ public class UserUtils {
         return getStudent().getPrivateStudentData();
     }
 
-    public static void pinStudentObjects() {
+    public static void pinTest() throws  ParseException {
+        String TAG = "pinStudentObjects";
+        /*
+        Log.d("pinSutdentObjects", "publicUserData " +
+                (ParseUser.getCurrentUser().getParseObject("publicUserData").isDataAvailable() ? "is available" : "is not available"));
+                */
+        PublicUserData publicUserData = (PublicUserData) ParseUser.getCurrentUser().getParseObject("publicUserData");
+        Log.d(TAG, "publicUserData is " + (publicUserData.isDataAvailable() ? "" : "not ") + "available");
+        publicUserData.fetchIfNeeded();
+
+        Student student = (Student) publicUserData.getParseObject("student");
+        Log.d(TAG, "student is " + (student.isDataAvailable() ? "" : "not ") + "available");
+        student.fetchIfNeeded();
+
+        PrivateStudentData privateStudentData = (PrivateStudentData) student.getParseObject("privateStudentData");
+        Log.d(TAG, "privateStudentData is " + (privateStudentData.isDataAvailable() ? "" : "not ") + "available");
+        privateStudentData.fetchIfNeeded();
+
+        publicUserData.pin("CurrentUser");
+    }
+
+    public static void getPinTest() throws ParseException {
+
+        /*
+        PublicUserData publicUserDataFromPin = ParseQuery.getQuery(PublicUserData.class)
+                .fromPin("CurrentUser")
+                .include("student")
+                .include("privateStudentData")
+                .getFirst();
+
+        Log.d("After client fetch", "publicUserData objectId is " + publicUserDataFromPin.getObjectId());
+        Log.d("After client fetch", "student objectId is " + publicUserDataFromPin.getStudent().getObjectId());
+        Log.d("After client fetch", "privateStudentData objectId is " + publicUserDataFromPin.getStudent().getPrivateStudentData().getObjectId());
+        */
+
+        Log.d("getPinTest", "Skipping method");
+    }
+
+    public static void unpinTest() throws ParseException {
+
+        ParseObject.unpinAll("CurrentUser");
     }
 }

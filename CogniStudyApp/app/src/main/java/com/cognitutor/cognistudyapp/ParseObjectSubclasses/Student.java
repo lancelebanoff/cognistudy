@@ -14,28 +14,37 @@ import java.util.ArrayList;
 @ParseClassName("Student")
 public class Student extends ParseObject{
 
+    private class Columns {
+        private static final String achievements = "achievements";
+        private static final String shopItemsBought = "shopItemsBought";
+        private static final String skinSelections = "skinSelections";
+        private static final String randomEnabled = "randomEnabled";
+        private static final String publicAnalytics = "publicAnalytics";
+        private static final String privateStudentData = "privateStudentData";
+    }
+
     public Student() {}
     public Student(ParseUser user, PrivateStudentData privateStudentData) {
         ParseACL acl = new ParseACL(user);
         acl.setPublicReadAccess(true);
         setACL(acl);
 
-        put("privateStudentData", privateStudentData);
-        put("achievements", new ArrayList<ParseObject>());
-        put("shopItemsBought", new ArrayList<ParseObject>());
-        put("skinSelections", new ArrayList<ParseObject>());
+        put(Columns.privateStudentData, privateStudentData);
+        put(Columns.achievements, new ArrayList<ParseObject>());
+        put(Columns.shopItemsBought, new ArrayList<ParseObject>());
+        put(Columns.skinSelections, new ArrayList<ParseObject>());
         setRandomEnabled(true);
         setPublicAnalytics(true);
     }
 
     //public ArrayList<Achievement> getAchievements() { return getList("achievements"); }
 
-    public void setRandomEnabled(boolean val) { put("randomEnabled", val); }
-    public boolean getRandomEnabled() { return getBoolean("randomEnabled"); }
-    public void setPublicAnalytics(boolean val) { put("publicAnalytics", val); }
-    public boolean getPublicAnalytics() { return getBoolean("publicAnalytics"); }
+    public void setRandomEnabled(boolean val) { put(Columns.randomEnabled, val); }
+    public boolean getRandomEnabled() { return getBoolean(Columns.randomEnabled); }
+    public void setPublicAnalytics(boolean val) { put(Columns.publicAnalytics, val); }
+    public boolean getPublicAnalytics() { return getBoolean(Columns.publicAnalytics); }
 
     public PrivateStudentData getPrivateStudentData() throws ParseException {
-        return getParseObject("privateStudentData").fetchIfNeeded();
+        return getParseObject(Columns.privateStudentData).fetchIfNeeded();
     }
 }
