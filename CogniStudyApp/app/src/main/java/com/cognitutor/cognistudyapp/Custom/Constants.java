@@ -15,12 +15,17 @@ public class Constants {
         public static String CLIENT_KEY = "mtCu0UsCYrVvQVIEkMlNkLoEFLlsIabVnWhTXvdA";
     }
 
-    public static String[] getAllConstants(Class c) throws IllegalAccessException {
+    public static String[] getAllConstants(Class c) {
 
         Field[] fields = c.getFields();
         String[] constants = new String[fields.length];
         for(int i=0; i<fields.length; i++) {
-            Object s = fields[i].get(c);
+            Object s = null;
+            try {
+                s = fields[i].get(c);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
             constants[i] = (String) s;
         }
         return constants;
@@ -59,6 +64,13 @@ public class Constants {
         public static final String HIT = "HIT";
         public static final String MISS = "MISS";
         public static final String DETECTION = "DETECTION";
+    }
+
+    public static class OpponentType {
+        public static final String FRIEND = "Friend";
+        public static final String RANDOM = "Random";
+        public static final String COMPUTER = "Computer";
+        public static final String PRACTICE = "Practice";
     }
 
     // <editor-fold desc="Tests, Subjects and Categories">
@@ -128,9 +140,7 @@ public class Constants {
                 Category.RESEARCH_SUMMARIES,
                 Category.CONFLICTING_VIEWPOINTS
         });
-        try { map.put(Test.BOTH, getAllConstants(Category.class)); }
-        catch(IllegalAccessException e) { e.printStackTrace(); }
-        //TODO: What to do with this try/catch?
+        map.put(Test.BOTH, getAllConstants(Category.class));
         TestToCategory = Collections.unmodifiableMap(map);
     }
 
@@ -251,8 +261,7 @@ public class Constants {
                 CustomizableType.ABILITY_CALCULATOR,
                 CustomizableType.ABILITY_RULER
         });
-        try { map.put(ShopItemGroupType.SHIP_SKIN, getAllConstants(ShipType.class)); }
-        catch(IllegalAccessException e) { e.printStackTrace(); }
+        map.put(ShopItemGroupType.SHIP_SKIN, getAllConstants(ShipType.class));
         map.put(ShopItemGroupType.SHOT_SKIN, new String[] {
                 CustomizableType.TARGET
         });

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cognitutor.cognistudyapp">
+    package="com.cognitutor.cognistudyapp" >
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -27,13 +27,16 @@
         android:icon="@drawable/icon_cognitutor"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
-        <activity android:name="com.facebook.FacebookActivity"
-            android:configChanges=
-                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:label="@string/app_name" />
+        android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".Activities.MainActivity"
             android:label="@string/app_name"
@@ -45,7 +48,7 @@
         <activity
             android:name=".Activities.LoadingActivity"
             android:label="@string/app_name"
-            android:theme = "@android:style/Theme.NoDisplay" >
+            android:theme="@android:style/Theme.NoDisplay" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -159,6 +162,8 @@
         </activity>
         <activity android:name=".Activities.VerityEmailActivity" />
         <activity android:name=".Activities.ChooseDisplayNameActivity" />
+        <activity android:name=".Activities.ChooseCategoriesActivity" >
+        </activity>
     </application>
 
 </manifest>
