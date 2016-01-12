@@ -80,12 +80,16 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
                 navigateToNewChallengeActivity();
                 break;
             case R.id.btnLogout:
-                ParseUser.logOut();
+                try {
+                    logout();
+                } catch (ParseException e) { handleParseError(e); return; }
                 navigateToRegistrationActivity();
                 break;
             case R.id.btnDeleteUser:
                 String userId = ParseUser.getCurrentUser().getObjectId();
-                ParseUser.logOut();
+                try {
+                    logout();
+                } catch (ParseException e) { handleParseError(e); return; }
                 final HashMap<String, Object> params = new HashMap<>();
                 params.put("userId", userId);
                 ParseCloud.callFunctionInBackground("deleteStudent", params);
@@ -99,9 +103,4 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         startActivity(intent);
     }
 
-    public void navigateToRegistrationActivity() {
-        Intent intent = new Intent(getActivity(), RegistrationActivity.class);
-        startActivity(intent);
-        getActivity().finish();
-    }
 }

@@ -18,6 +18,7 @@ import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
 import com.cognitutor.cognistudyapp.Activities.SettingsActivity;
 import com.cognitutor.cognistudyapp.Activities.ShopActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsActivity;
+import com.parse.ParseException;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -85,8 +86,12 @@ public class MenuFragment extends CogniFragment implements View.OnClickListener 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Are you sure you want to log out from CogniStudy?");
         builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
             public void onClick(DialogInterface dialog, int id) {
-                logout();
+                try {
+                    logout();
+                } catch (ParseException e) { handleParseError(e); return; }
+                navigateToRegistrationActivity();
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -96,11 +101,5 @@ public class MenuFragment extends CogniFragment implements View.OnClickListener 
         });
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
-
-    private void logout() {
-        Intent intent = new Intent(getActivity(), RegistrationActivity.class);
-        startActivity(intent);
-        getActivity().finish();
     }
 }
