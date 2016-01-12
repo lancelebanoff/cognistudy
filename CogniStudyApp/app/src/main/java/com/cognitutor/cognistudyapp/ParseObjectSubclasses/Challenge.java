@@ -35,19 +35,19 @@ public class Challenge extends ParseObject {
         put(Columns.challengeType, challengeType);
     }
 
-    public ParseObject getUser1Data() {
-        return getParseObject(Columns.user1Data);
+    public ChallengeUserData getUser1Data() {
+        return (ChallengeUserData) getParseObject(Columns.user1Data);
     }
 
-    public void setUser1Data(ParseObject user1Data) {
+    public void setUser1Data(ChallengeUserData user1Data) {
         put(Columns.user1Data, user1Data);
     }
 
-    public ParseObject getUser2Data() {
-        return getParseObject(Columns.user2Data);
+    public ChallengeUserData getUser2Data() {
+        return (ChallengeUserData) getParseObject(Columns.user2Data);
     }
 
-    public void setUser2Data(ParseObject user2Data) {
+    public void setUser2Data(ChallengeUserData user2Data) {
         put(Columns.user2Data, user2Data);
     }
 
