@@ -27,8 +27,10 @@ Parse.Cloud.afterSave("Student", function(request) {
                 var amount;
                 if(student.get("randomEnabled"))
                     amount = 1;
-                else
+                else if(!isNew)
                     amount = -1;
+                else
+                    amount = 0;
                 userCount.increment("numStudentsRandom", amount);
             }
             userCount.save();

@@ -172,7 +172,7 @@ public class RegistrationActivity extends AuthenticationActivity {
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] data = stream.toByteArray();
+        final byte[] data = stream.toByteArray();
         String thumbName = user.getUsername().replaceAll("\\s+", "");
         final ParseFile profilePic = new ParseFile(thumbName + "_thumb.png", data);
 
@@ -182,7 +182,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                 if(e != null) {
                     //TODO: Handle error
                 }
-                setUpStudentObjects(user, true, displayName, profilePic, new SaveCallback() {
+                setUpStudentObjects(user, true, displayName, profilePic, data, new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
                         navigateToMainActivity();
