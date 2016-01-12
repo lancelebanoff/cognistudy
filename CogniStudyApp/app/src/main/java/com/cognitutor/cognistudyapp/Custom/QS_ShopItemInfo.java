@@ -18,14 +18,20 @@ public class QS_ShopItemInfo {
         //TODO: Finish entering these
         ShopItemTypeToShopItemInfo = Collections.unmodifiableMap(map);
     }
+
+    public static String getGameImage(String shopItemType) {
+        return ShopItemTypeToShopItemInfo.get(shopItemType).getGameImage();
+    }
 }
+
 class ShopItemInfo {
-    static String imageFolder = "images/"; //TODO: Verify this
-    String shopItemType;
-    String displayName;
-    String shopImage;
-    String gameImage;
-    int cost;
+    private static String imageFolder = "images/"; //TODO: Verify this
+    private String shopItemType;
+    private String displayName;
+    private String shopImage;
+    private String gameImage;
+    private int cost;
+
     public ShopItemInfo(String shopItemType, String displayName, int cost) {
         this.shopItemType = shopItemType;
         this.displayName = displayName;
@@ -33,4 +39,11 @@ class ShopItemInfo {
         gameImage = imageFolder + shopItemType.toLowerCase() + "_game.gif";
         this.cost = cost;
     }
+
+    public String getShopItemType() { return shopItemType; }
+    public String getDisplayName() { return displayName; }
+    public String getShopImage() { return shopImage; }
+    public String getGameImage() { return gameImage; }
+    public int getCost() { return cost; }
 }
+

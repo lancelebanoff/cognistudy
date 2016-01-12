@@ -57,12 +57,7 @@ public class PrivateStudentData extends ParseObject{
 
     private static PrivateStudentData getPrivateStudentData(String baseUserId) {
 
-        try {
-            return PrivateStudentData.getQuery()
-                    .fromLocalDatastore()
-                    .whereEqualTo(Columns.baseUserId, baseUserId)
-                    .getFirst();
-        }
+        try { return getLocalDataQuery(baseUserId).getFirst(); }
         catch (ParseException e) { e.printStackTrace(); return null; }
     }
 
@@ -71,10 +66,13 @@ public class PrivateStudentData extends ParseObject{
     }
 
     private static Task<PrivateStudentData> getPrivateStudentDataInBackground(String baseUserId) {
+        return getLocalDataQuery(baseUserId).getFirstInBackground();
+    }
+
+    private static ParseQuery<PrivateStudentData> getLocalDataQuery(String baseUserId) {
 
         return PrivateStudentData.getQuery()
                 .fromLocalDatastore()
-                .whereEqualTo(Columns.baseUserId, baseUserId)
-                .getFirstInBackground();
+                .whereEqualTo(Columns.baseUserId, baseUserId);
     }
 }

@@ -25,10 +25,6 @@ public class UserUtils {
         return getPublicUserData().getStudent();
     }
 
-    public static PrivateStudentData getPrivateStudentData() throws ParseException {
-        return getStudent().getPrivateStudentData();
-    }
-
     public static void pinTest() throws  ParseException {
         String TAG = "pinStudentObjects";
         /*

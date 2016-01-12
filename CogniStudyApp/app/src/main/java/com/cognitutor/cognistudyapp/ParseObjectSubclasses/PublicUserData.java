@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import android.support.v4.content.res.TypedArrayUtils;
+import android.text.format.DateUtils;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.FindCallback;
@@ -48,6 +49,7 @@ public class PublicUserData extends ParseObject{
         put(Columns.baseUserId, user.getObjectId());
         put(Columns.student, student);
         put(Columns.displayName, displayName);
+
         if(profilePic != null)
             put(Columns.profilePic, profilePic);
         if(profilePicData != null)
@@ -78,12 +80,7 @@ public class PublicUserData extends ParseObject{
 
     public static PublicUserData getPublicUserData(String baseUserId) {
 
-        try {
-            return PublicUserData.getQuery()
-                    .fromLocalDatastore()
-                    .whereEqualTo(Columns.baseUserId, baseUserId)
-                    .getFirst();
-        }
+        try { return getLocalDataStoreQuery(baseUserId).getFirst(); }
         catch (ParseException e) { e.printStackTrace(); return null; }
     }
 
@@ -93,9 +90,13 @@ public class PublicUserData extends ParseObject{
 
     public static Task<PublicUserData> getPublicUserDataInBackground(String baseUserId) {
 
+        return getLocalDataStoreQuery(baseUserId).getFirstInBackground();
+    }
+
+    private static ParseQuery<PublicUserData> getLocalDataStoreQuery(String baseUserId) {
+
         return PublicUserData.getQuery()
                 .fromLocalDatastore()
-                .whereEqualTo(Columns.baseUserId, baseUserId)
-                .getFirstInBackground();
+                .whereEqualTo(Columns.baseUserId, baseUserId);
     }
 }

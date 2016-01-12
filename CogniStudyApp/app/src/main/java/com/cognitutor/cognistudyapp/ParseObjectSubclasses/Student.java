@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.QS_ShopItemInfo;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -8,6 +10,9 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import bolts.Task;
 
@@ -42,12 +47,17 @@ public class Student extends ParseObject{
         put(Columns.baseUserId, user.getObjectId());
     }
 
-    //public ArrayList<Achievement> getAchievements() { return getList("achievements"); }
-
+    public List<Achievement> getAchievements() { return getList(Columns.achievements); }
+    public List<String> getShopItemsBought() { return getList(Columns.shopItemsBought); }
+    public List<SkinSelection> getSkinSelections() { return getList(Columns.skinSelections); }
+    public void setSkinSelection() {
+        //TODO: Write this method
+    }
     public void setRandomEnabled(boolean val) { put(Columns.randomEnabled, val); }
     public boolean getRandomEnabled() { return getBoolean(Columns.randomEnabled); }
     public void setPublicAnalytics(boolean val) { put(Columns.publicAnalytics, val); }
     public boolean getPublicAnalytics() { return getBoolean(Columns.publicAnalytics); }
+    public String getBaseUserId() { return getString(Columns.baseUserId); }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);
@@ -59,12 +69,7 @@ public class Student extends ParseObject{
 
     public static Student getStudent(String baseUserId) {
 
-        try {
-            return Student.getQuery()
-                    .fromLocalDatastore()
-                    .whereEqualTo(Columns.baseUserId, baseUserId)
-                    .getFirst();
-        }
+        try { return getLocalDataQuery(baseUserId).getFirst(); }
         catch (ParseException e) { e.printStackTrace(); return null; }
     }
 
@@ -73,10 +78,13 @@ public class Student extends ParseObject{
     }
 
     public static Task<Student> getStudentInBackground(String baseUserId) {
+        return getLocalDataQuery(baseUserId).getFirstInBackground();
+    }
+
+    private static ParseQuery<Student> getLocalDataQuery(String baseUserId) {
 
         return Student.getQuery()
                 .fromLocalDatastore()
-                .whereEqualTo(Columns.baseUserId, baseUserId)
-                .getFirstInBackground();
+                .whereEqualTo(Columns.baseUserId, baseUserId);
     }
 }
