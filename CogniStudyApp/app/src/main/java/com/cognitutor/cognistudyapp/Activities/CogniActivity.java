@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ public class CogniActivity extends AppCompatActivity {
 
     public void handleParseError(ParseException e) {
         e.printStackTrace();
+        Log.e("handleParseError", "Error code: " + e.getCode());
         String errorMsg = ErrorHandler.determineAction(e);
         switch (errorMsg) {
             case ErrorHandler.ErrorMsg.LOGIN_AGAIN:
