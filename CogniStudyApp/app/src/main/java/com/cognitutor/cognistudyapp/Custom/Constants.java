@@ -149,7 +149,7 @@ public class Constants {
         Map<String, String[]> map = new HashMap<String, String[]>();
         map.put(Subject.READING, new String[]{Category.PASSAGE_READING, Category.SENTENCE_COMPLETION});
         map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.DATA_ANALYSIS_STATISTICS_PROBABILITY});
-        map.put(Subject.READING, new String[]{Category.IDENTIFYING_SENTENCE_ERRORS, Category.IMPROVING_SENTENCES, Category.IMPROVING_PARAGRAPHS});
+        map.put(Subject.ENGLISH, new String[]{Category.IDENTIFYING_SENTENCE_ERRORS, Category.IMPROVING_SENTENCES, Category.IMPROVING_PARAGRAPHS});
         map.put(Subject.SCIENCE, new String[]{Category.DATA_REPRESENTATION, Category.RESEARCH_SUMMARIES, Category.CONFLICTING_VIEWPOINTS});
         SubjectToCategory = Collections.unmodifiableMap(map);
     }

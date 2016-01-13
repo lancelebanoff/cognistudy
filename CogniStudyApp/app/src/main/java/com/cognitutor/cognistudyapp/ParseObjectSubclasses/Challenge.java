@@ -39,6 +39,8 @@ public class Challenge extends ParseObject {
         return (ChallengeUserData) getParseObject(Columns.user1Data);
     }
 
+    // TODO:1 get rid of useless methods
+
     public void setUser1Data(ChallengeUserData user1Data) {
         put(Columns.user1Data, user1Data);
     }
@@ -113,6 +115,14 @@ public class Challenge extends ParseObject {
 
     public void setNumTurns(int numTurns) {
         put(Columns.numTurns, numTurns);
+    }
+
+    public String getWinner() {
+        return getString(Columns.winner);
+    }
+
+    public void setWinner(String winner) {
+        put(Columns.winner, winner);
     }
 
     public boolean getAccepted() {

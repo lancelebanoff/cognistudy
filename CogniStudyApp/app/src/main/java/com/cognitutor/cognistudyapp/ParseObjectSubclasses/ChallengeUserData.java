@@ -20,9 +20,20 @@ public class ChallengeUserData extends ParseObject {
         public static final String categories = "categories";
     }
 
+    // TODO:1 remove comment
+//    public ChallengeUserData(PublicUserData publicUserData, List<String> subjects, List<String> categories) {
+//        put(Columns.publicUserData, publicUserData);
+//        put(Columns.score, 0);
+//        // TODO:1 put gameboard and responses
+//        put(Columns.subjects, subjects);
+//        put(Columns.categories, categories);
+//    }
+
     public PublicUserData getPublicUserData() {
         return (PublicUserData) getParseObject(Columns.publicUserData);
     }
+
+    // TODO:1 get rid of useless methods
 
     public void setPublicUserData(PublicUserData publicUserData) {
         put(Columns.publicUserData, publicUserData);

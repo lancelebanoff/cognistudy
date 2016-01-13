@@ -12,7 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/rlTests"
+        android:id="@+id/llTests"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
@@ -36,26 +36,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/rlSubjects"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Choose Subjects"
-            android:id="@+id/txtChooseSubjects"
-            android:paddingTop="20dp" />
-
-        <RadioGroup
-            android:id="@+id/rgSubjects"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="20dp"
+            android:id="@+id/llSubjects"
             android:gravity="center"
-            android:orientation="horizontal">
-        </RadioGroup>
+            android:paddingTop="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose Subjects"
+                android:id="@+id/txtChooseSubjects"
+                android:paddingTop="20dp" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -70,14 +69,14 @@
                 android:text="@string/choose_categories"
                 android:id="@+id/btnChooseCategories"
                 android:layout_gravity="end"
-                android:onClick="navigateToChooseCategoriesActivity" />
+                android:onClick="onClick_btnChooseCategories" />
         </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/rlOpponent"
+        android:id="@+id/llOpponent"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
@@ -115,7 +114,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/rlPlayNow"
+        android:id="@+id/llPlayNow"
         android:layout_weight="0.5"
         android:gravity="center"
         android:orientation="vertical">
@@ -125,7 +124,7 @@
             android:layout_height="wrap_content"
             android:text="Play Now"
             android:id="@+id/btnPlayNow"
-            android:onClick="navigateToChooseBoardConfigurationActivity" />
+            android:onClick="onClick_btnPlayNow" />
     </LinearLayout>
 
 </LinearLayout>
