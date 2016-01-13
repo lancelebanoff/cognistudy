@@ -27,10 +27,10 @@ import bolts.Task;
  */
 public class FacebookUtils {
 
-    public static Task<Void> getFriendsInBackground(boolean fbLinked, final PrivateStudentData privateStudentData) {
+    public static Task<Void> getFriendsInBackground(boolean fbLinked) {
 
         if(!fbLinked) {
-            return privateStudentData.saveInBackground();
+            return null;
         }
 
         return Task.callInBackground(new Callable<ArrayList<String>>() {
@@ -49,12 +49,12 @@ public class FacebookUtils {
             @Override
             public Task<Void> then(Task<List<PublicUserData>> task) throws Exception {
                 List<PublicUserData> list = task.getResult();
-                return pinFriends(list, privateStudentData);
+                return pinFriends(list);
             }
         }).onSuccessTask(new Continuation<Void, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
-                List<PublicUserData> friends = privateStudentData.getList("friends");
+                List<PublicUserData> friends = PrivateStudentData.getPrivateStudentData().getList("friends");
                 for (PublicUserData pud : friends) {
                     Log.d("FINISHED", "displayName is " + pud.getDisplayName());
                 }
@@ -77,7 +77,7 @@ public class FacebookUtils {
         });
     }
 
-    private static Task<Void> pinFriends(final List<PublicUserData> friends, final PrivateStudentData privateStudentData) {
+    private static Task<Void> pinFriends(final List<PublicUserData> friends) {
 
         ArrayList<Task<ParseObject>> tasks = new ArrayList<>();
         for(PublicUserData friend : friends) {
@@ -91,6 +91,7 @@ public class FacebookUtils {
         }).onSuccessTask(new Continuation<Void, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
+                PrivateStudentData privateStudentData = PrivateStudentData.getPrivateStudentData();
                 privateStudentData.put(PrivateStudentData.Columns.friends, friends);
                 return privateStudentData.saveInBackground();
             }

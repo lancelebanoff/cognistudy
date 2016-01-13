@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -70,27 +71,28 @@ class AuthenticationActivity extends CogniActivity {
     protected void setUpStudentObjects(final ParseUser user, final String facebookId, final String displayName,
                                        final ParseFile profilePic, final byte[] profilePicData, final SaveCallback callback) {
 
+        final String TAG = "setUpStudentObjects";
         final boolean fbLinked = facebookId != null;
-
         final PrivateStudentData privateStudentData = new PrivateStudentData(user);
-        FacebookUtils.getFriendsInBackground(fbLinked, privateStudentData).continueWith(new Continuation<Void, Void>() {
+        final Student student = new Student(user, privateStudentData);
+        final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
+        finalizeUser(user, publicUserData, fbLinked);
+
+        publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
             @Override
-            public Void then(Task<Void> task) throws Exception {
-                final Student student = new Student(user, privateStudentData);
-                student.saveInBackground(new SaveCallback() {
+            public void done(ParseException e) {
+                FacebookUtils.getFriendsInBackground(fbLinked).continueWith(new Continuation<Void, Void>() {
                     @Override
-                    public void done(ParseException e) {
-                        final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
-                        publicUserData.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                finalizeUser(user, publicUserData, fbLinked);
-                                user.saveInBackground(callback);
-                            }
-                        });
+                    public Void then(Task<Void> task) throws Exception {
+                        ArrayList<ParseObject> objects = new ArrayList<ParseObject>();
+                        objects.add(privateStudentData);
+                        objects.add(student);
+                        objects.add(publicUserData);
+                        objects.add(user);
+                        ParseObject.saveAllInBackground(objects, callback);
+                        return null;
                     }
                 });
-                return null;
             }
         });
     }
