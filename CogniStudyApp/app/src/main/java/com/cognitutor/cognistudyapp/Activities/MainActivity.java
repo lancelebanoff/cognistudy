@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
@@ -15,9 +16,15 @@ import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.R;
+import com.facebook.AccessToken;
+import com.facebook.FacebookSdk;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
 
 public class MainActivity extends AuthenticationActivity {
+
+    private final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +38,7 @@ public class MainActivity extends AuthenticationActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
 
+        Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
         try {
             UserUtils.getPinTest();
         }
@@ -40,6 +48,7 @@ public class MainActivity extends AuthenticationActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
         try {
             UserUtils.getPinTest();
         }
@@ -60,7 +69,6 @@ public class MainActivity extends AuthenticationActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 

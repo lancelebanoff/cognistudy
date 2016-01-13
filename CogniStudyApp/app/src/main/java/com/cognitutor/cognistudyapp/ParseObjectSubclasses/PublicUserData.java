@@ -35,13 +35,15 @@ public class PublicUserData extends ParseObject{
         public static final String baseUserId = "baseUserId";
         public static final String student = "student";
         public static final String tutor = "tutor";
+        public static final String facebookId = "facebookId";
+        public static final String fbLinked = "fbLinked";
     }
 
     public PublicUserData() {
 
     }
 
-    public PublicUserData(ParseUser user, Student student, String displayName, ParseFile profilePic, byte[] profilePicData) {
+    public PublicUserData(ParseUser user, Student student, String facebookId, String displayName, ParseFile profilePic, byte[] profilePicData) {
         ParseACL publicDataACL = new ParseACL(user);
         publicDataACL.setPublicReadAccess(true);
         setACL(publicDataACL);
@@ -49,6 +51,8 @@ public class PublicUserData extends ParseObject{
         put(Columns.baseUserId, user.getObjectId());
         put(Columns.student, student);
         put(Columns.displayName, displayName);
+        put(Columns.facebookId, facebookId);
+        put(Columns.fbLinked, facebookId != null);
 
         if(profilePic != null)
             put(Columns.profilePic, profilePic);

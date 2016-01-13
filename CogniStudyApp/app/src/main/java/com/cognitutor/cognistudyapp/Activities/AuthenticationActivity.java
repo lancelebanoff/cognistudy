@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -17,6 +18,9 @@ import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/1/2016.
@@ -63,18 +67,20 @@ class AuthenticationActivity extends CogniActivity {
         doNavigate(RegistrationActivity.class, true);
     }
 
-    protected void setUpStudentObjects(final ParseUser user, final boolean fbLinked, final String displayName,
+    protected void setUpStudentObjects(final ParseUser user, final String facebookId, final String displayName,
                                        final ParseFile profilePic, final byte[] profilePicData, final SaveCallback callback) {
 
+        final boolean fbLinked = facebookId != null;
+
         final PrivateStudentData privateStudentData = new PrivateStudentData(user);
-        privateStudentData.saveInBackground(new SaveCallback() {
+        FacebookUtils.getFriendsInBackground(fbLinked).continueWith(new Continuation<Void, Void>() {
             @Override
-            public void done(ParseException e) {
+            public Void then(Task<Void> task) throws Exception {
                 final Student student = new Student(user, privateStudentData);
                 student.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        final PublicUserData publicUserData = new PublicUserData(user, student, displayName, profilePic, profilePicData);
+                        final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
                         publicUserData.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
@@ -84,6 +90,7 @@ class AuthenticationActivity extends CogniActivity {
                         });
                     }
                 });
+                return null;
             }
         });
     }

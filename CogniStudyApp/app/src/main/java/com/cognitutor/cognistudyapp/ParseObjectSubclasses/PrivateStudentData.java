@@ -1,5 +1,9 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -7,7 +11,13 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 import bolts.Task;
 
@@ -16,6 +26,9 @@ import bolts.Task;
  */
 @ParseClassName("PrivateStudentData")
 public class PrivateStudentData extends ParseObject{
+
+    private final ArrayList<String> friendFacebookIds = new ArrayList<>();
+    private final ArrayList<PublicUserData> friendsList = new ArrayList<>();
 
     public class Columns {
         public static final String numCoins = "numCoins";
@@ -35,9 +48,10 @@ public class PrivateStudentData extends ParseObject{
         ParseACL acl = new ParseACL(user);
         acl.setPublicReadAccess(false);
         setACL(acl);
+
         put(Columns.numCoins, 0);
-        put(Columns.friends, new ArrayList<ParseObject>());
-        put(Columns.tutors, new ArrayList<ParseObject>());
+        put(Columns.friends, new ArrayList<PublicUserData>());
+        put(Columns.tutors, new ArrayList<PublicUserData>());
         put(Columns.blocked, new ArrayList<ParseObject>());
         put(Columns.recentChallenges, new ArrayList<ParseObject>());
         put(Columns.requestsFromTutors, new ArrayList<ParseObject>());
