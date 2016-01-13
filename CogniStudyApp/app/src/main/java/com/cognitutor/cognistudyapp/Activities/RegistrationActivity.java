@@ -208,45 +208,4 @@ public class RegistrationActivity extends AuthenticationActivity {
             }
         });
     }
-
-    private void getFBFriends(String currentPath, final ArrayList<String> friendFacebookIds) {
-        // "/me/friends" should be the first path passed to this function
-        if(currentPath == null)
-            return;
-
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                currentPath,
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        try {
-                            String nextPath = addFriends(response, friendFacebookIds);
-                            if(nextPath != null)
-                                getFBFriends(nextPath, friendFacebookIds);
-                        }
-                        catch (JSONException e) {
-                            e.printStackTrace();
-                            return;
-                        }
-                    }
-                }
-                //).executeAsync();
-        ).executeAndWait();
-        return;
-    }
-
-    private String addFriends(GraphResponse response, final ArrayList<String> friendFacebookIds) throws JSONException {
-        JSONArray data = response.getJSONObject().getJSONArray("data");
-        for(int i=0; i<data.length(); i++) {
-            JSONObject friend = (JSONObject) data.get(i);
-            friendFacebookIds.add(friend.getString("id"));
-        }
-        JSONObject paging = response.getJSONObject().getJSONObject("paging");
-        if(paging.has("next")) {
-            return paging.getString("next");
-        }
-        else return null;
-    }
 }
