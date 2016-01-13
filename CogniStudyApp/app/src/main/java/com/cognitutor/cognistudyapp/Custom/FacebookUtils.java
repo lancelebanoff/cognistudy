@@ -27,10 +27,10 @@ import bolts.Task;
  */
 public class FacebookUtils {
 
-    public static Task<Void> getFriendsInBackground(boolean fbLinked) {
+    public static Task<Void> getFriendsInBackground(boolean fbLinked, final PrivateStudentData privateStudentData) {
 
         if(!fbLinked) {
-            return PrivateStudentData.getPrivateStudentData().saveInBackground();
+            return privateStudentData.saveInBackground();
         }
 
         return Task.callInBackground(new Callable<ArrayList<String>>() {
@@ -49,12 +49,12 @@ public class FacebookUtils {
             @Override
             public Task<Void> then(Task<List<PublicUserData>> task) throws Exception {
                 List<PublicUserData> list = task.getResult();
-                return pinFriends(list);
+                return pinFriends(list, privateStudentData);
             }
         }).onSuccessTask(new Continuation<Void, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
-                List<PublicUserData> friends = PrivateStudentData.getPrivateStudentData().getList("friends");
+                List<PublicUserData> friends = privateStudentData.getList("friends");
                 for (PublicUserData pud : friends) {
                     Log.d("FINISHED", "displayName is " + pud.getDisplayName());
                 }
@@ -77,7 +77,7 @@ public class FacebookUtils {
         });
     }
 
-    private static Task<Void> pinFriends(final List<PublicUserData> friends) {
+    private static Task<Void> pinFriends(final List<PublicUserData> friends, final PrivateStudentData privateStudentData) {
 
         ArrayList<Task<ParseObject>> tasks = new ArrayList<>();
         for(PublicUserData friend : friends) {
@@ -91,7 +91,6 @@ public class FacebookUtils {
         }).onSuccessTask(new Continuation<Void, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
-                PrivateStudentData privateStudentData = PrivateStudentData.getPrivateStudentData();
                 privateStudentData.put(PrivateStudentData.Columns.friends, friends);
                 return privateStudentData.saveInBackground();
             }
@@ -105,30 +104,38 @@ public class FacebookUtils {
                 .findInBackground();
     }
 
+
     private static void getFBFriends(String currentPath, final ArrayList<String> friendFacebookIds) {
-        // "/me/friends" should be the first path passed to this function
-        if(currentPath == null)
-            return;
+
+        final GraphRequest.Callback graphCallback = new GraphRequest.Callback() {
+            @Override
+            public void onCompleted(GraphResponse response) {
+                try {
+                    JSONArray data = response.getJSONObject().getJSONArray("data");
+                    for(int i=0; i<data.length(); i++) {
+                        JSONObject friend = (JSONObject) data.get(i);
+                        friendFacebookIds.add(friend.getString("id"));
+                    }
+                    GraphRequest nextRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
+                    if(nextRequest != null) {
+                        nextRequest.setCallback(this);
+                        nextRequest.executeAndWait();
+                    }
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        };
 
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
-                currentPath,
+                "/me/friends",
                 null,
                 HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        try {
-                            String nextPath = addFriends(response, friendFacebookIds);
-                            getFBFriends(nextPath, friendFacebookIds);
-                        }
-                        catch (JSONException e) {
-                            e.printStackTrace();
-                            return;
-                        }
-                    }
-                }
+                graphCallback
         ).executeAndWait();
-        return;
     }
 
     private static String addFriends(GraphResponse response, final ArrayList<String> friendFacebookIds) throws JSONException {

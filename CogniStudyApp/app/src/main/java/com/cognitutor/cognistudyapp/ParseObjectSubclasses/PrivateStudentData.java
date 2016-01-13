@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import android.util.Log;
+
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
@@ -72,7 +74,11 @@ public class PrivateStudentData extends ParseObject{
     private static PrivateStudentData getPrivateStudentData(String baseUserId) {
 
         try { return getLocalDataQuery(baseUserId).getFirst(); }
-        catch (ParseException e) { e.printStackTrace(); return null; }
+        catch (ParseException e) {
+            Log.e("PrivateStudentData", "PrivateStudentData not in local datastore");
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static Task<PrivateStudentData> getPrivateStudentDataInBackground() {

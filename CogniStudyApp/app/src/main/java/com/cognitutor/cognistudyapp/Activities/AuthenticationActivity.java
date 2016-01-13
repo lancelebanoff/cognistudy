@@ -73,7 +73,7 @@ class AuthenticationActivity extends CogniActivity {
         final boolean fbLinked = facebookId != null;
 
         final PrivateStudentData privateStudentData = new PrivateStudentData(user);
-        FacebookUtils.getFriendsInBackground(fbLinked).continueWith(new Continuation<Void, Void>() {
+        FacebookUtils.getFriendsInBackground(fbLinked, privateStudentData).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
                 final Student student = new Student(user, privateStudentData);
