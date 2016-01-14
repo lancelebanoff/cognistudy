@@ -162,8 +162,6 @@
         </activity>
         <activity android:name=".Activities.VerityEmailActivity" />
         <activity android:name=".Activities.ChooseDisplayNameActivity" />
-        <activity android:name=".Activities.ChooseCategoriesActivity" >
-        </activity>
     </application>
 
 </manifest>
