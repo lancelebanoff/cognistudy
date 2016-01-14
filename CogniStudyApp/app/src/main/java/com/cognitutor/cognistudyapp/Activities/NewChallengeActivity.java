@@ -1,7 +1,10 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckedTextView;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -32,12 +35,19 @@ public class NewChallengeActivity extends CogniActivity {
     private LinearLayout mLlSubjects;
     private RadioGroup mRgTests;
     private RadioGroup mRgOpponents;
+    private ArrayList<CheckBox> mSubjectCheckboxes;
+    private RadioButton mRbDefaultTest;
+    private RadioButton mRbDefaultOpponent;
+    private AlertDialog mDialogCategories;
+
     private Challenge mChallenge;
     private String mSelectedTest;
     private ArrayList<String> mSelectedSubjects;
     private ArrayList<String> mSelectedCategories;
-    private ArrayList<CheckBox> mSubjectCheckboxes;
-    private RadioButton mRbDefaultTest;
+    private String mSelectedOpponent;
+
+    private final String DEFAULT_TEST = Constants.Test.BOTH;
+    private final String DEFAULT_OPPONENT = Constants.OpponentType.COMPUTER;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,17 +55,21 @@ public class NewChallengeActivity extends CogniActivity {
         setContentView(R.layout.activity_new_challenge);
         mIntent = getIntent();
 
+        mSubjectCheckboxes = new ArrayList<>();
+        mRbDefaultTest = null;
+        mRbDefaultOpponent = null;
+        mDialogCategories = null;
+
         mChallenge = null;
         mSelectedTest = "";
         mSelectedSubjects = new ArrayList<>();
         mSelectedCategories = new ArrayList<>();
-        mSubjectCheckboxes = new ArrayList<>();
-        mRbDefaultTest = null;
+        mSelectedOpponent = "";
 
         displayTests();
         displaySubjects();
         displayOpponent();
-        mRbDefaultTest.performClick();
+        setDefaults();
     }
 
     private void displayTests() {
@@ -75,7 +89,7 @@ public class NewChallengeActivity extends CogniActivity {
 
             // Initialize chosen test to Both
             // TODO:1 Initialize chosen tests, subjects, and categories to whatever was chosen last time
-            if(testName.equals(Constants.Test.BOTH)) {
+            if(testName.equals(DEFAULT_TEST)) {
                 mRbDefaultTest = radioButton;
             }
         }
@@ -110,11 +124,22 @@ public class NewChallengeActivity extends CogniActivity {
             viewSwitcher.showNext();
 
             mRgOpponents = (RadioGroup) findViewById(R.id.rgOpponents);
+            mRgOpponents.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    mSelectedOpponent = ((RadioButton)findViewById(checkedId)).getText().toString();
+                }
+            });
+
             String[] opponentTypes = Constants.getAllConstants(Constants.OpponentType.class);
             for(String opponentType : opponentTypes) {
                 RadioButton radioButton = new RadioButton(this);
                 radioButton.setText(opponentType);
                 mRgOpponents.addView(radioButton);
+
+                if(opponentType.equals(DEFAULT_OPPONENT)) {
+                    mRbDefaultOpponent = radioButton;
+                }
             }
         }
         else {
@@ -123,21 +148,9 @@ public class NewChallengeActivity extends CogniActivity {
         }
     }
 
-    private void saveChallenge() {
-        if(mChallenge == null) {
-            mChallenge = new Challenge();
-            ChallengeUserData user1Data = new ChallengeUserData();
-            try {
-                user1Data.setPublicUserData(UserUtils.getPublicUserData());
-            } catch (ParseException e) {
-                handleParseError(e);
-            }
-            user1Data.setSubjects(mSelectedSubjects);
-            user1Data.setCategories(mSelectedCategories);
-            user1Data.saveInBackground();
-
-            mChallenge.setUser1Data(user1Data);
-        }
+    private void setDefaults() {
+        mRbDefaultTest.performClick();
+        mRbDefaultOpponent.performClick();
     }
 
     // Changing selected test resets all of the selected subjects and categories
@@ -168,14 +181,81 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     public void onClick_btnChooseCategories(View view) {
-        saveChallenge();
-        Intent intent = new Intent(this, ChooseCategoriesActivity.class);
-        startActivity(intent);
+        displayCategories();
+
+//        saveChallenge();
+//        Intent intent = new Intent(this, ChooseCategoriesActivity.class);
+//        startActivity(intent);
     }
 
     public void onClick_btnPlayNow(View view) {
         Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void displayCategories() {
+        String[] categories = Constants.getAllConstants(Constants.Category.class);
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        mDialogCategories = dialogBuilder
+                .setTitle(R.string.title_dialog_choose_categories)
+                .setMultiChoiceItems(categories, null, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int indexSelected, boolean isChecked) {
+                        addOrRemoveSelectedCategory(indexSelected);
+                    }
+                }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        //  Your code when user clicked on OK
+                        //  You can write the code  to save the selected item here
+                    }
+                }).create();
+        mDialogCategories.show();
+    }
+
+    public void addOrRemoveSelectedCategory(int indexSelected) {
+        AppCompatCheckedTextView cbCategory =
+                (AppCompatCheckedTextView) mDialogCategories.getListView().getChildAt(indexSelected);
+        String category = cbCategory.getText().toString();
+        if(cbCategory.isChecked()) {
+            mSelectedCategories.add(category);
+        }
+        else {
+            mSelectedCategories.remove(category);
+        }
+    }
+
+    private void saveChallenge() {
+        mChallenge = new Challenge();
+        ChallengeUserData user1Data = new ChallengeUserData();
+        try {
+            user1Data.setPublicUserData(UserUtils.getPublicUserData());
+        } catch (ParseException e) {
+            handleParseError(e);
+        }
+        mChallenge.setUser1Data(user1Data);
+
+        user1Data.setSubjects(mSelectedSubjects);
+        user1Data.setCategories(mSelectedCategories);
+        user1Data.saveInBackground();
+
+        mChallenge.setChallengeType(getChallengeType());
+
+        mChallenge.saveInBackground();
+    }
+
+    private String getChallengeType() {
+        switch(mSelectedOpponent) {
+            case Constants.OpponentType.FRIEND:
+            case Constants.OpponentType.RANDOM:
+                return Constants.ChallengeType.TWO_PLAYER;
+            case Constants.OpponentType.COMPUTER:
+                return Constants.ChallengeType.ONE_PLAYER;
+            case Constants.OpponentType.PRACTICE:
+                return Constants.ChallengeType.PRACTICE;
+        }
+        return null;
     }
 }

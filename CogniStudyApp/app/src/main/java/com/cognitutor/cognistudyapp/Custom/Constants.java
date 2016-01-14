@@ -43,6 +43,8 @@ public class Constants {
         public static class OpponentId {
             public static final String OPPONENT_ID = "OPPONENT_ID";
             public static final int UNKNOWN = -1;
+            public static final int COMPUTER = -2;
+            public static final int PRACTICE = -3;
         }
     }
 
