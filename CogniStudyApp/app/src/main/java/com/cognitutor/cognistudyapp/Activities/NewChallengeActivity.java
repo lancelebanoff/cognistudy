@@ -1,16 +1,17 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.AlertDialog;
-import android.support.v7.widget.AppCompatCheckedTextView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
@@ -32,13 +33,11 @@ public class NewChallengeActivity extends CogniActivity {
      *      PARENT_ACTIVITY: string
      */
     private Intent mIntent;
-    private LinearLayout mLlSubjects;
-    private RadioGroup mRgTests;
-    private RadioGroup mRgOpponents;
     private ArrayList<CheckBox> mSubjectCheckboxes;
+    private ArrayList<CheckBox> mCategoryCheckboxes;
+    private ScrollView mSvCategories;
     private RadioButton mRbDefaultTest;
     private RadioButton mRbDefaultOpponent;
-    private AlertDialog mDialogCategories;
 
     private Challenge mChallenge;
     private String mSelectedTest;
@@ -56,9 +55,10 @@ public class NewChallengeActivity extends CogniActivity {
         mIntent = getIntent();
 
         mSubjectCheckboxes = new ArrayList<>();
+        mCategoryCheckboxes = new ArrayList<>();
+        mSvCategories = null;
         mRbDefaultTest = null;
         mRbDefaultOpponent = null;
-        mDialogCategories = null;
 
         mChallenge = null;
         mSelectedTest = "";
@@ -68,12 +68,13 @@ public class NewChallengeActivity extends CogniActivity {
 
         displayTests();
         displaySubjects();
+        drawCategories();
         displayOpponent();
         setDefaults();
     }
 
     private void displayTests() {
-        mRgTests = (RadioGroup) findViewById(R.id.rgTests);
+        RadioGroup mRgTests = (RadioGroup) findViewById(R.id.rgTests);
         mRgTests.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -96,23 +97,48 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void displaySubjects() {
-        mLlSubjects = (LinearLayout) findViewById(R.id.llSubjects);
+        LinearLayout llSubjects = (LinearLayout) findViewById(R.id.llSubjects);
         String[] subjectNames = Constants.getAllConstants(Constants.Subject.class);
         for(String subjectName : subjectNames) {
             CheckBox checkBox = new CheckBox(this);
             checkBox.setText(subjectName);
-            checkBox.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
+            checkBox.setOnClickListener(new CheckBox.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    addOrRemoveSelectedSubject((CheckBox) buttonView);
+                public void onClick(View view) {
+                    addOrRemoveSelectedSubject((CheckBox) view);
                 }
             });
-            mLlSubjects.addView(checkBox);
+            llSubjects.addView(checkBox);
             mSubjectCheckboxes.add(checkBox);
 
             // Initialize all subjects to be chosen
             // TODO:1 Initialize chosen tests, subjects, and categories to whatever was chosen last time
             checkBox.performClick();
+        }
+    }
+
+    private void drawCategories() {
+        mSvCategories = new ScrollView(this);
+        LinearLayout llCategories = new LinearLayout(this);
+        llCategories.setOrientation(LinearLayout.VERTICAL);
+        mSvCategories.addView(llCategories);
+
+        String[] categories = Constants.getAllConstants(Constants.Category.class);
+        for(String category : categories) {
+            View checkBoxView = View.inflate(this, R.layout.checkbox_category, null);
+            CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox);
+            if(mSelectedCategories.contains(category)) {
+                checkBox.setChecked(true);
+            }
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton cbCategory, boolean isChecked) {
+                    addOrRemoveSelectedCategory(cbCategory);
+                }
+            });
+            checkBox.setText(category);
+            llCategories.addView(checkBoxView);
+            mCategoryCheckboxes.add(checkBox);
         }
     }
 
@@ -123,7 +149,7 @@ public class NewChallengeActivity extends CogniActivity {
             ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
             viewSwitcher.showNext();
 
-            mRgOpponents = (RadioGroup) findViewById(R.id.rgOpponents);
+            RadioGroup mRgOpponents = (RadioGroup) findViewById(R.id.rgOpponents);
             mRgOpponents.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -158,11 +184,14 @@ public class NewChallengeActivity extends CogniActivity {
         mSelectedTest = rbTest.getText().toString();
         mSelectedSubjects.clear();
         mSelectedCategories.clear();
-        List<String> subjectsInSelectedTest = Arrays.asList(Constants.TestToSubject.get(mSelectedTest));
-        for(CheckBox subjectCheckbox : mSubjectCheckboxes) {
-            subjectCheckbox.setChecked(false);
-            if(subjectsInSelectedTest.contains(subjectCheckbox.getText().toString())) {
-                subjectCheckbox.performClick();
+        for(CheckBox cbSubject : mSubjectCheckboxes) {
+            cbSubject.setChecked(false);
+        }
+        List<String> categoriesInSelectedTest = Arrays.asList(Constants.TestToCategory.get(mSelectedTest));
+        for(CheckBox cbCategory : mCategoryCheckboxes) {
+            cbCategory.setChecked(false);
+            if(categoriesInSelectedTest.contains(cbCategory.getText().toString())) {
+                cbCategory.setChecked(true);
             }
         }
     }
@@ -172,20 +201,32 @@ public class NewChallengeActivity extends CogniActivity {
         List<String> categoriesInSelectedSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
         if(cbSubject.isChecked()) {
             mSelectedSubjects.add(subject);
+
+            // Set subject's corresponding categories to be chosen
             mSelectedCategories.addAll(categoriesInSelectedSubject);
+            for(CheckBox cbCategory : mCategoryCheckboxes) {
+                String category = cbCategory.getText().toString();
+                if(categoriesInSelectedSubject.contains(category) && !cbCategory.isChecked()) {
+                    cbCategory.setChecked(true);
+                }
+            }
         }
         else {
             mSelectedSubjects.remove(subject);
+
+            // Set subject's corresponding categories to be unchosen
             mSelectedCategories.removeAll(categoriesInSelectedSubject);
+            for(CheckBox cbCategory : mCategoryCheckboxes) {
+                String category = cbCategory.getText().toString();
+                if(categoriesInSelectedSubject.contains(category) && cbCategory.isChecked()) {
+                    cbCategory.setChecked(false);
+                }
+            }
         }
     }
 
     public void onClick_btnChooseCategories(View view) {
         displayCategories();
-
-//        saveChallenge();
-//        Intent intent = new Intent(this, ChooseCategoriesActivity.class);
-//        startActivity(intent);
     }
 
     public void onClick_btnPlayNow(View view) {
@@ -195,32 +236,35 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void displayCategories() {
-        String[] categories = Constants.getAllConstants(Constants.Category.class);
+        if(mSvCategories.getParent() != null) {
+            ((ViewGroup) mSvCategories.getParent()).removeView(mSvCategories);
+        }
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        mDialogCategories = dialogBuilder
-                .setTitle(R.string.title_dialog_choose_categories)
-                .setMultiChoiceItems(categories, null, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int indexSelected, boolean isChecked) {
-                        addOrRemoveSelectedCategory(indexSelected);
-                    }
-                }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.choose_categories);
+        builder.setView(mSvCategories)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        //  Your code when user clicked on OK
-                        //  You can write the code  to save the selected item here
+
                     }
-                }).create();
-        mDialogCategories.show();
+                }).show();
     }
 
-    public void addOrRemoveSelectedCategory(int indexSelected) {
-        AppCompatCheckedTextView cbCategory =
-                (AppCompatCheckedTextView) mDialogCategories.getListView().getChildAt(indexSelected);
+    public void addOrRemoveSelectedCategory(CompoundButton cbCategory) {
         String category = cbCategory.getText().toString();
         if(cbCategory.isChecked()) {
             mSelectedCategories.add(category);
+
+            // Set category's corresponding subject to be chosen
+            for(CheckBox cbSubject : mSubjectCheckboxes) {
+                String subject = cbSubject.getText().toString();
+                List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
+                if(categoriesInSubject.contains(category) && !mSelectedSubjects.contains(subject)) {
+                    cbSubject.setChecked(true);
+                    mSelectedSubjects.add(subject);
+                }
+            }
         }
         else {
             mSelectedCategories.remove(category);
