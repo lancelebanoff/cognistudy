@@ -23,6 +23,7 @@ import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,17 +31,26 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class RegistrationActivity extends AuthenticationActivity {
 
     private Activity activity = this;
-    private String username;
+    private String facebookId;
     private String displayName;
+    private static final String TAG = "RegistrationActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,19 +81,16 @@ public class RegistrationActivity extends AuthenticationActivity {
                         permissions, new LogInCallback() {
                             @Override
                             public void done(ParseUser user, ParseException e) {
-                                if(e != null) {
+                                if (e != null) {
                                     //TODO: handle error
                                     Log.d("onClick", "error");
                                     e.printStackTrace();
-                                }
-                                else if(user == null) {
+                                } else if (user == null) {
                                     Log.d("Onclick", "User cancelled the Facebook login");
-                                }
-                                else if(user.isNew()) {
+                                } else if (user.isNew()) {
                                     Log.d("Onclick", "New user!");
                                     getUserDetailsFromFB();
-                                }
-                                else {
+                                } else {
                                     navigateToMainActivity();
                                 }
                             }
@@ -105,7 +112,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                     @Override
                     public void onCompleted(GraphResponse response) {
                         try {
-                            username = response.getJSONObject().getString("id");
+                            facebookId = response.getJSONObject().getString("id");
                             displayName = response.getJSONObject().getString("name");
                             JSONObject picture = response.getJSONObject().getJSONObject("picture");
                             JSONObject data = picture.getJSONObject("data");
@@ -144,7 +151,6 @@ public class RegistrationActivity extends AuthenticationActivity {
         @Override
         protected  void onPostExecute(String s) {
             super.onPostExecute(s);
-            //TODO: mProfileImage.setImageBitmap(bitmap)
             saveNewFBUser(bitmap);
         }
     }
@@ -168,7 +174,7 @@ public class RegistrationActivity extends AuthenticationActivity {
 
     private void saveNewFBUser(Bitmap bitmap) {
         final ParseUser user = ParseUser.getCurrentUser();
-        user.setUsername(username);
+        user.setUsername(facebookId);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -179,10 +185,21 @@ public class RegistrationActivity extends AuthenticationActivity {
         profilePic.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                if(e != null) {
+                if (e != null) {
                     //TODO: Handle error
                 }
-                setUpStudentObjects(user, true, displayName, profilePic, data, new SaveCallback() {
+                /*
+                getFBFriends("/me/friends", fbFriendsList)
+                    .onSuccess(new Continuation<Void, Void>() {
+                        @Override
+                        public Void then(Task<Void> task) throws Exception {
+                            for (String id : fbFriendsList)
+                                Log.d(TAG, id);
+                            return null;
+                        }
+                    });
+                    */
+                setUpStudentObjects(user, facebookId, displayName, profilePic, data, new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
                         navigateToMainActivity();
