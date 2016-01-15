@@ -1,10 +1,8 @@
 package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
-import android.util.Log;
+import android.support.annotation.Nullable;
 import android.view.View;
-import android.widget.Toast;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
@@ -18,7 +16,6 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -81,6 +78,7 @@ class AuthenticationActivity extends CogniActivity {
         publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
             @Override
             public void done(ParseException e) {
+                //noinspection ConstantConditions
                 FacebookUtils.getFriendsInBackground(fbLinked).continueWith(new Continuation<Void, Void>() {
                     @Override
                     public Void then(Task<Void> task) throws Exception {

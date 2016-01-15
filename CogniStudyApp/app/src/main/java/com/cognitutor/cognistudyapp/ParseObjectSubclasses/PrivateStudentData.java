@@ -95,4 +95,21 @@ public class PrivateStudentData extends ParseObject{
                 .fromLocalDatastore()
                 .whereEqualTo(Columns.baseUserId, baseUserId);
     }
+
+    public static ArrayList<String> getFriendPublicUserIds() {
+        ArrayList<String> friendPublicUserIds = new ArrayList<>();
+        try {
+            JSONArray pointerArray = getPrivateStudentData().getJSONArray(Columns.friends);
+            for (int i = 0; i < pointerArray.length(); i++) {
+                JSONObject pointer = pointerArray.getJSONObject(i);
+                friendPublicUserIds.add(pointer.getString("objectId"));
+                Log.d("getFriendPublicUserIds", "Adding " + friendPublicUserIds.get(i));
+            }
+        }
+        catch (JSONException e) {
+            Log.e("PrivateStudentData", "Error in getFriendPublicUserIds");
+            e.printStackTrace();
+        }
+        return friendPublicUserIds;
+    }
 }

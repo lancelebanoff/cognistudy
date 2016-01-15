@@ -27,6 +27,7 @@ import bolts.Task;
 public class PublicUserData extends ParseObject{
 
     public class Columns {
+        public static final String objectId = "objectId";
         public static final String userType = "userType";
         public static final String displayName = "displayName";
         public static final String lastSeen = "lastSeen";
