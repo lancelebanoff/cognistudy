@@ -1,9 +1,9 @@
 package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.view.View;
-import android.widget.Toast;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -16,7 +16,9 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/1/2016.
@@ -63,25 +65,30 @@ class AuthenticationActivity extends CogniActivity {
         doNavigate(RegistrationActivity.class, true);
     }
 
-    protected void setUpStudentObjects(final ParseUser user, final boolean fbLinked, final String displayName,
+    protected void setUpStudentObjects(final ParseUser user, final String facebookId, final String displayName,
                                        final ParseFile profilePic, final byte[] profilePicData, final SaveCallback callback) {
 
+        final String TAG = "setUpStudentObjects";
+        final boolean fbLinked = facebookId != null;
         final PrivateStudentData privateStudentData = new PrivateStudentData(user);
-        privateStudentData.saveInBackground(new SaveCallback() {
+        final Student student = new Student(user, privateStudentData);
+        final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
+        finalizeUser(user, publicUserData, fbLinked);
+
+        publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                final Student student = new Student(user, privateStudentData);
-                student.saveInBackground(new SaveCallback() {
+                //noinspection ConstantConditions
+                FacebookUtils.getFriendsInBackground(fbLinked).continueWith(new Continuation<Void, Void>() {
                     @Override
-                    public void done(ParseException e) {
-                        final PublicUserData publicUserData = new PublicUserData(user, student, displayName, profilePic, profilePicData);
-                        publicUserData.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                finalizeUser(user, publicUserData, fbLinked);
-                                user.saveInBackground(callback);
-                            }
-                        });
+                    public Void then(Task<Void> task) throws Exception {
+                        ArrayList<ParseObject> objects = new ArrayList<ParseObject>();
+                        objects.add(privateStudentData);
+                        objects.add(student);
+                        objects.add(publicUserData);
+                        objects.add(user);
+                        ParseObject.saveAllInBackground(objects, callback);
+                        return null;
                     }
                 });
             }

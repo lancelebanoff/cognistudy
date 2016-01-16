@@ -2,6 +2,10 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QS_ShopItemInfo;
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
