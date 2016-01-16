@@ -27,6 +27,16 @@ public class Challenge extends ParseObject {
         public static final String accepted = "accepted";
     }
 
+    public Challenge(ChallengeUserData user1Data, String challengeType) {
+        setUser1Data(user1Data);
+        setChallengeType(challengeType);
+        setStartDate(new Date());
+        setNumTurns(0);
+        setAccepted(false);
+    }
+
+    public Challenge() {}
+
     public String getChallengeType() {
         return getString(Columns.challengeType);
     }

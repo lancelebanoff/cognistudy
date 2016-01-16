@@ -16,11 +16,10 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,6 @@ public class NewChallengeActivity extends CogniActivity {
     private RadioButton mRbDefaultTest;
     private RadioButton mRbDefaultOpponent;
 
-    private Challenge mChallenge;
     private String mSelectedTest;
     private ArrayList<String> mSelectedSubjects;
     private ArrayList<String> mSelectedCategories;
@@ -60,7 +58,6 @@ public class NewChallengeActivity extends CogniActivity {
         mRbDefaultTest = null;
         mRbDefaultOpponent = null;
 
-        mChallenge = null;
         mSelectedTest = "";
         mSelectedSubjects = new ArrayList<>();
         mSelectedCategories = new ArrayList<>();
@@ -229,12 +226,6 @@ public class NewChallengeActivity extends CogniActivity {
         displayCategories();
     }
 
-    public void onClick_btnPlayNow(View view) {
-        Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
     private void displayCategories() {
         if(mSvCategories.getParent() != null) {
             ((ViewGroup) mSvCategories.getParent()).removeView(mSvCategories);
@@ -271,23 +262,21 @@ public class NewChallengeActivity extends CogniActivity {
         }
     }
 
-    private void saveChallenge() {
-        mChallenge = new Challenge();
-        ChallengeUserData user1Data = new ChallengeUserData();
-        try {
-            user1Data.setPublicUserData(UserUtils.getPublicUserData());
-        } catch (ParseException e) {
-            handleParseError(e);
-        }
-        mChallenge.setUser1Data(user1Data);
+    public void onClick_btnPlayNow(View view) {
+        saveChallenge();
+        Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
-        user1Data.setSubjects(mSelectedSubjects);
-        user1Data.setCategories(mSelectedCategories);
+    private void saveChallenge() {
+        PublicUserData user1PublicUserData = PublicUserData.getPublicUserData();
+        ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, mSelectedSubjects,
+                mSelectedCategories);
         user1Data.saveInBackground();
 
-        mChallenge.setChallengeType(getChallengeType());
-
-        mChallenge.saveInBackground();
+        Challenge challenge = new Challenge(user1Data, getChallengeType());
+        challenge.saveInBackground();
     }
 
     private String getChallengeType() {
