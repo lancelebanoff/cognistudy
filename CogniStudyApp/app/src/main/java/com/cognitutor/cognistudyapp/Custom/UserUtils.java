@@ -10,6 +10,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,14 +44,14 @@ public class UserUtils {
         Log.d(TAG, "privateStudentData is " + (privateStudentData.isDataAvailable() ? "" : "not ") + "available");
         privateStudentData.fetchIfNeeded();
 
-        publicUserData.pin("CurrentUser");
+        //ParseObject.pinAll(Arrays.asList(publicUserData));
     }
 
     public static void getPinTest() throws ParseException {
 
         PublicUserData publicUserDataFromPin = ParseQuery.getQuery(PublicUserData.class)
                 //.fromPin("CurrentUser")
-                .fromLocalDatastore()
+                .setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK)
                 .whereEqualTo("baseUserId", ParseUser.getCurrentUser().getObjectId())
                 .include("student")
                 .include("privateStudentData")
@@ -61,7 +62,7 @@ public class UserUtils {
                 .getParseObject("privateStudentData");
 
         PrivateStudentData privateStudentData1 = ParseQuery.getQuery(PrivateStudentData.class)
-                .fromLocalDatastore()
+                .setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK)
                 .whereEqualTo(PrivateStudentData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId())
                 .getFirst();
         /*

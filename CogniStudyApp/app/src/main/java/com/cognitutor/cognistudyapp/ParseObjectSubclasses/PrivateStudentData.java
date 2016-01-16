@@ -21,6 +21,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -68,7 +69,8 @@ public class PrivateStudentData extends ParseObject{
     }
 
     public static PrivateStudentData getPrivateStudentData() {
-        return getPrivateStudentData(ParseUser.getCurrentUser().getObjectId());
+        return Student.getStudent().getPrivateStudentData();
+        //return getPrivateStudentData(ParseUser.getCurrentUser().getObjectId());
     }
 
     private static PrivateStudentData getPrivateStudentData(String baseUserId) {
@@ -82,7 +84,17 @@ public class PrivateStudentData extends ParseObject{
     }
 
     public static Task<PrivateStudentData> getPrivateStudentDataInBackground() {
-        return getPrivateStudentDataInBackground(ParseUser.getCurrentUser().getObjectId());
+        //return getPrivateStudentDataInBackground(ParseUser.getCurrentUser().getObjectId());
+        return Student.getStudentInBackground().continueWith(new Continuation<Student, PrivateStudentData>() {
+            @Override
+            public PrivateStudentData then(Task<Student> task) throws Exception {
+                if(task.isFaulted()) {
+                    Log.e("PrivateStudentData", "error getting student first");
+                }
+                Student student = task.getResult();
+                return student.getPrivateStudentData();
+            }
+        });
     }
 
     private static Task<PrivateStudentData> getPrivateStudentDataInBackground(String baseUserId) {
@@ -92,7 +104,7 @@ public class PrivateStudentData extends ParseObject{
     private static ParseQuery<PrivateStudentData> getLocalDataQuery(String baseUserId) {
 
         return PrivateStudentData.getQuery()
-                .fromLocalDatastore()
+                .setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK)
                 .whereEqualTo(Columns.baseUserId, baseUserId);
     }
 

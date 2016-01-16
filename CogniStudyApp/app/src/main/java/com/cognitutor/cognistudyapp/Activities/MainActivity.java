@@ -15,11 +15,14 @@ import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 public class MainActivity extends AuthenticationActivity {
@@ -31,6 +34,12 @@ public class MainActivity extends AuthenticationActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*
+        try {
+            UserUtils.pinTest();
+        } catch (ParseException e) { e.printStackTrace(); return; }
+        */
+
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -39,20 +48,62 @@ public class MainActivity extends AuthenticationActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
+        /*
         try {
             UserUtils.getPinTest();
         }
         catch (ParseException e) { handleParseError(e); }
+        */
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
+
+        PublicUserData pud = null;
+
+        ParseQuery<PublicUserData> query0 = PublicUserData.getQuery()
+                .whereEqualTo(PublicUserData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId())
+                .setCachePolicy(ParseQuery.CachePolicy.CACHE_ONLY);
+
+        try {
+            pud = query0.getFirst();
+        } catch (Exception e) { Log.i("onResume", "error"); }
+
+        boolean isCached0 = query0.hasCachedResult();
+        if(isCached0) {
+            Log.i("onResume", "objectId is " + pud.getObjectId());
+            Log.i("onResume", "YES");
+        }
+        else
+            Log.i("onResume", "NO");
+
+
+
+        ParseQuery<PublicUserData> query = PublicUserData.getQuery()
+                .whereEqualTo(PublicUserData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId())
+                .setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK);
+
+        try {
+            pud = query.getFirst();
+        } catch (Exception e) { Log.i("onResume", "error"); }
+
+        boolean isCached = query.hasCachedResult();
+        if(isCached) {
+            Log.i("onResume", "objectId is " + pud.getObjectId());
+            Log.i("onResume", "YES");
+        }
+        else
+            Log.i("onResume", "NO");
+
+        Student stud = Student.getStudent();
+        /*
         try {
             UserUtils.getPinTest();
         }
         catch (ParseException e) { handleParseError(e); }
+        */
     }
 
     @Override

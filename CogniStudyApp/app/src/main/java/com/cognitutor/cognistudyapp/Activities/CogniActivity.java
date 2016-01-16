@@ -60,6 +60,9 @@ public class CogniActivity extends AppCompatActivity {
             case ErrorCode.CACHE_MISS:
                 Log.e(TAG, "Cache miss!");
                 break;
+            case ErrorCode.OPERATION_FORBIDDEN:
+                Log.e(TAG, "Operation forbidden!");
+                break;
             default:
                 Log.e(TAG, "Unregistered error code: " + e.getCode());
                 errorMsg = ErrorMsg.DEFAULT;
@@ -74,6 +77,7 @@ public class CogniActivity extends AppCompatActivity {
         public static final int INVALID_LOGIN_PARAMS = 101;
         public static final int OBJECT_NOT_FOUND = 101;
         public static final int CACHE_MISS = 120;
+        public static final int OPERATION_FORBIDDEN = 119;
     }
 
     public static class ErrorMsg {
@@ -95,8 +99,9 @@ public class CogniActivity extends AppCompatActivity {
     // </editor-fold>
 
     public void logout() throws ParseException {
+        Log.i("CogniActivity", "Logging out");
         ParseQuery.clearAllCachedResults();
-        ParseObject.unpinAll("CurrentUser");
+        //ParseObject.unpinAll("CurrentUser");
         ParseUser.logOut();
     }
 }

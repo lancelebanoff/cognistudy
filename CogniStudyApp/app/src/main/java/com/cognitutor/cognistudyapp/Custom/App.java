@@ -27,9 +27,9 @@ public class App extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
-        Parse.enableLocalDatastore(this);
         registerSubclasses();
         Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);
+        //Parse.enableLocalDatastore(this);
         ParseFacebookUtils.initialize(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
 

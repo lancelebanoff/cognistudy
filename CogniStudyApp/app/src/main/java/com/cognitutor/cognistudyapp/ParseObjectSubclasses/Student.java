@@ -1,11 +1,14 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import android.util.Log;
+
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QS_ShopItemInfo;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.parse.GetCallback;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -14,6 +17,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +29,8 @@ import bolts.Task;
  */
 @ParseClassName("Student")
 public class Student extends ParseObject{
+
+    private static final String TAG = "Student";
 
     public class Columns {
         public static final String achievements = "achievements";
@@ -62,6 +68,15 @@ public class Student extends ParseObject{
     public void setPublicAnalytics(boolean val) { put(Columns.publicAnalytics, val); }
     public boolean getPublicAnalytics() { return getBoolean(Columns.publicAnalytics); }
     public String getBaseUserId() { return getString(Columns.baseUserId); }
+    public PrivateStudentData getPrivateStudentData() {
+        try {
+            return (PrivateStudentData) getParseObject(Columns.privateStudentData).fetchIfNeeded();
+        } catch (ParseException e) {
+            Log.e(TAG, "Error in getPrivateStudentData");
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);
@@ -87,8 +102,32 @@ public class Student extends ParseObject{
 
     private static ParseQuery<Student> getLocalDataQuery(String baseUserId) {
 
+        ParseQuery<Student> query = Student.getQuery()
+                .whereEqualTo(Columns.baseUserId, baseUserId)
+                .setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK);
+
+        Student student = null;
+
+        /*
+        try {
+            student = query.getFirst();
+        } catch (ParseException e) { Log.i("getStudent", "error"); }
+        */
+
+        boolean isCached = query.hasCachedResult();
+        if(isCached) {
+            Log.i("getStudent", "YES");
+            Log.i("getStudent", "objectId is " + student.getObjectId());
+        }
+        else
+            Log.i("getStudent", "NO");
+        Log.i("getStudent", isCached ? "has" : "does not have" + " cached result");
+        Log.i("getStudent", isCached ? "has" : "does not have" + " cached result");
+        return query;
+        /*
         return Student.getQuery()
-                .fromLocalDatastore()
+                .setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK)
                 .whereEqualTo(Columns.baseUserId, baseUserId);
+                */
     }
 }

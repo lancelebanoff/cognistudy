@@ -31,7 +31,7 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
         super(context, new ParseQueryAdapter.QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 ParseQuery query = PublicUserData.getQuery()
-                        .fromLocalDatastore()
+                        //.setCachePolicy(ParseQuery.CachePolicy.CACHE_THEN_NETWORK)
                         .whereContainedIn(PublicUserData.Columns.objectId, PrivateStudentData.getFriendPublicUserIds())
                         .whereEqualTo(PublicUserData.Columns.fbLinked, true);
                         //.whereNotEqualTo(PublicUserData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId());

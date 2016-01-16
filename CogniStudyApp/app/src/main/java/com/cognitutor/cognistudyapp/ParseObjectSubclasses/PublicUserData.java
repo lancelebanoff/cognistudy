@@ -101,7 +101,7 @@ public class PublicUserData extends ParseObject{
     private static ParseQuery<PublicUserData> getLocalDataStoreQuery(String baseUserId) {
 
         return PublicUserData.getQuery()
-                .fromLocalDatastore()
+                .setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK)
                 .whereEqualTo(Columns.baseUserId, baseUserId);
     }
 }

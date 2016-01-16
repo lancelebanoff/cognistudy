@@ -33,7 +33,7 @@ public class SkinSelection extends ParseObject {
     public static ParseQuery<SkinSelection> getQuery() { return ParseQuery.getQuery(SkinSelection.class); }
 
     private static ParseQuery<SkinSelection> getLocalDataStoreQuery(String studentId, String customizableType) {
-        return getQuery().fromLocalDatastore()
+        return getQuery().setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK)
                 .whereEqualTo(Columns.studentId, studentId)
                 .whereEqualTo(Columns.customizableType, customizableType);
     }
