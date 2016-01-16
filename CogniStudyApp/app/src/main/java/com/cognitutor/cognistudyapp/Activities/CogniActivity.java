@@ -95,7 +95,6 @@ public class CogniActivity extends AppCompatActivity {
     // </editor-fold>
 
     public void logout() throws ParseException {
-        ParseQuery.clearAllCachedResults();
         ParseObject.unpinAll("CurrentUser");
         ParseUser.logOut();
     }
