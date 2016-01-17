@@ -82,46 +82,12 @@ public class FacebookUtils {
 
         ArrayList<Task<ParseObject>> tasks = new ArrayList<>();
         for(PublicUserData friend : friends) {
-            /*
-            byte[] data = friend.getProfilePicData();
-            if(data != null) {
-                Log.i("pinFriends before whenAll", "Data is available");
-            }
-            else {
-                Log.i("pinFriends before whenAll", "Data is not available");
-            }
-            ParseFile file = friend.getProfilePic();
-            if(file != null) {
-                Log.i("pinFriends before whenAll", "File is available");
-            }
-            else {
-                Log.i("pinFriends before whenAll", "File is not available");
-            }
-            */
             tasks.add(friend.fetchIfNeededInBackground());
         }
         return Task.whenAll(tasks).onSuccessTask(new Continuation<Void, Task<Void>>() {
 
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
-                /*
-                for(PublicUserData pud : friends) {
-                    byte[] data = pud.getProfilePicData();
-                    if(data != null) {
-                        Log.i("pinFriends whenAll", "Data is available");
-                    }
-                    else {
-                        Log.i("pinFriends whenAll", "Data is not available");
-                    }
-                    ParseFile file = pud.getProfilePic();
-                    if(file != null) {
-                        Log.i("pinFriends whenAll", "File is available");
-                    }
-                    else {
-                        Log.i("pinFriends whenAll", "File is not available");
-                    }
-                }
-                */
                 return PublicUserData.pinAllInBackground("fbFriends", friends);
             }
         }).onSuccessTask(new Continuation<Void, Task<Void>>() {
