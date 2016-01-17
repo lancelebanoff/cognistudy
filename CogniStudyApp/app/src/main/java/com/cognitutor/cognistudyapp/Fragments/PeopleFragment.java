@@ -40,8 +40,10 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         View rootView = inflater.inflate(R.layout.fragment_people, container, false);
 
         peopleQueryAdapter = new PeopleQueryAdapter(getContext());
+        /*
         peopleQueryAdapter.setTextKey(PublicUserData.Columns.displayName);
         peopleQueryAdapter.setImageKey(PublicUserData.Columns.profilePic);
+        */
 
         listView = (ListView) rootView.findViewById(R.id.list);
         listView.setAdapter(peopleQueryAdapter);
