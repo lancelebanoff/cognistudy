@@ -177,10 +177,10 @@ public class RegistrationActivity extends AuthenticationActivity {
         user.setUsername(facebookId);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         final byte[] data = stream.toByteArray();
         String thumbName = user.getUsername().replaceAll("\\s+", "");
-        final ParseFile profilePic = new ParseFile(thumbName + "_thumb.png", data);
+        final ParseFile profilePic = new ParseFile(thumbName + "_thumb.jpg", data);
 
         profilePic.saveInBackground(new SaveCallback() {
             @Override
