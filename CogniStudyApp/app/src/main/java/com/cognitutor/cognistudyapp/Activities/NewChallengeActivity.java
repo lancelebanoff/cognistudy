@@ -20,6 +20,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -264,9 +266,6 @@ public class NewChallengeActivity extends CogniActivity {
 
     public void onClick_btnPlayNow(View view) {
         saveChallenge();
-        Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     private void saveChallenge() {
@@ -275,8 +274,35 @@ public class NewChallengeActivity extends CogniActivity {
                 mSelectedCategories);
         user1Data.saveInBackground();
 
-        Challenge challenge = new Challenge(user1Data, getChallengeType());
-        challenge.saveInBackground();
+        final Challenge challenge = new Challenge(user1Data, getChallengeType());
+        challenge.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    if(mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
+                        navigateToChooseOpponentActivity(challenge.getObjectId());
+                    }
+                    else {
+                        navigateToChooseBoardConfigurationActivity();
+                    }
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void navigateToChooseBoardConfigurationActivity() {
+        Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void navigateToChooseOpponentActivity(String challengeId) {
+        Intent intent = new Intent(this, ChooseOpponentActivity.class);
+        intent.putExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID, challengeId);
+        startActivity(intent);
+        finish();
     }
 
     private String getChallengeType() {

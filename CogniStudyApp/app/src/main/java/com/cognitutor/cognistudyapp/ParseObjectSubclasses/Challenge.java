@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.Date;
 
@@ -36,6 +37,11 @@ public class Challenge extends ParseObject {
     }
 
     public Challenge() {}
+
+
+    public static ParseQuery<Challenge> getQuery() {
+        return ParseQuery.getQuery(Challenge.class);
+    }
 
     public String getChallengeType() {
         return getString(Columns.challengeType);

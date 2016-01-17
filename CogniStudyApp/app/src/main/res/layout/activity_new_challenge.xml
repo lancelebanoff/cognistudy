@@ -122,7 +122,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play Now"
+            android:text="Next"
             android:id="@+id/btnPlayNow"
             android:onClick="onClick_btnPlayNow" />
     </LinearLayout>

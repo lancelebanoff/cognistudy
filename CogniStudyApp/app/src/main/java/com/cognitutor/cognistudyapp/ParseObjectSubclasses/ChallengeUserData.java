@@ -28,6 +28,12 @@ public class ChallengeUserData extends ParseObject {
         put(Columns.categories, categories);
     }
 
+    public ChallengeUserData(PublicUserData publicUserData) {
+        put(Columns.publicUserData, publicUserData);
+        put(Columns.score, 0);
+        // TODO:1 put gameboard and responses
+    }
+
     public ChallengeUserData() {}
 
     public PublicUserData getPublicUserData() {

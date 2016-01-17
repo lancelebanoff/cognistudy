@@ -13,6 +13,12 @@ import com.cognitutor.cognistudyapp.R;
 
 public class ChooseBoardConfigurationActivity extends CogniActivity {
 
+    /**
+     * Extras:
+     *      CHALLENGE_ID: String
+     */
+    private Intent mIntent;
+
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
     private BattleshipBoardManager mBattleshipBoardManager;
@@ -55,7 +61,8 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         });
     }
 
-    public void navigateToChallengeActivity(View view) {
+    public void onClick_btnStartChallenge(View view) {
+        // TODO:1 save board configuration
         Intent intent = new Intent(this, ChallengeActivity.class);
         startActivity(intent);
         finish();
