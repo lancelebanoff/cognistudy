@@ -80,12 +80,17 @@ public class PublicUserData extends ParseObject{
     }
 
     public static PublicUserData getPublicUserData() {
-        return getPublicUserData(ParseUser.getCurrentUser().getObjectId());
+        return getPublicUserDataFromBaseUserId(ParseUser.getCurrentUser().getObjectId());
     }
 
-    public static PublicUserData getPublicUserData(String baseUserId) {
+    public static PublicUserData getPublicUserData(String publicUserDataID) {
+        try { return getLocalDataStoreQuery(Columns.objectId, publicUserDataID).getFirst(); }
+        catch (ParseException e) { e.printStackTrace(); return null; }
+    }
 
-        try { return getLocalDataStoreQuery(baseUserId).getFirst(); }
+    private static PublicUserData getPublicUserDataFromBaseUserId(String baseUserId) {
+
+        try { return getLocalDataStoreQuery(Columns.baseUserId, baseUserId).getFirst(); }
         catch (ParseException e) { e.printStackTrace(); return null; }
     }
 
@@ -95,13 +100,13 @@ public class PublicUserData extends ParseObject{
 
     public static Task<PublicUserData> getPublicUserDataInBackground(String baseUserId) {
 
-        return getLocalDataStoreQuery(baseUserId).getFirstInBackground();
+        return getLocalDataStoreQuery(Columns.baseUserId, baseUserId).getFirstInBackground();
     }
 
-    private static ParseQuery<PublicUserData> getLocalDataStoreQuery(String baseUserId) {
+    private static ParseQuery<PublicUserData> getLocalDataStoreQuery(String column, String baseUserId) {
 
         return PublicUserData.getQuery()
                 .fromLocalDatastore()
-                .whereEqualTo(Columns.baseUserId, baseUserId);
+                .whereEqualTo(column, baseUserId);
     }
 }

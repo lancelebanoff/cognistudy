@@ -1,6 +1,8 @@
 package com.cognitutor.cognistudyapp.Custom;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
@@ -25,6 +28,8 @@ import java.io.ByteArrayInputStream;
  * Created by Kevin on 1/14/2016.
  */
 public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
+
+    private Activity mActivity;
 
     /*
     public PeopleQueryAdapter(Context context) {
@@ -50,6 +55,7 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
                 return query;
             }
         });
+        mActivity = (Activity) context;
     }
 
     @Override
@@ -66,44 +72,19 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
 
         super.getItemView(object, view, parent);
 
-        PublicUserData publicUserData = (PublicUserData) object;
-
-        boolean isDataAvailable = publicUserData.isDataAvailable();
-        if(isDataAvailable) {
-            Log.i("getItemView", "Data is available");
-        }
-        else {
-            Log.i("getItemView", "Data is not available");
-        }
-
-        byte[] data = publicUserData.getProfilePicData();
-        if(data != null) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, new BitmapFactory.Options());
-            holder.imgProfile.setImageBitmap(bitmap);
-        }
-        else {
-            ParseFile file = publicUserData.getProfilePic();
-            if(file != null) {
-                file.getDataInBackground(new GetDataCallback() {
-                    @Override
-                    public void done(byte[] data, ParseException e) {
-                        if (e != null) {
-                            Log.e("getItemView", "error " + e.getMessage());
-                        }
-                        else {
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, new BitmapFactory.Options());
-                            holder.imgProfile.setImageBitmap(bitmap);
-                        }
-                    }
-                });
-                Log.i("getItemView", "Parse File is available!");
-                //holder.imgProfile.setParseFile(publicUserData.getProfilePic());
-            }
-            else {
-                Log.i("getItemView", "Parse File is not available!");
-            }
-        }
+        final PublicUserData publicUserData = (PublicUserData) object;
+        holder.imgProfile.setParseFile(publicUserData.getProfilePic());
+        holder.imgProfile.loadInBackground();
         holder.txtName.setText(publicUserData.getDisplayName());
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mActivity, StudentProfileActivity.class);
+                intent.putExtra("publicUserDataId", publicUserData.getObjectId());
+                mActivity.startActivity(intent);
+            }
+        });
 
         return view;
     }
@@ -111,7 +92,7 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
     private ViewHolder createViewHolder(View v) {
         ViewHolder holder = new ViewHolder();
         holder.txtName = (TextView) v.findViewById(R.id.txtName);
-        holder.imgProfile = (RoundedImageView) v.findViewById(R.id.imgProfile);
+        holder.imgProfile = (RoundedImageView) v.findViewById(R.id.imgProfileRounded);
         return holder;
     }
 
