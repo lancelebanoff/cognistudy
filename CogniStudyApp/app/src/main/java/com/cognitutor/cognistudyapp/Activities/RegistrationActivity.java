@@ -177,8 +177,7 @@ public class RegistrationActivity extends AuthenticationActivity {
         user.setUsername(facebookId);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Bitmap newBitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, false);
-        newBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         final byte[] data = stream.toByteArray();
         String thumbName = user.getUsername().replaceAll("\\s+", "");
         final ParseFile profilePic = new ParseFile(thumbName + "_thumb.png", data);
