@@ -102,7 +102,7 @@ public class RegistrationActivity extends AuthenticationActivity {
     private void getUserDetailsFromFB() {
 
         Bundle params = new Bundle();
-        params.putString("fields", "name,picture");
+        params.putString("fields", "name,picture.type(large)");
 
         new GraphRequest(AccessToken.getCurrentAccessToken(),
                 "/me",
@@ -177,10 +177,11 @@ public class RegistrationActivity extends AuthenticationActivity {
         user.setUsername(facebookId);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        Bitmap newBitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, false);
+        newBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         final byte[] data = stream.toByteArray();
         String thumbName = user.getUsername().replaceAll("\\s+", "");
-        final ParseFile profilePic = new ParseFile(thumbName + "_thumb.jpg", data);
+        final ParseFile profilePic = new ParseFile(thumbName + "_thumb.png", data);
 
         profilePic.saveInBackground(new SaveCallback() {
             @Override
