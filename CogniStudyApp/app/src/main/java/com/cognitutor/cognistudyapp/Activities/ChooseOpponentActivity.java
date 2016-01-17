@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,9 +11,13 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.FunctionCallback;
 import com.parse.GetCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+
+import java.util.HashMap;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -65,14 +71,13 @@ public class ChooseOpponentActivity extends CogniActivity {
                     query.getInBackground(challengeId, new GetCallback<Challenge>() {
                         @Override
                         public void done(Challenge challenge, ParseException e) {
-                            if(e == null) {
+                            if (e == null) {
                                 ChallengeUserData user2Data = new ChallengeUserData(user2PublicUserData);
                                 user2Data.saveInBackground();
 
                                 challenge.setUser2Data(user2Data);
                                 challenge.saveInBackground();
-                            }
-                            else {
+                            } else {
                                 e.printStackTrace();
                             }
                         }
@@ -82,5 +87,44 @@ public class ChooseOpponentActivity extends CogniActivity {
                 return null;
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.title_dialog_cancel_challenge)
+                .setMessage(R.string.message_dialog_cancel_challenge)
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+
+                        String challengeId = mIntent.getStringExtra(
+                                Constants.IntentExtra.ChallengeId.CHALLENGE_ID);
+                        ParseQuery<Challenge> query = Challenge.getQuery();
+                        query.getInBackground(challengeId, new GetCallback<Challenge>() {
+                            @Override
+                            public void done(Challenge challenge, ParseException e) {
+                                if (e == null) {
+                                    final HashMap<String, Object> params = new HashMap<>();
+                                    params.put("challengeId", challenge.getObjectId());
+                                    ParseCloud.callFunctionInBackground(
+                                            Constants.CloudCodeFunction.DELETE_CHALLENGE,
+                                            params, new FunctionCallback<Object>() {
+                                                @Override
+                                                public void done(Object object, ParseException e) {
+                                                    if (e != null) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                } else {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+                        ChooseOpponentActivity.super.onBackPressed();
+                    }
+                }).create().show();
     }
 }

@@ -326,4 +326,8 @@ public class Constants {
     }
     // </editor-fold>
 
+    public static class CloudCodeFunction {
+        public static final String DELETE_CHALLENGE = "deleteChallenge";
+    }
+
 }
