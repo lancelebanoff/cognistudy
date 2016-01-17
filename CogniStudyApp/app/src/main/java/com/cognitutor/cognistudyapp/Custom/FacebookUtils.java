@@ -8,6 +8,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
@@ -84,6 +85,7 @@ public class FacebookUtils {
             tasks.add(friend.fetchIfNeededInBackground());
         }
         return Task.whenAll(tasks).onSuccessTask(new Continuation<Void, Task<Void>>() {
+
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
                 return PublicUserData.pinAllInBackground("fbFriends", friends);

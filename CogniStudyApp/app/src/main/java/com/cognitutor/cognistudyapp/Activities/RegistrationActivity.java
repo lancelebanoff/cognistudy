@@ -102,7 +102,7 @@ public class RegistrationActivity extends AuthenticationActivity {
     private void getUserDetailsFromFB() {
 
         Bundle params = new Bundle();
-        params.putString("fields", "name,picture");
+        params.putString("fields", "name,picture.type(large)");
 
         new GraphRequest(AccessToken.getCurrentAccessToken(),
                 "/me",
