@@ -29,7 +29,6 @@ public class ChooseOpponentActivity extends CogniActivity {
      *      CHALLENGE_ID: String
      */
     private Intent mIntent;
-    private String challengeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +93,8 @@ public class ChooseOpponentActivity extends CogniActivity {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.title_dialog_cancel_challenge)
                 .setMessage(R.string.message_dialog_cancel_challenge)
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.no_dialog_cancel_challenge, null)
+                .setPositiveButton(R.string.yes_dialog_cancel_challenge, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
 
                         String challengeId = mIntent.getStringExtra(
