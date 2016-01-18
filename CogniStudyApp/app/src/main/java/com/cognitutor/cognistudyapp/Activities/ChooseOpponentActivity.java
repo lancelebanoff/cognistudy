@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
@@ -21,9 +20,6 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 
 import java.util.HashMap;
-
-import bolts.Continuation;
-import bolts.Task;
 
 public class ChooseOpponentActivity extends CogniActivity {
 
@@ -46,7 +42,7 @@ public class ChooseOpponentActivity extends CogniActivity {
         PeopleFragment fragment = new PeopleFragment(new PeopleListOnClickHandler() {
             @Override
             public void onListItemClick(PublicUserData publicUserData) {
-                onClick_tempButton(null);
+                chooseOpponent(publicUserData);
             }
         });
 
@@ -56,10 +52,9 @@ public class ChooseOpponentActivity extends CogniActivity {
                 .commit();
     }
 
-    public void onClick_tempButton(View view) {
-        saveOpponent();
+    public void chooseOpponent(PublicUserData publicUserData) {
+        saveOpponent(publicUserData);
 
-        // TODO:1 intent extras for which challenge this is
         Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
         intent.putExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID,
                 mIntent.getStringExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID));
@@ -67,42 +62,22 @@ public class ChooseOpponentActivity extends CogniActivity {
         finish();
     }
 
-    private void saveOpponent() {
-        String kevinBaseUserId = "4lXOYetlmq";
-        Task<PublicUserData> task = PublicUserData.getPublicUserDataInBackground(kevinBaseUserId);
-        task.continueWith(new Continuation<PublicUserData, Void>() {
+    private void saveOpponent(final PublicUserData publicUserData) {
+        String challengeId = mIntent.getStringExtra(
+                Constants.IntentExtra.ChallengeId.CHALLENGE_ID);
+        ParseQuery<Challenge> query = Challenge.getQuery();
+        query.getInBackground(challengeId, new GetCallback<Challenge>() {
             @Override
-            public Void then(Task<PublicUserData> task) throws Exception {
-                if (task.isCancelled()) {
-                    // the save was cancelled.
-                } else if (task.isFaulted()) {
-                    // the save failed.
-                    Exception error = task.getError();
-                    error.printStackTrace();
+            public void done(Challenge challenge, ParseException e) {
+                if (e == null) {
+                    ChallengeUserData user2Data = new ChallengeUserData(publicUserData);
+                    user2Data.saveInBackground();
+
+                    challenge.setUser2Data(user2Data);
+                    challenge.saveInBackground();
                 } else {
-                    // the object was saved successfully.
-                    final PublicUserData user2PublicUserData = task.getResult();
-
-                    String challengeId = mIntent.getStringExtra(
-                            Constants.IntentExtra.ChallengeId.CHALLENGE_ID);
-                    ParseQuery<Challenge> query = Challenge.getQuery();
-                    query.getInBackground(challengeId, new GetCallback<Challenge>() {
-                        @Override
-                        public void done(Challenge challenge, ParseException e) {
-                            if (e == null) {
-                                ChallengeUserData user2Data = new ChallengeUserData(user2PublicUserData);
-                                user2Data.saveInBackground();
-
-                                challenge.setUser2Data(user2Data);
-                                challenge.saveInBackground();
-                            } else {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+                    e.printStackTrace();
                 }
-
-                return null;
             }
         });
     }

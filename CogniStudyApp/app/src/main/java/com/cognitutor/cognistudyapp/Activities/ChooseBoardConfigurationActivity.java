@@ -86,6 +86,8 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
 
     }
 
+    // TODO:3 what if player 2 sees the challenge before player 1 finishes choosing board config?
+
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
