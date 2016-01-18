@@ -2,27 +2,16 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.GetDataCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
-import com.parse.ParseUser;
-
-import java.io.ByteArrayInputStream;
 
 /**
  * Created by Kevin on 1/14/2016.
@@ -30,6 +19,7 @@ import java.io.ByteArrayInputStream;
 public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
 
     private Activity mActivity;
+    private PeopleListOnClickHandler mOnClickHandler;
 
     /*
     public PeopleQueryAdapter(Context context) {
@@ -44,7 +34,7 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
         });
     }
     */
-    public PeopleQueryAdapter(Context context) {
+    public PeopleQueryAdapter(Context context, PeopleListOnClickHandler onClickHandler) {
         super(context, new ParseQueryAdapter.QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 ParseQuery query = PublicUserData.getQuery()
@@ -56,6 +46,7 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
             }
         });
         mActivity = (Activity) context;
+        mOnClickHandler = onClickHandler;
     }
 
     @Override
@@ -80,9 +71,7 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mActivity, StudentProfileActivity.class);
-                intent.putExtra("publicUserDataId", publicUserData.getObjectId());
-                mActivity.startActivity(intent);
+                mOnClickHandler.onListItemClick(publicUserData);
             }
         });
 

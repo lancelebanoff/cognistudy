@@ -85,12 +85,7 @@ public class BattleshipBoardManager {
         mShipsGridLayout.removeAllViews();
         addPlaceholderSpaces();
 
-        String[] shipTypes = new String[0];
-        try {
-            shipTypes = Constants.getAllConstants(Constants.ShipType.class);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        String[] shipTypes = shipTypes = Constants.getAllConstants(Constants.ShipType.class);
 
         for(String shipType : shipTypes) {
             placeShip(shipType);
