@@ -4,9 +4,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
+import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -35,6 +38,22 @@ public class ChooseOpponentActivity extends CogniActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_opponent);
         mIntent = getIntent();
+
+        createPeopleFragment();
+    }
+
+    private void createPeopleFragment() {
+        PeopleFragment fragment = new PeopleFragment(new PeopleListOnClickHandler() {
+            @Override
+            public void onListItemClick(PublicUserData publicUserData) {
+                onClick_tempButton(null);
+            }
+        });
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.frameLayout, fragment)
+                .commit();
     }
 
     public void onClick_tempButton(View view) {

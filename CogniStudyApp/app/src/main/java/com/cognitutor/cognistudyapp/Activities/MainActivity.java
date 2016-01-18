@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -9,12 +11,14 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.parse.ParseException;
@@ -22,6 +26,7 @@ import com.parse.ParseException;
 public class MainActivity extends AuthenticationActivity {
 
     private final String TAG = "MainActivity";
+    private Activity mActivity = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +84,14 @@ public class MainActivity extends AuthenticationActivity {
                 case 0:
                     return new MainFragment();
                 case 1:
-                    return new PeopleFragment();
+                    return new PeopleFragment(new PeopleListOnClickHandler() {
+                        @Override
+                        public void onListItemClick(PublicUserData publicUserData) {
+                            Intent intent = new Intent(mActivity, StudentProfileActivity.class);
+                            intent.putExtra("publicUserDataId", publicUserData.getObjectId());
+                            mActivity.startActivity(intent);
+                        }
+                    });
                 case 2:
                     return new MessagesFragment();
                 case 3:
