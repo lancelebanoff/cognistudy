@@ -1,7 +1,10 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,6 +19,8 @@ import com.parse.ParseUser;
 
 public class CogniActivity extends AppCompatActivity {
 
+    private static ConnectivityManager cMgr = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +32,8 @@ public class CogniActivity extends AppCompatActivity {
         if(extrasBundle != null && extrasBundle.containsKey("toastMessage")) {
             Toast.makeText(getApplicationContext(), extrasBundle.getString("toastMessage"), Toast.LENGTH_LONG).show();
         }
+
+        cMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     @Override
@@ -98,5 +105,21 @@ public class CogniActivity extends AppCompatActivity {
     public void logout() throws ParseException {
         ParseObject.unpinAll("CurrentUser");
         ParseUser.logOut();
+    }
+
+    // Check for Internet connectivity
+    private static boolean isNetworkConnected() {
+
+        //Log.d(TAG, "Checking connectivity");
+        if ( cMgr != null){
+            NetworkInfo info = cMgr.getActiveNetworkInfo();
+            if (info!= null) {
+                if (info.isConnected()) {
+                    return true;
+                }
+            }
+        }
+        //Log.d(TAG, "No internet connection");
+        return false;
     }
 }
