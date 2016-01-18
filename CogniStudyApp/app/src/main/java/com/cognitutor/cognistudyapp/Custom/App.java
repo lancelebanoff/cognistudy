@@ -3,6 +3,8 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.app.Application;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
@@ -54,5 +56,7 @@ public class App extends Application {
         ParseObject.registerSubclass(PrivateStudentData.class);
         ParseObject.registerSubclass(PublicUserData.class);
         ParseObject.registerSubclass(Student.class);
+        ParseObject.registerSubclass(Challenge.class);
+        ParseObject.registerSubclass(ChallengeUserData.class);
     }
 }

@@ -51,7 +51,7 @@ public class BattleshipAttackActivity extends CogniActivity {
         });
     }
 
-    public void navigateToChallengeActivity(View view) {
+    public void onClick_btnDone(View view) {
         // Exit ChallengeActivity and start a new one
         Intent finishActivityIntent = new Intent(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY);
         sendBroadcast(finishActivityIntent);

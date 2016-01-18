@@ -1,18 +1,17 @@
 package com.cognitutor.cognistudyapp.Activities;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.GridLayout;
+import android.support.v4.app.FragmentManager;
 
-import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
+import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FunctionCallback;
 import com.parse.GetCallback;
@@ -22,7 +21,7 @@ import com.parse.ParseQuery;
 
 import java.util.HashMap;
 
-public class ChooseBoardConfigurationActivity extends CogniActivity {
+public class ChooseOpponentActivity extends CogniActivity {
 
     /**
      * Extras:
@@ -30,63 +29,58 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
      */
     private Intent mIntent;
 
-    private GridLayout mShipsGridLayout;
-    private GridLayout mTargetsGridLayout;
-    private BattleshipBoardManager mBattleshipBoardManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choose_board_configuration);
+        setContentView(R.layout.activity_choose_opponent);
         mIntent = getIntent();
-        // TODO:2 Delete challenge from database when hitting back button
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this, false);
-        initializeGridLayouts();
+        createPeopleFragment();
     }
 
-    public void onClick_Randomize(View view) {
-        mBattleshipBoardManager.placeShips();
-    }
-
-    private void initializeGridLayouts() {
-        mShipsGridLayout = (GridLayout) findViewById(R.id.shipsGridLayout);
-        mBattleshipBoardManager.setShipsGridLayout(mShipsGridLayout);
-        ViewTreeObserver observer = mShipsGridLayout.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+    private void createPeopleFragment() {
+        PeopleFragment fragment = new PeopleFragment(new PeopleListOnClickHandler() {
             @Override
-            public void onGlobalLayout() {
-                mBattleshipBoardManager.placeShips();
-                removeOnGlobalLayoutListener(mShipsGridLayout, this);
+            public void onListItemClick(PublicUserData publicUserData) {
+                chooseOpponent(publicUserData);
             }
         });
 
-        mTargetsGridLayout = (GridLayout) findViewById(R.id.targetsGridLayout);
-        mBattleshipBoardManager.setTargetsGridLayout(mTargetsGridLayout);
-        observer = mTargetsGridLayout.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mBattleshipBoardManager.drawAllEmptyTargets();
-                removeOnGlobalLayoutListener(mTargetsGridLayout, this);
-            }
-        });
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.frameLayout, fragment)
+                .commit();
     }
 
-    public void onClick_btnStartChallenge(View view) {
-        saveBoardConfiguration();
+    public void chooseOpponent(PublicUserData publicUserData) {
+        saveOpponent(publicUserData);
 
-        Intent intent = new Intent(this, ChallengeActivity.class);
+        Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
+        intent.putExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID,
+                mIntent.getStringExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID));
         startActivity(intent);
         finish();
     }
 
-    private void saveBoardConfiguration() {
-        // TODO:1 save board configuration
+    private void saveOpponent(final PublicUserData publicUserData) {
+        String challengeId = mIntent.getStringExtra(
+                Constants.IntentExtra.ChallengeId.CHALLENGE_ID);
+        ParseQuery<Challenge> query = Challenge.getQuery();
+        query.getInBackground(challengeId, new GetCallback<Challenge>() {
+            @Override
+            public void done(Challenge challenge, ParseException e) {
+                if (e == null) {
+                    ChallengeUserData user2Data = new ChallengeUserData(publicUserData);
+                    user2Data.saveInBackground();
 
+                    challenge.setUser2Data(user2Data);
+                    challenge.saveInBackground();
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
-
-    // TODO:3 what if player 2 sees the challenge before player 1 finishes choosing board config?
 
     @Override
     public void onBackPressed() {
@@ -122,17 +116,8 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                             }
                         });
 
-                        ChooseBoardConfigurationActivity.super.onBackPressed();
+                        ChooseOpponentActivity.super.onBackPressed();
                     }
                 }).create().show();
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public static void removeOnGlobalLayoutListener(View v, ViewTreeObserver.OnGlobalLayoutListener listener){
-        if (Build.VERSION.SDK_INT < 16) {
-            v.getViewTreeObserver().removeGlobalOnLayoutListener(listener);
-        } else {
-            v.getViewTreeObserver().removeOnGlobalLayoutListener(listener);
-        }
     }
 }

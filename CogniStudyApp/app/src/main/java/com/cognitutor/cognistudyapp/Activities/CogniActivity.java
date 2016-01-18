@@ -2,10 +2,11 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -14,7 +15,6 @@ import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 public class CogniActivity extends AppCompatActivity {
@@ -25,6 +25,7 @@ public class CogniActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cogni);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Intent callingIntent = getIntent();
         Bundle extrasBundle = callingIntent.getExtras();

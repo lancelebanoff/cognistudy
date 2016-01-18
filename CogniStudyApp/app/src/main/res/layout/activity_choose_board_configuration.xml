@@ -28,7 +28,7 @@
         android:layout_alignTop="@+id/btnRandomize"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:onClick="navigateToChallengeActivity" />
+        android:onClick="onClick_btnStartChallenge" />
 
     <GridLayout
         android:id="@+id/shipsGridLayout"
