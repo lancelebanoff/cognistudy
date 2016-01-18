@@ -1,7 +1,7 @@
 package com.cognitutor.cognistudyapp.Activities;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,20 +28,18 @@ public class QuestionActivity extends CogniActivity
         setContentView(R.layout.activity_question);
         mIntent = getIntent();
 
-        /*
         Fragment fragment = new QuestionFragment();
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.contentFrame, fragment)
                 .commit();
-                */
+
     }
 
     public void showAnswer(View view) {
         // Replace QuestionFragment with ResponseFragment
-        /*
         Fragment fragment = new ResponseFragment();
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.contentFrame, fragment)
                 .commit();
@@ -49,7 +47,6 @@ public class QuestionActivity extends CogniActivity
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.showNext();
-        */
     }
 
     public void navigateToNextActivity(View view) {
