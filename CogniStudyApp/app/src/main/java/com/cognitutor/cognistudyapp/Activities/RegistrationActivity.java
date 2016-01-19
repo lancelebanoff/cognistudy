@@ -202,6 +202,9 @@ public class RegistrationActivity extends AuthenticationActivity {
                 setUpStudentObjects(user, facebookId, displayName, profilePic, data, new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
+                        if(e != null) {
+                            Log.e("setUpStudentObjects err", e.getMessage());
+                        }
                         navigateToMainActivity();
                     }
                 });

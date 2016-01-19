@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
@@ -77,11 +78,19 @@ class AuthenticationActivity extends CogniActivity {
         publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
             @Override
             public void done(ParseException e) {
+
+                if(e != null) {
+                    Log.e("pinInBackground", e.getMessage());
+                }
                 //noinspection ConstantConditions
                 FacebookUtils.getFriendsInBackground(fbLinked).continueWith(new Continuation<Void, Void>() {
                     @Override
                     public Void then(Task<Void> task) throws Exception {
-                        ArrayList<ParseObject> objects = new ArrayList<ParseObject>();
+
+                        if(task.isFaulted()) {
+                            Log.e("getFriendsInBackground", task.getError().getMessage());
+                        }
+                        ArrayList < ParseObject > objects = new ArrayList<ParseObject>();
                         objects.add(privateStudentData);
                         objects.add(student);
                         objects.add(publicUserData);

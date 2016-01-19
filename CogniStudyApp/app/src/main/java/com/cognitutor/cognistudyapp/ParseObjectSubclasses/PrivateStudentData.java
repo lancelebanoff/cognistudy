@@ -28,16 +28,14 @@ public class PrivateStudentData extends ParseObject{
 
     public class Columns {
         public static final String numCoins = "numCoins";
-        public static final String responses = "responses";
         public static final String friends = "friends";
         public static final String tutors = "tutors";
         public static final String blocked = "blocked";
         public static final String recentChallenges = "recentChallenges";
         public static final String requestsFromTutors = "requestsFromTutors";
-        public static final String totalResponses = "totalResponses";
-        public static final String correctResponses = "correctResponses";
         public static final String suggestedQuestions = "suggestedQuestions";
         public static final String baseUserId = "baseUserId";
+        public static final String responses = "responses";
     }
     public PrivateStudentData() {}
     public PrivateStudentData(ParseUser user) {
@@ -51,8 +49,6 @@ public class PrivateStudentData extends ParseObject{
         put(Columns.blocked, new ArrayList<ParseObject>());
         put(Columns.recentChallenges, new ArrayList<ParseObject>());
         put(Columns.requestsFromTutors, new ArrayList<ParseObject>());
-        put(Columns.totalResponses, 0);
-        put(Columns.correctResponses, 0);
         put(Columns.suggestedQuestions, new ArrayList<ParseObject>());
         put(Columns.baseUserId, user.getObjectId());
     }
