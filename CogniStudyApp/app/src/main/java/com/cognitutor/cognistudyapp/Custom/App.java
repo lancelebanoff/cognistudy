@@ -5,9 +5,12 @@ import android.app.Application;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Passage;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectStats;
@@ -64,5 +67,8 @@ public class App extends Application {
         ParseObject.registerSubclass(StudentCategoryStats.class);
         ParseObject.registerSubclass(StudentSubjectStats.class);
         ParseObject.registerSubclass(Question.class);
+        ParseObject.registerSubclass(QuestionContents.class);
+        ParseObject.registerSubclass(QuestionData.class);
+        ParseObject.registerSubclass(Passage.class);
     }
 }

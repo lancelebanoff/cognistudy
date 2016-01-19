@@ -11,6 +11,7 @@ import android.widget.ViewSwitcher;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Fragments.QuestionFragment;
 import com.cognitutor.cognistudyapp.Fragments.ResponseFragment;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.R;
 
 public class QuestionActivity extends CogniActivity
@@ -34,6 +35,12 @@ public class QuestionActivity extends CogniActivity
                 .replace(R.id.contentFrame, fragment)
                 .commit();
 
+    }
+
+    public static void createNewQuestion() {
+
+        Question question = new Question(
+        );
     }
 
     public void showAnswer(View view) {

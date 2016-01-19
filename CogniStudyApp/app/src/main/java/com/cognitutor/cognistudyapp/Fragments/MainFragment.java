@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
+import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
@@ -72,6 +73,9 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         b = (Button) rootView.findViewById(R.id.btnDeleteUser);
         b.setOnClickListener(this);
 
+        b = (Button) rootView.findViewById(R.id.btnQuestion);
+        b.setOnClickListener(this);
+
         if(ParseUser.getCurrentUser().getBoolean("fbLinked") ) {
             ImageView imageView = (ImageView) rootView.findViewById(R.id.imgProfile);
             ParseFile parseFile;
@@ -94,6 +98,9 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
+            case R.id.btnQuestion:
+                QuestionActivity.createNewQuestion();
+                break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
                 break;
