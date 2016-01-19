@@ -1,9 +1,21 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:auto="http://schemas.android.com/apk/res-auto"
     tools:context=".Fragments.QuestionFragment">
 
+    <io.github.kexanie.library.MathView
+        android:id="@+id/mathView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        auto:text="When \\(a \\ne 0\\), there are two solutions to some additional text here \\(ax^2 + bx + c = 0\\)
+        and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
+        >
+    </io.github.kexanie.library.MathView>
+
     <RadioGroup
+        android:layout_below="@id/mathView"
         android:layout_width="284dp"
         android:layout_height="357dp"
         android:layout_gravity="center"
@@ -43,4 +55,4 @@
             android:checked="false" />
     </RadioGroup>
 
-</FrameLayout>
+</RelativeLayout>

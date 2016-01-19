@@ -100,6 +100,8 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         switch(view.getId()) {
             case R.id.btnQuestion:
                 QuestionActivity.createNewQuestion();
+                Intent intent = new Intent(getActivity(), QuestionActivity.class);
+                startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
