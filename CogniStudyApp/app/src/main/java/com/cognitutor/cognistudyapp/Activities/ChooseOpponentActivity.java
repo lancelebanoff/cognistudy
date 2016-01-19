@@ -74,6 +74,8 @@ public class ChooseOpponentActivity extends CogniActivity {
                     user2Data.saveInBackground();
 
                     challenge.setUser2Data(user2Data);
+                    challenge.setCurTurnUserId(user2Data.getPublicUserData().getBaseUserId());
+                    challenge.setOtherTurnUserId(PublicUserData.getPublicUserData().getBaseUserId());
                     challenge.saveInBackground();
                 } else {
                     e.printStackTrace();

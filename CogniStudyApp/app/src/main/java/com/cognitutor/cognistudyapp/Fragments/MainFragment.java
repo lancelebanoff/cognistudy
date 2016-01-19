@@ -1,54 +1,31 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.ListView;
 
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
-import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
+import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
-import com.parse.ParseFile;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import bolts.Continuation;
-import bolts.Task;
 
 /**
  * Created by Lance on 12/27/2015.
  */
 
 public class MainFragment extends CogniFragment implements View.OnClickListener {
+
+    private ChallengeQueryAdapter challengeQueryAdapter;
+    private ListView listView;
 
     public MainFragment() {
     }
@@ -72,21 +49,11 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         b = (Button) rootView.findViewById(R.id.btnDeleteUser);
         b.setOnClickListener(this);
 
-        if(ParseUser.getCurrentUser().getBoolean("fbLinked") ) {
-            ImageView imageView = (ImageView) rootView.findViewById(R.id.imgProfile);
-            ParseFile parseFile;
-            byte[] data;
-            try {
-                Log.d("MainFragment fbLoad", "Before getPublicUserData");
-                parseFile = UserUtils.getPublicUserData().getParseFile("profilePic");
-                Log.d("MainFragment fbLoad", "After getPublicUserData");
-                data = parseFile.getData();
-                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                imageView.setImageBitmap(bitmap);
-            } catch (ParseException e) {
-                handleParseError(e);
-            }
-        }
+        challengeQueryAdapter = new ChallengeQueryAdapter(getActivity());
+
+        listView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
+        listView.setAdapter(challengeQueryAdapter);
+        challengeQueryAdapter.loadObjects();
 
         return rootView;
     }
