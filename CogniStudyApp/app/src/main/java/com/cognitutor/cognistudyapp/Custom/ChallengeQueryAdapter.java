@@ -80,13 +80,15 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
     @Override
     public View getItemView(ParseObject object, View view, ViewGroup parent) {
         final ViewHolder holder;
+        final View finalView;
         if(view == null) {
-            view = View.inflate(getContext(), R.layout.list_item_challenge, null);
-            holder = createViewHolder(view);
-            view.setTag(holder);
+            finalView = View.inflate(getContext(), R.layout.list_item_challenge, null);
+            holder = createViewHolder(finalView);
+            finalView.setTag(holder);
         }
         else {
             holder = (ViewHolder) view.getTag();
+            return view;
         }
 
         super.getItemView(object, view, parent);
@@ -104,36 +106,40 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                         String user1BaseUserId = user1Data.getPublicUserData().getBaseUserId();
                         String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
                         ChallengeUserData currentChallengeUserData, opponentChallengeUserData;
+                        final int user1or2;
                         if (user1BaseUserId.equals(currentUserBaseUserId)) {
                             currentChallengeUserData = user1Data;
                             opponentChallengeUserData = user2Data;
-                        }
-                        else {
+                            user1or2 = 1;
+                        } else {
                             currentChallengeUserData = user2Data;
                             opponentChallengeUserData = user1Data;
+                            user1or2 = 2;
                         }
                         setItemViewContents(holder, currentChallengeUserData, opponentChallengeUserData);
+
+                        finalView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(mActivity, ChallengeActivity.class);
+                                intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challenge.getObjectId());
+                                intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
+                                mActivity.startActivity(intent);
+                            }
+                        });
                     }
                 });
             }
         });
 
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(mActivity, ChallengeActivity.class);
-                intent.putExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID, challenge.getObjectId());
-                mActivity.startActivity(intent);
-            }
-        });
-
-        return view;
+        return finalView;
     }
 
     private ViewHolder createViewHolder(View v) {
         ViewHolder holder = new ViewHolder();
         holder.txtName = (TextView) v.findViewById(R.id.txtName);
         holder.imgProfile = (RoundedImageView) v.findViewById(R.id.imgProfileRounded);
+        holder.txtSubjects = (TextView) v.findViewById(R.id.txtSubjects);
         holder.txtScore = (TextView) v.findViewById(R.id.txtScore);
         return holder;
     }
@@ -142,12 +148,29 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         holder.imgProfile.setParseFile(opponentUserData.getPublicUserData().getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtName.setText(opponentUserData.getPublicUserData().getDisplayName());
+        holder.setTxtSubjects(currentUserData.getSubjects());
         holder.txtScore.setText("" + currentUserData.getScore() + " - " + opponentUserData.getScore());
     }
 
     private static class ViewHolder {
         public TextView txtName;
         public RoundedImageView imgProfile;
+        public TextView txtSubjects;
         public TextView txtScore;
+
+        public void setTxtSubjects(List<String> selectedSubjects) {
+            String[] subjects = Constants.getAllConstants(Constants.Subject.class);
+
+            String output = "";
+            for(String subject : subjects) {
+                if(selectedSubjects.contains(subject)) {
+                    output += subject.substring(0, 1) + " ";
+                }
+                else {
+                    output += "  ";
+                }
+            }
+            txtSubjects.setText(output);
+        }
     }
 }

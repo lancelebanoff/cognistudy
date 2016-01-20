@@ -14,6 +14,12 @@ import com.cognitutor.cognistudyapp.R;
 
 public class BattleshipAttackActivity extends CogniActivity {
 
+    /**
+     * Extras:
+     *      CHALLENGE_ID: String
+     */
+    private Intent mIntent;
+
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
     private BattleshipBoardManager mBattleshipBoardManager;
@@ -22,8 +28,12 @@ public class BattleshipAttackActivity extends CogniActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_battleship_attack);
+        mIntent = getIntent();
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this, true);
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        // TODO:2 user1or2
+        mBattleshipBoardManager = new BattleshipBoardManager(this, null, null, true);
+        // TODO:2 wait until data is retrieved
         initializeGridLayouts();
     }
 

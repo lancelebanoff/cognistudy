@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.R;
 
 import java.util.ArrayList;
@@ -19,13 +21,18 @@ public class BattleshipBoardManager {
     private GridLayout mTargetsGridLayout;
     private boolean[][] mSpaceIsOccupied;
     private Activity mActivity;
+    private Challenge mChallenge;
+    private ChallengeUserData mChallengeUserData;
     private ArrayList<ShipData> mShipDatas;
     private String[][] mBoardPositionStatus;
     private boolean mCanBeAttacked;
 
-    public BattleshipBoardManager(Activity activity, boolean canBeAttacked) {
+    public BattleshipBoardManager(Activity activity, Challenge challenge,ChallengeUserData challengeUserData,
+                                  boolean canBeAttacked) {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
+        mChallenge = challenge;
+        mChallengeUserData = challengeUserData;
         retrieveShipDatas();
         retrieveBoardPositionStatus();
     }
@@ -147,6 +154,8 @@ public class BattleshipBoardManager {
                         drawShip(shipThatOccupiesPosition.shipRow, shipThatOccupiesPosition.shipColumn,
                                 shipThatOccupiesPosition.shipHeight, shipThatOccupiesPosition.shipWidth,
                                 shipThatOccupiesPosition.shipDrawableId);
+                        mChallengeUserData.incrementScore();
+                        mChallengeUserData.saveInBackground();
                     }
                     // TODO:2 set in database too
                 }
@@ -336,24 +345,7 @@ public class BattleshipBoardManager {
         mBoardPositionStatus = new String[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
         for(int i = 0; i < mBoardPositionStatus.length; i++) {
             for(int j = 0; j < mBoardPositionStatus[i].length; j++) {
-                switch(i) {
-                    case 0:
-                        mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.HIT;
-                        break;
-                    case 6:
-                        mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.DETECTION;
-                        break;
-                    case 7:
-                        mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.MISS;
-                        break;
-                    default:
-                        mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.UNKNOWN;
-                        break;
-                }
-
-                if(j == 1) {
-                    mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.HIT;
-                }
+                mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.UNKNOWN;
             }
         }
     }

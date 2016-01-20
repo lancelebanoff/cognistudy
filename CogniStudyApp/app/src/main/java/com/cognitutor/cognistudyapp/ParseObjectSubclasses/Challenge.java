@@ -6,6 +6,8 @@ import com.parse.ParseQuery;
 
 import java.util.Date;
 
+import bolts.Task;
+
 /**
  * Created by Lance on 1/8/2016.
  */
@@ -13,6 +15,7 @@ import java.util.Date;
 public class Challenge extends ParseObject {
 
     public class Columns {
+        public static final String objectId = "objectId";
         public static final String challengeType = "challengeType";
         public static final String user1Data = "user1Data";
         public static final String user2Data = "user2Data";
@@ -38,9 +41,28 @@ public class Challenge extends ParseObject {
 
     public Challenge() {}
 
-
     public static ParseQuery<Challenge> getQuery() {
         return ParseQuery.getQuery(Challenge.class);
+    }
+
+    public static Task<Challenge> getChallenge(String objectId) {
+        return getQuery().whereEqualTo(Columns.objectId, objectId).getFirstInBackground();
+    }
+
+    public static Task<ChallengeUserData> getChallengeUserData(Challenge challenge, int user1or2) {
+        ChallengeUserData challengeUserData;
+        switch (user1or2) {
+            case 1:
+                challengeUserData = challenge.getUser1Data();
+                break;
+            case 2:
+                challengeUserData = challenge.getUser2Data();
+                break;
+            default:
+                challengeUserData = null;
+                break;
+        }
+        return challengeUserData.fetchInBackground();
     }
 
     public String getChallengeType() {

@@ -39,9 +39,11 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_board_configuration);
         mIntent = getIntent();
-        // TODO:2 Delete challenge from database when hitting back button
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this, false);
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        // TODO:2 user1or2
+        mBattleshipBoardManager = new BattleshipBoardManager(this, null, null, false);
+        // TODO:2 wait until data is retrieved
         initializeGridLayouts();
     }
 
@@ -98,7 +100,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                     public void onClick(DialogInterface arg0, int arg1) {
 
                         String challengeId = mIntent.getStringExtra(
-                                Constants.IntentExtra.ChallengeId.CHALLENGE_ID);
+                                Constants.IntentExtra.CHALLENGE_ID);
                         ParseQuery<Challenge> query = Challenge.getQuery();
                         query.getInBackground(challengeId, new GetCallback<Challenge>() {
                             @Override

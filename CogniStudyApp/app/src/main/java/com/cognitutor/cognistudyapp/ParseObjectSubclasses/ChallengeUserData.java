@@ -54,6 +54,10 @@ public class ChallengeUserData extends ParseObject {
         put(Columns.score, score);
     }
 
+    public void incrementScore() {
+        increment(Columns.score);
+    }
+
     public ParseObject getGameBoard() {
         return getParseObject(Columns.gameBoard);
     }

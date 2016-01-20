@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,25 +13,94 @@ import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
+import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.R;
 
+import bolts.Continuation;
+import bolts.Task;
+
 public class ChallengeActivity extends CogniActivity {
 
+    /**
+     * Extras:
+     *      CHALLENGE_ID: String
+     *      USER1OR2: int
+     */
+    private Intent mIntent;
+
+    private Activity mActivity;
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
-    private BattleshipBoardManager mBattleshipBoardManager;
     private BroadcastReceiver mBroadcastReceiver;
+
+    private BattleshipBoardManager mBattleshipBoardManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
+        mIntent = getIntent();
+        mActivity = this;
         initializeBroadcastReceiver();
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this, false);
-        initializeGridLayouts();
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2)
+                .continueWith(new Continuation<BattleshipBoardManager, Void>() {
+                    @Override
+                    public Void then(Task<BattleshipBoardManager> task) throws Exception {
+                        mBattleshipBoardManager = task.getResult();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                initializeGridLayouts();
+                            }
+                        });
+
+                        return null;
+                    }
+                });
     }
+
+/*
+    public void initializeBattleshipBoardManager(String challengeId, final int user1or2) {
+        Challenge.getChallenge(challengeId).getFirstInBackground(new GetCallback<Challenge>() {
+            @Override
+            public void done(final Challenge challenge, ParseException e) {
+                if (e == null) {
+                    ChallengeUserData challengeUserData;
+                    switch (user1or2) {
+                        case 1:
+                            challengeUserData = challenge.getUser1Data();
+                            break;
+                        case 2:
+                            challengeUserData = challenge.getUser2Data();
+                            break;
+                        default:
+                            challengeUserData = null;
+                            break;
+                    }
+                    challengeUserData.fetchInBackground(new GetCallback<ChallengeUserData>() {
+                        @Override
+                        public void done(ChallengeUserData fetchedUserData, ParseException e) {
+                            if (e == null) {
+                                mBattleshipBoardManager = new BattleshipBoardManager(
+                                        mActivity, challenge, fetchedUserData, false);
+                                initializeGridLayouts();
+                            } else {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+*/
 
     private void initializeGridLayouts() {
         mShipsGridLayout = (GridLayout) findViewById(R.id.shipsGridLayout);

@@ -34,6 +34,8 @@ public class Constants {
     public static class IntentExtra {
         public static final String FINISH_CHALLENGE_ACTIVITY = "FINISH_CHALLENGE_ACTIVITY";
         public static final String FINISH_NEW_CHALLENGE_ACTIVITY = "FINISH_NEW_CHALLENGE_ACTIVITY";
+        public static final String CHALLENGE_ID = "CHALLENGE_ID";
+        public static final String USER1OR2 = "USER1OR2";
 
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
@@ -48,10 +50,6 @@ public class Constants {
             public static final int UNKNOWN = -1;
             public static final int COMPUTER = -2;
             public static final int PRACTICE = -3;
-        }
-
-        public static class ChallengeId {
-            public static final String CHALLENGE_ID = "CHALLENGE_ID";
         }
     }
 

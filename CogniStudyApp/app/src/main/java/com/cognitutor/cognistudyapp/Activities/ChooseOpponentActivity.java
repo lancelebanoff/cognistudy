@@ -56,15 +56,15 @@ public class ChooseOpponentActivity extends CogniActivity {
         saveOpponent(publicUserData);
 
         Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
-        intent.putExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID,
-                mIntent.getStringExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID));
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID,
+                mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
         startActivity(intent);
         finish();
     }
 
     private void saveOpponent(final PublicUserData publicUserData) {
         String challengeId = mIntent.getStringExtra(
-                Constants.IntentExtra.ChallengeId.CHALLENGE_ID);
+                Constants.IntentExtra.CHALLENGE_ID);
         ParseQuery<Challenge> query = Challenge.getQuery();
         query.getInBackground(challengeId, new GetCallback<Challenge>() {
             @Override
@@ -94,7 +94,7 @@ public class ChooseOpponentActivity extends CogniActivity {
                     public void onClick(DialogInterface arg0, int arg1) {
 
                         String challengeId = mIntent.getStringExtra(
-                                Constants.IntentExtra.ChallengeId.CHALLENGE_ID);
+                                Constants.IntentExtra.CHALLENGE_ID);
                         ParseQuery<Challenge> query = Challenge.getQuery();
                         query.getInBackground(challengeId, new GetCallback<Challenge>() {
                             @Override
