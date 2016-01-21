@@ -12,37 +12,114 @@
         android:layout_height="match_parent"
         android:id="@+id/scrollView" >
 
-        <FrameLayout
-            android:id="@+id/contentFrame"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/scrollView">
+            xmlns:auto="http://schemas.android.com/apk/res-auto">
 
-        </FrameLayout>
+            <WebView
+                android:id="@+id/webView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </WebView>
+
+            <io.github.kexanie.library.MathView
+                android:id="@+id/mvQuestion"
+                android:layout_below="@id/webView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                auto:text="When \\(a \\ne 0\\), there are two solutions to from xml \\(ax^2 + bx + c = 0\\)
+        and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
+                >
+            </io.github.kexanie.library.MathView>
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </ListView>
+
+            <RadioGroup
+                android:layout_below="@id/mathView"
+                android:layout_width="284dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:id="@+id/rgAnswers">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="A. Answer 1"
+                    android:id="@+id/rbAnswer1"
+                    android:layout_gravity="center_horizontal"
+                    android:checked="false" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="B. Answer 2"
+                    android:id="@+id/rbAnswer2"
+                    android:layout_gravity="center_horizontal"
+                    android:checked="false" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="C. Answer 3"
+                    android:id="@+id/rbAnswer3"
+                    android:layout_gravity="center_horizontal"
+                    android:checked="false" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="D. Answer 4"
+                    android:id="@+id/rbAnswer4"
+                    android:layout_gravity="center_horizontal"
+                    android:checked="false" />
+            </RadioGroup>
+
+            <EditText
+                android:id="@+id/txtModifyQuestion"
+                android:layout_below="@id/rgAnswers"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:text="Modify"
+                android:background="@color/grey"/>
+
+            <Button
+                android:id="@+id/btnSetLatex"
+                android:layout_below="@id/txtModifyMathView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="Set LaTeX"
+                android:textColor="@android:color/black" />
+
+            <ViewSwitcher
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/viewSwitcher"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/btnSetLatex">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Submit"
+                    android:id="@+id/btnSubmit"
+                    android:onClick="showAnswer" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Continue"
+                    android:id="@+id/btnContinue"
+                    android:onClick="navigateToNextActivity" />
+            </ViewSwitcher>
+
+        </RelativeLayout>
     </ScrollView>
-
-    <ViewSwitcher
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewSwitcher"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" >
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Submit"
-            android:id="@+id/btnSubmit"
-            android:onClick="showAnswer" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Continue"
-            android:id="@+id/btnContinue"
-            android:onClick="navigateToNextActivity" />
-    </ViewSwitcher>
 
 </RelativeLayout>

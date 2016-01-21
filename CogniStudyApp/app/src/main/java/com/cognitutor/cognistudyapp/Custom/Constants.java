@@ -260,6 +260,11 @@ public class Constants {
         public static final String DENIED = "DENIED";
     }
 
+    public static class AnswerLabelType {
+        public static final String LETTER = "LETTER";
+        public static final String ROMAN_NUMERAL = "ROMAN_NUMERAL";
+    }
+
     public static Map<String, String[]> ShopItemGroupTypeToCustomizableTypes;
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
