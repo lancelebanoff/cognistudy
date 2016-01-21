@@ -11,6 +11,7 @@ import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
+import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.R;
@@ -21,6 +22,9 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 
 import java.util.HashMap;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class ChooseBoardConfigurationActivity extends CogniActivity {
 
@@ -40,15 +44,29 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         setContentView(R.layout.activity_choose_board_configuration);
         mIntent = getIntent();
 
-        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        // TODO:2 user1or2
-        mBattleshipBoardManager = new BattleshipBoardManager(this, null, null, false);
-        // TODO:2 wait until data is retrieved
-        initializeGridLayouts();
+        initializeBoard();
     }
 
-    public void onClick_Randomize(View view) {
-        mBattleshipBoardManager.placeShips();
+    private void initializeBoard() {
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, false)
+                .continueWith(new Continuation<BattleshipBoardManager, Void>() {
+                    @Override
+                    public Void then(Task<BattleshipBoardManager> task) throws Exception {
+                        mBattleshipBoardManager = task.getResult();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                initializeGridLayouts();
+                            }
+                        });
+
+                        return null;
+                    }
+                });
     }
 
     private void initializeGridLayouts() {
@@ -73,6 +91,10 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                 removeOnGlobalLayoutListener(mTargetsGridLayout, this);
             }
         });
+    }
+
+    public void onClick_Randomize(View view) {
+        mBattleshipBoardManager.placeShips();
     }
 
     public void onClick_btnStartChallenge(View view) {

@@ -15,7 +15,7 @@ import bolts.Task;
 public class ChallengeUtils {
 
     public static Task<BattleshipBoardManager> initializeBattleshipBoardManager(
-            final Activity activity, String challengeId, final int user1or2) {
+            final Activity activity, String challengeId, final int user1or2, final boolean canBeAttacked) {
 
         final Capture<Challenge> challengeCapture = new Capture<Challenge>(null);
 
@@ -32,7 +32,7 @@ public class ChallengeUtils {
                     public BattleshipBoardManager then(Task<ChallengeUserData> task) throws Exception {
                         ChallengeUserData challengeUserData = task.getResult();
                         Challenge challenge = challengeCapture.get();
-                        return new BattleshipBoardManager(activity, challenge, challengeUserData, false);
+                        return new BattleshipBoardManager(activity, challenge, challengeUserData, canBeAttacked);
                     }
                 });
 

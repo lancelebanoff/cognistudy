@@ -38,6 +38,7 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // TODO:2 Don't reload every time
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);

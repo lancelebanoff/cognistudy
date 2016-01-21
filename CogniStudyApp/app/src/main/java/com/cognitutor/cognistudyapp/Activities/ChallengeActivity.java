@@ -44,9 +44,14 @@ public class ChallengeActivity extends CogniActivity {
         mActivity = this;
         initializeBroadcastReceiver();
 
+        initializeBoard();
+    }
+
+    private void initializeBoard() {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
         int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
-        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2)
+
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {
@@ -63,44 +68,6 @@ public class ChallengeActivity extends CogniActivity {
                     }
                 });
     }
-
-/*
-    public void initializeBattleshipBoardManager(String challengeId, final int user1or2) {
-        Challenge.getChallenge(challengeId).getFirstInBackground(new GetCallback<Challenge>() {
-            @Override
-            public void done(final Challenge challenge, ParseException e) {
-                if (e == null) {
-                    ChallengeUserData challengeUserData;
-                    switch (user1or2) {
-                        case 1:
-                            challengeUserData = challenge.getUser1Data();
-                            break;
-                        case 2:
-                            challengeUserData = challenge.getUser2Data();
-                            break;
-                        default:
-                            challengeUserData = null;
-                            break;
-                    }
-                    challengeUserData.fetchInBackground(new GetCallback<ChallengeUserData>() {
-                        @Override
-                        public void done(ChallengeUserData fetchedUserData, ParseException e) {
-                            if (e == null) {
-                                mBattleshipBoardManager = new BattleshipBoardManager(
-                                        mActivity, challenge, fetchedUserData, false);
-                                initializeGridLayouts();
-                            } else {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                } else {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-*/
 
     private void initializeGridLayouts() {
         mShipsGridLayout = (GridLayout) findViewById(R.id.shipsGridLayout);
@@ -129,6 +96,8 @@ public class ChallengeActivity extends CogniActivity {
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, QuestionActivity.class);
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
         startActivity(intent);
     }
 

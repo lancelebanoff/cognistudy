@@ -9,14 +9,19 @@ import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
+import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.R;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class BattleshipAttackActivity extends CogniActivity {
 
     /**
      * Extras:
      *      CHALLENGE_ID: String
+     *      USER1OR2: int
      */
     private Intent mIntent;
 
@@ -30,11 +35,29 @@ public class BattleshipAttackActivity extends CogniActivity {
         setContentView(R.layout.activity_battleship_attack);
         mIntent = getIntent();
 
+        initializeBoard();
+    }
+
+    private void initializeBoard() {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        // TODO:2 user1or2
-        mBattleshipBoardManager = new BattleshipBoardManager(this, null, null, true);
-        // TODO:2 wait until data is retrieved
-        initializeGridLayouts();
+        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, true)
+                .continueWith(new Continuation<BattleshipBoardManager, Void>() {
+                    @Override
+                    public Void then(Task<BattleshipBoardManager> task) throws Exception {
+                        mBattleshipBoardManager = task.getResult();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                initializeGridLayouts();
+                            }
+                        });
+
+                        return null;
+                    }
+                });
     }
 
     private void initializeGridLayouts() {
@@ -65,8 +88,9 @@ public class BattleshipAttackActivity extends CogniActivity {
         // Exit ChallengeActivity and start a new one
         Intent finishActivityIntent = new Intent(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY);
         sendBroadcast(finishActivityIntent);
-        // TODO:2 send intent extras to specify which challenge it is
         Intent startActivityIntent = new Intent(this, ChallengeActivity.class);
+        startActivityIntent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
+        startActivityIntent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
         startActivity(startActivityIntent);
         finish();
     }
