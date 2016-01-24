@@ -98,16 +98,11 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     }
 
     public void onClick_btnStartChallenge(View view) {
-        saveBoardConfiguration();
+        mBattleshipBoardManager.saveGameBoard();
 
         Intent intent = new Intent(this, ChallengeActivity.class);
         startActivity(intent);
         finish();
-    }
-
-    private void saveBoardConfiguration() {
-        // TODO:1 save board configuration
-
     }
 
     // TODO:3 what if player 2 sees the challenge before player 1 finishes choosing board config?

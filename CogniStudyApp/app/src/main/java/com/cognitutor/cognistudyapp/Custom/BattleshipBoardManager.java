@@ -8,6 +8,7 @@ import android.widget.ImageView;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.R;
 
 import java.util.ArrayList;
@@ -23,16 +24,19 @@ public class BattleshipBoardManager {
     private Activity mActivity;
     private Challenge mChallenge;
     private ChallengeUserData mChallengeUserData;
+    private GameBoard mGameBoard;
     private ArrayList<ShipData> mShipDatas;
     private String[][] mBoardPositionStatus;
     private boolean mCanBeAttacked;
 
-    public BattleshipBoardManager(Activity activity, Challenge challenge,ChallengeUserData challengeUserData,
+    public BattleshipBoardManager(Activity activity, Challenge challenge,
+                                  ChallengeUserData challengeUserData, GameBoard gameBoard,
                                   boolean canBeAttacked) {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
         mChallengeUserData = challengeUserData;
+        mGameBoard = gameBoard;
         retrieveShipDatas();
         retrieveBoardPositionStatus();
     }
@@ -115,6 +119,10 @@ public class BattleshipBoardManager {
                         shipData.shipDrawableId);
             }
         }
+    }
+
+    public void saveGameBoard() {
+        // TODO:1 save gameboard
     }
 
     // Build the image filename based on the skin and position status, then set image resource
