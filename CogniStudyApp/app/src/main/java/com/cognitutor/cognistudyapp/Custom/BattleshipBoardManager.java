@@ -328,7 +328,7 @@ public class BattleshipBoardManager {
         mShipDatas.add(shipData);
         shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.YELLOW_PENCIL);
         shipData = new ShipData(0, 1, shipInfo.height, shipInfo.width,
-                R.drawable.skin_yellowpencil_default_vert, false);
+                R.drawable.skin_yellowpencil_default_vert, true);
         mShipDatas.add(shipData);
         shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(Constants.ShipType.GREEN_PENCIL);
         shipData = new ShipData(0, 2, shipInfo.height, shipInfo.width,
