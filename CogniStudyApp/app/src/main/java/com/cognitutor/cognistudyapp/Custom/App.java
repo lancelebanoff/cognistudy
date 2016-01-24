@@ -8,7 +8,10 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectStats;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -60,5 +63,8 @@ public class App extends Application {
         ParseObject.registerSubclass(Challenge.class);
         ParseObject.registerSubclass(ChallengeUserData.class);
         ParseObject.registerSubclass(GameBoard.class);
+        ParseObject.registerSubclass(StudentCategoryStats.class);
+        ParseObject.registerSubclass(StudentSubjectStats.class);
+        ParseObject.registerSubclass(Question.class);
     }
 }

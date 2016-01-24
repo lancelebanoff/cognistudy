@@ -32,8 +32,12 @@ public class Student extends ParseObject{
         public static final String skinSelections = "skinSelections";
         public static final String randomEnabled = "randomEnabled";
         public static final String publicAnalytics = "publicAnalytics";
-        public static final String privateStudentData = "privateStudentData";
         public static final String baseUserId = "baseUserId";
+        public static final String studentCategoryStats = "studentCategoryStats";
+        public static final String studentSubjectStats = "studentSubjectStats";
+        public static final String totalResponses = "totalResponses";
+        public static final String correctResponses = "correctResponses";
+        public static final String privateStudentData = "privateStudentData";
     }
 
     public Student() {}
@@ -42,13 +46,35 @@ public class Student extends ParseObject{
         acl.setPublicReadAccess(true);
         setACL(acl);
 
+        String baseUserId = user.getObjectId();
+
         put(Columns.privateStudentData, privateStudentData);
         put(Columns.achievements, new ArrayList<ParseObject>());
         put(Columns.shopItemsBought, new ArrayList<ParseObject>());
         put(Columns.skinSelections, new ArrayList<ParseObject>());
         setRandomEnabled(true);
         setPublicAnalytics(true);
-        put(Columns.baseUserId, user.getObjectId());
+        put(Columns.baseUserId, baseUserId);
+        put(Columns.totalResponses, 0);
+        put(Columns.correctResponses, 0);
+        createStudentSubjectStats(baseUserId);
+        createStudentCategoryStats(baseUserId);
+    }
+
+    private void createStudentSubjectStats(String baseUserId) {
+        ArrayList<StudentSubjectStats> array = new ArrayList<>();
+        for(String subject : Constants.getAllConstants(Constants.Subject.class)) {
+            array.add(new StudentSubjectStats(baseUserId, subject));
+        }
+        put(Columns.studentSubjectStats, array);
+    }
+
+    private void createStudentCategoryStats(String baseUserId) {
+        ArrayList<StudentCategoryStats> array = new ArrayList<>();
+        for(String category : Constants.getAllConstants(Constants.Category.class)) {
+            array.add(new StudentCategoryStats(baseUserId, category));
+        }
+        put(Columns.studentCategoryStats, array);
     }
 
     public List<Achievement> getAchievements() { return getList(Columns.achievements); }

@@ -102,7 +102,7 @@ public class RegistrationActivity extends AuthenticationActivity {
     private void getUserDetailsFromFB() {
 
         Bundle params = new Bundle();
-        params.putString("fields", "name,picture.type(large)");
+        params.putString("fields", "name,picture.height(200).width(200)");
 
         new GraphRequest(AccessToken.getCurrentAccessToken(),
                 "/me",
@@ -202,6 +202,9 @@ public class RegistrationActivity extends AuthenticationActivity {
                 setUpStudentObjects(user, facebookId, displayName, profilePic, data, new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
+                        if(e != null) {
+                            Log.e("setUpStudentObjects err", e.getMessage());
+                        }
                         navigateToMainActivity();
                     }
                 });
