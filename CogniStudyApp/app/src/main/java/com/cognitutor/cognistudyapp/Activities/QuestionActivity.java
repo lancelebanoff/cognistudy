@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
@@ -14,9 +15,12 @@ import android.webkit.WebView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.Fragments.QuestionFragment;
@@ -24,18 +28,20 @@ import com.cognitutor.cognistudyapp.Fragments.ResponseFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.github.kexanie.library.MathView;
 
-public class QuestionActivity extends CogniActivity implements View.OnClickListener {
+public class QuestionActivity extends CogniActivity {
 
     /**
      * Extras:
      *      PARENT_ACTIVITY: string
      */
     private Intent mIntent;
-    private ActViewHolder actViewHolder;
+    private ListView listView;
+    private ActivityViewHolder avh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,26 +49,41 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         setContentView(R.layout.activity_question);
         mIntent = getIntent();
 
-        Button b = (Button) findViewById(R.id.btnSetLatex);
-        b.setOnClickListener(this);
+        listView = (ListView) findViewById(R.id.listView);
+        addComponents();
 
-        actViewHolder = new ActViewHolder();
+        List<String> answers = new ArrayList<String>();
+        answers.add("$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$$");
+        listView.setAdapter(new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER));
 
-        actViewHolder.txtModifyQuestion.setText(actViewHolder.mvQuestion.getText());
+        avh.btnSetLatex.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setLatex();
+            }
+        });
+        avh.txtModifyQuestion.setText(avh.mvQuestion.getText());
+    }
+
+    private void addComponents() {
+        View header = getLayoutInflater().inflate(R.layout.header_question, listView, false);
+        View footer = getLayoutInflater().inflate(R.layout.footer_question, listView, false);
+        listView.addHeaderView(header, null, false);
+        listView.addFooterView(footer, null, false);
+
+        avh = new ActivityViewHolder();
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        MathView mathView = (MathView) findViewById(R.id.mathView);
-        mathView.setText(
+        avh.mvQuestion.setText(
                 "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
                         "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
         );
 
-        WebView webView = (WebView) findViewById(R.id.webView);
-        webView.loadData(
+        avh.wvPassage.loadData(
                 "<html><body>" +
                         "You scored <u>192</u> points." +
                         "</body></html>",
@@ -71,13 +92,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         );
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btnSetLatex:
-                actViewHolder.mvQuestion.setText(actViewHolder.txtModifyQuestion.getText().toString());
-                break;
-        }
+    private void setLatex() {
+        avh.mvQuestion.setText(avh.txtModifyQuestion.getText().toString());
     }
 
     public static void createNewQuestion() {
@@ -116,13 +132,17 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         finish();
     }
 
-    private class ActViewHolder {
+    private class ActivityViewHolder {
+        private WebView wvPassage;
         private MathView mvQuestion;
         private EditText txtModifyQuestion;
+        private Button btnSetLatex;
 
-        private ActViewHolder() {
+        private ActivityViewHolder() {
+            wvPassage = (WebView) findViewById(R.id.wvPassage);
             mvQuestion = (MathView) findViewById(R.id.mvQuestion);
             txtModifyQuestion = (EditText) findViewById(R.id.txtModifyQuestion);
+            btnSetLatex = (Button) findViewById(R.id.btnSetLatex);
         }
     }
 }

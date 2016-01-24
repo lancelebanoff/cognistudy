@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/txtModifyQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="Modify"
+        android:background="@color/grey"/>
+
+    <Button
+        android:id="@+id/btnSetLatex"
+        android:layout_below="@id/txtModifyQuestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Set LaTeX"
+        android:textColor="@android:color/black" />
+
+    <ViewSwitcher
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewSwitcher"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btnSetLatex">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:id="@+id/btnSubmit"
+            android:onClick="showAnswer" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Continue"
+            android:id="@+id/btnContinue"
+            android:onClick="navigateToNextActivity" />
+    </ViewSwitcher>
+
+</RelativeLayout>

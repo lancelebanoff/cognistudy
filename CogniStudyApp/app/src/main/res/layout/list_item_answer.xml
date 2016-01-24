@@ -5,13 +5,14 @@
     android:layout_height="wrap_content"
     android:layout_centerHorizontal="true">
 
-    <TextView
-        android:id="@+id/txtChoice"
+    <RadioButton
+        android:id="@+id/radioButton"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginRight="10dp" />
 
     <io.github.kexanie.library.MathView
+        android:layout_toRightOf="@id/radioButton"
         android:id="@+id/mvAnswer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
