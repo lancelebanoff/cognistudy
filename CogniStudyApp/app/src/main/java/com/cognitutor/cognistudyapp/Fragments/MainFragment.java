@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +12,16 @@ import android.widget.ListView;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -24,8 +29,8 @@ import java.util.HashMap;
 
 public class MainFragment extends CogniFragment implements View.OnClickListener {
 
-    private ChallengeQueryAdapter challengeQueryAdapter;
-    private ListView listView;
+    private ChallengeQueryAdapter yourTurnChallengeQueryAdapter;
+    private ListView yourTurnListView;
 
     public MainFragment() {
     }
@@ -50,13 +55,21 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         b = (Button) rootView.findViewById(R.id.btnDeleteUser);
         b.setOnClickListener(this);
 
-        challengeQueryAdapter = new ChallengeQueryAdapter(getActivity());
-
-        listView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
-        listView.setAdapter(challengeQueryAdapter);
-        challengeQueryAdapter.loadObjects();
+        createYourTurnListView(rootView);
 
         return rootView;
+    }
+
+    private void createYourTurnListView(View rootView) {
+        List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
+                PublicUserData.getPublicUserData().getBaseUserId()));
+        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+
+        yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
+        yourTurnListView.setAdapter(yourTurnChallengeQueryAdapter);
+        yourTurnChallengeQueryAdapter.loadObjects();
     }
 
     @Override
@@ -88,6 +101,4 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         intent.putExtra(Constants.IntentExtra.OpponentId.OPPONENT_ID, Constants.IntentExtra.OpponentId.UNKNOWN);
         startActivity(intent);
     }
-
-
 }

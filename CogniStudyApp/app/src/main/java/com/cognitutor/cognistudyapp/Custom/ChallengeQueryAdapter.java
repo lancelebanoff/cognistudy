@@ -3,7 +3,7 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -13,7 +13,6 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -42,35 +41,14 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         });
     }
     */
-    public ChallengeQueryAdapter(Context context) {
+    public ChallengeQueryAdapter(Context context, final List<Pair> keyValuePairs) {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {
-                String currentUserId = PublicUserData.getPublicUserData().getBaseUserId();
-                ParseQuery query = Challenge.getQuery()
+                ParseQuery query = Challenge.getQuery();
 //                        .fromLocalDatastore()
-                        .whereEqualTo(Challenge.Columns.otherTurnUserId, currentUserId);
-                query.findInBackground(new FindCallback() {
-                    @Override
-                    public void done(List objects, ParseException e) {
-                        if (e == null) {
-                            Log.i("", "");
-                        } else {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void done(Object o, Throwable throwable) {
-                        if (throwable == null) {
-                            Log.i("", "");
-                        } else {
-                            throwable.printStackTrace();
-                        }
-                    }
-                });
-                query = Challenge.getQuery()
-//                        .fromLocalDatastore()
-                        .whereEqualTo(Challenge.Columns.otherTurnUserId, currentUserId);
+                for (Pair pair : keyValuePairs) {
+                    query = query.whereEqualTo((String) pair.first, pair.second);
+                }
                 return query;
             }
         });
