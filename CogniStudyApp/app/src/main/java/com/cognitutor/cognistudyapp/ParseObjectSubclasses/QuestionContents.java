@@ -34,4 +34,14 @@ public class QuestionContents extends ParseObject{
         put(Columns.correctAnswer, correctAnswer);
         put(Columns.explanation, explanation);
     }
+
+    public String getPassage() { return getString(Columns.passage); }
+    public String getQuestionText() { return getString(Columns.questionText); }
+    public ParseFile getImage() { return getParseFile(Columns.image); }
+    //TODO: author
+    public List<String> getAnswers() { return getList(Columns.answers); }
+    public int getCorrectIdx() { return getInt(Columns.correctAnswer); }
+    public String getExplanation() { return getString(Columns.explanation); }
+
+    public boolean isCorrect(int idx) { return idx == getCorrectIdx(); }
 }

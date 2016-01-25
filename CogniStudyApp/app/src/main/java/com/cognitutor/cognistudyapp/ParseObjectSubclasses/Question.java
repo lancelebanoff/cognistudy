@@ -4,6 +4,8 @@ import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import bolts.Task;
+
 /**
  * Created by Kevin on 1/18/2016.
  */
@@ -17,7 +19,7 @@ public class Question extends ParseObject {
         public static final String category = "category";
         public static final String hasPassage = "hasPassage";
         public static final String questionData = "questionData";
-        public static final String questionContents = "QuestionContents";
+        public static final String questionContents = "questionContents";
         public static final String reviewStatus = "reviewStatus";
     }
 
@@ -33,6 +35,9 @@ public class Question extends ParseObject {
     public String getCategory() { return getString(Columns.category); }
     public boolean hasPassage() { return getBoolean(Columns.hasPassage); }
     public QuestionContents getQuestionContents() { return (QuestionContents) getParseObject(Columns.questionContents); }
+    public Task<QuestionContents> getQuestionContentsInBackground() {
+        return ((QuestionContents) getParseObject(Columns.questionContents)).fetchIfNeededInBackground();
+    }
 
-    public ParseQuery<Question> getQuery() { return ParseQuery.getQuery(Question.class); }
+    public static ParseQuery<Question> getQuery() { return ParseQuery.getQuery(Question.class); }
 }

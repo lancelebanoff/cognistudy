@@ -28,11 +28,15 @@ import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.Fragments.QuestionFragment;
 import com.cognitutor.cognistudyapp.Fragments.ResponseFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
 import io.github.kexanie.library.MathView;
 
 public class QuestionActivity extends CogniActivity implements View.OnClickListener {
@@ -54,26 +58,50 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         listView = (ListView) findViewById(R.id.listView);
         addComponents();
 
-        List<String> answers = new ArrayList<String>();
-        answers.add("$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$$");
-        answers.add("$$x = {-b \\sqrt{b^2-4ac} \\over 2a}$$");
-        listView.setAdapter(new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER));
+        final Activity thisActivity = this;
+
+        Question question;
+        try {
+            question = Question.getQuery()
+                    .include(Question.Columns.questionContents)
+                    .get(mIntent.getStringExtra("questionId"));
+        } catch(ParseException e) { handleParseError(e); return; }
+
+        QuestionContents contents = question.getQuestionContents();
+
+        List<String> answers = contents.getAnswers();
+        listView.setAdapter(new AnswerAdapter(thisActivity, answers, Constants.AnswerLabelType.LETTER));
+        String questionText = contents.getQuestionText();
+        avh.mvQuestion.setText(contents.getQuestionText());
 
         avh.btnSetLatex.setOnClickListener(this);
-        avh.txtModifyQuestion.setText(avh.mvQuestion.getText());
 
-        avh.mvQuestion.setText(
-                "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
-                        "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
-        );
+//        List<String> answers = new ArrayList<String>();
+//        answers.add("$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$$");
+//        answers.add("$$x = {-b \\sqrt{b^2-4ac} \\over 2a}$$");
+//
+//        avh.txtModifyQuestion.setText(avh.mvQuestion.getText());
+//
+//        avh.mvQuestion.setText(
+//                "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
+//                        "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
+//        );
+//
+//        avh.wvPassage.loadData(
+//                "<html><body>" +
+//                        "You scored <u>192</u> points." +
+//                        "</body></html>",
+//                "text/html",
+//                "UTF-8"
+//        );
+    }
 
-        avh.wvPassage.loadData(
-                "<html><body>" +
-                        "You scored <u>192</u> points." +
-                        "</body></html>",
-                "text/html",
-                "UTF-8"
-        );
+    public Task<Question> loadQuestion(final Activity thisActivity) {
+
+        String questionId = mIntent.getStringExtra("questionId");
+        return Question.getQuery()
+            .include(Question.Columns.questionContents)
+            .getInBackground(questionId);
     }
 
     @Override
@@ -101,7 +129,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     }
 
     private void setLatex() {
-        avh.mvQuestion.setText(avh.txtModifyQuestion.getText().toString());
+        String text = avh.txtModifyQuestion.getText().toString();
+        avh.mvQuestion.setText(text);
     }
 
     public static void createNewQuestion() {
