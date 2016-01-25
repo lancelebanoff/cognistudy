@@ -74,60 +74,25 @@ public class AnswerAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View view, ViewGroup parent) {
-        AnswerViewHolder holder;
         String answer = getItem(position);
-        //LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         AnswerItem answerItem;
         if (view == null) {
-//            view = View.inflate(context, R.layout.list_item_answer, null);
-//            holder = createAnswerViewHolder(view);
-//            view.setTag(holder);
             answerItem = new AnswerItem(context, answer, position);
             view = answerItem.getView();
             view.setTag(answerItem);
         }
         else {
             answerItem = (AnswerItem) view.getTag();
-
-//            holder = (AnswerViewHolder) view.getTag();
         }
 
-//        view.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                selectAnswer(position);
-//            }
-//        });
-//            convertView = vi.inflate(R.layout.list_item_answer, null);
-//            holder = createAnswerViewHolder(convertView);
-//            convertView.setTag(holder);
-//        } else {
-//            holder = (AnswerViewHolder) convertView.getTag();
-//        }
-//
-//        holder.mvAnswer.setText(answer);
-//        if(answerLabelType.equals(Constants.AnswerLabelType.LETTER)) {
-//            holder.txtChoice.setText(Letters.values()[position].toString());
-//        }
-//        else {
-//            holder.txtChoice.setText(RomanNumerals.values()[position].toString());
-//        }
-
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectAnswer(position);
+            }
+        });
         return view;
     }
-
-    private AnswerViewHolder createAnswerViewHolder(View v) {
-        AnswerViewHolder holder = new AnswerViewHolder();
-        holder.mvAnswer = (MathView) v.findViewById(R.id.mvAnswer);
-        holder.rb = (RadioButton) v.findViewById(R.id.radioButton);
-        return holder;
-    }
-
-    private static class AnswerViewHolder {
-        public MathView mvAnswer;
-        private RadioButton rb;
-    }
-
 }
 
