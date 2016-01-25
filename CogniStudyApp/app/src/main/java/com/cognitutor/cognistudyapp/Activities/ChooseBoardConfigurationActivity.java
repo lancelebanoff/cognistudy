@@ -49,7 +49,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
 
     private void initializeBoard() {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        int user1or2 = 1;
 
         ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
@@ -99,9 +99,6 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
 
     public void onClick_btnStartChallenge(View view) {
         mBattleshipBoardManager.saveGameBoard();
-
-        Intent intent = new Intent(this, ChallengeActivity.class);
-        startActivity(intent);
         finish();
     }
 
