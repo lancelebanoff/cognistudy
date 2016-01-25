@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -40,4 +41,10 @@ public class Question extends ParseObject {
     }
 
     public static ParseQuery<Question> getQuery() { return ParseQuery.getQuery(Question.class); }
+
+    public static Question getQuestionWithContents(String questionId) throws ParseException{
+        return Question.getQuery()
+            .include(Question.Columns.questionContents)
+            .get(questionId);
+    }
 }

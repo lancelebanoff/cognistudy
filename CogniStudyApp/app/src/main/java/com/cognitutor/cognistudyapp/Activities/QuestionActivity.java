@@ -48,6 +48,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private Intent mIntent;
     private ListView listView;
     private ActivityViewHolder avh;
+    private Question question;
+    private QuestionContents contents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,36 +59,26 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
         listView = (ListView) findViewById(R.id.listView);
         addComponents();
+        avh.btnSetLatex.setOnClickListener(this);
+        loadQuestion();
+    }
 
-        final Activity thisActivity = this;
+    public void loadQuestion() {
 
-        Question question;
         try {
-            question = Question.getQuery()
-                    .include(Question.Columns.questionContents)
-                    .get(mIntent.getStringExtra("questionId"));
+            question = Question.getQuestionWithContents(mIntent.getStringExtra("questionId"));
         } catch(ParseException e) { handleParseError(e); return; }
 
-        QuestionContents contents = question.getQuestionContents();
+        contents = question.getQuestionContents();
 
         List<String> answers = contents.getAnswers();
-        listView.setAdapter(new AnswerAdapter(thisActivity, answers, Constants.AnswerLabelType.LETTER));
-        String questionText = contents.getQuestionText();
+        listView.setAdapter(new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER));
         avh.mvQuestion.setText(contents.getQuestionText());
+        avh.mvExplanation.setText(contents.getExplanation());
 
-        avh.btnSetLatex.setOnClickListener(this);
-
-//        List<String> answers = new ArrayList<String>();
-//        answers.add("$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$$");
-//        answers.add("$$x = {-b \\sqrt{b^2-4ac} \\over 2a}$$");
-//
-//        avh.txtModifyQuestion.setText(avh.mvQuestion.getText());
-//
-//        avh.mvQuestion.setText(
-//                "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
-//                        "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
-//        );
-//
+        if(question.hasPassage()) {
+            avh.wvPassage.loadData(contents.getPassage(), "text/html", "UTF-8");
+        }
 //        avh.wvPassage.loadData(
 //                "<html><body>" +
 //                        "You scored <u>192</u> points." +
@@ -94,14 +86,6 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 //                "text/html",
 //                "UTF-8"
 //        );
-    }
-
-    public Task<Question> loadQuestion(final Activity thisActivity) {
-
-        String questionId = mIntent.getStringExtra("questionId");
-        return Question.getQuery()
-            .include(Question.Columns.questionContents)
-            .getInBackground(questionId);
     }
 
     @Override
@@ -120,6 +104,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         listView.addFooterView(footer, null, false);
 
         avh = new ActivityViewHolder();
+        avh.mvExplanation.setVisibility(View.GONE);
     }
 
     @Override
@@ -140,7 +125,9 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     }
 
     public void showAnswer(View view) {
-        // Replace QuestionFragment with ResponseFragment
+
+        avh.mvExplanation.setVisibility(View.VISIBLE);
+//        avh.mvExplanation.setText(contents.getExplanation());
 
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
@@ -174,12 +161,14 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         private MathView mvQuestion;
         private EditText txtModifyQuestion;
         private Button btnSetLatex;
+        private MathView mvExplanation;
 
         private ActivityViewHolder() {
             wvPassage = (WebView) findViewById(R.id.wvPassage);
             mvQuestion = (MathView) findViewById(R.id.mvQuestion);
             txtModifyQuestion = (EditText) findViewById(R.id.txtModifyQuestion);
             btnSetLatex = (Button) findViewById(R.id.btnSetLatex);
+            mvExplanation = (MathView) findViewById(R.id.mvExplanation);
         }
     }
 }
