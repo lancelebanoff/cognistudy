@@ -3,13 +3,13 @@
     xmlns:auto="http://schemas.android.com/apk/res-auto"
     android:layout_width="256dp"
     android:layout_height="wrap_content"
-    android:layout_centerHorizontal="true">
+    android:layout_centerHorizontal="true" >
 
-    <RadioButton
-        android:id="@+id/radioButton"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginRight="10dp" />
+    <!--<RadioButton-->
+        <!--android:id="@+id/radioButton"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_marginRight="10dp" />-->
 
     <io.github.kexanie.library.MathView
         android:layout_toRightOf="@id/radioButton"

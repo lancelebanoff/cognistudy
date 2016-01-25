@@ -8,10 +8,12 @@ import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,7 +35,7 @@ import java.util.List;
 
 import io.github.kexanie.library.MathView;
 
-public class QuestionActivity extends CogniActivity {
+public class QuestionActivity extends CogniActivity implements AdapterView.OnItemClickListener {
 
     /**
      * Extras:
@@ -50,20 +52,45 @@ public class QuestionActivity extends CogniActivity {
         mIntent = getIntent();
 
         listView = (ListView) findViewById(R.id.listView);
-        addComponents();
+//        addComponents();
 
         List<String> answers = new ArrayList<String>();
         answers.add("$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}$$");
+        answers.add("$$x = {-b \\sqrt{b^2-4ac} \\over 2a}$$");
         listView.setAdapter(new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER));
 
-        avh.btnSetLatex.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setLatex();
-            }
-        });
-        avh.txtModifyQuestion.setText(avh.mvQuestion.getText());
+        listView.setOnItemClickListener(this);
+
+//        listView.setItemsCanFocus(false);
+
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                AnswerAdapter.selectAnswer(position);
+//            }
+//        });
+
+//        avh.btnSetLatex.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                setLatex();
+//            }
+//        });
+//        avh.txtModifyQuestion.setText(avh.mvQuestion.getText());
     }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        switch(view.getId()) {
+            case 100:
+                Log.i("View clicked!", "View clicked!");
+                break;
+            default:
+                Log.i("Something else clicked!", "");
+        }
+
+    }
+
 
     private void addComponents() {
         View header = getLayoutInflater().inflate(R.layout.header_question, listView, false);
@@ -78,18 +105,18 @@ public class QuestionActivity extends CogniActivity {
     public void onResume() {
         super.onResume();
 
-        avh.mvQuestion.setText(
-                "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
-                        "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
-        );
-
-        avh.wvPassage.loadData(
-                "<html><body>" +
-                        "You scored <u>192</u> points." +
-                        "</body></html>",
-                "text/html",
-                "UTF-8"
-        );
+//        avh.mvQuestion.setText(
+//                "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
+//                        "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
+//        );
+//
+//        avh.wvPassage.loadData(
+//                "<html><body>" +
+//                        "You scored <u>192</u> points." +
+//                        "</body></html>",
+//                "text/html",
+//                "UTF-8"
+//        );
     }
 
     private void setLatex() {
