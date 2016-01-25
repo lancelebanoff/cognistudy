@@ -61,6 +61,19 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
         avh.btnSetLatex.setOnClickListener(this);
         avh.txtModifyQuestion.setText(avh.mvQuestion.getText());
+
+        avh.mvQuestion.setText(
+                "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
+                        "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
+        );
+
+        avh.wvPassage.loadData(
+                "<html><body>" +
+                        "You scored <u>192</u> points." +
+                        "</body></html>",
+                "text/html",
+                "UTF-8"
+        );
     }
 
     @Override
@@ -85,18 +98,6 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     public void onResume() {
         super.onResume();
 
-        avh.mvQuestion.setText(
-                "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
-                        "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
-        );
-
-        avh.wvPassage.loadData(
-                "<html><body>" +
-                        "You scored <u>192</u> points." +
-                        "</body></html>",
-                "text/html",
-                "UTF-8"
-        );
     }
 
     private void setLatex() {
