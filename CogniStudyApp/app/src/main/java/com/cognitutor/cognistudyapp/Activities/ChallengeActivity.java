@@ -75,7 +75,6 @@ public class ChallengeActivity extends CogniActivity {
 
     private void showOrHideYourTurnButton() {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        final int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
 
         Challenge.getChallenge(challengeId)
                 .onSuccess(new Continuation<Challenge, Void>() {
