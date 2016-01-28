@@ -75,5 +75,7 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         Intent intent = new Intent(getActivity(), TutorProfileActivity.class);
         startActivity(intent);
     }
+
+
 }
 

@@ -32,8 +32,12 @@ import java.util.List;
 
 public class MainFragment extends CogniFragment implements View.OnClickListener {
 
+    private ChallengeQueryAdapter challengeRequestQueryAdapter;
     private ChallengeQueryAdapter yourTurnChallengeQueryAdapter;
+    private ChallengeQueryAdapter theirTurnChallengeQueryAdapter;
+    private ListView challengeRequestListView;
     private ListView yourTurnListView;
+    private ListView theirTurnListView;
 
     public MainFragment() {
     }
@@ -58,15 +62,42 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         b = (Button) rootView.findViewById(R.id.btnDeleteUser);
         b.setOnClickListener(this);
 
+        createChallengeRequestListView(rootView);
         createYourTurnListView(rootView);
+        createTheirTurnListView(rootView);
 
         return rootView;
     }
 
-    private void createYourTurnListView(View rootView) {
+    private void createChallengeRequestListView(View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
+                PublicUserData.getPublicUserData().getBaseUserId()));
+        challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+
+        challengeRequestListView = (ListView) rootView.findViewById(R.id.listChallengeRequests);
+        challengeRequestListView.setFocusable(false);
+        challengeRequestListView.setAdapter(challengeRequestQueryAdapter);
+        challengeRequestQueryAdapter.loadObjects();
+
+        challengeRequestQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+            @Override
+            public void onLoading() {
+
+            }
+
+            @Override
+            public void onLoaded(List<ParseObject> objects, Exception e) {
+                setListViewHeightBasedOnChildren(challengeRequestListView);
+            }
+        });
+    }
+
+    private void createYourTurnListView(View rootView) {
+        List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
         yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
 
@@ -84,6 +115,30 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
             @Override
             public void onLoaded(List<ParseObject> objects, Exception e) {
                 setListViewHeightBasedOnChildren(yourTurnListView);
+            }
+        });
+    }
+
+    private void createTheirTurnListView(View rootView) {
+        List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
+                PublicUserData.getPublicUserData().getBaseUserId()));
+        theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+
+        theirTurnListView = (ListView) rootView.findViewById(R.id.listTheirTurnChallenges);
+        theirTurnListView.setFocusable(false);
+        theirTurnListView.setAdapter(theirTurnChallengeQueryAdapter);
+        theirTurnChallengeQueryAdapter.loadObjects();
+
+        theirTurnChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+            @Override
+            public void onLoading() {
+
+            }
+
+            @Override
+            public void onLoaded(List<ParseObject> objects, Exception e) {
+                setListViewHeightBasedOnChildren(theirTurnListView);
             }
         });
     }

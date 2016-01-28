@@ -99,10 +99,20 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
 
     public void onClick_btnStartChallenge(View view) {
         mBattleshipBoardManager.saveGameBoard();
+
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        Challenge.getChallenge(challengeId)
+                .onSuccess(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        challenge.setActivated(true);
+                        return null;
+                    }
+                });
+
         finish();
     }
-
-    // TODO:3 what if player 2 sees the challenge before player 1 finishes choosing board config?
 
     @Override
     public void onBackPressed() {

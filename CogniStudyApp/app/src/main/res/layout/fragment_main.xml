@@ -46,11 +46,48 @@
                 android:layout_below="@id/btnLogout"
                 android:layout_centerHorizontal="true" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/btnDeleteUser"
+                android:id="@+id/txtChallengeRequests"
+                android:text="Challenge Requests" />
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/listChallengeRequests"
+                android:layout_below="@+id/txtChallengeRequests"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/listChallengeRequests"
+                android:id="@+id/txtYourTurn"
+                android:text="Your Turn" />
+
             <ListView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/listYourTurnChallenges"
-                android:layout_below="@+id/btnDeleteUser"
+                android:layout_below="@+id/txtYourTurn"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/listYourTurnChallenges"
+                android:id="@+id/txtTheirTurn"
+                android:text="Their Turn" />
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/listTheirTurnChallenges"
+                android:layout_below="@+id/txtTheirTurn"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true" />
 

@@ -29,6 +29,7 @@ public class Challenge extends ParseObject {
         public static final String numTurns = "numTurns";
         public static final String winner = "winner";
         public static final String accepted = "accepted";
+        public static final String activated = "activated";
     }
 
     public Challenge(ChallengeUserData user1Data, String challengeType) {
@@ -37,6 +38,7 @@ public class Challenge extends ParseObject {
         setStartDate(new Date());
         setNumTurns(0);
         setAccepted(false);
+        setActivated(false);
     }
 
     public Challenge() {}
@@ -169,5 +171,13 @@ public class Challenge extends ParseObject {
 
     public void setAccepted(boolean accepted) {
         put(Columns.accepted, accepted);
+    }
+
+    public boolean getActivated() {
+        return getBoolean(Columns.activated);
+    }
+
+    public void setActivated(boolean activated) {
+        put(Columns.activated, activated);
     }
 }
