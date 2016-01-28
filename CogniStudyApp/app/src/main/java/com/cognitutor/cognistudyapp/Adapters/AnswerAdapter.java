@@ -10,6 +10,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Custom.AnswerItem;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.R;
@@ -25,13 +26,13 @@ import io.github.kexanie.library.MathView;
 public class AnswerAdapter extends BaseAdapter {
 
     private final List<String> answers;
-    private Activity context;
+    private QuestionActivity quesActivity;
     private String answerLabelType;
     private List<RadioButton> radioButtonList;
     private int selectedIdx;
 
     public AnswerAdapter(Activity context, List<String> answers, String labelType) {
-        this.context = context;
+        this.quesActivity = (QuestionActivity) context;
         this.answers = answers;
         answerLabelType = labelType;
         radioButtonList = new ArrayList<RadioButton>();
@@ -39,6 +40,8 @@ public class AnswerAdapter extends BaseAdapter {
 
     public String getAnswerLabelType() { return answerLabelType; }
     public void selectAnswer(int position) {
+
+        quesActivity.setBtnSubmitEnabled(true);
         for(RadioButton button : radioButtonList)
             button.setChecked(button.getId() == position);
         selectedIdx = position;
@@ -78,7 +81,7 @@ public class AnswerAdapter extends BaseAdapter {
 
         AnswerItem answerItem;
         if (view == null) {
-            answerItem = new AnswerItem(context, this, answer, position);
+            answerItem = new AnswerItem(quesActivity, this, answer, position);
             view = answerItem.getView();
             view.setTag(answerItem);
         }

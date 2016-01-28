@@ -44,6 +44,7 @@ public class Constants {
 
             public static final String CHALLENGE_ACTIVITY = "CHALLENGE_ACTIVITY";
             public static final String SUGGESTED_QUESTIONS_ACTIVITY = "SUGGESTED_QUESTIONS_ACTIVITY";
+            public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
         }
 
         public static class OpponentId {

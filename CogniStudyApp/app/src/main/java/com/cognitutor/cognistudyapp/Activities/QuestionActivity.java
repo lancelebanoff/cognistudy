@@ -156,6 +156,9 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             case Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
                 navigateToParentActivity();
                 break;
+            case Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY:
+                navigateToParentActivity();
+                break;
         }
     }
 
@@ -171,6 +174,10 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         finish();
     }
 
+    public void setBtnSubmitEnabled(boolean val) {
+        avh.btnSubmit.setEnabled(val);
+    }
+
     private class ActivityViewHolder {
         private WebView wvPassage;
         private MathView mvQuestion;
@@ -179,6 +186,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         private MathView mvExplanation;
         private ViewGroup vgPostAnswer;
         private TextView txtCorrectIncorrect;
+        private Button btnSubmit;
 
         private ActivityViewHolder() {
             wvPassage = (WebView) findViewById(R.id.wvPassage);
@@ -188,6 +196,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             mvExplanation = (MathView) findViewById(R.id.mvExplanation);
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
+            btnSubmit = (Button) findViewById(R.id.btnSubmit);
         }
     }
 }
