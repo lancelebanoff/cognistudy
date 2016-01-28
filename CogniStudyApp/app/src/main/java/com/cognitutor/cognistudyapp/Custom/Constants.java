@@ -35,6 +35,8 @@ public class Constants {
         public static final String FINISH_CHALLENGE_ACTIVITY = "FINISH_CHALLENGE_ACTIVITY";
         public static final String FINISH_NEW_CHALLENGE_ACTIVITY = "FINISH_NEW_CHALLENGE_ACTIVITY";
 
+        public static final String QUESTION_ID = "QUESTION_ID";
+
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
 

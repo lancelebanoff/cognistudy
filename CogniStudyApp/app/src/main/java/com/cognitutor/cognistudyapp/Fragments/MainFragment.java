@@ -100,7 +100,7 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         switch(view.getId()) {
             case R.id.btnQuestion:
                 Intent intent = new Intent(getActivity(), QuestionActivity.class);
-                intent.putExtra("questionId", "fF4lsHt2iW");
+                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "fF4lsHt2iW"); //TODO: Replace with desired questionId
                 startActivity(intent);
                 break;
             case R.id.btnStartChallenge:

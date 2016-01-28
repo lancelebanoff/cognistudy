@@ -26,9 +26,9 @@ public class AnswerAdapter extends BaseAdapter {
 
     private final List<String> answers;
     private Activity context;
-    private static String answerLabelType;
-    private static List<RadioButton> radioButtonList;
-    private static int selectedIdx;
+    private String answerLabelType;
+    private List<RadioButton> radioButtonList;
+    private int selectedIdx;
 
     public AnswerAdapter(Activity context, List<String> answers, String labelType) {
         this.context = context;
@@ -37,16 +37,16 @@ public class AnswerAdapter extends BaseAdapter {
         radioButtonList = new ArrayList<RadioButton>();
     }
 
-    public static String getAnswerLabelType() { return answerLabelType; }
-    public static void selectAnswer(int position) {
+    public String getAnswerLabelType() { return answerLabelType; }
+    public void selectAnswer(int position) {
         for(RadioButton button : radioButtonList)
             button.setChecked(button.getId() == position);
         selectedIdx = position;
     }
-    public static void addRadioButton(RadioButton rb) {
+    public void addRadioButton(RadioButton rb) {
         radioButtonList.add(rb);
     }
-    public static int getSelectedAnswer() {
+    public int getSelectedAnswer() {
         return selectedIdx;
     }
 
@@ -78,7 +78,7 @@ public class AnswerAdapter extends BaseAdapter {
 
         AnswerItem answerItem;
         if (view == null) {
-            answerItem = new AnswerItem(context, answer, position);
+            answerItem = new AnswerItem(context, this, answer, position);
             view = answerItem.getView();
             view.setTag(answerItem);
         }

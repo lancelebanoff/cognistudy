@@ -4,39 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--android:visibility="gone"-->
-    <io.github.kexanie.library.MathView
-        android:id="@+id/mvExplanation"
+    <RelativeLayout
+        android:id="@+id/vgPostAnswer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        auto:text="explanation here" >
-    </io.github.kexanie.library.MathView>
+        android:visibility="gone" >
 
-    <!--android:layout_below="@id/viewSwitcher"-->
-    <EditText
-        android:id="@+id/txtModifyQuestion"
-        android:layout_below="@id/mvExplanation"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:text="Modify"
-        android:background="@color/grey"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtCorrectIncorrect"
+            android:layout_centerHorizontal="true" />
 
-    <Button
-        android:id="@+id/btnSetLatex"
-        android:layout_below="@id/txtModifyQuestion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="Set LaTeX"
-        android:textColor="@android:color/black" />
+        <io.github.kexanie.library.MathView
+            android:id="@+id/mvExplanation"
+            android:layout_below="@id/txtCorrectIncorrect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            auto:text="explanation here" >
+        </io.github.kexanie.library.MathView>
 
-    <!--android:layout_below="@id/mvExplanation"-->
+    </RelativeLayout>
+
     <ViewSwitcher
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/btnSetLatex"
+        android:layout_below="@id/vgPostAnswer"
         android:id="@+id/viewSwitcher"
-        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" >
 
         <Button
@@ -53,5 +47,23 @@
             android:id="@+id/btnContinue"
             android:onClick="navigateToNextActivity" />
     </ViewSwitcher>
+
+    <EditText
+        android:id="@+id/txtModifyQuestion"
+        android:layout_below="@id/viewSwitcher"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="Modify"
+        android:background="@color/grey"/>
+
+    <Button
+        android:id="@+id/btnSetLatex"
+        android:layout_below="@id/txtModifyQuestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Set LaTeX"
+        android:textColor="@android:color/black" />
+
 
 </RelativeLayout>

@@ -50,6 +50,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private ActivityViewHolder avh;
     private Question question;
     private QuestionContents contents;
+    private AnswerAdapter answerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,13 +67,14 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     public void loadQuestion() {
 
         try {
-            question = Question.getQuestionWithContents(mIntent.getStringExtra("questionId"));
+            question = Question.getQuestionWithContents(mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID));
         } catch(ParseException e) { handleParseError(e); return; }
 
         contents = question.getQuestionContents();
 
         List<String> answers = contents.getAnswers();
-        listView.setAdapter(new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER));
+        answerAdapter = new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER); //TODO: Choose letter or roman
+        listView.setAdapter(answerAdapter);
         avh.mvQuestion.setText(contents.getQuestionText());
         avh.mvExplanation.setText(contents.getExplanation());
 
@@ -104,7 +106,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         listView.addFooterView(footer, null, false);
 
         avh = new ActivityViewHolder();
-        avh.mvExplanation.setVisibility(View.GONE);
+//        avh.mvExplanation.setVisibility(View.GONE);
     }
 
     @Override
@@ -124,10 +126,19 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         );
     }
 
+    private boolean isSelectedAnswerCorrect() {
+        return answerAdapter.getSelectedAnswer() == contents.getCorrectIdx();
+    }
+
     public void showAnswer(View view) {
 
-        avh.mvExplanation.setVisibility(View.VISIBLE);
-//        avh.mvExplanation.setText(contents.getExplanation());
+        if(isSelectedAnswerCorrect()) {
+            avh.txtCorrectIncorrect.setText("Correct!");
+        }
+        else {
+            avh.txtCorrectIncorrect.setText("Incorrect!");
+        }
+        avh.vgPostAnswer.setVisibility(View.VISIBLE);
 
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
@@ -162,6 +173,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         private EditText txtModifyQuestion;
         private Button btnSetLatex;
         private MathView mvExplanation;
+        private ViewGroup vgPostAnswer;
+        private TextView txtCorrectIncorrect;
 
         private ActivityViewHolder() {
             wvPassage = (WebView) findViewById(R.id.wvPassage);
@@ -169,6 +182,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             txtModifyQuestion = (EditText) findViewById(R.id.txtModifyQuestion);
             btnSetLatex = (Button) findViewById(R.id.btnSetLatex);
             mvExplanation = (MathView) findViewById(R.id.mvExplanation);
+            vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
+            txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
         }
     }
 }

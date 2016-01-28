@@ -20,7 +20,7 @@ public class AnswerItem {
     private MathView mvAnswer;
     private RadioButton rb;
 
-    public AnswerItem(Context context, String answer, int position) {
+    public AnswerItem(Context context, AnswerAdapter parent, String answer, int position) {
 
         view = View.inflate(context, R.layout.list_item_answer, null);
 
@@ -29,9 +29,9 @@ public class AnswerItem {
 
         rb = (RadioButton) view.findViewById(R.id.radioButton);
         rb.setId(position);
-        AnswerAdapter.addRadioButton(rb);
+        parent.addRadioButton(rb);
 
-        if(AnswerAdapter.getAnswerLabelType().equals(Constants.AnswerLabelType.LETTER)) {
+        if(parent.getAnswerLabelType().equals(Constants.AnswerLabelType.LETTER)) {
             rb.setText(Letters.values()[position].toString());
         }
         else {
