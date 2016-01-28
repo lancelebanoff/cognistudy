@@ -300,7 +300,7 @@ public class NewChallengeActivity extends CogniActivity {
 
     private void navigateToChooseOpponentActivity(String challengeId) {
         Intent intent = new Intent(this, ChooseOpponentActivity.class);
-        intent.putExtra(Constants.IntentExtra.ChallengeId.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
         startActivity(intent);
         finish();
     }

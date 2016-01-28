@@ -11,6 +11,7 @@ import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
+import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.R;
@@ -21,6 +22,9 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 
 import java.util.HashMap;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class ChooseBoardConfigurationActivity extends CogniActivity {
 
@@ -39,14 +43,30 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_board_configuration);
         mIntent = getIntent();
-        // TODO:2 Delete challenge from database when hitting back button
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this, false);
-        initializeGridLayouts();
+        initializeBoard();
     }
 
-    public void onClick_Randomize(View view) {
-        mBattleshipBoardManager.placeShips();
+    private void initializeBoard() {
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        int user1or2 = 1;
+
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, false)
+                .continueWith(new Continuation<BattleshipBoardManager, Void>() {
+                    @Override
+                    public Void then(Task<BattleshipBoardManager> task) throws Exception {
+                        mBattleshipBoardManager = task.getResult();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                initializeGridLayouts();
+                            }
+                        });
+
+                        return null;
+                    }
+                });
     }
 
     private void initializeGridLayouts() {
@@ -73,20 +93,29 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         });
     }
 
-    public void onClick_btnStartChallenge(View view) {
-        saveBoardConfiguration();
+    public void onClick_Randomize(View view) {
+        mBattleshipBoardManager.placeShips();
+    }
 
-        Intent intent = new Intent(this, ChallengeActivity.class);
-        startActivity(intent);
+    public void onClick_btnStartChallenge(View view) {
+        mBattleshipBoardManager.saveGameBoard();
+        setChallengeActivated();
         finish();
     }
 
-    private void saveBoardConfiguration() {
-        // TODO:1 save board configuration
-
+    private void setChallengeActivated() {
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        Challenge.getChallenge(challengeId)
+                .onSuccess(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        challenge.setActivated(true);
+                        challenge.saveInBackground();
+                        return null;
+                    }
+                });
     }
-
-    // TODO:3 what if player 2 sees the challenge before player 1 finishes choosing board config?
 
     @Override
     public void onBackPressed() {
@@ -98,7 +127,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                     public void onClick(DialogInterface arg0, int arg1) {
 
                         String challengeId = mIntent.getStringExtra(
-                                Constants.IntentExtra.ChallengeId.CHALLENGE_ID);
+                                Constants.IntentExtra.CHALLENGE_ID);
                         ParseQuery<Challenge> query = Challenge.getQuery();
                         query.getInBackground(challengeId, new GetCallback<Challenge>() {
                             @Override

@@ -19,6 +19,8 @@ public class QuestionActivity extends CogniActivity
     /**
      * Extras:
      *      PARENT_ACTIVITY: string
+     *      CHALLENGE_ID: String
+     *      USER1OR2: int
      */
     private Intent mIntent;
 
@@ -67,6 +69,8 @@ public class QuestionActivity extends CogniActivity
 
     private void navigateToBattleshipAttackActivity() {
         Intent intent = new Intent(this, BattleshipAttackActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
         startActivity(intent);
         finish();
     }

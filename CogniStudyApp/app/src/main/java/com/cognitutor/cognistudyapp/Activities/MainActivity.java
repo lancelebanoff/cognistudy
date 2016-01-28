@@ -27,6 +27,7 @@ public class MainActivity extends AuthenticationActivity {
 
     private final String TAG = "MainActivity";
     private Activity mActivity = this;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +36,10 @@ public class MainActivity extends AuthenticationActivity {
 
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(sectionsPagerAdapter);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        mViewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setupWithViewPager(mViewPager);
 
         Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
         try {
@@ -70,6 +71,16 @@ public class MainActivity extends AuthenticationActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mViewPager.getCurrentItem() == 0) {
+            super.onBackPressed();
+        }
+        else {
+            mViewPager.setCurrentItem(0);
+        }
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
