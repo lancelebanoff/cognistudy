@@ -1,7 +1,6 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +31,6 @@ public class ChallengeActivity extends CogniActivity {
      */
     private Intent mIntent;
 
-    private Activity mActivity;
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
     private BroadcastReceiver mBroadcastReceiver;
@@ -44,10 +42,16 @@ public class ChallengeActivity extends CogniActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
         mIntent = getIntent();
-        mActivity = this;
         initializeBroadcastReceiver();
 
         initializeBoard();
+        showOrHideYourTurnButton();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         showOrHideYourTurnButton();
     }
 
@@ -83,9 +87,12 @@ public class ChallengeActivity extends CogniActivity {
                         Challenge challenge = task.getResult();
                         String currentUserId = PublicUserData.getPublicUserData().getBaseUserId();
                         boolean isCurrentUsersTurn = challenge.getCurTurnUserId().equals(currentUserId);
+                        Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
                         if(isCurrentUsersTurn) {
-                            Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
                             btnYourTurn.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            btnYourTurn.setVisibility(View.INVISIBLE);
                         }
                         return null;
                     }

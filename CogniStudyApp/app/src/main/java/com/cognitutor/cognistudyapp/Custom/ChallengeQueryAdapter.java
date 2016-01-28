@@ -122,7 +122,8 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                         finalView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if(!challenge.getAccepted()) {
+                                String userId = PublicUserData.getPublicUserData().getBaseUserId();
+                                if(!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId)) {
                                     promptAcceptChallenge(challenge, user1or2);
                                 }
                                 else {

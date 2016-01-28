@@ -72,6 +72,17 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        View rootView = getActivity().findViewById(R.id.viewpager);
+        createChallengeRequestListView(rootView);
+        createYourTurnListView(rootView);
+        createTheirTurnListView(rootView);
+        createPastChallengeListView(rootView);
+    }
+
     private void createChallengeRequestListView(View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
