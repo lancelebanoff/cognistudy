@@ -37,6 +37,8 @@ public class Constants {
         public static final String CHALLENGE_ID = "CHALLENGE_ID";
         public static final String USER1OR2 = "USER1OR2";
 
+        public static final String QUESTION_ID = "QUESTION_ID";
+
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
 
@@ -262,6 +264,11 @@ public class Constants {
         public static final String TUTOR_APPROVED = "TUTOR_APPROVED";
         public static final String APPROVED = "APPROVED";
         public static final String DENIED = "DENIED";
+    }
+
+    public static class AnswerLabelType {
+        public static final String LETTER = "LETTER";
+        public static final String ROMAN_NUMERAL = "ROMAN_NUMERAL";
     }
 
     public static Map<String, String[]> ShopItemGroupTypeToCustomizableTypes;

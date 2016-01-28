@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:auto="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/vgPostAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtCorrectIncorrect"
+            android:layout_centerHorizontal="true" />
+
+        <io.github.kexanie.library.MathView
+            android:id="@+id/mvExplanation"
+            android:layout_below="@id/txtCorrectIncorrect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            auto:text="explanation here" >
+        </io.github.kexanie.library.MathView>
+
+    </RelativeLayout>
+
+    <ViewSwitcher
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vgPostAnswer"
+        android:id="@+id/viewSwitcher"
+        android:layout_centerHorizontal="true" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:id="@+id/btnSubmit"
+            android:onClick="showAnswer" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Continue"
+            android:id="@+id/btnContinue"
+            android:onClick="navigateToNextActivity" />
+    </ViewSwitcher>
+
+    <EditText
+        android:id="@+id/txtModifyQuestion"
+        android:layout_below="@id/viewSwitcher"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="Modify"
+        android:background="@color/grey"/>
+
+    <Button
+        android:id="@+id/btnSetLatex"
+        android:layout_below="@id/txtModifyQuestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Set LaTeX"
+        android:textColor="@android:color/black" />
+
+
+</RelativeLayout>

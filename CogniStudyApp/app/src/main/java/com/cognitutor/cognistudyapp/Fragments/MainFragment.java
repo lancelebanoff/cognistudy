@@ -12,6 +12,8 @@ import android.widget.ListView;
 
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
+import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
+import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -55,7 +57,10 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         // TODO:2 Don't reload every time
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);
+        Button b = (Button) rootView.findViewById(R.id.btnQuestion);
+        b.setOnClickListener(this);
+
+        b = (Button) rootView.findViewById(R.id.btnStartChallenge);
         b.setOnClickListener(this);
 
         b = (Button) rootView.findViewById(R.id.btnLogout);
@@ -184,7 +189,6 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         pastChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
             @Override
             public void onLoading() {
-
             }
 
             @Override
@@ -216,6 +220,11 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
+            case R.id.btnQuestion:
+                Intent intent = new Intent(getActivity(), QuestionActivity.class);
+                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "fF4lsHt2iW"); //TODO: Replace with desired questionId
+                startActivity(intent);
+                break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
                 break;

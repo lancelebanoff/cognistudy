@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.cognitutor.cognistudyapp.Custom.ClickableListItem
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:auto="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <RadioButton
+        android:id="@+id/radioButton"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+         />
+
+    <io.github.kexanie.library.MathView
+        android:layout_centerHorizontal="true"
+        android:id="@+id/mvAnswer"
+        android:layout_marginLeft="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        auto:text="\\(x + 5\\)">
+    </io.github.kexanie.library.MathView>
+
+</com.cognitutor.cognistudyapp.Custom.ClickableListItem>
