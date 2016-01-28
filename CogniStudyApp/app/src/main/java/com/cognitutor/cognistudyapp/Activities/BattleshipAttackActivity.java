@@ -11,6 +11,7 @@ import android.widget.GridLayout;
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.R;
 
 import bolts.Continuation;
@@ -85,6 +86,8 @@ public class BattleshipAttackActivity extends CogniActivity {
     }
 
     public void onClick_btnDone(View view) {
+        setOtherPlayerTurn();
+
         // Exit ChallengeActivity and start a new one
         Intent finishActivityIntent = new Intent(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY);
         sendBroadcast(finishActivityIntent);
@@ -93,6 +96,23 @@ public class BattleshipAttackActivity extends CogniActivity {
         startActivityIntent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
         startActivity(startActivityIntent);
         finish();
+    }
+
+    private void setOtherPlayerTurn() {
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        Challenge.getChallenge(challengeId)
+                .onSuccess(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        String curTurnUserId = challenge.getCurTurnUserId();
+                        String otherTurnUserId = challenge.getOtherTurnUserId();
+                        challenge.setCurTurnUserId(otherTurnUserId);
+                        challenge.setOtherTurnUserId(curTurnUserId);
+                        challenge.saveInBackground();
+                        return null;
+                    }
+                });
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

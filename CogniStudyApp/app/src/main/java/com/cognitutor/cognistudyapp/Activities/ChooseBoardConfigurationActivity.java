@@ -99,7 +99,11 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
 
     public void onClick_btnStartChallenge(View view) {
         mBattleshipBoardManager.saveGameBoard();
+        setChallengeActivated();
+        finish();
+    }
 
+    private void setChallengeActivated() {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
         Challenge.getChallenge(challengeId)
                 .onSuccess(new Continuation<Challenge, Void>() {
@@ -107,11 +111,10 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         challenge.setActivated(true);
+                        challenge.saveInBackground();
                         return null;
                     }
                 });
-
-        finish();
     }
 
     @Override

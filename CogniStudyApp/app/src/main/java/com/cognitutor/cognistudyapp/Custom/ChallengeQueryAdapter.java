@@ -1,7 +1,9 @@
 package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Pair;
 import android.view.View;
@@ -19,6 +21,8 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,6 +54,25 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                     query = query.whereEqualTo((String) pair.first, pair.second);
                 }
                 return query;
+            }
+        });
+        mActivity = (Activity) context;
+    }
+
+    // Used past challenges, which uses an "or" query
+    public ChallengeQueryAdapter(Context context, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
+        super(context, new QueryFactory<ParseObject>() {
+            public ParseQuery create() {
+                List<ParseQuery<Challenge>> queries = new ArrayList<>();
+                for(List<Pair> keyValuePairs : keyValuePairsList) {
+                    ParseQuery query = Challenge.getQuery();
+//                        .fromLocalDatastore()
+                    for (Pair pair : keyValuePairs) {
+                        query = query.whereEqualTo((String) pair.first, pair.second);
+                    }
+                    queries.add(query);
+                }
+                return ParseQuery.or(queries);
             }
         });
         mActivity = (Activity) context;
@@ -99,10 +122,12 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                         finalView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Intent intent = new Intent(mActivity, ChallengeActivity.class);
-                                intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challenge.getObjectId());
-                                intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
-                                mActivity.startActivity(intent);
+                                if(!challenge.getAccepted()) {
+                                    promptAcceptChallenge(challenge, user1or2);
+                                }
+                                else {
+                                    navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+                                }
                             }
                         });
                     }
@@ -111,6 +136,39 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         });
 
         return finalView;
+    }
+
+    private void navigateToChallengeActivity(String challengeId, int user1or2) {
+        Intent intent = new Intent(mActivity, ChallengeActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
+        mActivity.startActivity(intent);
+    }
+
+    private void promptAcceptChallenge(final Challenge challenge, final int user1or2) {
+
+        new AlertDialog.Builder(mActivity)
+                .setTitle(R.string.title_dialog_cancel_challenge)
+                .setMessage(R.string.message_dialog_accept_challenge)
+                .setNeutralButton(R.string.cancel_dialog_accept_challenge, null)
+                .setNegativeButton(R.string.no_dialog_accept_challenge, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        challenge.setAccepted(true);
+                        challenge.setHasEnded(true);
+                        challenge.setEndDate(new Date());
+                        challenge.setWinner(Constants.ChallengeAttribute.Winner.NO_WINNER);
+                        challenge.saveInBackground();
+                    }
+                })
+                .setPositiveButton(R.string.yes_dialog_accept_challenge, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        challenge.setAccepted(true);
+                        challenge.saveInBackground();
+
+                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+                    }
+                }).create().show();
     }
 
     private ViewHolder createViewHolder(View v) {

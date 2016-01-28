@@ -35,9 +35,11 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     private ChallengeQueryAdapter challengeRequestQueryAdapter;
     private ChallengeQueryAdapter yourTurnChallengeQueryAdapter;
     private ChallengeQueryAdapter theirTurnChallengeQueryAdapter;
+    private ChallengeQueryAdapter pastChallengeQueryAdapter;
     private ListView challengeRequestListView;
     private ListView yourTurnListView;
     private ListView theirTurnListView;
+    private ListView pastChallengeListView;
 
     public MainFragment() {
     }
@@ -65,12 +67,14 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         createChallengeRequestListView(rootView);
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
+        createPastChallengeListView(rootView);
 
         return rootView;
     }
 
     private void createChallengeRequestListView(View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
@@ -96,6 +100,7 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
 
     private void createYourTurnListView(View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
@@ -121,6 +126,7 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
 
     private void createTheirTurnListView(View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
         theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
@@ -139,6 +145,40 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
             @Override
             public void onLoaded(List<ParseObject> objects, Exception e) {
                 setListViewHeightBasedOnChildren(theirTurnListView);
+            }
+        });
+    }
+
+    private void createPastChallengeListView(View rootView) {
+        List<Pair> keyValuePairs1 = new ArrayList<>();
+        keyValuePairs1.add(new Pair<>(Challenge.Columns.hasEnded, true));
+        keyValuePairs1.add(new Pair<>(Challenge.Columns.otherTurnUserId,
+                PublicUserData.getPublicUserData().getBaseUserId()));
+
+        List<Pair> keyValuePairs2 = new ArrayList<>();
+        keyValuePairs2.add(new Pair<>(Challenge.Columns.hasEnded, true));
+        keyValuePairs2.add(new Pair<>(Challenge.Columns.otherTurnUserId,
+                PublicUserData.getPublicUserData().getBaseUserId()));
+
+        List<List<Pair>> keyValuePairsList = new ArrayList<>();
+        keyValuePairsList.add(keyValuePairs1);
+        keyValuePairsList.add(keyValuePairs2);
+        pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairsList, true);
+
+        pastChallengeListView = (ListView) rootView.findViewById(R.id.listPastChallenges);
+        pastChallengeListView.setFocusable(false);
+        pastChallengeListView.setAdapter(pastChallengeQueryAdapter);
+        pastChallengeQueryAdapter.loadObjects();
+
+        pastChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+            @Override
+            public void onLoading() {
+
+            }
+
+            @Override
+            public void onLoaded(List<ParseObject> objects, Exception e) {
+                setListViewHeightBasedOnChildren(pastChallengeListView);
             }
         });
     }

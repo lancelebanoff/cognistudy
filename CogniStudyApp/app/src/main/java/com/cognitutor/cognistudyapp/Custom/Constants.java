@@ -53,6 +53,12 @@ public class Constants {
         }
     }
 
+    public static class ChallengeAttribute {
+        public static class Winner {
+            public static final String NO_WINNER = "NO_WINNER";
+        }
+    }
+
     public static class GameBoard {
         public static int NUM_ROWS = 11;
         public static int NUM_COLUMNS = 8;

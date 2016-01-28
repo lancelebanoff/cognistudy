@@ -91,6 +91,21 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/listTheirTurnChallenges"
+                android:id="@+id/txtPastChallenges"
+                android:text="Past Challenges" />
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/listPastChallenges"
+                android:layout_below="@+id/txtPastChallenges"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
         </RelativeLayout>
     </ScrollView>
 

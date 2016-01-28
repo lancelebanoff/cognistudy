@@ -10,11 +10,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.GridLayout;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 
 import bolts.Continuation;
@@ -45,6 +48,7 @@ public class ChallengeActivity extends CogniActivity {
         initializeBroadcastReceiver();
 
         initializeBoard();
+        showOrHideYourTurnButton();
     }
 
     private void initializeBoard() {
@@ -64,6 +68,26 @@ public class ChallengeActivity extends CogniActivity {
                             }
                         });
 
+                        return null;
+                    }
+                });
+    }
+
+    private void showOrHideYourTurnButton() {
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        final int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+
+        Challenge.getChallenge(challengeId)
+                .onSuccess(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        String currentUserId = PublicUserData.getPublicUserData().getBaseUserId();
+                        boolean isCurrentUsersTurn = challenge.getCurTurnUserId().equals(currentUserId);
+                        if(isCurrentUsersTurn) {
+                            Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
+                            btnYourTurn.setVisibility(View.VISIBLE);
+                        }
                         return null;
                     }
                 });
