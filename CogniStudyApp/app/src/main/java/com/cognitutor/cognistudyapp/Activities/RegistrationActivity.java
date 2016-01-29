@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
@@ -91,7 +93,14 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     Log.d("Onclick", "New user!");
                                     getUserDetailsFromFB();
                                 } else {
-                                    navigateToMainActivity();
+                                    setUpLocalDataStore();
+                                    FacebookUtils.getFriendsInBackground(true).continueWith(new Continuation<Void, Void>() {
+                                        @Override
+                                        public Void then(Task<Void> task) throws Exception {
+                                            navigateToMainActivity();
+                                            return null;
+                                        }
+                                    });
                                 }
                             }
                         });
@@ -205,6 +214,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                         if(e != null) {
                             Log.e("setUpStudentObjects err", e.getMessage());
                         }
+                        setUpLocalDataStore();
                         navigateToMainActivity();
                     }
                 });

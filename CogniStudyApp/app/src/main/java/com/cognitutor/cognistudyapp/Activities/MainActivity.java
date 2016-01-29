@@ -33,6 +33,10 @@ public class MainActivity extends AuthenticationActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+            UserUtils.pinTest();
+        }
+        catch (ParseException e) { handleParseError(e); }
 
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());

@@ -44,6 +44,7 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
                         setUpStudentObjects(ParseUser.getCurrentUser(), null, displayName, null, null, new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
+                                setUpLocalDataStore();
                                 navigateToMainActivity();
                             }
                         });

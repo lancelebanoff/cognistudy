@@ -3,6 +3,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
@@ -11,11 +12,13 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -50,11 +53,14 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     public void navigateToMainActivity() {
+        doNavigate(MainActivity.class, true);
+    }
+
+    public void setUpLocalDataStore() {
         try {
             UserUtils.pinTest();
         }
         catch (ParseException e) { handleParseError(e); return; }
-        doNavigate(MainActivity.class, true);
     }
 
     public void navigateToLoginActivity(View view) {
@@ -74,6 +80,8 @@ class AuthenticationActivity extends CogniActivity {
         final Student student = new Student(user, privateStudentData);
         final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
         finalizeUser(user, publicUserData, fbLinked);
+
+        final ParseInstallation installation = setUpInstallation(user.getObjectId());
 
         publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
             @Override
@@ -95,12 +103,24 @@ class AuthenticationActivity extends CogniActivity {
                         objects.add(student);
                         objects.add(publicUserData);
                         objects.add(user);
+                        objects.add(installation);
                         ParseObject.saveAllInBackground(objects, callback);
                         return null;
                     }
                 });
             }
         });
+    }
+    
+    private ParseInstallation setUpInstallation(String baseUserId) {
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        List<String> userIds = installation.getList("userIds");
+        if(userIds == null || userIds.isEmpty())
+            userIds = new ArrayList<String>();
+        userIds.add(baseUserId);
+        installation.put("userIds", userIds);
+        return installation;
     }
 
     private void finalizeUser(ParseUser user, PublicUserData publicUserData, boolean fbLinked) {
