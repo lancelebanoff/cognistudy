@@ -1,7 +1,7 @@
 Parse.Cloud.define("deleteChallenge", function(request, response) {
 	Parse.Cloud.useMasterKey();
 	var query = new Parse.Query("Challenge");
-	var id = request.params.challengeId;
+	var id = request.params.objectId;
 	query.equalTo("objectId", id);
 	query.find({ useMasterKey: true,
 		success: function(results) {

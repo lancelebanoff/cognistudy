@@ -27,11 +27,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
+
 public class NewChallengeActivity extends CogniActivity {
 
     /**
      * Extras:
      *      PARENT_ACTIVITY: string
+     *      USER1OR2: int
+     *      CHALLENGE_ID: string
      */
     private Intent mIntent;
     private ArrayList<CheckBox> mSubjectCheckboxes;
@@ -142,8 +147,8 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void displayOpponent() {
-        int opponentId = mIntent.getIntExtra(Constants.IntentExtra.OpponentId.OPPONENT_ID, Constants.IntentExtra.OpponentId.UNKNOWN);
-        if(opponentId == Constants.IntentExtra.OpponentId.UNKNOWN) {
+        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        if(user1or2 == 1) {
             // Switch from opponent info to radio button to choose opponent
             ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
             viewSwitcher.showNext();
@@ -168,14 +173,31 @@ public class NewChallengeActivity extends CogniActivity {
             }
         }
         else {
-            TextView txtPlayerName = (TextView) findViewById(R.id.txtPlayerName);
-            txtPlayerName.setText("Player " + opponentId);
+            String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+            Challenge.getChallenge(challengeId)
+                    .onSuccess(new Continuation<Challenge, Void>() {
+                        @Override
+                        public Void then(Task<Challenge> task) throws Exception {
+                            Challenge challenge = task.getResult();
+                            ChallengeUserData user1Data = challenge.getUser1Data().fetchIfNeeded();
+                            PublicUserData user1PublicUserData = user1Data.getPublicUserData();
+                            String user1Name = user1PublicUserData.getDisplayName();
+
+                            // TODO:2 Display name and photo
+                            TextView txtPlayerName = (TextView) findViewById(R.id.txtPlayerName);
+                            txtPlayerName.setText(user1Name);
+
+                            return null;
+                        }
+                    });
         }
     }
 
     private void setDefaults() {
         mRbDefaultTest.performClick();
-        mRbDefaultOpponent.performClick();
+        if(mRbDefaultOpponent != null) {
+            mRbDefaultOpponent.performClick();
+        }
     }
 
     // Changing selected test resets all of the selected subjects and categories
@@ -269,6 +291,16 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void saveChallenge() {
+        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        if(user1or2 == 1) {
+            saveNewChallenge();
+        }
+        else {
+            saveExistingChallenge();
+        }
+    }
+
+    private void saveNewChallenge() {
         PublicUserData user1PublicUserData = PublicUserData.getPublicUserData();
         ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, mSelectedSubjects,
                 mSelectedCategories);
@@ -279,11 +311,10 @@ public class NewChallengeActivity extends CogniActivity {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    if(mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
-                        navigateToChooseOpponentActivity(challenge.getObjectId());
-                    }
-                    else {
-                        navigateToChooseBoardConfigurationActivity();
+                    if (mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
+                        navigateToChooseOpponentActivity(challenge.getObjectId(), 1);
+                    } else {
+                        navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
                     }
                 } else {
                     e.printStackTrace();
@@ -292,15 +323,39 @@ public class NewChallengeActivity extends CogniActivity {
         });
     }
 
-    private void navigateToChooseBoardConfigurationActivity() {
+    private void saveExistingChallenge() {
+        final String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+
+        Challenge.getChallenge(challengeId)
+                .onSuccess(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
+
+                        user2Data.setSubjects(mSelectedSubjects);
+                        user2Data.setCategories(mSelectedCategories);
+                        user2Data.saveInBackground();
+
+                        navigateToChooseBoardConfigurationActivity(challengeId, 2);
+
+                        return null;
+                    }
+                });
+    }
+
+    private void navigateToChooseBoardConfigurationActivity(String challengeId, int user1or2) {
         Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
         startActivity(intent);
         finish();
     }
 
-    private void navigateToChooseOpponentActivity(String challengeId) {
+    private void navigateToChooseOpponentActivity(String challengeId, int user1or2) {
         Intent intent = new Intent(this, ChooseOpponentActivity.class);
         intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
         startActivity(intent);
         finish();
     }

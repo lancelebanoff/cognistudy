@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
+import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -64,7 +65,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 List<ParseQuery<Challenge>> queries = new ArrayList<>();
-                for(List<Pair> keyValuePairs : keyValuePairsList) {
+                for (List<Pair> keyValuePairs : keyValuePairsList) {
                     ParseQuery query = Challenge.getQuery();
 //                        .fromLocalDatastore()
                     for (Pair pair : keyValuePairs) {
@@ -146,6 +147,13 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         mActivity.startActivity(intent);
     }
 
+    private void navigateToNewChallengeActivity(String challengeId, int user1or2) {
+        Intent intent = new Intent(mActivity, NewChallengeActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
+        mActivity.startActivity(intent);
+    }
+
     private void promptAcceptChallenge(final Challenge challenge, final int user1or2) {
 
         new AlertDialog.Builder(mActivity)
@@ -167,7 +175,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                         challenge.setAccepted(true);
                         challenge.saveInBackground();
 
-                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+                        navigateToNewChallengeActivity(challenge.getObjectId(), user1or2);
                     }
                 }).create().show();
     }
@@ -185,8 +193,14 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         holder.imgProfile.setParseFile(opponentUserData.getPublicUserData().getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtName.setText(opponentUserData.getPublicUserData().getDisplayName());
-        holder.setTxtSubjects(currentUserData.getSubjects());
-        holder.txtScore.setText("" + currentUserData.getScore() + " - " + opponentUserData.getScore());
+        if(currentUserData.getSubjects() != null) {
+            holder.setTxtSubjects(currentUserData.getSubjects());
+            holder.txtScore.setText("" + currentUserData.getScore() + " - " + opponentUserData.getScore());
+        }
+        else {
+            holder.txtSubjects.setText("");
+            holder.txtScore.setText("");
+        }
     }
 
     private static class ViewHolder {

@@ -58,6 +58,8 @@ public class ChooseOpponentActivity extends CogniActivity {
         Intent intent = new Intent(this, ChooseBoardConfigurationActivity.class);
         intent.putExtra(Constants.IntentExtra.CHALLENGE_ID,
                 mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
+        intent.putExtra(Constants.IntentExtra.USER1OR2,
+                mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
         startActivity(intent);
         finish();
     }
