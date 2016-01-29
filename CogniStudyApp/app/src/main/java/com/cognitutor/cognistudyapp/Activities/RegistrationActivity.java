@@ -93,10 +93,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     Log.d("Onclick", "New user!");
                                     getUserDetailsFromFB();
                                 } else {
-                                    try {
-                                        UserUtils.pinTest();
-                                    }
-                                    catch (ParseException e2) { handleParseError(e2); return; }
+                                    setUpLocalDataStore();
                                     FacebookUtils.getFriendsInBackground(true).continueWith(new Continuation<Void, Void>() {
                                         @Override
                                         public Void then(Task<Void> task) throws Exception {
@@ -217,6 +214,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                         if(e != null) {
                             Log.e("setUpStudentObjects err", e.getMessage());
                         }
+                        setUpLocalDataStore();
                         navigateToMainActivity();
                     }
                 });

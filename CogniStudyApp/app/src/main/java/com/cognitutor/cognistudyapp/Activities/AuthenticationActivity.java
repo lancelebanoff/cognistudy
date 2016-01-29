@@ -51,11 +51,14 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     public void navigateToMainActivity() {
+        doNavigate(MainActivity.class, true);
+    }
+
+    public void setUpLocalDataStore() {
         try {
             UserUtils.pinTest();
         }
         catch (ParseException e) { handleParseError(e); return; }
-        doNavigate(MainActivity.class, true);
     }
 
     public void navigateToLoginActivity(View view) {
