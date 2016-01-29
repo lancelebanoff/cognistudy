@@ -13,7 +13,7 @@ Parse.Cloud.define("sendPush", function(request, response) {
 		data: {
 			title: "Test title",
 			alert: "Test content",
-			activity: "QuestionActivity"
+			fragment: "MainFragment",
 		}
 	}, {
 		success: function() {

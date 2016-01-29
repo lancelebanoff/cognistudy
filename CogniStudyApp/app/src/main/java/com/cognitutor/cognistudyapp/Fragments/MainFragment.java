@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
+import com.cognitutor.cognistudyapp.Activities.CogniPushListenerFragment;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -25,6 +25,9 @@ import com.parse.ParseObject;
 import com.parse.ParseQueryAdapter;
 import com.parse.ParseUser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +36,7 @@ import java.util.List;
  * Created by Lance on 12/27/2015.
  */
 
-public class MainFragment extends CogniFragment implements View.OnClickListener {
+public class MainFragment extends CogniPushListenerFragment implements View.OnClickListener {
 
     private ChallengeQueryAdapter challengeRequestQueryAdapter;
     private ChallengeQueryAdapter yourTurnChallengeQueryAdapter;
@@ -44,7 +47,7 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     private ListView theirTurnListView;
     private ListView pastChallengeListView;
 
-    public static TextView txtChange;
+    public TextView txtChange;
 
     public MainFragment() {
     }
@@ -262,5 +265,24 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         Intent intent = new Intent(getActivity(), NewChallengeActivity.class);
         intent.putExtra(Constants.IntentExtra.USER1OR2, 1);
         startActivity(intent);
+    }
+
+    @Override
+    public JSONObject getConditions() {
+        JSONObject conditions = new JSONObject();
+        try {
+            conditions.put("fragment", "MainFragment");
+        } catch (JSONException e) { e.printStackTrace(); }
+        return conditions;
+    }
+
+    @Override
+    public void onReceiveHandler() {
+        if (txtChange.getText().equals("Test 1")) {
+            txtChange.setText("Test 2!!!");
+        }
+        else {
+            txtChange.setText("Test 1");
+        }
     }
 }
