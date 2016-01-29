@@ -12,11 +12,13 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -79,6 +81,8 @@ class AuthenticationActivity extends CogniActivity {
         final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
         finalizeUser(user, publicUserData, fbLinked);
 
+        final ParseInstallation installation = setUpInstallation(user.getObjectId());
+
         publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -99,12 +103,24 @@ class AuthenticationActivity extends CogniActivity {
                         objects.add(student);
                         objects.add(publicUserData);
                         objects.add(user);
+                        objects.add(installation);
                         ParseObject.saveAllInBackground(objects, callback);
                         return null;
                     }
                 });
             }
         });
+    }
+    
+    private ParseInstallation setUpInstallation(String baseUserId) {
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        List<String> userIds = installation.getList("userIds");
+        if(userIds == null || userIds.isEmpty())
+            userIds = new ArrayList<String>();
+        userIds.add(baseUserId);
+        installation.put("userIds", userIds);
+        return installation;
     }
 
     private void finalizeUser(ParseUser user, PublicUserData publicUserData, boolean fbLinked) {
