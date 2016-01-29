@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
@@ -92,6 +93,10 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     Log.d("Onclick", "New user!");
                                     getUserDetailsFromFB();
                                 } else {
+                                    try {
+                                        UserUtils.pinTest();
+                                    }
+                                    catch (ParseException e2) { handleParseError(e2); return; }
                                     FacebookUtils.getFriendsInBackground(true).continueWith(new Continuation<Void, Void>() {
                                         @Override
                                         public Void then(Task<Void> task) throws Exception {

@@ -84,20 +84,37 @@ public class FacebookUtils {
         for(PublicUserData friend : friends) {
             tasks.add(friend.fetchIfNeededInBackground());
         }
-        return Task.whenAll(tasks).onSuccessTask(new Continuation<Void, Task<Void>>() {
+        return Task.whenAll(tasks).continueWithTask(new Continuation<Void, Task<Void>>() {
 
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
+                if (task.isFaulted()) {
+                    Log.e("Error in fetching", task.getError().toString());
+                }
                 return PublicUserData.pinAllInBackground("fbFriends", friends);
             }
-        }).onSuccessTask(new Continuation<Void, Task<Void>>() {
+        }).continueWithTask(new Continuation<Void, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
+                if (task.isFaulted()) {
+                    Log.e("Error in pinning", task.getError().toString());
+                }
                 PrivateStudentData privateStudentData = PrivateStudentData.getPrivateStudentData();
                 privateStudentData.put(PrivateStudentData.Columns.friends, friends);
                 return privateStudentData.saveInBackground();
             }
-        });
+        }).continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then (Task <Void> task) {
+                    if (task.isFaulted()) {
+                        String message = task.getError().getMessage();
+                        Log.e("Error in saving private", task.getError().getMessage());
+                    } else {
+                        Log.e("saving private", "Ok");
+                    }
+                    return null;
+                }
+            });
     }
 
     private static Task<List<PublicUserData>> getPublicUserDataFromFriendIds(ArrayList<String> fbFriendsList) {

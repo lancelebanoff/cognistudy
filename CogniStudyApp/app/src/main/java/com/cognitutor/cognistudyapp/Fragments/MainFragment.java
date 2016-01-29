@@ -75,10 +75,10 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
 
         txtChange = (TextView) rootView.findViewById(R.id.txtChange);
 
-        createChallengeRequestListView(rootView);
+/*        createChallengeRequestListView(rootView);
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
+        createPastChallengeListView(rootView);*/
 
         return rootView;
     }
@@ -93,11 +93,11 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     public void onResume() {
         super.onResume();
 
-        View rootView = getActivity().findViewById(R.id.viewpager);
+/*        View rootView = getActivity().findViewById(R.id.viewpager);
         createChallengeRequestListView(rootView);
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
+        createPastChallengeListView(rootView);*/
     }
 
     private void createChallengeRequestListView(View rootView) {
