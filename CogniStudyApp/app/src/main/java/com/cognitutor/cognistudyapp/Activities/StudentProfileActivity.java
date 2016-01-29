@@ -13,14 +13,18 @@ import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.GetDataCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
+
+import java.util.HashMap;
 
 public class StudentProfileActivity extends CogniActivity {
 
     private ViewHolder holder;
     private Intent mIntent;
+    private PublicUserData publicUserData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,17 +34,22 @@ public class StudentProfileActivity extends CogniActivity {
         holder = createViewHolder();
         mIntent = getIntent();
 
-        PublicUserData publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra("publicUserDataId"));
+        publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra("publicUserDataId"));
         holder.txtName.setText(publicUserData.getDisplayName());
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
     }
 
     public void navigateToNewChallengeActivity(View view) {
+        HashMap<String, Object> pushParams = new HashMap<String, Object>();
+        pushParams.put("baseUserId", publicUserData.getBaseUserId());
+        ParseCloud.callFunctionInBackground("sendPush", pushParams);
+        /*
         Intent intent = new Intent(this, NewChallengeActivity.class);
         // TODO:2 put opponent's user id
         intent.putExtra(Constants.IntentExtra.OpponentId.OPPONENT_ID, 23);
         startActivity(intent);
+        */
     }
 
     private ViewHolder createViewHolder() {

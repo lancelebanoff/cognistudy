@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
@@ -23,7 +24,9 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 
 /**
  * Created by Kevin on 12/30/2015.

@@ -11,8 +11,13 @@ import java.util.Map;
 public class Constants {
 
     public static class Parse {
-        public static String APPLICATION_ID = "iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY";
-        public static String CLIENT_KEY = "mtCu0UsCYrVvQVIEkMlNkLoEFLlsIabVnWhTXvdA";
+        public static final String APPLICATION_ID = "iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY";
+        public static final String CLIENT_KEY = "mtCu0UsCYrVvQVIEkMlNkLoEFLlsIabVnWhTXvdA";
+    }
+
+    public static class Roles {
+        public static final String TUTOR = "TUTOR";
+        public static final String ADMIN = "ADMIN";
     }
 
     public static String[] getAllConstants(Class c) {

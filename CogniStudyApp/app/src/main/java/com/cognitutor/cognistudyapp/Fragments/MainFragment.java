@@ -7,8 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
@@ -43,6 +45,8 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     private ListView theirTurnListView;
     private ListView pastChallengeListView;
 
+    public static TextView txtChange;
+
     public MainFragment() {
     }
 
@@ -69,12 +73,20 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
         b = (Button) rootView.findViewById(R.id.btnDeleteUser);
         b.setOnClickListener(this);
 
+        txtChange = (TextView) rootView.findViewById(R.id.txtChange);
+
         createChallengeRequestListView(rootView);
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
         createPastChallengeListView(rootView);
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        txtChange = null;
+        super.onDestroyView();
     }
 
     @Override
@@ -221,10 +233,15 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                Intent intent = new Intent(getActivity(), QuestionActivity.class);
+                /*
+                HashMap<String, Object> pushParams = new HashMap<String, Object>();
+                pushParams.put("baseUserId", "K7NwtoD79q");
+                ParseCloud.callFunctionInBackground("sendPush", pushParams);
+                */
+/*                Intent intent = new Intent(getActivity(), QuestionActivity.class);
                 intent.putExtra(Constants.IntentExtra.QUESTION_ID, "fF4lsHt2iW"); //TODO: Replace with desired questionId
                 intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
-                startActivity(intent);
+                startActivity(intent);*/
                 break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
