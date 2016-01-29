@@ -1,4 +1,4 @@
-package com.cognitutor.cognistudyapp.Activities;
+package com.cognitutor.cognistudyapp.Fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
