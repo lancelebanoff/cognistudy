@@ -8,9 +8,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.parse.ParseFile;
 import com.parse.ParseObject;
-import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;

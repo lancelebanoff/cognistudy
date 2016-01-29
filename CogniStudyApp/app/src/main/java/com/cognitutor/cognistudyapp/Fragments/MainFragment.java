@@ -11,9 +11,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
-import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
-import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
+import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -249,7 +248,7 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
 
     private void navigateToNewChallengeActivity() {
         Intent intent = new Intent(getActivity(), NewChallengeActivity.class);
-        intent.putExtra(Constants.IntentExtra.OpponentId.OPPONENT_ID, Constants.IntentExtra.OpponentId.UNKNOWN);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, 1);
         startActivity(intent);
     }
 }

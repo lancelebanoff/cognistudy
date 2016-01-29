@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 
 import java.util.List;
@@ -39,7 +40,13 @@ public class ChallengeUserData extends ParseObject {
     public ChallengeUserData() {}
 
     public PublicUserData getPublicUserData() {
-        return (PublicUserData) getParseObject(Columns.publicUserData);
+        PublicUserData publicUserData = (PublicUserData) getParseObject(Columns.publicUserData);
+        try {
+            return publicUserData.fetchIfNeeded();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     // TODO:1 get rid of useless methods

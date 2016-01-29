@@ -1,20 +1,12 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.GetDataCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
 import com.parse.ParseImageView;
 
 public class StudentProfileActivity extends CogniActivity {
@@ -39,7 +31,6 @@ public class StudentProfileActivity extends CogniActivity {
     public void navigateToNewChallengeActivity(View view) {
         Intent intent = new Intent(this, NewChallengeActivity.class);
         // TODO:2 put opponent's user id
-        intent.putExtra(Constants.IntentExtra.OpponentId.OPPONENT_ID, 23);
         startActivity(intent);
     }
 

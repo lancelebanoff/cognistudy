@@ -31,8 +31,11 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     /**
      * Extras:
      *      CHALLENGE_ID: String
+     *      USER1OR2: int
      */
     private Intent mIntent;
+    private String mChallengeId;
+    private int mUser1or2;
 
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
@@ -48,10 +51,10 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     }
 
     private void initializeBoard() {
-        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        int user1or2 = 1;
+        mChallengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
 
-        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, false)
+        ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, mUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {
@@ -99,13 +102,17 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
 
     public void onClick_btnStartChallenge(View view) {
         mBattleshipBoardManager.saveGameBoard();
-        setChallengeActivated();
+        if(mUser1or2 == 1) {
+            setChallengeActivated();
+        }
+        else {
+            navigateToChallengeActivity();
+        }
         finish();
     }
 
     private void setChallengeActivated() {
-        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        Challenge.getChallenge(challengeId)
+        Challenge.getChallenge(mChallengeId)
                 .onSuccess(new Continuation<Challenge, Void>() {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
@@ -117,43 +124,53 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                 });
     }
 
+    private void navigateToChallengeActivity() {
+        Intent intent = new Intent(this, ChallengeActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mChallengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mUser1or2);
+        startActivity(intent);
+        finish();
+    }
+
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.title_dialog_cancel_challenge)
-                .setMessage(R.string.message_dialog_cancel_challenge)
-                .setNegativeButton(R.string.no_dialog_cancel_challenge, null)
-                .setPositiveButton(R.string.yes_dialog_cancel_challenge, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
+        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
 
-                        String challengeId = mIntent.getStringExtra(
-                                Constants.IntentExtra.CHALLENGE_ID);
-                        ParseQuery<Challenge> query = Challenge.getQuery();
-                        query.getInBackground(challengeId, new GetCallback<Challenge>() {
-                            @Override
-                            public void done(Challenge challenge, ParseException e) {
-                                if (e == null) {
-                                    final HashMap<String, Object> params = new HashMap<>();
-                                    params.put("challengeId", challenge.getObjectId());
-                                    ParseCloud.callFunctionInBackground(
-                                            Constants.CloudCodeFunction.DELETE_CHALLENGE,
-                                            params, new FunctionCallback<Object>() {
-                                                @Override
-                                                public void done(Object object, ParseException e) {
-                                                    if (e != null) {
-                                                        e.printStackTrace();
+        if(user1or2 == 1) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.title_dialog_cancel_challenge)
+                    .setMessage(R.string.message_dialog_cancel_challenge)
+                    .setNegativeButton(R.string.no_dialog_cancel_challenge, null)
+                    .setPositiveButton(R.string.yes_dialog_cancel_challenge, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface arg0, int arg1) {
+
+                            ParseQuery<Challenge> query = Challenge.getQuery();
+                            query.getInBackground(mChallengeId, new GetCallback<Challenge>() {
+                                @Override
+                                public void done(Challenge challenge, ParseException e) {
+                                    if (e == null) {
+                                        final HashMap<String, Object> params = new HashMap<>();
+                                        params.put(Challenge.Columns.objectId, challenge.getObjectId());
+                                        ParseCloud.callFunctionInBackground(
+                                                Constants.CloudCodeFunction.DELETE_CHALLENGE,
+                                                params, new FunctionCallback<Object>() {
+                                                    @Override
+                                                    public void done(Object object, ParseException e) {
+                                                        if (e != null) {
+                                                            e.printStackTrace();
+                                                        }
                                                     }
-                                                }
-                                            });
-                                } else {
-                                    e.printStackTrace();
+                                                });
+                                    } else {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        });
+                            });
 
-                        ChooseBoardConfigurationActivity.super.onBackPressed();
-                    }
-                }).create().show();
+                            ChooseBoardConfigurationActivity.super.onBackPressed();
+                        }
+                    }).create().show();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

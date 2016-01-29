@@ -46,14 +46,6 @@ public class Constants {
             public static final String SUGGESTED_QUESTIONS_ACTIVITY = "SUGGESTED_QUESTIONS_ACTIVITY";
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
         }
-
-        public static class OpponentId {
-            public static final String OPPONENT_ID = "OPPONENT_ID";
-
-            public static final int UNKNOWN = -1;
-            public static final int COMPUTER = -2;
-            public static final int PRACTICE = -3;
-        }
     }
 
     public static class ChallengeAttribute {
