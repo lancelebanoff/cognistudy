@@ -75,10 +75,10 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
 
         txtChange = (TextView) rootView.findViewById(R.id.txtChange);
 
-/*        createChallengeRequestListView(rootView);
+        createChallengeRequestListView(rootView);
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);*/
+        createPastChallengeListView(rootView);
 
         return rootView;
     }
@@ -93,11 +93,11 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     public void onResume() {
         super.onResume();
 
-/*        View rootView = getActivity().findViewById(R.id.viewpager);
+        View rootView = getActivity().findViewById(R.id.viewpager);
         createChallengeRequestListView(rootView);
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);*/
+        createPastChallengeListView(rootView);
     }
 
     private void createChallengeRequestListView(View rootView) {
@@ -233,15 +233,10 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                /*
-                HashMap<String, Object> pushParams = new HashMap<String, Object>();
-                pushParams.put("baseUserId", "K7NwtoD79q");
-                ParseCloud.callFunctionInBackground("sendPush", pushParams);
-                */
-/*                Intent intent = new Intent(getActivity(), QuestionActivity.class);
+                Intent intent = new Intent(getActivity(), QuestionActivity.class);
                 intent.putExtra(Constants.IntentExtra.QUESTION_ID, "fF4lsHt2iW"); //TODO: Replace with desired questionId
                 intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
-                startActivity(intent);*/
+                startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
