@@ -104,6 +104,7 @@ public class CogniActivity extends AppCompatActivity {
 
     public void logout() throws ParseException {
         ParseObject.unpinAll("CurrentUser");
+        ParseObject.unpinAll("fbFriends");
         ParseUser.logOut();
     }
 
