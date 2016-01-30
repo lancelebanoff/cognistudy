@@ -35,4 +35,5 @@ dependencies {
     compile 'com.parse:parseui-login-android:0.0.1'
     compile 'com.parse:parseui-widget-android:0.0.1'
     compile 'io.github.kexanie.library:MathView:0.0.4'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.+'
 }

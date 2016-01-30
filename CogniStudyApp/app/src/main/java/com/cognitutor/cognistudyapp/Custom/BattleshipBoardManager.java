@@ -13,6 +13,10 @@ import com.cognitutor.cognistudyapp.R;
 
 import java.util.ArrayList;
 
+import pl.droidsonroids.gif.AnimationListener;
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
+
 /**
  * Created by Lance on 1/5/2016.
  */
@@ -28,6 +32,7 @@ public class BattleshipBoardManager {
     private ArrayList<ShipData> mShipDatas;
     private String[][] mBoardPositionStatus;
     private boolean mCanBeAttacked;
+    private GifImageView gifImageView;
 
     public BattleshipBoardManager(Activity activity, Challenge challenge,
                                   ChallengeUserData challengeUserData, GameBoard gameBoard,
@@ -109,6 +114,8 @@ public class BattleshipBoardManager {
             drawShip(shipData.shipRow, shipData.shipColumn, shipData.shipHeight, shipData.shipWidth,
                     shipData.shipDrawableId);
         }
+
+        drawGif(2, 4, 2, 2, R.drawable.explosion);
     }
 
     public void drawDeadShips() {
@@ -314,6 +321,26 @@ public class BattleshipBoardManager {
         layoutParams.width = mShipsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * shipWidth;
         imgShip.setLayoutParams(layoutParams);
         mShipsGridLayout.addView(imgShip);
+    }
+
+    private void drawGif(int row, int col, int height, int width, int shipDrawableId) {
+        gifImageView = new GifImageView(mActivity);
+        gifImageView.setImageResource(shipDrawableId);
+        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+        layoutParams.rowSpec = GridLayout.spec(row, height);
+        layoutParams.columnSpec = GridLayout.spec(col, width);
+        layoutParams.height = mShipsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * height;
+        layoutParams.width = mShipsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * width;
+        gifImageView.setLayoutParams(layoutParams);
+        mShipsGridLayout.addView(gifImageView);
+
+        GifDrawable gifDrawable = (GifDrawable) gifImageView.getDrawable();
+        gifDrawable.addAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationCompleted(int loopNumber) {
+                gifImageView.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void retrieveShipDatas() {
