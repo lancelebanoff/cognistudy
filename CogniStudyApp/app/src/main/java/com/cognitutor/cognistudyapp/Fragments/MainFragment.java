@@ -11,6 +11,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
@@ -270,7 +271,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public JSONObject getConditions() {
         JSONObject conditions = new JSONObject();
         try {
-            conditions.put("fragment", "MainFragment");
+            conditions.put(Constants.NotificationData.ACTIVITY, Constants.NotificationData.Activity.MAIN_ACTIVITY);
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
     }

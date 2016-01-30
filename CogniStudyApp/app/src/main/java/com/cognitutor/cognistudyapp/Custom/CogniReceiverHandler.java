@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.Custom;
 
+import android.content.Context;
+
 import org.json.JSONObject;
 
 /**

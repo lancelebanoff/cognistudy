@@ -13,15 +13,15 @@ import com.cognitutor.cognistudyapp.Custom.CogniReceiverHandler;
 public abstract class CogniPushListenerActivity extends CogniActivity implements CogniReceiverHandler {
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onResume() {
         CogniBroadcastReceiver.registerReceiverHandler(this);
-        super.onCreate(savedInstanceState);
+        super.onResume();
     }
 
     @Override
-    public void onDestroy() {
+    public void onPause() {
         CogniBroadcastReceiver.unregisterReceiverHandler(this);
-        super.onDestroy();
+        super.onPause();
     }
 }
 
