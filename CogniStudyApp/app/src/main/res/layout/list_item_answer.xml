@@ -18,7 +18,8 @@
         android:layout_marginLeft="100dp"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        auto:text="\\(x + 5\\)">
+        auto:text="\\(x + 5\\)"
+        auto:engine="KaTeX">
     </io.github.kexanie.library.MathView>
 
 </com.cognitutor.cognistudyapp.Custom.ClickableListItem>

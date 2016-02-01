@@ -3,21 +3,21 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Passage;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -26,9 +26,7 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseInstallation;
 import com.parse.ParseObject;
-import com.parse.ParsePush;
 
 /**
  * Created by Kevin on 12/30/2015.
@@ -73,12 +71,13 @@ public class App extends Application {
         ParseObject.registerSubclass(Challenge.class);
         ParseObject.registerSubclass(ChallengeUserData.class);
         ParseObject.registerSubclass(GameBoard.class);
-        ParseObject.registerSubclass(StudentCategoryStats.class);
-        ParseObject.registerSubclass(StudentSubjectStats.class);
+        ParseObject.registerSubclass(StudentCategoryRollingStats.class);
+        ParseObject.registerSubclass(StudentSubjectRollingStats.class);
+        ParseObject.registerSubclass(StudentTotalRollingStats.class);
         ParseObject.registerSubclass(Question.class);
         ParseObject.registerSubclass(QuestionContents.class);
         ParseObject.registerSubclass(QuestionData.class);
-        ParseObject.registerSubclass(Passage.class);
+        ParseObject.registerSubclass(QuestionBundle.class);
     }
 }
 

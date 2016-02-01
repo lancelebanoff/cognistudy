@@ -80,8 +80,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         avh.mvQuestion.setText(contents.getQuestionText());
         avh.mvExplanation.setText(contents.getExplanation());
 
-        if(question.hasPassage()) {
-            avh.wvPassage.loadData(contents.getPassage(), "text/html", "UTF-8");
+        if(question.isBundle()) {
+            avh.wvPassage.loadData(contents.getQuestionBundle().getPassageText(), "text/html", "UTF-8");
         }
 //        avh.wvPassage.loadData(
 //                "<html><body>" +

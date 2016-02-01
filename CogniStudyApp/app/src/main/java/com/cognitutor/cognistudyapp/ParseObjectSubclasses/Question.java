@@ -18,7 +18,7 @@ public class Question extends ParseObject {
     public static class Columns {
         public static final String subject = "subject";
         public static final String category = "category";
-        public static final String hasPassage = "hasPassage";
+        public static final String isBundle = "isBundle";
         public static final String questionData = "questionData";
         public static final String questionContents = "questionContents";
         public static final String reviewStatus = "reviewStatus";
@@ -34,7 +34,7 @@ public class Question extends ParseObject {
 
     public String getSubject() { return getString(Columns.subject); }
     public String getCategory() { return getString(Columns.category); }
-    public boolean hasPassage() { return getBoolean(Columns.hasPassage); }
+    public boolean isBundle() { return getBoolean(Columns.isBundle); }
     public QuestionContents getQuestionContents() { return (QuestionContents) getParseObject(Columns.questionContents); }
     public Task<QuestionContents> getQuestionContentsInBackground() {
         return ((QuestionContents) getParseObject(Columns.questionContents)).fetchIfNeededInBackground();
