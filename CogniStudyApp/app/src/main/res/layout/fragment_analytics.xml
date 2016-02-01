@@ -1,30 +1,48 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/relativeLayout"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.AnalyticsFragment">
+    tools:context=".Fragments.AnalyticsFragment"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_weight="5">
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/subjects"
+            android:spinnerMode="dropdown" />
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/date_ranges"
+            android:spinnerMode="dropdown" />
+
+    </LinearLayout>
 
     <com.github.mikephil.charting.charts.PieChart
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/pieChart"
-        android:layout_above="@+id/txtSubjectAnalyticsFragment"
+        android:layout_weight="3"
         />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text=" "
-        android:id="@+id/txtSubjectAnalyticsFragment"
-        android:layout_gravity="center"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
 
     <com.github.mikephil.charting.charts.HorizontalBarChart
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/horizontalBarChart"
-        android:layout_below="@+id/txtSubjectAnalyticsFragment"
+        android:layout_weight="4"
         />
-</RelativeLayout>
+
+    <com.github.mikephil.charting.charts.BarChart
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/doubleBarChart"
+        android:layout_weight="4"
+        />
+</LinearLayout>

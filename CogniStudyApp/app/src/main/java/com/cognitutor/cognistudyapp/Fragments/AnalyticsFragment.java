@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.cognitutor.cognistudyapp.R;
 import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -30,7 +31,8 @@ import java.util.ArrayList;
 public class AnalyticsFragment extends CogniFragment {
 
     private PieChart mPieChart;
-    private HorizontalBarChart mChart;
+    private HorizontalBarChart mHorizBarChart;
+    private BarChart mDoubleBarChart;
 
     public AnalyticsFragment() {
     }
@@ -41,6 +43,7 @@ public class AnalyticsFragment extends CogniFragment {
 
         drawPieChart();
         drawBarChart();
+        drawDoubleBarChart();
     }
 
     private void drawPieChart() {
@@ -72,7 +75,7 @@ public class AnalyticsFragment extends CogniFragment {
 
         setPieChartData(2);
 
-        mPieChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
+        mPieChart.animateY(1500, Easing.EasingOption.EaseInOutQuad);
         mPieChart.getLegend().setEnabled(false);
     }
 
@@ -113,36 +116,36 @@ public class AnalyticsFragment extends CogniFragment {
     }
 
     private void drawBarChart() {
-        mChart = (HorizontalBarChart) getView().findViewById(R.id.horizontalBarChart);
-        mChart.setDrawBarShadow(false);
-        mChart.setDrawValueAboveBar(true);
-        mChart.setDescription("");
-        mChart.setDrawGridBackground(false);
-        mChart.getLegend().setEnabled(false);
+        mHorizBarChart = (HorizontalBarChart) getView().findViewById(R.id.horizontalBarChart);
+        mHorizBarChart.setDrawBarShadow(false);
+        mHorizBarChart.setDrawValueAboveBar(true);
+        mHorizBarChart.setDescription("");
+        mHorizBarChart.setDrawGridBackground(false);
+        mHorizBarChart.getLegend().setEnabled(false);
 
-        XAxis xl = mChart.getXAxis();
+        XAxis xl = mHorizBarChart.getXAxis();
         xl.setPosition(XAxis.XAxisPosition.BOTTOM);
         xl.setDrawAxisLine(false);
         xl.setDrawGridLines(false);
         xl.setGridLineWidth(0.3f);
 
-        YAxis yl = mChart.getAxisLeft();
+        YAxis yl = mHorizBarChart.getAxisLeft();
         yl.setDrawAxisLine(false);
         yl.setDrawGridLines(false);
         yl.setGridLineWidth(0.3f);
         yl.setAxisMaxValue(110);
         yl.setEnabled(false);
 
-        YAxis yr = mChart.getAxisRight();
+        YAxis yr = mHorizBarChart.getAxisRight();
         yr.setDrawAxisLine(false);
         yr.setDrawGridLines(false);
         yr.setEnabled(false);
 
-        setBarChartData(5);
-        mChart.animateY(2500);
+        setBarChartData();
+        mHorizBarChart.animateY(1500);
     }
 
-    private void setBarChartData(int count) {
+    private void setBarChartData() {
 
         ArrayList<BarEntry> yVals1 = new ArrayList<BarEntry>();
         ArrayList<String> xVals = new ArrayList<String>();
@@ -150,10 +153,10 @@ public class AnalyticsFragment extends CogniFragment {
         xVals.add("Pre-Algebra");
         xVals.add("Algebra");
         xVals.add("Geometry");
-        xVals.add("Trigonometry");
-        xVals.add("Data Analysis");
+//        xVals.add("Trigonometry");
+//        xVals.add("Data Analysis");
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < 3; i++) {
             yVals1.add(new BarEntry((float) ((i+1)*20), i));
         }
 
@@ -164,7 +167,73 @@ public class AnalyticsFragment extends CogniFragment {
         BarData data = new BarData(xVals, dataSets);
         data.setValueTextSize(10f);
 
-        mChart.setData(data);
+        mHorizBarChart.setData(data);
+    }
+
+    private void drawDoubleBarChart() {
+        mDoubleBarChart = (BarChart) getView().findViewById(R.id.doubleBarChart);
+        mDoubleBarChart.setDrawBarShadow(false);
+        mDoubleBarChart.setDrawValueAboveBar(true);
+        mDoubleBarChart.setDescription("");
+        mDoubleBarChart.setDrawGridBackground(false);
+        mDoubleBarChart.getLegend().setEnabled(false);
+
+        XAxis xl = mDoubleBarChart.getXAxis();
+        xl.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xl.setDrawAxisLine(false);
+        xl.setDrawGridLines(false);
+        xl.setGridLineWidth(0.3f);
+
+        YAxis yl = mDoubleBarChart.getAxisLeft();
+        yl.setDrawAxisLine(false);
+        yl.setDrawGridLines(false);
+        yl.setGridLineWidth(0.3f);
+        yl.setEnabled(false);
+
+        YAxis yr = mDoubleBarChart.getAxisRight();
+        yr.setDrawAxisLine(false);
+        yr.setDrawGridLines(false);
+        yr.setEnabled(false);
+
+        setDoubleBarChartData();
+        mDoubleBarChart.animateY(1500);
+    }
+
+    private void setDoubleBarChartData() {
+
+        ArrayList<BarEntry> yVals1 = new ArrayList<BarEntry>();
+        ArrayList<String> xVals = new ArrayList<String>();
+
+        xVals.add("2/1");
+        xVals.add("2/2");
+        xVals.add("2/3");
+        xVals.add("2/4");
+        xVals.add("2/5");
+        xVals.add("2/6");
+        xVals.add("2/7");
+
+        ArrayList<BarDataSet> dataSets = new ArrayList<BarDataSet>();
+
+        for(int d = 0; d < 7; d++) {
+            float value1 = (d+1)*10;
+            float value2 = (d+1)*20;
+            yVals1.add(new BarEntry(new float[] {value1, value2}, d));
+        }
+
+        BarDataSet set1 = new BarDataSet(yVals1, "Math");
+
+        ArrayList<Integer> colors = new ArrayList<Integer>();
+        colors.add(Color.rgb(255, 150, 150));
+        colors.add(Color.rgb(150, 220, 150));
+        set1.setColors(colors);
+
+        set1.setStackLabels(new String[] {"Incorrect", "Correct"});
+        dataSets.add(set1);
+
+        BarData data = new BarData(xVals, dataSets);
+        data.setValueTextSize(10f);
+
+        mDoubleBarChart.setData(data);
     }
 
     @Override
