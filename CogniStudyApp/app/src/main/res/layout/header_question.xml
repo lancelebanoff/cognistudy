@@ -10,7 +10,7 @@
         android:layout_height="wrap_content">
     </WebView>
 
-    <io.github.kexanie.library.MathView
+    <com.cognitutor.cognistudyapp.Custom.CogniMathView
         android:id="@+id/mvQuestion"
         android:layout_below="@id/wvPassage"
         android:layout_width="match_parent"
@@ -18,6 +18,6 @@
         auto:text="When \\(a \\ne 0\\), there are two solutions to from xml \\(ax^2 + bx + c = 0\\)
         and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
         auto:engine="MathJax">
-    </io.github.kexanie.library.MathView>
+    </com.cognitutor.cognistudyapp.Custom.CogniMathView>
 
 </RelativeLayout>

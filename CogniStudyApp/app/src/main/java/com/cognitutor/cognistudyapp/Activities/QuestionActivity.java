@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
+import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.Fragments.QuestionFragment;
@@ -31,6 +32,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
+import com.x5.template.Chunk;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -180,7 +182,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     private class ActivityViewHolder {
         private WebView wvPassage;
-        private MathView mvQuestion;
+        private CogniMathView mvQuestion;
         private EditText txtModifyQuestion;
         private Button btnSetLatex;
         private MathView mvExplanation;
@@ -190,7 +192,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
         private ActivityViewHolder() {
             wvPassage = (WebView) findViewById(R.id.wvPassage);
-            mvQuestion = (MathView) findViewById(R.id.mvQuestion);
+            mvQuestion = (CogniMathView) findViewById(R.id.mvQuestion);
             txtModifyQuestion = (EditText) findViewById(R.id.txtModifyQuestion);
             btnSetLatex = (Button) findViewById(R.id.btnSetLatex);
             mvExplanation = (MathView) findViewById(R.id.mvExplanation);
