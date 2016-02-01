@@ -14,6 +14,9 @@ import com.x5.template.Chunk;
 import com.x5.template.Theme;
 import com.x5.template.providers.AndroidTemplates;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class CogniMathView extends WebView {
     private String mText;
     private String mConfig;
@@ -53,6 +56,9 @@ public class CogniMathView extends WebView {
     }
 
     public void setText(String text) {
+
+        //text = addUndersets(text);
+
         mText = text;
         Chunk chunk = getChunk();
 
@@ -61,27 +67,14 @@ public class CogniMathView extends WebView {
         chunk.set(TAG_FORMULA, mText);
         chunk.set(TAG_CONFIG, mConfig);
 
-        String style = "<style type=\"text/css\">" +
-                "@font-face{" +
-                        "font-family: MyFont;" +
-//                        "src: url(\"file:///android_asset/fonts/AftaSansThin-Regular.otf\")" +
-                        "src: url(\"file:///android_asset/fonts/lmroman10-regular.otf\")" +
-                "}" +
-                "body {" +
-                        "font-family: MyFont;" +
-//                        "font-weight: bold;" +
-                "}" +
-                "</style>";
-
         String chunkString = chunk.toString();
-        String head = "<head>";
-        int idx = chunkString.indexOf(head) + head.length();
-        String beginning = chunkString.substring(0, idx);
-        String end = chunkString.substring(idx + 1);
-        String full = beginning + style + end;
+
+        String styledHtml = addStyle(chunkString);
+
+        String finalHtml = addUndersets(styledHtml);
 
         //this.loadDataWithBaseURL(null, chunk.toString(), "text/html", "utf-8", "about:blank");
-        this.loadDataWithBaseURL(null, full, "text/html", "utf-8", "about:blank");
+        this.loadDataWithBaseURL(null, finalHtml, "text/html", "utf-8", "about:blank");
     }
 
     public String getText() {
@@ -131,5 +124,71 @@ public class CogniMathView extends WebView {
     public static class Engine {
         final public static int KATEX = 0;
         final public static int MATHJAX = 1;
+    }
+
+    private String addStyle(String input) {
+
+        String style = "<style type=\"text/css\">" +
+                "@font-face{" +
+                "font-family: MyFont;" +
+//                        "src: url(\"file:///android_asset/fonts/AftaSansThin-Regular.otf\")" +
+                "src: url(\"file:///android_asset/fonts/lmroman10-regular.otf\")" +
+                "}" +
+                "body {" +
+                "font-family: MyFont;" +
+//                        "font-weight: bold;" +
+                "}" +
+                "</style>";
+
+        String head = "<head>";
+        int idx = input.indexOf(head) + head.length();
+        String beginning = input.substring(0, idx);
+        String end = input.substring(idx + 1);
+        return beginning + style + end;
+    }
+
+    private String addUndersets(String input) {
+
+        if(!input.contains("\\underset"))
+            return input;
+
+        String startBody = "<body>";
+        int startIdx = input.indexOf(startBody) + startBody.length();
+        String endBody = "</body>";
+        int endIdx = input.indexOf(endBody);
+
+        String beginning = input.substring(0, startIdx);
+        String body = input.substring(startIdx, endIdx);
+        String end = input.substring(endIdx);
+
+        String backslash = "\\\\";
+        String openParen = "\\(";
+        String closeParen = "\\)";
+        String notBackslash = "[^" + backslash + "]";
+//		String equation = "\\\\\\(([^\\\\]|\\\\(?!\\)))*\\\\\\)";
+//		String equation = backslash + openParen + "([^\\\\]|\\\\(?!\\)))*" + backslash + closeParen;
+        String equation = backslash + openParen + "("+notBackslash+"|"+backslash+"(?!"+closeParen+"))*" + backslash + closeParen;
+
+        String word = "[^\\s\\\\]*\\w[^\\s\\\\]*";
+
+        String notWord = "[\\s*[\\W&&[^\\\\]]*\\s*]+";
+
+        String regex = equation + "|" + word + "|" + notWord;
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(body);
+
+        StringBuilder sb = new StringBuilder();
+
+        while(matcher.find()) {
+            String found = matcher.group();
+            if(Pattern.matches(word, found)) {
+                found = "\\(\\underset{\\text{ }}{\\textrm{" + found + "}}\\)";
+            }
+            Log.i("line", found);
+            sb.append(found);
+        }
+
+        return beginning + sb.toString() + end;
     }
 }

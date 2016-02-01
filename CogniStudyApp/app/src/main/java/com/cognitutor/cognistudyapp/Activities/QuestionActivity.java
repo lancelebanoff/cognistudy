@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -79,6 +80,15 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         List<String> answers = contents.getAnswers();
         answerAdapter = new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER); //TODO: Choose letter or roman
         listView.setAdapter(answerAdapter);
+
+        avh.mvQuestion.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                avh.txtModifyQuestion.setText("Done!");
+                super.onPageFinished(view, url);
+            }
+        });
+
         avh.mvQuestion.setText(contents.getQuestionText());
         avh.mvExplanation.setText(contents.getExplanation());
 
