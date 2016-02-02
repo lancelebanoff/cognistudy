@@ -215,19 +215,19 @@ public class AnalyticsFragment extends CogniFragment {
         ArrayList<BarDataSet> dataSets = new ArrayList<BarDataSet>();
 
         for(int d = 0; d < 7; d++) {
-            float value1 = (d+1)*10;
-            float value2 = (d+1)*20;
+            float value1 = (d+1)*20;
+            float value2 = (d+1)*10;
             yVals1.add(new BarEntry(new float[] {value1, value2}, d));
         }
 
         BarDataSet set1 = new BarDataSet(yVals1, "Math");
 
         ArrayList<Integer> colors = new ArrayList<Integer>();
-        colors.add(Color.rgb(255, 150, 150));
         colors.add(Color.rgb(150, 220, 150));
+        colors.add(Color.rgb(255, 150, 150));
         set1.setColors(colors);
 
-        set1.setStackLabels(new String[] {"Incorrect", "Correct"});
+        set1.setStackLabels(new String[] {"Correct", "Incorrect"});
         dataSets.add(set1);
 
         BarData data = new BarData(xVals, dataSets);
