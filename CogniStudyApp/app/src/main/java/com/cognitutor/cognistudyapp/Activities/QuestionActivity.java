@@ -89,7 +89,9 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             }
         });
 
-        avh.mvQuestion.setText(contents.getQuestionText());
+//        avh.mvQuestion.setText(contents.getQuestionText());
+
+        avh.mvQuestion.loadUrl("file:///android_asset/html/passage.html");
         avh.mvExplanation.setText(contents.getExplanation());
 
         if(question.isBundle()) {
@@ -131,7 +133,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     private void setLatex() {
         String text = avh.txtModifyQuestion.getText().toString();
-        avh.mvQuestion.setText(text);
+//        avh.mvQuestion.setText(text);
     }
 
     public static void createNewQuestion() {
@@ -192,7 +194,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     private class ActivityViewHolder {
         private WebView wvPassage;
-        private CogniMathView mvQuestion;
+        private WebView mvQuestion;
         private EditText txtModifyQuestion;
         private Button btnSetLatex;
         private MathView mvExplanation;
@@ -202,7 +204,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
         private ActivityViewHolder() {
             wvPassage = (WebView) findViewById(R.id.wvPassage);
-            mvQuestion = (CogniMathView) findViewById(R.id.mvQuestion);
+            mvQuestion = (WebView) findViewById(R.id.mvQuestion);
             txtModifyQuestion = (EditText) findViewById(R.id.txtModifyQuestion);
             btnSetLatex = (Button) findViewById(R.id.btnSetLatex);
             mvExplanation = (MathView) findViewById(R.id.mvExplanation);
