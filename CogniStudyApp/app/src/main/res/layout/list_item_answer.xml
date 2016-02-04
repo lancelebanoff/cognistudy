@@ -12,14 +12,14 @@
         android:layout_centerVertical="true"
          />
 
-    <io.github.kexanie.library.MathView
+    <com.cognitutor.cognistudyapp.Custom.CogniMathView
         android:layout_centerHorizontal="true"
         android:id="@+id/mvAnswer"
         android:layout_marginLeft="100dp"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         auto:text="\\(x + 5\\)"
-        auto:engine="KaTeX">
-    </io.github.kexanie.library.MathView>
+        auto:engine="MathJax">
+    </com.cognitutor.cognistudyapp.Custom.CogniMathView>
 
 </com.cognitutor.cognistudyapp.Custom.ClickableListItem>

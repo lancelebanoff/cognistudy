@@ -17,14 +17,14 @@ import io.github.kexanie.library.MathView;
 public class AnswerItem {
 
     private View view;
-    private MathView mvAnswer;
+    private CogniMathView mvAnswer;
     private RadioButton rb;
 
     public AnswerItem(Context context, AnswerAdapter parent, String answer, int position) {
 
         view = View.inflate(context, R.layout.list_item_answer, null);
 
-        mvAnswer = (MathView) view.findViewById(R.id.mvAnswer);
+        mvAnswer = (CogniMathView) view.findViewById(R.id.mvAnswer);
         mvAnswer.setText(answer);
 
         rb = (RadioButton) view.findViewById(R.id.radioButton);

@@ -71,10 +71,11 @@ public class CogniMathView extends WebView {
 
         String styledHtml = addStyle(chunkString);
 
-        String finalHtml = addUndersets(styledHtml);
+//        String finalHtml = addUndersets(styledHtml);
+//        String finalHtml = addUndersets(chunkString);
 
         //this.loadDataWithBaseURL(null, chunk.toString(), "text/html", "utf-8", "about:blank");
-        this.loadDataWithBaseURL(null, finalHtml, "text/html", "utf-8", "about:blank");
+        this.loadDataWithBaseURL(null, styledHtml, "text/html", "utf-8", "about:blank");
     }
 
     public String getText() {
@@ -138,13 +139,26 @@ public class CogniMathView extends WebView {
                 "font-family: MyFont;" +
 //                        "font-weight: bold;" +
                 "}" +
+                ".passage p {" +
+                    "line-height:3em;" +
+                "}" +
+                ".passage span {" +
+                    "padding-bottom:.5em;" +
+                    "margin-top:3em;" +
+                "}" +
+                ".ansA { background: url(http://media.actstudent.org/designimages/one.gif) 50% 100% no-repeat; }" +
+                ".ansB { background: url(http://media.actstudent.org/designimages/two.gif) 50% 100% no-repeat; }" +
+                ".ansB { background: url(http://media.actstudent.org/designimages/three.gif) 50% 100% no-repeat; }" +
+                ".ansD { background: url(http://media.actstudent.org/designimages/four.gif) 50% 100% no-repeat; }" +
+                ".ansE { background: url(http://media.actstudent.org/designimages/five.gif) 50% 100% no-repeat; }" +
                 "</style>";
+        String script = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/font-booster-fixer.js\"></script>";
 
         String head = "<head>";
         int idx = input.indexOf(head) + head.length();
         String beginning = input.substring(0, idx);
         String end = input.substring(idx + 1);
-        return beginning + style + end;
+        return beginning + style + script + end;
     }
 
     private String addUndersets(String input) {

@@ -19,9 +19,11 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.FindCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 import com.parse.ParseUser;
 
@@ -29,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -236,8 +239,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         switch(view.getId()) {
             case R.id.btnQuestion:
                 Intent intent = new Intent(getActivity(), QuestionActivity.class);
-                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "fF4lsHt2iW"); //TODO: Replace with desired questionId
+                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
                 intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
+//                eO4TCrdBdn
+//                fF4lsHt2iW
                 startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
