@@ -15,6 +15,32 @@ import bolts.Task;
  */
 public class ChallengeUtils {
 
+    public static Task<BattleshipBoardManager> initializeNewBattleshipBoardManager(
+            final Activity activity, String challengeId, final int user1or2, final boolean canBeAttacked) {
+
+        final Capture<Challenge> challengeCapture = new Capture<>(null);
+
+        Task<BattleshipBoardManager> task = Challenge.getChallenge(challengeId)
+                .onSuccessTask(new Continuation<Challenge, Task<ChallengeUserData>>() {
+                    @Override
+                    public Task<ChallengeUserData> then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        challengeCapture.set(challenge);
+                        return Challenge.getChallengeUserData(challenge, user1or2);
+                    }
+                }).onSuccess(new Continuation<ChallengeUserData, BattleshipBoardManager>() {
+                    @Override
+                    public BattleshipBoardManager then(Task<ChallengeUserData> task) {
+                        ChallengeUserData challengeUserData = task.getResult();
+                        Challenge challenge = challengeCapture.get();
+                        return new BattleshipBoardManager(activity, challenge, challengeUserData,
+                                canBeAttacked);
+                    }
+                });
+
+        return task;
+    }
+
     public static Task<BattleshipBoardManager> initializeBattleshipBoardManager(
             final Activity activity, String challengeId, final int user1or2, final boolean canBeAttacked) {
 

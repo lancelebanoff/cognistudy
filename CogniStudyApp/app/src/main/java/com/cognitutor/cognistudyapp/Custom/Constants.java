@@ -64,14 +64,6 @@ public class Constants {
         public static int NUM_COLUMNS = 8;
     }
 
-    public static class ShipAttribute {
-        public static class Orientation {
-            public static final String ORIENTATION = "ORIENTATION";
-            public static final String VERTICAL = "VERTICAL";
-            public static final String HORIZONTAL = "HORIZONTAL";
-        }
-    }
-
     public static class GameBoardPositionStatus {
         public static final String UNKNOWN = "UNKNOWN";
         public static final String HIT = "HIT";
