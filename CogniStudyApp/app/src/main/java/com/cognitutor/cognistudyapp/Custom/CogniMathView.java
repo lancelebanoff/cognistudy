@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.Custom;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -14,6 +15,9 @@ import com.x5.template.Chunk;
 import com.x5.template.Theme;
 import com.x5.template.providers.AndroidTemplates;
 
+import org.apache.commons.io.IOUtils;
+
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,19 +143,23 @@ public class CogniMathView extends WebView {
                 "font-family: MyFont;" +
 //                        "font-weight: bold;" +
                 "}" +
-                ".passage p {" +
-                    "line-height:3em;" +
+                "p {" +
+                    "line-height:2em;" +
                 "}" +
                 ".passage span {" +
-                    "padding-bottom:.5em;" +
-                    "margin-top:3em;" +
+                    "padding-bottom:1.1em;" +
+                    "white-space: nowrap;" +
                 "}" +
-                ".ansA { background: url(http://media.actstudent.org/designimages/one.gif) 50% 100% no-repeat; }" +
-                ".ansB { background: url(http://media.actstudent.org/designimages/two.gif) 50% 100% no-repeat; }" +
-                ".ansB { background: url(http://media.actstudent.org/designimages/three.gif) 50% 100% no-repeat; }" +
-                ".ansD { background: url(http://media.actstudent.org/designimages/four.gif) 50% 100% no-repeat; }" +
-                ".ansE { background: url(http://media.actstudent.org/designimages/five.gif) 50% 100% no-repeat; }" +
+                ".ansA { background: url(file:///android_res/drawable/ques1_1000_40.png) 53% 100% no-repeat;  background-size: 500px 20px; }" +
+                ".ansB { background: url(file:///android_res/drawable/ques2_1000_40.png) 54% 100% no-repeat;  background-size: 500px 20px; }" +
+                ".ansC { background: url(file:///android_res/drawable/ques3_1000_40.png) 50% 100% no-repeat;  background-size: 500px 20px; }" +
                 "</style>";
+//        String style = "<style type=\"text/css\">";
+//        String css = "";
+//        try { css = IOUtils.toString(new URI("file:///android_asset/css/question.css")); }
+//        catch (Exception e) {Log.e("IOUtils", e.getMessage());}
+//        style += css + "</style>";
+
         String script = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/font-booster-fixer.js\"></script>";
 
         String head = "<head>";

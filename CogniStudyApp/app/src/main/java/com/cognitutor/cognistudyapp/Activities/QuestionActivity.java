@@ -35,6 +35,12 @@ import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.x5.template.Chunk;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.Reader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,13 +95,12 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             }
         });
 
-//        avh.mvQuestion.setText(contents.getQuestionText());
-
-        avh.mvQuestion.loadUrl("file:///android_asset/html/passage.html");
+        avh.mvQuestion.setText(contents.getQuestionText());
+//        avh.mvQuestion.loadUrl("file:///android_asset/html/passage.html");
         avh.mvExplanation.setText(contents.getExplanation());
 
         if(question.isBundle()) {
-            avh.wvPassage.loadData(contents.getQuestionBundle().getPassageText(), "text/html", "UTF-8");
+            avh.wvPassage.loadData(buildPassageHtml(contents.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
         }
 //        avh.wvPassage.loadData(
 //                "<html><body>" +
@@ -194,7 +199,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     private class ActivityViewHolder {
         private WebView wvPassage;
-        private WebView mvQuestion;
+        private CogniMathView mvQuestion;
         private EditText txtModifyQuestion;
         private Button btnSetLatex;
         private MathView mvExplanation;
@@ -204,7 +209,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
         private ActivityViewHolder() {
             wvPassage = (WebView) findViewById(R.id.wvPassage);
-            mvQuestion = (WebView) findViewById(R.id.mvQuestion);
+            mvQuestion = (CogniMathView) findViewById(R.id.mvQuestion);
             txtModifyQuestion = (EditText) findViewById(R.id.txtModifyQuestion);
             btnSetLatex = (Button) findViewById(R.id.btnSetLatex);
             mvExplanation = (MathView) findViewById(R.id.mvExplanation);
@@ -212,5 +217,20 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
         }
+    }
+
+    private String buildPassageHtml(String body) {
+
+        String html = null;
+        try { html = IOUtils.toString(new URI("file:///android_asset/html/passage.html")); }
+        catch (Exception e) {Log.e("IOUtils", "Error getting html from assets");}
+
+        String css = null;
+        try { css = IOUtils.toString(new URI("file:///android_asset/css/question.css")); }
+        catch (Exception e) {Log.e("IOUtils", "Error getting css from assets");}
+        
+        html = html.replace("$CSS$", css);
+
+        return html.replace("$BODY$", body);
     }
 }

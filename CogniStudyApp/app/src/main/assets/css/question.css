@@ -1,0 +1,14 @@
+@font-face{font-family: MyFont;src: url("file:///android_asset/fonts/lmroman10-regular.otf")}
+body {
+    font-family: MyFont;
+}
+p {
+    line-height:2em;
+}
+span {
+    padding-bottom:1.1em;
+    white-space: nowrap;
+}
+.ansA { background: url("file:///android_res/drawable/ques1_1000_40.png") 53% 100% no-repeat;  background-size: 500px 20px; }
+.ansB { background: url("file:///android_res/drawable/ques2_1000_40.png") 54% 100% no-repeat;  background-size: 500px 20px; }
+.ansC { background: url("file:///android_res/drawable/ques3_1000_40.png") 50% 100% no-repeat;  background-size: 500px 20px; }
