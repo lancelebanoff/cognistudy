@@ -27,6 +27,7 @@ import bolts.Task;
 public class PublicUserData extends ParseObject{
 
     public class Columns {
+        public static final String objectId = "objectId";
         public static final String userType = "userType";
         public static final String displayName = "displayName";
         public static final String lastSeen = "lastSeen";
@@ -35,13 +36,15 @@ public class PublicUserData extends ParseObject{
         public static final String baseUserId = "baseUserId";
         public static final String student = "student";
         public static final String tutor = "tutor";
+        public static final String facebookId = "facebookId";
+        public static final String fbLinked = "fbLinked";
     }
 
     public PublicUserData() {
 
     }
 
-    public PublicUserData(ParseUser user, Student student, String displayName, ParseFile profilePic, byte[] profilePicData) {
+    public PublicUserData(ParseUser user, Student student, String facebookId, String displayName, ParseFile profilePic, byte[] profilePicData) {
         ParseACL publicDataACL = new ParseACL(user);
         publicDataACL.setPublicReadAccess(true);
         setACL(publicDataACL);
@@ -49,6 +52,8 @@ public class PublicUserData extends ParseObject{
         put(Columns.baseUserId, user.getObjectId());
         put(Columns.student, student);
         put(Columns.displayName, displayName);
+        put(Columns.facebookId, facebookId);
+        put(Columns.fbLinked, facebookId != null);
 
         if(profilePic != null)
             put(Columns.profilePic, profilePic);
@@ -75,12 +80,17 @@ public class PublicUserData extends ParseObject{
     }
 
     public static PublicUserData getPublicUserData() {
-        return getPublicUserData(ParseUser.getCurrentUser().getObjectId());
+        return getPublicUserDataFromBaseUserId(ParseUser.getCurrentUser().getObjectId());
     }
 
-    public static PublicUserData getPublicUserData(String baseUserId) {
+    public static PublicUserData getPublicUserData(String publicUserDataID) {
+        try { return getLocalDataStoreQuery(Columns.objectId, publicUserDataID).getFirst(); }
+        catch (ParseException e) { e.printStackTrace(); return null; }
+    }
 
-        try { return getLocalDataStoreQuery(baseUserId).getFirst(); }
+    private static PublicUserData getPublicUserDataFromBaseUserId(String baseUserId) {
+
+        try { return getLocalDataStoreQuery(Columns.baseUserId, baseUserId).getFirst(); }
         catch (ParseException e) { e.printStackTrace(); return null; }
     }
 
@@ -90,13 +100,13 @@ public class PublicUserData extends ParseObject{
 
     public static Task<PublicUserData> getPublicUserDataInBackground(String baseUserId) {
 
-        return getLocalDataStoreQuery(baseUserId).getFirstInBackground();
+        return getLocalDataStoreQuery(Columns.baseUserId, baseUserId).getFirstInBackground();
     }
 
-    private static ParseQuery<PublicUserData> getLocalDataStoreQuery(String baseUserId) {
+    private static ParseQuery<PublicUserData> getLocalDataStoreQuery(String column, String baseUserId) {
 
         return PublicUserData.getQuery()
                 .fromLocalDatastore()
-                .whereEqualTo(Columns.baseUserId, baseUserId);
+                .whereEqualTo(column, baseUserId);
     }
 }

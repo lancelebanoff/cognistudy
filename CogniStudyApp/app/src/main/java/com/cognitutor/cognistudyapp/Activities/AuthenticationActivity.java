@@ -1,9 +1,10 @@
 package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -11,12 +12,16 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/1/2016.
@@ -48,11 +53,14 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     public void navigateToMainActivity() {
+        doNavigate(MainActivity.class, true);
+    }
+
+    public void setUpLocalDataStore() {
         try {
             UserUtils.pinTest();
         }
         catch (ParseException e) { handleParseError(e); return; }
-        doNavigate(MainActivity.class, true);
     }
 
     public void navigateToLoginActivity(View view) {
@@ -63,29 +71,56 @@ class AuthenticationActivity extends CogniActivity {
         doNavigate(RegistrationActivity.class, true);
     }
 
-    protected void setUpStudentObjects(final ParseUser user, final boolean fbLinked, final String displayName,
+    protected void setUpStudentObjects(final ParseUser user, final String facebookId, final String displayName,
                                        final ParseFile profilePic, final byte[] profilePicData, final SaveCallback callback) {
 
+        final String TAG = "setUpStudentObjects";
+        final boolean fbLinked = facebookId != null;
         final PrivateStudentData privateStudentData = new PrivateStudentData(user);
-        privateStudentData.saveInBackground(new SaveCallback() {
+        final Student student = new Student(user, privateStudentData);
+        final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
+        finalizeUser(user, publicUserData, fbLinked);
+
+        final ParseInstallation installation = setUpInstallation(user.getObjectId());
+
+        publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                final Student student = new Student(user, privateStudentData);
-                student.saveInBackground(new SaveCallback() {
+
+                if(e != null) {
+                    Log.e("pinInBackground", e.getMessage());
+                }
+                //noinspection ConstantConditions
+                FacebookUtils.getFriendsInBackground(fbLinked).continueWith(new Continuation<Void, Void>() {
                     @Override
-                    public void done(ParseException e) {
-                        final PublicUserData publicUserData = new PublicUserData(user, student, displayName, profilePic, profilePicData);
-                        publicUserData.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                finalizeUser(user, publicUserData, fbLinked);
-                                user.saveInBackground(callback);
-                            }
-                        });
+                    public Void then(Task<Void> task) throws Exception {
+
+                        if(task.isFaulted()) {
+                            Log.e("getFriendsInBackground", task.getError().getMessage());
+                        }
+                        ArrayList < ParseObject > objects = new ArrayList<ParseObject>();
+                        objects.add(privateStudentData);
+                        objects.add(student);
+                        objects.add(publicUserData);
+                        objects.add(user);
+                        objects.add(installation);
+                        ParseObject.saveAllInBackground(objects, callback);
+                        return null;
                     }
                 });
             }
         });
+    }
+    
+    private ParseInstallation setUpInstallation(String baseUserId) {
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        List<String> userIds = installation.getList("userIds");
+        if(userIds == null || userIds.isEmpty())
+            userIds = new ArrayList<String>();
+        userIds.add(baseUserId);
+        installation.put("userIds", userIds);
+        return installation;
     }
 
     private void finalizeUser(ParseUser user, PublicUserData publicUserData, boolean fbLinked) {

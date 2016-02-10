@@ -11,16 +11,26 @@ import java.util.Map;
 public class Constants {
 
     public static class Parse {
-        public static String APPLICATION_ID = "iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY";
-        public static String CLIENT_KEY = "mtCu0UsCYrVvQVIEkMlNkLoEFLlsIabVnWhTXvdA";
+        public static final String APPLICATION_ID = "iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY";
+        public static final String CLIENT_KEY = "mtCu0UsCYrVvQVIEkMlNkLoEFLlsIabVnWhTXvdA";
     }
 
-    public static String[] getAllConstants(Class c) throws IllegalAccessException {
+    public static class Roles {
+        public static final String TUTOR = "TUTOR";
+        public static final String ADMIN = "ADMIN";
+    }
+
+    public static String[] getAllConstants(Class c) {
 
         Field[] fields = c.getFields();
         String[] constants = new String[fields.length];
         for(int i=0; i<fields.length; i++) {
-            Object s = fields[i].get(c);
+            Object s = null;
+            try {
+                s = fields[i].get(c);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
             constants[i] = (String) s;
         }
         return constants;
@@ -28,16 +38,24 @@ public class Constants {
 
     public static class IntentExtra {
         public static final String FINISH_CHALLENGE_ACTIVITY = "FINISH_CHALLENGE_ACTIVITY";
+        public static final String FINISH_NEW_CHALLENGE_ACTIVITY = "FINISH_NEW_CHALLENGE_ACTIVITY";
+        public static final String CHALLENGE_ID = "CHALLENGE_ID";
+        public static final String USER1OR2 = "USER1OR2";
+
+        public static final String QUESTION_ID = "QUESTION_ID";
 
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
+
             public static final String CHALLENGE_ACTIVITY = "CHALLENGE_ACTIVITY";
             public static final String SUGGESTED_QUESTIONS_ACTIVITY = "SUGGESTED_QUESTIONS_ACTIVITY";
+            public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
         }
+    }
 
-        public static class OpponentId {
-            public static final String OPPONENT_ID = "OPPONENT_ID";
-            public static final int UNKNOWN = -1;
+    public static class ChallengeAttribute {
+        public static class Winner {
+            public static final String NO_WINNER = "NO_WINNER";
         }
     }
 
@@ -59,6 +77,13 @@ public class Constants {
         public static final String HIT = "HIT";
         public static final String MISS = "MISS";
         public static final String DETECTION = "DETECTION";
+    }
+
+    public static class OpponentType {
+        public static final String FRIEND = "Friend";
+        public static final String RANDOM = "Random";
+        public static final String COMPUTER = "Computer";
+        public static final String PRACTICE = "Practice";
     }
 
     // <editor-fold desc="Tests, Subjects and Categories">
@@ -128,9 +153,7 @@ public class Constants {
                 Category.RESEARCH_SUMMARIES,
                 Category.CONFLICTING_VIEWPOINTS
         });
-        try { map.put(Test.BOTH, getAllConstants(Category.class)); }
-        catch(IllegalAccessException e) { e.printStackTrace(); }
-        //TODO: What to do with this try/catch?
+        map.put(Test.BOTH, getAllConstants(Category.class));
         TestToCategory = Collections.unmodifiableMap(map);
     }
 
@@ -139,7 +162,7 @@ public class Constants {
         Map<String, String[]> map = new HashMap<String, String[]>();
         map.put(Subject.READING, new String[]{Category.PASSAGE_READING, Category.SENTENCE_COMPLETION});
         map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.DATA_ANALYSIS_STATISTICS_PROBABILITY});
-        map.put(Subject.READING, new String[]{Category.IDENTIFYING_SENTENCE_ERRORS, Category.IMPROVING_SENTENCES, Category.IMPROVING_PARAGRAPHS});
+        map.put(Subject.ENGLISH, new String[]{Category.IDENTIFYING_SENTENCE_ERRORS, Category.IMPROVING_SENTENCES, Category.IMPROVING_PARAGRAPHS});
         map.put(Subject.SCIENCE, new String[]{Category.DATA_REPRESENTATION, Category.RESEARCH_SUMMARIES, Category.CONFLICTING_VIEWPOINTS});
         SubjectToCategory = Collections.unmodifiableMap(map);
     }
@@ -241,6 +264,11 @@ public class Constants {
         public static final String DENIED = "DENIED";
     }
 
+    public static class AnswerLabelType {
+        public static final String LETTER = "LETTER";
+        public static final String ROMAN_NUMERAL = "ROMAN_NUMERAL";
+    }
+
     public static Map<String, String[]> ShopItemGroupTypeToCustomizableTypes;
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
@@ -251,8 +279,7 @@ public class Constants {
                 CustomizableType.ABILITY_CALCULATOR,
                 CustomizableType.ABILITY_RULER
         });
-        try { map.put(ShopItemGroupType.SHIP_SKIN, getAllConstants(ShipType.class)); }
-        catch(IllegalAccessException e) { e.printStackTrace(); }
+        map.put(ShopItemGroupType.SHIP_SKIN, getAllConstants(ShipType.class));
         map.put(ShopItemGroupType.SHOT_SKIN, new String[] {
                 CustomizableType.TARGET
         });
@@ -307,5 +334,9 @@ public class Constants {
         CustomizableTypeToShopItemTypes = Collections.unmodifiableMap(map);
     }
     // </editor-fold>
+
+    public static class CloudCodeFunction {
+        public static final String DELETE_CHALLENGE = "deleteChallenge";
+    }
 
 }

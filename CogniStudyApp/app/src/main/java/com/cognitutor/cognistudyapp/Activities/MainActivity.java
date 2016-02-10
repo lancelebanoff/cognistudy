@@ -1,36 +1,51 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.MenuItem;
 
+import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.facebook.AccessToken;
 import com.parse.ParseException;
 
 public class MainActivity extends AuthenticationActivity {
+
+    private final String TAG = "MainActivity";
+    private Activity mActivity = this;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+            UserUtils.pinTest();
+        }
+        catch (ParseException e) { handleParseError(e); }
 
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(sectionsPagerAdapter);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        mViewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setupWithViewPager(mViewPager);
 
+        Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
         try {
             UserUtils.getPinTest();
         }
@@ -40,6 +55,7 @@ public class MainActivity extends AuthenticationActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
         try {
             UserUtils.getPinTest();
         }
@@ -61,6 +77,15 @@ public class MainActivity extends AuthenticationActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        if(mViewPager.getCurrentItem() == 0) {
+            super.onBackPressed();
+        }
+        else {
+            mViewPager.setCurrentItem(0);
+        }
+    }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
@@ -74,7 +99,14 @@ public class MainActivity extends AuthenticationActivity {
                 case 0:
                     return new MainFragment();
                 case 1:
-                    return new PeopleFragment();
+                    return new PeopleFragment(new PeopleListOnClickHandler() {
+                        @Override
+                        public void onListItemClick(PublicUserData publicUserData) {
+                            Intent intent = new Intent(mActivity, StudentProfileActivity.class);
+                            intent.putExtra("publicUserDataId", publicUserData.getObjectId());
+                            mActivity.startActivity(intent);
+                        }
+                    });
                 case 2:
                     return new MessagesFragment();
                 case 3:

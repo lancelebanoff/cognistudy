@@ -7,8 +7,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.cognitutor.cognistudyapp.R;
+
+import io.github.kexanie.library.MathView;
 
 
 /**
@@ -19,7 +24,7 @@ import com.cognitutor.cognistudyapp.R;
  * Use the {@link QuestionFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class QuestionFragment extends CogniFragment {
+public class QuestionFragment extends CogniFragment implements View.OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -28,6 +33,7 @@ public class QuestionFragment extends CogniFragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private View rootView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -63,10 +69,38 @@ public class QuestionFragment extends CogniFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        MathView mathView = (MathView) rootView.findViewById(R.id.mathView);
+        mathView.setText(
+                "When \\(a \\ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\)" +
+                        "and they are $$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$"
+        );
+
+        WebView webView = (WebView) rootView.findViewById(R.id.webView);
+        webView.loadData(
+                "<html><body>" +
+                        "You scored <u>192</u> points." +
+                        "</body></html>",
+                "text/html",
+                "UTF-8"
+        );
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_question, container, false);
+        rootView = inflater.inflate(R.layout.fragment_question, container, false);
+
+        Button b = (Button) rootView.findViewById(R.id.btnSetLatex);
+        b.setOnClickListener(this);
+
+        EditText editText = (EditText) rootView.findViewById(R.id.txtModifyMathView);
+        MathView mathView = (MathView) rootView.findViewById(R.id.mathView);
+        editText.setText(mathView.getText());
+        return rootView;
     }
 
     @Override
@@ -96,6 +130,17 @@ public class QuestionFragment extends CogniFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btnSetLatex:
+                MathView mathView = (MathView) rootView.findViewById(R.id.mathView);
+                EditText editText = (EditText) rootView.findViewById(R.id.txtModifyMathView);
+                mathView.setText(editText.getText().toString());
+                break;
+        }
     }
 
     /**

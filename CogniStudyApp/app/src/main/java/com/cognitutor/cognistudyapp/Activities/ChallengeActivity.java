@@ -9,27 +9,94 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.GridLayout;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
+import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class ChallengeActivity extends CogniActivity {
 
+    /**
+     * Extras:
+     *      CHALLENGE_ID: String
+     *      USER1OR2: int
+     */
+    private Intent mIntent;
+
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
-    private BattleshipBoardManager mBattleshipBoardManager;
     private BroadcastReceiver mBroadcastReceiver;
+
+    private BattleshipBoardManager mBattleshipBoardManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
+        mIntent = getIntent();
         initializeBroadcastReceiver();
 
-        mBattleshipBoardManager = new BattleshipBoardManager(this, false);
-        initializeGridLayouts();
+        initializeBoard();
+        showOrHideYourTurnButton();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        showOrHideYourTurnButton();
+    }
+
+    private void initializeBoard() {
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, false)
+                .continueWith(new Continuation<BattleshipBoardManager, Void>() {
+                    @Override
+                    public Void then(Task<BattleshipBoardManager> task) throws Exception {
+                        mBattleshipBoardManager = task.getResult();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                initializeGridLayouts();
+                            }
+                        });
+
+                        return null;
+                    }
+                });
+    }
+
+    private void showOrHideYourTurnButton() {
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+
+        Challenge.getChallenge(challengeId)
+                .onSuccess(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        String currentUserId = PublicUserData.getPublicUserData().getBaseUserId();
+                        boolean isCurrentUsersTurn = challenge.getCurTurnUserId().equals(currentUserId);
+                        Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
+                        if(isCurrentUsersTurn) {
+                            btnYourTurn.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            btnYourTurn.setVisibility(View.INVISIBLE);
+                        }
+                        return null;
+                    }
+                });
     }
 
     private void initializeGridLayouts() {
@@ -59,6 +126,9 @@ public class ChallengeActivity extends CogniActivity {
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, QuestionActivity.class);
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
+        intent.putExtra(Constants.IntentExtra.QUESTION_ID, "fF4lsHt2iW"); //TODO: Replace with desired questionId
         startActivity(intent);
     }
 

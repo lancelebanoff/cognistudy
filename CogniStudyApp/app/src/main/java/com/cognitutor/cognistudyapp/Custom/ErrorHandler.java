@@ -18,6 +18,8 @@ public class ErrorHandler {
                 return ErrorMsg.LOGIN_AGAIN;
             case ErrorCode.CONNECTION_FAILED:
                 return ErrorMsg.CONNECTION_ERROR;
+            case ErrorCode.OBJECT_NOT_FOUND:
+                return ErrorMsg.DEFAULT; //TODO: Say something else?
             default:
                 Log.e("Error Handler", "Unregistered error code: " + e.getCode());
                 return ErrorMsg.DEFAULT;

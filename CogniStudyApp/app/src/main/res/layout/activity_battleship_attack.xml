@@ -14,7 +14,7 @@
         android:id="@+id/btnDone"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:onClick="navigateToChallengeActivity"/>
+        android:onClick="onClick_btnDone"/>
 
     <GridLayout
         android:id="@+id/shipsGridLayout"
