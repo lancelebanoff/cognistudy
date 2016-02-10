@@ -150,9 +150,9 @@ public class CogniMathView extends WebView {
                     "padding-bottom:1.1em;" +
                     "white-space: nowrap;" +
                 "}" +
-                ".ansA { background: url(file:///android_res/drawable/ques1_1000_40.png) 53% 100% no-repeat;  background-size: 500px 20px; }" +
-                ".ansB { background: url(file:///android_res/drawable/ques2_1000_40.png) 54% 100% no-repeat;  background-size: 500px 20px; }" +
-                ".ansC { background: url(file:///android_res/drawable/ques3_1000_40.png) 50% 100% no-repeat;  background-size: 500px 20px; }" +
+                ".ques1 { background: url(file:///android_res/drawable/ques1_1000_40.png) 53% 100% no-repeat;  background-size: 500px 20px; }" +
+                ".ques2 { background: url(file:///android_res/drawable/ques2_1000_40.png) 54% 100% no-repeat;  background-size: 500px 20px; }" +
+                ".ques3 { background: url(file:///android_res/drawable/ques3_1000_40.png) 50% 100% no-repeat;  background-size: 500px 20px; }" +
                 "</style>";
 //        String style = "<style type=\"text/css\">";
 //        String css = "";
