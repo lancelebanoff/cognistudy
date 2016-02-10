@@ -21,14 +21,12 @@ public class Ship extends ParseObject {
 
     private BattleshipBoardManager.ShipDrawableData shipDrawableData;
 
-    public Ship(String shipType, int startRow, int startColumn, String rotation, int hitsRemaining,
-                BattleshipBoardManager.ShipDrawableData shipDrawableData) {
+    public Ship(String shipType, int startRow, int startColumn, String rotation, int hitsRemaining) {
         put(Columns.shipType, shipType);
         put(Columns.startRow, startRow);
         put(Columns.startColumn, startColumn);
         put(Columns.rotation, rotation);
         put(Columns.hitsRemaining, hitsRemaining);
-        this.shipDrawableData = shipDrawableData;
     }
 
     public Ship() {
@@ -49,5 +47,17 @@ public class Ship extends ParseObject {
 
     public int getStartColumn() {
         return getInt(Columns.startColumn);
+    }
+
+    public String getShipType() {
+        return getString(Columns.shipType);
+    }
+
+    public String getRotation() {
+        return getString(Columns.rotation);
+    }
+
+    public int getHitsRemaining() {
+        return getInt(Columns.hitsRemaining);
     }
 }

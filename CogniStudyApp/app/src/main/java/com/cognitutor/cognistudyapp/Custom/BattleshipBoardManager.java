@@ -44,12 +44,13 @@ public class BattleshipBoardManager {
     // Used for existing challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
                                   ChallengeUserData challengeUserData, GameBoard gameBoard,
-                                  boolean canBeAttacked) {
+                                  List<Ship> ships, boolean canBeAttacked) {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
         mChallengeUserData = challengeUserData;
         mGameBoard = gameBoard;
+        mShips = (ArrayList<Ship>) ships;
         retrieveShipDrawableDatas();
         retrieveBoardPositionStatus();
     }
@@ -119,9 +120,9 @@ public class BattleshipBoardManager {
 
     public void drawShips() {
         addPlaceholderSpaces();
-        for(ShipDrawableData shipDrawableData : mShipDrawableDatas) {
-            drawShip(shipDrawableData.shipRow, shipDrawableData.shipColumn, shipDrawableData.shipHeight, shipDrawableData.shipWidth,
-                    shipDrawableData.shipDrawableId);
+        for(Ship ship : mShips) {
+            ShipDrawableData shipDrawableData = ship.getShipDrawableData();
+            drawShip(shipDrawableData);
         }
     }
 
@@ -129,8 +130,7 @@ public class BattleshipBoardManager {
         addPlaceholderSpaces();
         for(ShipDrawableData shipDrawableData : mShipDrawableDatas) {
             if(!shipDrawableData.shipIsAlive) {
-                drawShip(shipDrawableData.shipRow, shipDrawableData.shipColumn, shipDrawableData.shipHeight, shipDrawableData.shipWidth,
-                        shipDrawableData.shipDrawableId);
+                drawShip(shipDrawableData);
             }
         }
     }
@@ -143,6 +143,7 @@ public class BattleshipBoardManager {
     }
 
     public List<List<Ship>> createShipAt() {
+        // Initialize each space as null
         List<List<Ship>> shipAt = new ArrayList<>();
         for(int i = 0; i < Constants.GameBoard.NUM_ROWS; i++) {
             shipAt.add(new ArrayList<Ship>());
@@ -150,6 +151,7 @@ public class BattleshipBoardManager {
                 shipAt.get(i).add(null);
             }
         }
+        // Each space points to a ship or null
         for(Ship ship : mShips) {
             ShipDrawableData shipDrawableData = ship.getShipDrawableData();
             int minRow = shipDrawableData.shipRow;
@@ -199,9 +201,7 @@ public class BattleshipBoardManager {
                     mBoardPositionStatus[row][col] = Constants.GameBoardPositionStatus.HIT;
                     if(shipIsDead(shipThatOccupiesPosition)) {
                         shipThatOccupiesPosition.shipIsAlive = false;
-                        drawShip(shipThatOccupiesPosition.shipRow, shipThatOccupiesPosition.shipColumn,
-                                shipThatOccupiesPosition.shipHeight, shipThatOccupiesPosition.shipWidth,
-                                shipThatOccupiesPosition.shipDrawableId);
+                        drawShip(shipThatOccupiesPosition);
                         mChallengeUserData.incrementScore();
                         mChallengeUserData.saveInBackground();
                     }
@@ -256,46 +256,15 @@ public class BattleshipBoardManager {
     private void placeShip(String shipType) {
         ShipInfo shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(shipType);
 
-        int shipDrawableIdVertical = 0, shipDrawableIdHorizontal = 0;
-
-        switch(shipType) {
-            case Constants.ShipType.ERASER:
-                shipDrawableIdVertical = R.drawable.skin_eraser_default_vert;
-                shipDrawableIdHorizontal = R.drawable.skin_eraser_default_horiz;
-                break;
-            case Constants.ShipType.YELLOW_PENCIL:
-                shipDrawableIdVertical = R.drawable.skin_yellowpencil_default_vert;
-                shipDrawableIdHorizontal = R.drawable.skin_yellowpencil_default_horiz;
-                break;
-            case Constants.ShipType.GREEN_PENCIL:
-                shipDrawableIdVertical = R.drawable.skin_greenpencil_default_vert;
-                shipDrawableIdHorizontal = R.drawable.skin_greenpencil_default_horiz;
-                break;
-            case Constants.ShipType.PEN:
-                shipDrawableIdVertical = R.drawable.skin_pen_default_vert;
-                shipDrawableIdHorizontal = R.drawable.skin_pen_default_horiz;
-                break;
-            case Constants.ShipType.CALCULATOR:
-                shipDrawableIdVertical = R.drawable.skin_calculator_default_vert;
-                shipDrawableIdHorizontal = R.drawable.skin_calculator_default_horiz;
-                break;
-            case Constants.ShipType.RULER:
-                shipDrawableIdVertical = R.drawable.skin_ruler_default_vert;
-                shipDrawableIdHorizontal = R.drawable.skin_ruler_default_horiz;
-                break;
-        }
-
         // Keep trying to place the ship until a valid position is found
         boolean successfullyPlacedShip;
         do {
-            successfullyPlacedShip = tryToPlaceShip(shipType, shipInfo.height, shipInfo.width,
-                    shipDrawableIdVertical, shipDrawableIdHorizontal);
+            successfullyPlacedShip = tryToPlaceShip(shipType, shipInfo.height, shipInfo.width);
         }
         while(!successfullyPlacedShip);
     }
 
-    private boolean tryToPlaceShip(String shipType, int shipHeight, int shipWidth,
-                                   int shipDrawableIdVertical, int shipDrawableIdHorizontal) {
+    private boolean tryToPlaceShip(String shipType, int shipHeight, int shipWidth) {
         String shipOrientation;
         int shipRow, shipColumn, shipDrawableId;
 
@@ -303,11 +272,9 @@ public class BattleshipBoardManager {
         int shipOrientationRandomizer = (int) (Math.random() * 2);
         if(shipOrientationRandomizer == 0) {
             shipOrientation = Constants.RotationType.VERTICAL;
-            shipDrawableId = shipDrawableIdVertical;
         }
         else {
             shipOrientation = Constants.RotationType.HORIZONTAL;
-            shipDrawableId = shipDrawableIdHorizontal;
             // Swap height and width
             int temp = shipHeight;
             shipHeight = shipWidth;
@@ -337,47 +304,43 @@ public class BattleshipBoardManager {
 
         Log.i("Placing ships", shipType + " (" + shipRow + ", " + shipColumn + ") " + shipOrientation);
 
-        ShipDrawableData shipDrawableData = new ShipDrawableData(shipRow, shipColumn, shipHeight,
-                shipWidth, shipDrawableId, true);
-        drawShip(shipRow, shipColumn, shipHeight, shipWidth, shipDrawableId);
-
-        Ship ship = new Ship(shipType, shipRow, shipColumn, shipOrientation, shipHeight * shipWidth,
-                shipDrawableData);
+        Ship ship = new Ship(shipType, shipRow, shipColumn, shipOrientation, shipHeight * shipWidth);
         mShips.add(ship);
+
+        ShipDrawableData shipDrawableData = new ShipDrawableData(ship);
+        ship.setShipDrawableData(shipDrawableData);
+        drawShip(shipDrawableData);
 
         return true;
     }
 
-    private void drawShip(int shipRow, int shipColumn, int shipHeight, int shipWidth, int shipDrawableId) {
+    private void drawShip(ShipDrawableData shipDrawableData) {
         ImageView imgShip = new ImageView(mActivity);
-        imgShip.setImageResource(shipDrawableId);
+        imgShip.setImageResource(shipDrawableData.shipDrawableId);
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
-        layoutParams.rowSpec = GridLayout.spec(shipRow, shipHeight);
-        layoutParams.columnSpec = GridLayout.spec(shipColumn, shipWidth);
-        layoutParams.height = mShipsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * shipHeight;
-        layoutParams.width = mShipsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * shipWidth;
+        layoutParams.rowSpec = GridLayout.spec(shipDrawableData.shipRow, shipDrawableData.shipHeight);
+        layoutParams.columnSpec = GridLayout.spec(shipDrawableData.shipColumn, shipDrawableData.shipWidth);
+        layoutParams.height = mShipsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * shipDrawableData.shipHeight;
+        layoutParams.width = mShipsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * shipDrawableData.shipWidth;
         imgShip.setLayoutParams(layoutParams);
         mShipsGridLayout.addView(imgShip);
     }
 
     private void retrieveShipDrawableDatas() {
         mShipDrawableDatas = new ArrayList<>();
-
-        String[] shipTypes = Constants.getAllConstants(Constants.ShipType.class);
-        for(String shipType : shipTypes) {
-            ShipInfo shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(shipType);
-            // TODO:2 get Ships from database
-            ShipDrawableData shipDrawableData = null;
+        for(Ship ship : mShips) {
+            ShipDrawableData shipDrawableData = new ShipDrawableData(ship);
+            ship.setShipDrawableData(shipDrawableData);
             mShipDrawableDatas.add(shipDrawableData);
         }
     }
 
     private void retrieveBoardPositionStatus() {
-        // TODO:2 get board position status from database
+        List<List<String>> statusFromDB = mGameBoard.getStatus();
         mBoardPositionStatus = new String[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
         for(int i = 0; i < mBoardPositionStatus.length; i++) {
             for(int j = 0; j < mBoardPositionStatus[i].length; j++) {
-                mBoardPositionStatus[i][j] = Constants.GameBoardPositionStatus.UNKNOWN;
+                mBoardPositionStatus[i][j] = statusFromDB.get(i).get(j);
             }
         }
     }
@@ -390,14 +353,64 @@ public class BattleshipBoardManager {
         public int shipDrawableId;
         public boolean shipIsAlive;
 
-        public ShipDrawableData(int shipRow, int shipColumn, int shipHeight, int shipWidth, int shipDrawableId,
-                                boolean shipIsAlive) {
-            this.shipRow = shipRow;
-            this.shipColumn = shipColumn;
-            this.shipHeight = shipHeight;
-            this.shipWidth = shipWidth;
-            this.shipDrawableId = shipDrawableId;
-            this.shipIsAlive = shipIsAlive;
+        public ShipDrawableData(Ship ship) {
+            shipRow = ship.getStartRow();
+            shipColumn = ship.getStartColumn();
+            shipDrawableId = retrieveDrawableId(ship.getShipType(), ship.getRotation());
+            shipIsAlive = ship.getHitsRemaining() > 0;
+
+            ShipInfo shipInfo = QS_ShipInfo.ShipTypeToShipInfo.get(ship.getShipType());
+            switch(ship.getRotation()) {
+                case Constants.RotationType.VERTICAL:
+                    shipHeight = shipInfo.height;
+                    shipWidth = shipInfo.width;
+                    break;
+                case Constants.RotationType.HORIZONTAL:
+                    shipHeight = shipInfo.width;
+                    shipWidth = shipInfo.height;
+                    break;
+            }
+        }
+
+        private int retrieveDrawableId(String shipType, String orientation) {
+
+            int shipDrawableIdVertical = 0, shipDrawableIdHorizontal = 0;
+
+            switch(shipType) {
+                case Constants.ShipType.ERASER:
+                    shipDrawableIdVertical = R.drawable.skin_eraser_default_vert;
+                    shipDrawableIdHorizontal = R.drawable.skin_eraser_default_horiz;
+                    break;
+                case Constants.ShipType.YELLOW_PENCIL:
+                    shipDrawableIdVertical = R.drawable.skin_yellowpencil_default_vert;
+                    shipDrawableIdHorizontal = R.drawable.skin_yellowpencil_default_horiz;
+                    break;
+                case Constants.ShipType.GREEN_PENCIL:
+                    shipDrawableIdVertical = R.drawable.skin_greenpencil_default_vert;
+                    shipDrawableIdHorizontal = R.drawable.skin_greenpencil_default_horiz;
+                    break;
+                case Constants.ShipType.PEN:
+                    shipDrawableIdVertical = R.drawable.skin_pen_default_vert;
+                    shipDrawableIdHorizontal = R.drawable.skin_pen_default_horiz;
+                    break;
+                case Constants.ShipType.CALCULATOR:
+                    shipDrawableIdVertical = R.drawable.skin_calculator_default_vert;
+                    shipDrawableIdHorizontal = R.drawable.skin_calculator_default_horiz;
+                    break;
+                case Constants.ShipType.RULER:
+                    shipDrawableIdVertical = R.drawable.skin_ruler_default_vert;
+                    shipDrawableIdHorizontal = R.drawable.skin_ruler_default_horiz;
+                    break;
+            }
+
+            switch(orientation) {
+                case Constants.RotationType.HORIZONTAL:
+                    return shipDrawableIdHorizontal;
+                case Constants.RotationType.VERTICAL:
+                    return shipDrawableIdVertical;
+                default:
+                    return -1;
+            }
         }
     }
 }

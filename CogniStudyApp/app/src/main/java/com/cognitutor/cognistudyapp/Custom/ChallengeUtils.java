@@ -5,6 +5,10 @@ import android.app.Activity;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
+import com.parse.ParseObject;
+
+import java.util.List;
 
 import bolts.Capture;
 import bolts.Continuation;
@@ -46,6 +50,7 @@ public class ChallengeUtils {
 
         final Capture<Challenge> challengeCapture = new Capture<>(null);
         final Capture<ChallengeUserData> challengeUserDataCapture = new Capture<>(null);
+        final Capture<GameBoard> gameBoardCapture = new Capture<>(null);
 
         Task<BattleshipBoardManager> task = Challenge.getChallenge(challengeId)
                 .onSuccessTask(new Continuation<Challenge, Task<ChallengeUserData>>() {
@@ -62,20 +67,28 @@ public class ChallengeUtils {
                         challengeUserDataCapture.set(challengeUserData);
                         return challengeUserData.getGameBoard();
                     }
-                }).onSuccess(new Continuation<GameBoard, BattleshipBoardManager>() {
+                }).onSuccessTask(new Continuation<GameBoard, Task<List<Ship>>>() {
                     @Override
-                    public BattleshipBoardManager then(Task<GameBoard> task) {
+                    public Task<List<Ship>> then(Task<GameBoard> task) {
                         GameBoard gameBoard;
-                        if(task != null) {
+                        if (task != null) {
                             gameBoard = task.getResult();
-                        }
-                        else {
+                        } else {
                             gameBoard = null;
                         }
+                        gameBoardCapture.set(gameBoard);
+                        List<Ship> ships = gameBoard.getShips();
+                        return ParseObject.fetchAllIfNeededInBackground(ships);
+                    }
+                }).onSuccess(new Continuation<List<Ship>, BattleshipBoardManager>() {
+                    @Override
+                    public BattleshipBoardManager then(Task<List<Ship>> task) throws Exception {
+                        List<Ship> ships = task.getResult();
                         Challenge challenge = challengeCapture.get();
                         ChallengeUserData challengeUserData = challengeUserDataCapture.get();
+                        GameBoard gameBoard = gameBoardCapture.get();
                         return new BattleshipBoardManager(activity, challenge, challengeUserData,
-                                gameBoard, canBeAttacked);
+                                gameBoard, ships, canBeAttacked);
                     }
                 });
 

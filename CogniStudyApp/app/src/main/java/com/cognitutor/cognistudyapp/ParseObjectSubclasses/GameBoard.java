@@ -37,10 +37,6 @@ public class GameBoard extends ParseObject {
         put(Columns.lastAbilityYPos, JSONObject.NULL);
     }
 
-    public GameBoard() {
-
-    }
-
     private List<List<String>> createNewStatus() {
         List<List<String>> status = new ArrayList<>();
         for(int i = 0; i < Constants.GameBoard.NUM_ROWS; i++) {
@@ -51,5 +47,17 @@ public class GameBoard extends ParseObject {
             status.add(rowList);
         }
         return status;
+    }
+
+    public GameBoard() {
+
+    }
+
+    public List<Ship> getShips() {
+        return (List<Ship>) get(Columns.ships);
+    }
+
+    public List<List<String>> getStatus() {
+        return (List<List<String>>) get(Columns.status);
     }
 }
