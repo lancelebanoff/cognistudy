@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
+import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
@@ -72,6 +73,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         listView = (ListView) findViewById(R.id.listView);
         addComponents();
         avh.btnSetLatex.setOnClickListener(this);
+        ClickableListItem.setQuestionAnswered(false);
         loadQuestion();
     }
 
@@ -160,6 +162,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             avh.txtCorrectIncorrect.setText("Incorrect!");
         }
         avh.vgPostAnswer.setVisibility(View.VISIBLE);
+        ClickableListItem.setQuestionAnswered(true);
 
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);

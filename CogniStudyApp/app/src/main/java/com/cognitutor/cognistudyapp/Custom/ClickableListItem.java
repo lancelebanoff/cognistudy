@@ -10,12 +10,18 @@ import android.widget.RelativeLayout;
  */
 public class ClickableListItem extends RelativeLayout {
 
+    private static boolean questionAnswered;
+
     public ClickableListItem(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return true;
+        return !questionAnswered;
+    }
+
+    public static void setQuestionAnswered(boolean val) {
+        questionAnswered = val;
     }
 }
