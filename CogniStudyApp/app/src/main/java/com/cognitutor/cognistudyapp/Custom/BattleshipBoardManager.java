@@ -32,6 +32,7 @@ public class BattleshipBoardManager {
     private ArrayList<ShipDrawableData> mShipDrawableDatas;
     private List<List<String>> mBoardPositionStatus;
     private boolean mCanBeAttacked;
+    private int mNumShotsRemaining;
 
     // Used for new challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
@@ -39,6 +40,7 @@ public class BattleshipBoardManager {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
+        mNumShotsRemaining = challenge.getNumShotsRemaining();
         mChallengeUserData = challengeUserData;
     }
 
@@ -49,6 +51,7 @@ public class BattleshipBoardManager {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
+        mNumShotsRemaining = challenge.getNumShotsRemaining();
         mChallengeUserData = challengeUserData;
         mGameBoard = gameBoard;
         mShips = (ArrayList<Ship>) ships;
@@ -191,15 +194,30 @@ public class BattleshipBoardManager {
         imgSpace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shoot(imgSpace, row, col);
+                if (mNumShotsRemaining > 0) {
+                    mNumShotsRemaining--;
+                    shoot(imgSpace, row, col);
+                }
             }
         });
     }
 
     private void shoot(ImageView imgSpace, int row, int col) {
+
         switch(mBoardPositionStatus.get(row).get(col)) {
+
+            // If you already attacked the space, then give the shot back and do nothing
+            case Constants.GameBoardPositionStatus.HIT:
+            case Constants.GameBoardPositionStatus.MISS:
+                mNumShotsRemaining++;
+                break;
+
+            // If you haven't attacked the space yet, then change board position status
             case Constants.GameBoardPositionStatus.UNKNOWN:
             case Constants.GameBoardPositionStatus.DETECTION:
+                if(mNumShotsRemaining == 0) {
+                    setOtherPlayerTurn();
+                }
                 ShipDrawableData shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
                 if(shipThatOccupiesPosition == null) {
                     mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.MISS);
@@ -214,7 +232,18 @@ public class BattleshipBoardManager {
                     }
                 }
                 setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
+                break;
         }
+    }
+
+    private void setOtherPlayerTurn() {
+        String curTurnUserId = mChallenge.getCurTurnUserId();
+        String otherTurnUserId = mChallenge.getOtherTurnUserId();
+        mChallenge.setCurTurnUserId(otherTurnUserId);
+        mChallenge.setOtherTurnUserId(curTurnUserId);
+        // TODO:2 set numShotsRemaining after answering questions
+        mChallenge.setNumShotsRemaining(4);
+        mChallenge.saveInBackground();
     }
 
     private ShipDrawableData findShipThatOccupiesPosition(int row, int col) {

@@ -36,6 +36,10 @@ public class BattleshipAttackActivity extends CogniActivity {
         setContentView(R.layout.activity_battleship_attack);
         mIntent = getIntent();
 
+        // Exit ChallengeActivity
+        Intent finishActivityIntent = new Intent(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY);
+        sendBroadcast(finishActivityIntent);
+
         initializeBoard();
     }
 
@@ -85,35 +89,15 @@ public class BattleshipAttackActivity extends CogniActivity {
         });
     }
 
-    public void onClick_btnDone(View view) {
+    @Override
+    public void onBackPressed() {
         mBattleshipBoardManager.saveGameBoard();
-        setOtherPlayerTurn();
-
-        // Exit ChallengeActivity and start a new one
-        Intent finishActivityIntent = new Intent(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY);
-        sendBroadcast(finishActivityIntent);
-        Intent startActivityIntent = new Intent(this, ChallengeActivity.class);
-        startActivityIntent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        startActivityIntent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        startActivity(startActivityIntent);
-        finish();
+        super.onBackPressed();
     }
 
-    private void setOtherPlayerTurn() {
-        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        Challenge.getChallenge(challengeId)
-                .onSuccess(new Continuation<Challenge, Void>() {
-                    @Override
-                    public Void then(Task<Challenge> task) throws Exception {
-                        Challenge challenge = task.getResult();
-                        String curTurnUserId = challenge.getCurTurnUserId();
-                        String otherTurnUserId = challenge.getOtherTurnUserId();
-                        challenge.setCurTurnUserId(otherTurnUserId);
-                        challenge.setOtherTurnUserId(curTurnUserId);
-                        challenge.saveInBackground();
-                        return null;
-                    }
-                });
+    public void onClick_btnDone(View view) {
+        mBattleshipBoardManager.saveGameBoard();
+        finish();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
