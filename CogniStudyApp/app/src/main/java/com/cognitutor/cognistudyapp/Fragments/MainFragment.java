@@ -52,7 +52,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     public TextView txtChange;
 
-    public MainFragment() {
+    public static final MainFragment newInstance() {
+        return new MainFragment();
     }
 
     @Override
@@ -107,6 +108,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     private void createChallengeRequestListView(View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
@@ -133,6 +135,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     private void createYourTurnListView(View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
@@ -159,6 +162,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     private void createTheirTurnListView(View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
@@ -185,7 +189,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private void createPastChallengeListView(View rootView) {
         List<Pair> keyValuePairs1 = new ArrayList<>();
         keyValuePairs1.add(new Pair<>(Challenge.Columns.hasEnded, true));
-        keyValuePairs1.add(new Pair<>(Challenge.Columns.otherTurnUserId,
+        keyValuePairs1.add(new Pair<>(Challenge.Columns.curTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
 
         List<Pair> keyValuePairs2 = new ArrayList<>();

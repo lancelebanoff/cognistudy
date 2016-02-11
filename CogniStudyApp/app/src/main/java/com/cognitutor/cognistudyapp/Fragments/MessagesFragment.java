@@ -2,7 +2,6 @@ package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,8 @@ import com.cognitutor.cognistudyapp.R;
  */
 public class MessagesFragment extends CogniFragment implements View.OnClickListener {
 
-    public MessagesFragment() {
+    public static final MessagesFragment newInstance() {
+        return new MessagesFragment();
     }
 
     @Override

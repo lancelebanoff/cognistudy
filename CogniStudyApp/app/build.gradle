@@ -21,6 +21,7 @@ android {
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -32,6 +33,7 @@ dependencies {
     compile 'com.parse:parse-android:1.+'
     compile 'com.facebook.android:facebook-android-sdk:4.6.0'
     compile 'com.parse:parsefacebookutils-v4-android:1.10.3@aar'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.6'
     compile 'com.parse:parseui-login-android:0.0.1'
     compile 'com.parse:parseui-widget-android:0.0.1'
     compile 'io.github.kexanie.library:MathView:0.0.4'

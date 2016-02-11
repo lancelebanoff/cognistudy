@@ -22,8 +22,10 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
     private PeopleQueryAdapter peopleQueryAdapter;
     private ListView listView;
 
-    public PeopleFragment(PeopleListOnClickHandler onClickHandler) {
-        this.onClickHandler = onClickHandler;
+    public static final PeopleFragment newInstance(PeopleListOnClickHandler onClickHandler) {
+        PeopleFragment peopleFragment = new PeopleFragment();
+        peopleFragment.onClickHandler = onClickHandler;
+        return peopleFragment;
     }
 
     @Override

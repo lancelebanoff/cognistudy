@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +12,10 @@ import android.widget.Button;
 import com.cognitutor.cognistudyapp.Activities.AchievementsActivity;
 import com.cognitutor.cognistudyapp.Activities.BookmarksActivity;
 import com.cognitutor.cognistudyapp.Activities.HelpActivity;
-import com.cognitutor.cognistudyapp.R;
-import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
 import com.cognitutor.cognistudyapp.Activities.SettingsActivity;
 import com.cognitutor.cognistudyapp.Activities.ShopActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsActivity;
+import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 
 /**
@@ -25,7 +23,8 @@ import com.parse.ParseException;
  */
 public class MenuFragment extends CogniFragment implements View.OnClickListener {
 
-    public MenuFragment() {
+    public static final MenuFragment newInstance() {
+        return new MenuFragment();
     }
 
     @Override

@@ -39,7 +39,7 @@ public class ChooseOpponentActivity extends CogniActivity {
     }
 
     private void createPeopleFragment() {
-        PeopleFragment fragment = new PeopleFragment(new PeopleListOnClickHandler() {
+        PeopleFragment fragment = PeopleFragment.newInstance(new PeopleListOnClickHandler() {
             @Override
             public void onListItemClick(PublicUserData publicUserData) {
                 chooseOpponent(publicUserData);
