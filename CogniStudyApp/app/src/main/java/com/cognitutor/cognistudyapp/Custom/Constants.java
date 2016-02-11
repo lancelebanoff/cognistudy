@@ -36,6 +36,14 @@ public class Constants {
         return constants;
     }
 
+    public static class NotificationData {
+        public static final String ACTIVITY = "ACTIVITY";
+        public static class Activity {
+            public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
+            public static final String CONVERSATION_ACTIVITY = "CONVERSATION_ACTIVITY";
+        }
+    }
+
     public static class IntentExtra {
         public static final String FINISH_CHALLENGE_ACTIVITY = "FINISH_CHALLENGE_ACTIVITY";
         public static final String FINISH_NEW_CHALLENGE_ACTIVITY = "FINISH_NEW_CHALLENGE_ACTIVITY";

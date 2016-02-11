@@ -13,7 +13,7 @@ import java.util.List;
 public class QuestionContents extends ParseObject{
 
     public class Columns {
-        public static final String passage = "passage";
+        public static final String bundle = "bundle";
         public static final String questionText = "questionText";
         public static final String image = "image";
         public static final String author = "author";
@@ -23,10 +23,10 @@ public class QuestionContents extends ParseObject{
     }
 
     public QuestionContents() {}
-    public QuestionContents(Passage passage, String questionText, ParseFile image, PublicUserData author,
+    public QuestionContents(QuestionBundle bundle, String questionText, ParseFile image, PublicUserData author,
                             List<String> answers, int correctAnswer, String explanation) {
 
-        put(Columns.passage, passage);
+        put(Columns.bundle, bundle);
         put(Columns.questionText, questionText);
         put(Columns.image, image);
         put(Columns.author, author);
@@ -35,7 +35,7 @@ public class QuestionContents extends ParseObject{
         put(Columns.explanation, explanation);
     }
 
-    public String getPassage() { return getString(Columns.passage); }
+    public QuestionBundle getQuestionBundle() { return (QuestionBundle) getParseObject(Columns.bundle); }
     public String getQuestionText() { return getString(Columns.questionText); }
     public ParseFile getImage() { return getParseFile(Columns.image); }
     //TODO: author

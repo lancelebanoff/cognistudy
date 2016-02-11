@@ -27,6 +27,7 @@ public class StudentProfileActivity extends CogniActivity {
         mIntent = getIntent();
 
         publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra("publicUserDataId"));
+        if(publicUserData == null) { return; } //TODO: Handle this?
         holder.txtName.setText(publicUserData.getDisplayName());
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
@@ -36,11 +37,10 @@ public class StudentProfileActivity extends CogniActivity {
         HashMap<String, Object> pushParams = new HashMap<String, Object>();
         pushParams.put("baseUserId", publicUserData.getBaseUserId());
         ParseCloud.callFunctionInBackground("sendPush", pushParams);
-        /*
+
         Intent intent = new Intent(this, NewChallengeActivity.class);
         // TODO:2 put opponent's user id
         startActivity(intent);
-        */
     }
 
     private ViewHolder createViewHolder() {

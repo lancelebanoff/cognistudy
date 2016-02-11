@@ -50,6 +50,7 @@
     </ViewSwitcher>
 
     <EditText
+        android:visibility="gone"
         android:id="@+id/txtModifyQuestion"
         android:layout_below="@id/viewSwitcher"
         android:layout_width="match_parent"
@@ -58,6 +59,7 @@
         android:background="@color/grey"/>
 
     <Button
+        android:visibility="gone"
         android:id="@+id/btnSetLatex"
         android:layout_below="@id/txtModifyQuestion"
         android:layout_width="wrap_content"
