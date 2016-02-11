@@ -45,7 +45,8 @@ public class MainFragment extends CogniFragment implements View.OnClickListener 
 
     public static TextView txtChange;
 
-    public MainFragment() {
+    public static final MainFragment newInstance() {
+        return new MainFragment();
     }
 
     @Override

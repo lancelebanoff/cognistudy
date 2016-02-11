@@ -34,7 +34,8 @@ public class AnalyticsFragment extends CogniFragment {
     private HorizontalBarChart mHorizBarChart;
     private BarChart mDoubleBarChart;
 
-    public AnalyticsFragment() {
+    public static final AnalyticsFragment newInstance() {
+        return new AnalyticsFragment();
     }
 
     @Override

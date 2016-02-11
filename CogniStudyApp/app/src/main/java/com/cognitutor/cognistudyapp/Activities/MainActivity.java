@@ -97,9 +97,9 @@ public class MainActivity extends AuthenticationActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new MainFragment();
+                    return MainFragment.newInstance();
                 case 1:
-                    return new PeopleFragment(new PeopleListOnClickHandler() {
+                    return PeopleFragment.newInstance(new PeopleListOnClickHandler() {
                         @Override
                         public void onListItemClick(PublicUserData publicUserData) {
                             Intent intent = new Intent(mActivity, StudentProfileActivity.class);
@@ -108,11 +108,11 @@ public class MainActivity extends AuthenticationActivity {
                         }
                     });
                 case 2:
-                    return new MessagesFragment();
+                    return MessagesFragment.newInstance();
                 case 3:
-                    return new AnalyticsFragment();
+                    return AnalyticsFragment.newInstance();
                 case 4:
-                    return new MenuFragment();
+                    return MenuFragment.newInstance();
             }
             return null;
         }
