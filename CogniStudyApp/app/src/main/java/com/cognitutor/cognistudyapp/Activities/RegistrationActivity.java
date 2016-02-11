@@ -94,7 +94,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     getUserDetailsFromFB();
                                 } else {
                                     setUpLocalDataStore();
-                                    FacebookUtils.getFriendsInBackground(true).continueWith(new Continuation<Void, Void>() {
+                                    FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
                                         @Override
                                         public Void then(Task<Void> task) throws Exception {
                                             navigateToMainActivity();
