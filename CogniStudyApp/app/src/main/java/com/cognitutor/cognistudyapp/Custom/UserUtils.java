@@ -38,6 +38,7 @@ public class UserUtils {
         Student student = (Student) publicUserData.getParseObject("student");
         Log.d(TAG, "student is " + (student.isDataAvailable() ? "" : "not ") + "available");
         student.fetchIfNeeded();
+        //TODO: Get and pin all Student_RollingStats objects from student
 
         PrivateStudentData privateStudentData = (PrivateStudentData) student.getParseObject("privateStudentData");
         Log.d(TAG, "privateStudentData is " + (privateStudentData.isDataAvailable() ? "" : "not ") + "available");

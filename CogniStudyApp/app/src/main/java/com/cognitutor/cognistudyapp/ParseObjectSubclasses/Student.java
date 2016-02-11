@@ -1,11 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.QS_ShopItemInfo;
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -14,9 +9,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import bolts.Task;
 
@@ -33,10 +26,9 @@ public class Student extends ParseObject{
         public static final String randomEnabled = "randomEnabled";
         public static final String publicAnalytics = "publicAnalytics";
         public static final String baseUserId = "baseUserId";
-        public static final String studentCategoryStats = "studentCategoryStats";
-        public static final String studentSubjectStats = "studentSubjectStats";
-        public static final String totalResponses = "totalResponses";
-        public static final String correctResponses = "correctResponses";
+        public static final String studentCategoryRollingStats = "studentCategoryRollingStats";
+        public static final String studentSubjectRollingStats = "studentSubjectRollingStats";
+        public static final String studentTotalRollingStats = "studentTotalRollingStats";
         public static final String privateStudentData = "privateStudentData";
     }
 
@@ -55,26 +47,30 @@ public class Student extends ParseObject{
         setRandomEnabled(true);
         setPublicAnalytics(true);
         put(Columns.baseUserId, baseUserId);
-        put(Columns.totalResponses, 0);
-        put(Columns.correctResponses, 0);
-        createStudentSubjectStats(baseUserId);
-        createStudentCategoryStats(baseUserId);
+        createStudentSubjectRollingStats(baseUserId);
+        createStudentCategoryRollingStats(baseUserId);
+        createStudentTotalRollingStats(baseUserId);
     }
 
-    private void createStudentSubjectStats(String baseUserId) {
-        ArrayList<StudentSubjectStats> array = new ArrayList<>();
+    private void createStudentSubjectRollingStats(String baseUserId) {
+        ArrayList<StudentSubjectRollingStats> array = new ArrayList<>();
         for(String subject : Constants.getAllConstants(Constants.Subject.class)) {
-            array.add(new StudentSubjectStats(baseUserId, subject));
+            array.add(new StudentSubjectRollingStats(baseUserId, subject));
         }
-        put(Columns.studentSubjectStats, array);
+        put(Columns.studentSubjectRollingStats, array);
     }
 
-    private void createStudentCategoryStats(String baseUserId) {
-        ArrayList<StudentCategoryStats> array = new ArrayList<>();
+    private void createStudentCategoryRollingStats(String baseUserId) {
+        ArrayList<StudentCategoryRollingStats> array = new ArrayList<>();
         for(String category : Constants.getAllConstants(Constants.Category.class)) {
-            array.add(new StudentCategoryStats(baseUserId, category));
+            array.add(new StudentCategoryRollingStats(baseUserId, category));
         }
-        put(Columns.studentCategoryStats, array);
+        put(Columns.studentCategoryRollingStats, array);
+    }
+
+    private void createStudentTotalRollingStats(String baseUserId) {
+        StudentTotalRollingStats stats = new StudentTotalRollingStats(baseUserId);
+        put(Columns.studentTotalRollingStats, stats);
     }
 
     public List<Achievement> getAchievements() { return getList(Columns.achievements); }
