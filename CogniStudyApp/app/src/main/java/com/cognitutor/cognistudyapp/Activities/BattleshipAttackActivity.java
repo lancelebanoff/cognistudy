@@ -86,6 +86,7 @@ public class BattleshipAttackActivity extends CogniActivity {
     }
 
     public void onClick_btnDone(View view) {
+        mBattleshipBoardManager.saveGameBoard();
         setOtherPlayerTurn();
 
         // Exit ChallengeActivity and start a new one

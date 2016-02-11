@@ -11,6 +11,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class BattleshipBoardManager {
     private GameBoard mGameBoard;
     private ArrayList<Ship> mShips;
     private ArrayList<ShipDrawableData> mShipDrawableDatas;
-    private String[][] mBoardPositionStatus;
+    private List<List<String>> mBoardPositionStatus;
     private boolean mCanBeAttacked;
 
     // Used for new challenge
@@ -88,7 +89,7 @@ public class BattleshipBoardManager {
             for(int col = 0; col < mTargetsGridLayout.getColumnCount(); col++) {
                 // Draw target
                 ImageView imgSpace = new ImageView(mActivity);
-                setTargetImageResource(imgSpace, mBoardPositionStatus[row][col]);
+                setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
                 GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
                 layoutParams.height = mTargetsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS;
                 layoutParams.width = mTargetsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS;
@@ -135,11 +136,19 @@ public class BattleshipBoardManager {
         }
     }
 
-    public void saveGameBoard() {
+    public void saveNewGameBoard() {
         mGameBoard = new GameBoard(mShips, createShipAt());
         mGameBoard.saveInBackground();
         mChallengeUserData.setGameBoard(mGameBoard);
         mChallengeUserData.saveInBackground();
+        ParseObject.saveAllInBackground(mShips);
+    }
+
+    public void saveGameBoard() {
+        mGameBoard.setStatus(mBoardPositionStatus);
+        mGameBoard.saveInBackground();
+        mChallengeUserData.saveInBackground();
+        ParseObject.saveAllInBackground(mShips);
     }
 
     public List<List<Ship>> createShipAt() {
@@ -169,7 +178,6 @@ public class BattleshipBoardManager {
 
     // Build the image filename based on the skin and position status, then set image resource
     private void setTargetImageResource(ImageView imgSpace, String positionStatus) {
-        // TODO:2 get selected target skin from database
         String targetSkin = Constants.ShopItemType.SKIN_TARGET_DEFAULT;
         String skinBaseString = targetSkin.replace("SKIN_", "").toLowerCase();
         String statusBaseString = positionStatus.toLowerCase();
@@ -189,25 +197,23 @@ public class BattleshipBoardManager {
     }
 
     private void shoot(ImageView imgSpace, int row, int col) {
-        switch(mBoardPositionStatus[row][col]) {
+        switch(mBoardPositionStatus.get(row).get(col)) {
             case Constants.GameBoardPositionStatus.UNKNOWN:
             case Constants.GameBoardPositionStatus.DETECTION:
                 ShipDrawableData shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
                 if(shipThatOccupiesPosition == null) {
-                    mBoardPositionStatus[row][col] = Constants.GameBoardPositionStatus.MISS;
-                    // TODO:2 set in database too
+                    mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.MISS);
                 }
                 else {
-                    mBoardPositionStatus[row][col] = Constants.GameBoardPositionStatus.HIT;
+                    mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.HIT);
                     if(shipIsDead(shipThatOccupiesPosition)) {
                         shipThatOccupiesPosition.shipIsAlive = false;
                         drawShip(shipThatOccupiesPosition);
                         mChallengeUserData.incrementScore();
                         mChallengeUserData.saveInBackground();
                     }
-                    // TODO:2 set in database too
                 }
-                setTargetImageResource(imgSpace, mBoardPositionStatus[row][col]);
+                setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
         }
     }
 
@@ -226,7 +232,7 @@ public class BattleshipBoardManager {
     private boolean shipIsDead(ShipDrawableData shipDrawableData) {
         for(int row = shipDrawableData.shipRow; row < shipDrawableData.shipRow + shipDrawableData.shipHeight; row++) {
             for(int col = shipDrawableData.shipColumn; col < shipDrawableData.shipColumn + shipDrawableData.shipWidth; col++) {
-                switch(mBoardPositionStatus[row][col]) {
+                switch(mBoardPositionStatus.get(row).get(col)) {
                     case Constants.GameBoardPositionStatus.UNKNOWN:
                     case Constants.GameBoardPositionStatus.DETECTION:
                         return false;
@@ -336,13 +342,7 @@ public class BattleshipBoardManager {
     }
 
     private void retrieveBoardPositionStatus() {
-        List<List<String>> statusFromDB = mGameBoard.getStatus();
-        mBoardPositionStatus = new String[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
-        for(int i = 0; i < mBoardPositionStatus.length; i++) {
-            for(int j = 0; j < mBoardPositionStatus[i].length; j++) {
-                mBoardPositionStatus[i][j] = statusFromDB.get(i).get(j);
-            }
-        }
+        mBoardPositionStatus = mGameBoard.getStatus();
     }
 
     public static class ShipDrawableData {

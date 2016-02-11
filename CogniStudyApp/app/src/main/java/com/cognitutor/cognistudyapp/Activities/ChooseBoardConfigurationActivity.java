@@ -101,7 +101,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     }
 
     public void onClick_btnStartChallenge(View view) {
-        mBattleshipBoardManager.saveGameBoard();
+        mBattleshipBoardManager.saveNewGameBoard();
         if(mUser1or2 == 1) {
             setChallengeActivated();
         }

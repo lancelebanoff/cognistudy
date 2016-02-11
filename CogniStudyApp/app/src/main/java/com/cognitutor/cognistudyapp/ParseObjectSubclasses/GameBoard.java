@@ -60,4 +60,8 @@ public class GameBoard extends ParseObject {
     public List<List<String>> getStatus() {
         return (List<List<String>>) get(Columns.status);
     }
+
+    public void setStatus(List<List<String>> status) {
+        put(Columns.status, status);
+    }
 }
