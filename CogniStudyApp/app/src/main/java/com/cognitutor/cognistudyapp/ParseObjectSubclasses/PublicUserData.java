@@ -38,6 +38,7 @@ public class PublicUserData extends ParseObject{
         public static final String tutor = "tutor";
         public static final String facebookId = "facebookId";
         public static final String fbLinked = "fbLinked";
+        public static final String searchableDisplayName = "searchableDisplayName";
     }
 
     public PublicUserData() {
@@ -52,13 +53,19 @@ public class PublicUserData extends ParseObject{
         put(Columns.baseUserId, user.getObjectId());
         put(Columns.student, student);
         put(Columns.displayName, displayName);
-        put(Columns.facebookId, facebookId);
+        if(facebookId != null)
+            put(Columns.facebookId, facebookId);
         put(Columns.fbLinked, facebookId != null);
 
         if(profilePic != null)
             put(Columns.profilePic, profilePic);
         if(profilePicData != null)
             put(Columns.profilePicData, Arrays.asList(profilePicData));
+
+        String searchableDisplayName = displayName;
+        searchableDisplayName = searchableDisplayName.replaceAll("\\s+", "");
+        searchableDisplayName = searchableDisplayName.toLowerCase();
+        put(Columns.searchableDisplayName, searchableDisplayName);
     }
 
     public Student getStudent() throws ParseException {

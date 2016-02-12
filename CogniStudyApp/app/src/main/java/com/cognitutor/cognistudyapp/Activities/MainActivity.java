@@ -45,7 +45,6 @@ public class MainActivity extends AuthenticationActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
         try {
             UserUtils.getPinTest();
         }
@@ -55,7 +54,6 @@ public class MainActivity extends AuthenticationActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "Access Token: " + AccessToken.getCurrentAccessToken().getToken());
         try {
             UserUtils.getPinTest();
         }
