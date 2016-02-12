@@ -362,14 +362,18 @@ public class CogniParseQueryAdapter<T extends ParseObject> extends BaseAdapter {
      * {@code false}.
      */
     public void loadObjects() {
-        this.loadObjects(0, true, null);
+        this.loadObjects(0, true, null, 0);
     }
 
     public void loadObjects(Lock lock) {
-        this.loadObjects(0, true, lock);
+        this.loadObjects(0, true, lock, 0);
     }
 
-    private void loadObjects(final int page, final boolean shouldClear, final Lock lock) {
+    public void loadObjects(Lock lock, int minSize) {
+        this.loadObjects(0, true, lock, minSize);
+    }
+
+    private void loadObjects(final int page, final boolean shouldClear, final Lock lock, final int minSize) {
 
         final ParseQuery<T> query = this.queryFactory.create();
 
@@ -396,8 +400,8 @@ public class CogniParseQueryAdapter<T extends ParseObject> extends BaseAdapter {
             @Override
             public void done(List<T> foundObjects, ParseException e) {
 
-                if(lock != null)
-                    lock.lock();
+                if(foundObjects.size() < minSize)
+                    return;
 
                 if (!runningQueries.contains(query)) {
                     return;
@@ -416,6 +420,9 @@ public class CogniParseQueryAdapter<T extends ParseObject> extends BaseAdapter {
                     // no-op on cache miss
                     return;
                 }
+
+                if(lock != null)
+                    lock.lock();
 
                 if ((e != null) &&
                         ((e.getCode() == ParseException.CONNECTION_FAILED) ||
@@ -481,10 +488,10 @@ public class CogniParseQueryAdapter<T extends ParseObject> extends BaseAdapter {
      */
     public void loadNextPage() {
         if (objects.size() == 0 && runningQueries.size() == 0) {
-            loadObjects(0, false, null);
+            loadObjects(0, false, null, 0);
         }
         else {
-            loadObjects(currentPage + 1, false, null);
+            loadObjects(currentPage + 1, false, null, 0);
         }
     }
 

@@ -29,19 +29,6 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
     private volatile int prevSize;
     private static Lock mLock;
 
-    /*
-    public PeopleQueryAdapter(Context context) {
-        super(context, new ParseQueryAdapter.QueryFactory<ParseObject>() {
-            public ParseQuery create() {
-                ParseQuery query = PublicUserData.getQuery()
-                        .fromLocalDatastore()
-                        .whereEqualTo(PublicUserData.Columns.fbLinked, true)
-                        .whereNotEqualTo(PublicUserData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId());
-                return query;
-            }
-        });
-    }
-    */
     public PeopleQueryAdapter(Context context, PeopleListOnClickHandler onClickHandler) {
         super(context, new CogniParseQueryAdapter.QueryFactory<ParseObject>() {
             public ParseQuery create() {
@@ -126,18 +113,16 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
 
                 removeOnQueryLoadListener(this);
 
-                if(!currentQuery.equals(q)) {
-//                if(!currentQuery.equals(q) || objects.size() == getCount()) { //this doesn't work
+                if(!currentQuery.equals(q) || objects == null) {
                     mLock.unlock();
                     return;
                 }
-                if (objects != null) {
-                    ParseQuery<PublicUserData> containsQuery = PublicUserData.getQuery()
-                            .whereContains(PublicUserData.Columns.searchableDisplayName, q);
-                    setQueryFactory(containsQuery);
-                    loadObjects(mLock);
-                    mLock.unlock();
-                }
+                prevSize = objects.size();
+                ParseQuery<PublicUserData> containsQuery = PublicUserData.getQuery()
+                        .whereContains(PublicUserData.Columns.searchableDisplayName, q);
+                setQueryFactory(containsQuery);
+                loadObjects(mLock, prevSize + 1);
+                mLock.unlock();
             }
         };
         removeAllOnQueryLoadListeners();
