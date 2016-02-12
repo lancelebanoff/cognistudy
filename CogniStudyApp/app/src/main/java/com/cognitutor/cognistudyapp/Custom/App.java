@@ -36,10 +36,12 @@ public class App extends Application {
     public static CallbackManager callbackManager;
     public static AccessTokenTracker accessTokenTracker;
     public static ProfileTracker profileTracker;
+    public static boolean isLocalDatastoreEnabled;
 
     @Override public void onCreate() {
         super.onCreate();
         Parse.enableLocalDatastore(this);
+        isLocalDatastoreEnabled = true;
         registerSubclasses();
         Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);
         ParseFacebookUtils.initialize(getApplicationContext());

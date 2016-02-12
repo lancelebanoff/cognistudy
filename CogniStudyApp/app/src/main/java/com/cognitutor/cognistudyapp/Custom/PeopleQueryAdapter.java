@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Adapters.CogniParseQueryAdapter;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
@@ -13,13 +14,19 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * Created by Kevin on 1/14/2016.
  */
-public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
+public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
 
     private Activity mActivity;
     private PeopleListOnClickHandler mOnClickHandler;
+    private volatile String currentQuery;
+    private static Lock mLock;
 
     /*
     public PeopleQueryAdapter(Context context) {
@@ -35,7 +42,7 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
     }
     */
     public PeopleQueryAdapter(Context context, PeopleListOnClickHandler onClickHandler) {
-        super(context, new ParseQueryAdapter.QueryFactory<ParseObject>() {
+        super(context, new CogniParseQueryAdapter.QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 ParseQuery query = PublicUserData.getQuery()
                         .fromLocalDatastore()
@@ -47,6 +54,7 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
         });
         mActivity = (Activity) context;
         mOnClickHandler = onClickHandler;
+        mLock = new ReentrantLock();
     }
 
     @Override
@@ -89,4 +97,56 @@ public class PeopleQueryAdapter extends ParseQueryAdapter<ParseObject> {
         public TextView txtName;
         public RoundedImageView imgProfile;
     }
+
+    public void search(final String q) {
+
+        currentQuery = q;
+
+        mLock.lock();
+
+        ParseQuery<PublicUserData> startsWithQuery = PublicUserData.getQuery()
+                .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
+
+        setQueryFactory(startsWithQuery);
+
+        OnQueryLoadListener listener = new OnQueryLoadListener() {
+            @Override
+            public void onLoading() {
+
+            }
+
+            @Override
+            public void onLoaded(List objects, Exception e) {
+                mLock.lock();
+
+                removeOnQueryLoadListener(this);
+                if(!currentQuery.equals(q)) {
+                    mLock.unlock();
+                    return;
+                }
+                if (objects != null) {
+                    ParseQuery<PublicUserData> containsQuery = PublicUserData.getQuery()
+                            .whereContains(PublicUserData.Columns.searchableDisplayName, q);
+                    setQueryFactory(containsQuery);
+                    loadObjects(mLock);
+                    mLock.unlock();
+                }
+            }
+        };
+        removeAllOnQueryLoadListeners();
+        addOnQueryLoadListener(listener);
+
+        loadObjects(mLock);
+        mLock.unlock();
+    }
+
+    private void setQueryFactory(final ParseQuery query) {
+        this.queryFactory = new QueryFactory<ParseObject>() {
+            @Override
+            public ParseQuery<ParseObject> create() {
+                return query;
+            }
+        };
+    }
+
 }
