@@ -26,6 +26,7 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
     private Activity mActivity;
     private PeopleListOnClickHandler mOnClickHandler;
     private volatile String currentQuery;
+    private volatile int prevSize;
     private static Lock mLock;
 
     /*
@@ -55,6 +56,8 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
         mActivity = (Activity) context;
         mOnClickHandler = onClickHandler;
         mLock = new ReentrantLock();
+        prevSize = 0;
+        currentQuery = "";
     }
 
     @Override
@@ -100,6 +103,8 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
 
     public void search(final String q) {
 
+        if(currentQuery.equals(q))
+            return;
         currentQuery = q;
 
         mLock.lock();
@@ -120,7 +125,9 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
                 mLock.lock();
 
                 removeOnQueryLoadListener(this);
+
                 if(!currentQuery.equals(q)) {
+//                if(!currentQuery.equals(q) || objects.size() == getCount()) { //this doesn't work
                     mLock.unlock();
                     return;
                 }

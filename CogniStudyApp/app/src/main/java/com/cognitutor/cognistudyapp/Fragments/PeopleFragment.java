@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -39,6 +41,13 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        searchView.onActionViewExpanded();
+        searchView.requestFocus();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -48,10 +57,20 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_people, container, false);
 
-        Button b = (Button) rootView.findViewById(R.id.btnSearch);
-        b.setOnClickListener(this);
-
         searchView = (SearchView) rootView.findViewById(R.id.searchView);
+//        searchView.requestFocus();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                search(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
         peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler);
         /*
@@ -69,8 +88,6 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.btnSearch:
-                search(searchView.getQuery().toString());
         }
     }
 
