@@ -26,11 +26,7 @@ import bolts.Task;
  */
 public class FacebookUtils {
 
-    public static Task<Void> getFriendsInBackground(boolean fbLinked) {
-
-        if(!fbLinked) {
-            return null;
-        }
+    public static Task<Void> getFriendsInBackground() {
 
         return Task.callInBackground(new Callable<ArrayList<String>>() {
             @Override

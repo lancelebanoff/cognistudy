@@ -87,29 +87,51 @@ class AuthenticationActivity extends CogniActivity {
             @Override
             public void done(ParseException e) {
 
-                if(e != null) {
+                if (e != null) {
                     Log.e("pinInBackground", e.getMessage());
                 }
                 //noinspection ConstantConditions
-                FacebookUtils.getFriendsInBackground(fbLinked).continueWith(new Continuation<Void, Void>() {
-                    @Override
-                    public Void then(Task<Void> task) throws Exception {
+                if(fbLinked) {
+                    FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
+                        @Override
+                        public Void then(Task<Void> task) throws Exception {
 
-                        if(task.isFaulted()) {
-                            Log.e("getFriendsInBackground", task.getError().getMessage());
+                            if (task.isFaulted()) {
+                                Log.e("getFriendsInBackground", task.getError().getMessage());
+                            }
+                            saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
+                            return null;
                         }
-                        ArrayList < ParseObject > objects = new ArrayList<ParseObject>();
-                        objects.add(privateStudentData);
-                        objects.add(student);
-                        objects.add(publicUserData);
-                        objects.add(user);
-                        objects.add(installation);
-                        ParseObject.saveAllInBackground(objects, callback);
-                        return null;
-                    }
-                });
+                    });
+                }
+                else {
+                    saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
+                }
             }
         });
+    }
+
+    private void saveObjects(PrivateStudentData privateStudentData, Student student, PublicUserData publicUserData,
+                             ParseUser user, ParseInstallation installation, SaveCallback callback) {
+        ArrayList < ParseObject > objects = new ArrayList<ParseObject>();
+        objects.add(privateStudentData);
+        objects.add(student);
+        objects.add(publicUserData);
+        objects.add(user);
+        objects.add(installation);
+        ParseObject.saveAllInBackground(objects).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                if(task.isFaulted()) {
+                    Log.e("Error saving", task.getError().getMessage());
+                }
+                else {
+                    Log.e("Saving", "Everythings fine");
+                }
+                return null;
+            }
+        });
+        ParseObject.saveAllInBackground(objects, callback);
     }
     
     private ParseInstallation setUpInstallation(String baseUserId) {
