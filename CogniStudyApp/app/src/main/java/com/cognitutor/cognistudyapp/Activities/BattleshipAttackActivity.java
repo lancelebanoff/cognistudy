@@ -11,7 +11,6 @@ import android.widget.GridLayout;
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.R;
 
 import bolts.Continuation;
@@ -46,8 +45,9 @@ public class BattleshipAttackActivity extends CogniActivity {
     private void initializeBoard() {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
         int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        int opponentUser1or2 = user1or2 == 1 ? 2: 1;
 
-        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, true)
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, opponentUser1or2, true)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {

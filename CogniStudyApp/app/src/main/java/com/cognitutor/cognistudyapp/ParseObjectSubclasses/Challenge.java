@@ -41,6 +41,8 @@ public class Challenge extends ParseObject {
         setAccepted(false);
         setActivated(false);
         setHasEnded(false);
+        // TODO:2 set number of shots after answering questions
+        setNumShotsRemaining(4);
     }
 
     public Challenge() {}
