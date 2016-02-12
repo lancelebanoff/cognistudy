@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;

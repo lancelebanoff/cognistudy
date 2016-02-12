@@ -44,8 +44,9 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
-        searchView.onActionViewExpanded();
-        searchView.setQueryHint("Find users");
+        searchView.setQuery("", false);
+        //TODO: Focus should not be requested in onResume. Also figure out how to hide keyboard when fragment becomes invisible
+//        searchView.onActionViewExpanded(); //This will put focus on the searchView without requestFocus()
 //        searchView.requestFocus();
     }
 
@@ -60,6 +61,7 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         View rootView = inflater.inflate(R.layout.fragment_people, container, false);
 
         searchView = (SearchView) rootView.findViewById(R.id.searchView);
+        searchView.setQueryHint("Find users");
 //        searchView.requestFocus();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

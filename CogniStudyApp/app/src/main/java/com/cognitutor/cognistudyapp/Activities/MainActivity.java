@@ -11,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
@@ -27,7 +28,7 @@ public class MainActivity extends AuthenticationActivity {
 
     private final String TAG = "MainActivity";
     private Activity mActivity = this;
-    private ViewPager mViewPager;
+    private CogniViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +41,9 @@ public class MainActivity extends AuthenticationActivity {
 
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        mViewPager = (CogniViewPager) findViewById(R.id.viewpager);
         mViewPager.setAdapter(sectionsPagerAdapter);
+        mViewPager.setActivityRef(this);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
@@ -77,12 +79,16 @@ public class MainActivity extends AuthenticationActivity {
 
     @Override
     public void onBackPressed() {
-        if(mViewPager.getCurrentItem() == 0) {
+        if(mViewPager.getCurrentItem() == Fragments.Main.ordinal()) {
             super.onBackPressed();
         }
         else {
-            mViewPager.setCurrentItem(0);
+            mViewPager.setCurrentItem(Fragments.Main.ordinal());
         }
+    }
+
+    public enum Fragments {
+        Main, People, Messages, Analytics, Menu
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -93,49 +99,46 @@ public class MainActivity extends AuthenticationActivity {
 
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return MainFragment.newInstance();
-                case 1:
-                    return PeopleFragment.newInstance(new PeopleListOnClickHandler() {
-                        @Override
-                        public void onListItemClick(PublicUserData publicUserData) {
-                            Intent intent = new Intent(mActivity, StudentProfileActivity.class);
-                            intent.putExtra("publicUserDataId", publicUserData.getObjectId());
-                            mActivity.startActivity(intent);
-                        }
-                    });
-                case 2:
-                    return MessagesFragment.newInstance();
-                case 3:
-                    return AnalyticsFragment.newInstance();
-                case 4:
-                    return MenuFragment.newInstance();
+
+            if(position == Fragments.Main.ordinal())
+                return MainFragment.newInstance();
+            if(position == Fragments.People.ordinal()) {
+                return PeopleFragment.newInstance(new PeopleListOnClickHandler() {
+                    @Override
+                    public void onListItemClick(PublicUserData publicUserData) {
+                        Intent intent = new Intent(mActivity, StudentProfileActivity.class);
+                        intent.putExtra("publicUserDataId", publicUserData.getObjectId());
+                        mActivity.startActivity(intent);
+                    }
+                });
             }
+            if(position == Fragments.Messages.ordinal())
+                return MessagesFragment.newInstance();
+            if(position == Fragments.Analytics.ordinal())
+                return AnalyticsFragment.newInstance();
+            if(position == Fragments.Menu.ordinal())
+                return MenuFragment.newInstance();
             return null;
         }
 
         @Override
         public int getCount() {
-            // Show 5 total pages.
-            return 5;
+            return Fragments.values().length;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             // TODO:3 make these images
-            switch (position) {
-                case 0:
-                    return "Home";
-                case 1:
-                    return "People";
-                case 2:
-                    return "Messages";
-                case 3:
-                    return "Statistics";
-                case 4:
-                    return "Menu";
-            }
+            if(position == Fragments.Main.ordinal())
+                return "Home";
+            if(position == Fragments.People.ordinal())
+                return "People";
+            if(position == Fragments.Messages.ordinal())
+                return "Messages";
+            if(position == Fragments.Analytics.ordinal())
+                return "Statistics";
+            if(position == Fragments.Menu.ordinal())
+                return "Menu";
             return null;
         }
     }
