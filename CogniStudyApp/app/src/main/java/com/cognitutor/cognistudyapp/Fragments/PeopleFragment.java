@@ -45,7 +45,8 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
     public void onResume() {
         super.onResume();
         searchView.setQuery("", false);
-        //TODO: Focus should not be requested in onResume. Also figure out how to hide keyboard when fragment becomes invisible
+        //TODO: Cache results of searches
+        //TODO: Figure out how to save state of the fragment when user switches between far away fragments
 //        searchView.onActionViewExpanded(); //This will put focus on the searchView without requestFocus()
 //        searchView.requestFocus();
     }
@@ -62,7 +63,6 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
 
         searchView = (SearchView) rootView.findViewById(R.id.searchView);
         searchView.setQueryHint("Find users");
-//        searchView.requestFocus();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

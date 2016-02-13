@@ -153,14 +153,14 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
                 ParseQuery<PublicUserData> containsQuery = PublicUserData.getQuery()
                         .whereContains(PublicUserData.Columns.searchableDisplayName, q);
                 setQueryFactory(containsQuery);
-                addOnQueryLoadListener(getSecondSearchListener(q));
+                addOnQueryLoadListener(getSecondSearchListener());
                 loadObjects(mLock, lastSearchObjects.size() + 1);
                 mLock.unlock();
             }
         };
     }
 
-    private OnQueryLoadListener getSecondSearchListener(final String q) {
+    private OnQueryLoadListener getSecondSearchListener() {
         return new OnQueryLoadListener() {
             @Override
             public void onLoading() {
