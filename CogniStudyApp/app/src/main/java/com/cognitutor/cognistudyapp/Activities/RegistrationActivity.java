@@ -10,8 +10,11 @@ import android.util.Log;
 import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SubclassUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -22,6 +25,8 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -40,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -59,6 +65,63 @@ public class RegistrationActivity extends AuthenticationActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        try {
+            ParseObject.unpinAll();
+        } catch (ParseException e) {}
+        final String id1 = "id1";
+        final String id2 = "id2";
+        final AnsweredQuestionId a = new AnsweredQuestionId(id1, false);
+//        SubclassUtils.saveAllInBackground()
+//                .continueWith(new Continuation<Boolean, Object>() {
+//                    @Override
+//                    public Object then(Task<Boolean> task) throws Exception {
+//                        try {
+//                            a.pin();
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
+//                        ParseQuery<AnsweredQuestionId> query1 = ParseQuery.getQuery(AnsweredQuestionId.class)
+//                                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id1);
+//                        QueryUtils.tryLocalDataFindQuery(query1)
+//                                .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
+//                                    @Override
+//                                    public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
+//                                        List<AnsweredQuestionId> results = task.getResult();
+//                                        Log.i("TEST", "query 1 results length is " + results.size());
+//                                        try {
+//                                            a.unpin();
+//                                        } catch (ParseException e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                        return null;
+//                                    }
+//                                });
+//
+//                        return null;
+//                    }
+//                });
+        AnsweredQuestionId b = new AnsweredQuestionId(id2, false);
+        final String objectId = b.getObjectId();
+//        SubclassUtils.saveAllInBackground()
+        b.saveInBackground()
+                .continueWith(new Continuation<Void, Object>() {
+                    @Override
+                    public Object then(Task<Void> task) throws Exception {
+                        ParseQuery<AnsweredQuestionId> query2 = ParseQuery.getQuery(AnsweredQuestionId.class)
+//                                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id2);
+                            .whereEqualTo("objectId", objectId);
+                        QueryUtils.tryLocalDataFindQuery(query2)
+                                .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
+                                    @Override
+                                    public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
+                                        List<AnsweredQuestionId> results = task.getResult();
+                                        Log.i("TEST", "query 2 results length is " + results.size());
+                                        return null;
+                                    }
+                                });
+                        return null;
+                    }
+                });
         /*
         try {
             PackageInfo info = getPackageManager().getPackageInfo("com.cognitutor.cognistudyapp", PackageManager.GET_SIGNATURES);

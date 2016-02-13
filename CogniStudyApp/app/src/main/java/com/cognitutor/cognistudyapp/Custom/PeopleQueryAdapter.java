@@ -120,6 +120,7 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
         currentQuery = q;
 
         mLock.lock();
+        cancelAllQueries();
 
         ParseQuery<PublicUserData> startsWithQuery = PublicUserData.getQuery()
                 .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);

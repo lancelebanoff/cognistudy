@@ -347,7 +347,7 @@ public class CogniParseQueryAdapter<T extends ParseObject> extends BaseAdapter {
         this.currentPage = 0;
     }
 
-    private void cancelAllQueries() {
+    protected void cancelAllQueries() {
         for (ParseQuery q : runningQueries) {
             q.cancel();
         }
