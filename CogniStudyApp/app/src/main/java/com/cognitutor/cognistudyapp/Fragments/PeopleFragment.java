@@ -16,6 +16,7 @@ import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.Activities.TutorProfileActivity;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.PeopleQueryAdapter;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FindCallback;
@@ -43,8 +44,11 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
-        searchView.onActionViewExpanded();
-        searchView.requestFocus();
+        searchView.setQuery("", false);
+        //TODO: Cache results of searches
+        //TODO: Figure out how to save state of the fragment when user switches between far away fragments
+//        searchView.onActionViewExpanded(); //This will put focus on the searchView without requestFocus()
+//        searchView.requestFocus();
     }
 
     @Override
@@ -58,7 +62,7 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         View rootView = inflater.inflate(R.layout.fragment_people, container, false);
 
         searchView = (SearchView) rootView.findViewById(R.id.searchView);
-//        searchView.requestFocus();
+        searchView.setQueryHint("Find users");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -68,7 +72,12 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+                if(newText.length() == 0) {
+                    resetResultsToDefault();
+                    return true;
+                }
+                filter(newText);
+                return true;
             }
         });
 
@@ -112,12 +121,16 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         startActivity(intent);
     }
 
-    public void search(String q) {
-
-        q = q.replaceAll("\\s+", "");
-        q = q.toLowerCase();
-
+    private void search(String q) {
         peopleQueryAdapter.search(q);
+    }
+
+    private void filter(String q) {
+        peopleQueryAdapter.getFilter().filter(q);
+    }
+
+    private void resetResultsToDefault() {
+        peopleQueryAdapter.resetResultsToDefault();
     }
 }
 
