@@ -60,6 +60,11 @@ public class RegistrationActivity extends AuthenticationActivity {
     private String displayName;
     private static final String TAG = "RegistrationActivity";
 
+    private ParseQuery<AnsweredQuestionId> getTestQuery(String id) {
+        return ParseQuery.getQuery(AnsweredQuestionId.class)
+                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,27 +106,31 @@ public class RegistrationActivity extends AuthenticationActivity {
 //                    }
 //                });
         AnsweredQuestionId b = new AnsweredQuestionId(id2, false);
-        final String objectId = b.getObjectId();
-//        SubclassUtils.saveAllInBackground()
-        b.saveInBackground()
-                .continueWith(new Continuation<Void, Object>() {
+        try {
+            b.pin();
+        } catch (ParseException e) { e.printStackTrace(); }
+//        b.saveInBackground()
+        SubclassUtils.saveAllInBackground()
+        .continueWithTask(new Continuation<Boolean, Task<List<AnsweredQuestionId>>>() {
+            @Override
+            public Task<List<AnsweredQuestionId>> then(Task<Boolean> task) throws Exception {
+                return QueryUtils.findCacheElseNetwork(new QueryUtils.ParseQueryBuilder<AnsweredQuestionId>() {
                     @Override
-                    public Object then(Task<Void> task) throws Exception {
-                        ParseQuery<AnsweredQuestionId> query2 = ParseQuery.getQuery(AnsweredQuestionId.class)
-//                                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id2);
-                            .whereEqualTo("objectId", objectId);
-                        QueryUtils.tryLocalDataFindQuery(query2)
-                                .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
-                                    @Override
-                                    public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
-                                        List<AnsweredQuestionId> results = task.getResult();
-                                        Log.i("TEST", "query 2 results length is " + results.size());
-                                        return null;
-                                    }
-                                });
-                        return null;
+                    public ParseQuery<AnsweredQuestionId> buildQuery() {
+                        return ParseQuery.getQuery(AnsweredQuestionId.class)
+                                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id2);
                     }
                 });
+            }
+        })
+        .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
+            @Override
+            public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
+                List<AnsweredQuestionId> results = task.getResult();
+                Log.i("TEST", "query 2 results length is " + results.size());
+                return null;
+            }
+        });
         /*
         try {
             PackageInfo info = getPackageManager().getPackageInfo("com.cognitutor.cognistudyapp", PackageManager.GET_SIGNATURES);

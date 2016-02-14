@@ -18,10 +18,15 @@ import bolts.TaskCompletionSource;
  */
 public class QueryUtils {
 
-    public static <TClass extends ParseObject> Task<List<TClass>> tryLocalDataFindQuery(final ParseQuery<TClass> query) {
+    public interface ParseQueryBuilder<TClass extends ParseObject> {
+        ParseQuery<TClass> buildQuery();
+    }
 
-        Log.i("toString()", query.toString());
-        return query.fromLocalDatastore()
+    public static <TClass extends ParseObject> Task<List<TClass>> findCacheElseNetwork(ParseQueryBuilder<TClass> builder) {
+
+        final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromLocalDatastore();
+        final ParseQuery<TClass> networkQuery = builder.buildQuery();
+        return localDataQuery
                 .findInBackground()
                 .continueWithTask(new Continuation<List<TClass>, Task<List<TClass>>>() {
                     @Override
@@ -29,7 +34,7 @@ public class QueryUtils {
                         if (task.isFaulted()) {
                             Exception e = task.getError();
                             e.printStackTrace();
-                            Log.e("QueryUtils localData error", e.getMessage());
+                            Log.e("QueryUtil localData err", e.getMessage());
                         }
                         List<TClass> results = task.getResult();
                         TaskCompletionSource<List<TClass>> completionSource = new TaskCompletionSource<List<TClass>>();
@@ -37,9 +42,7 @@ public class QueryUtils {
                         Task<List<TClass>> resultTask = completionSource.getTask();
                         if (results.size() == 0) {
                             Log.e("QueryUtils", "LocalDatastoreQuery returned empty");
-                            query.getClassName();
-                            Log.i("toString()", query.toString());
-                            resultTask = query.findInBackground();
+                            resultTask = networkQuery.findInBackground();
                         }
                         return resultTask;
                     }
@@ -50,7 +53,7 @@ public class QueryUtils {
                         if (task.isFaulted()) {
                             Exception e = task.getError();
                             e.printStackTrace();
-                            Log.e("QueryUtils network backup error", e.getMessage());
+                            Log.e("QueryUtils network err", e.getMessage());
                         }
                         return task.getResult();
                     }
