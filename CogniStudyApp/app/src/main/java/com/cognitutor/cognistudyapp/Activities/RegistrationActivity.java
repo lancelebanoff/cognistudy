@@ -70,67 +70,6 @@ public class RegistrationActivity extends AuthenticationActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        try {
-            ParseObject.unpinAll();
-        } catch (ParseException e) {}
-        final String id1 = "id1";
-        final String id2 = "id2";
-        final AnsweredQuestionId a = new AnsweredQuestionId(id1, false);
-//        SubclassUtils.saveAllInBackground()
-//                .continueWith(new Continuation<Boolean, Object>() {
-//                    @Override
-//                    public Object then(Task<Boolean> task) throws Exception {
-//                        try {
-//                            a.pin();
-//                        } catch (ParseException e) {
-//                            e.printStackTrace();
-//                        }
-//                        ParseQuery<AnsweredQuestionId> query1 = ParseQuery.getQuery(AnsweredQuestionId.class)
-//                                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id1);
-//                        QueryUtils.tryLocalDataFindQuery(query1)
-//                                .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
-//                                    @Override
-//                                    public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
-//                                        List<AnsweredQuestionId> results = task.getResult();
-//                                        Log.i("TEST", "query 1 results length is " + results.size());
-//                                        try {
-//                                            a.unpin();
-//                                        } catch (ParseException e) {
-//                                            e.printStackTrace();
-//                                        }
-//                                        return null;
-//                                    }
-//                                });
-//
-//                        return null;
-//                    }
-//                });
-        AnsweredQuestionId b = new AnsweredQuestionId(id2, false);
-        try {
-            b.pin();
-        } catch (ParseException e) { e.printStackTrace(); }
-//        b.saveInBackground()
-        SubclassUtils.saveAllInBackground()
-        .continueWithTask(new Continuation<Boolean, Task<List<AnsweredQuestionId>>>() {
-            @Override
-            public Task<List<AnsweredQuestionId>> then(Task<Boolean> task) throws Exception {
-                return QueryUtils.findCacheElseNetwork(new QueryUtils.ParseQueryBuilder<AnsweredQuestionId>() {
-                    @Override
-                    public ParseQuery<AnsweredQuestionId> buildQuery() {
-                        return ParseQuery.getQuery(AnsweredQuestionId.class)
-                                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id2);
-                    }
-                });
-            }
-        })
-        .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
-            @Override
-            public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
-                List<AnsweredQuestionId> results = task.getResult();
-                Log.i("TEST", "query 2 results length is " + results.size());
-                return null;
-            }
-        });
         /*
         try {
             PackageInfo info = getPackageManager().getPackageInfo("com.cognitutor.cognistudyapp", PackageManager.GET_SIGNATURES);
