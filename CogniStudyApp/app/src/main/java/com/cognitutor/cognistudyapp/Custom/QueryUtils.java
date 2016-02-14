@@ -142,7 +142,7 @@ public class QueryUtils {
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
         return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, null);
     }
-    
+
     public static <TClass extends ParseObject> TClass getFirstPinElseNetwork(ParseQueryBuilder<TClass> builder, String pinName) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
