@@ -19,11 +19,11 @@ import bolts.Task;
 public class SubclassUtils {
     public static HashSet<ParseObject> saveSet = new HashSet<>();
 
-    public static void addToSaveQueue(ParseObject object) {
+    public synchronized static void addToSaveQueue(ParseObject object) {
         saveSet.add(object);
     }
 
-    public static Task<Boolean> saveAllInBackground() {
+    public synchronized static Task<Boolean> saveAllInBackground() {
         List<ParseObject> saveList = new ArrayList<>();
         for(ParseObject object : saveSet) {
             saveList.add(object);

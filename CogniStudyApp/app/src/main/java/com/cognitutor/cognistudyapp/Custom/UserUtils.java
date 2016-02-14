@@ -91,4 +91,8 @@ public class UserUtils {
 
         //Log.d("getPinTest", "Skipping method");
     }
+
+    public static String getCurrentUserId() {
+        return ParseUser.getCurrentUser().getObjectId();
+    }
 }

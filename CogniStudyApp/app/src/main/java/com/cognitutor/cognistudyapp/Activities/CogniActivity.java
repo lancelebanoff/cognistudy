@@ -103,8 +103,7 @@ public class CogniActivity extends AppCompatActivity {
     // </editor-fold>
 
     public void logout() throws ParseException {
-        ParseObject.unpinAll("CurrentUser");
-        ParseObject.unpinAll("fbFriends");
+        ParseObject.unpinAll();
         ParseUser.logOut();
     }
 
