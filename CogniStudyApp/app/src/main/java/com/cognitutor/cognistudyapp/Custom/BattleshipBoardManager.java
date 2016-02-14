@@ -179,6 +179,11 @@ public class BattleshipBoardManager {
         return shipAt;
     }
 
+    public void clearImages() {
+        mTargetsGridLayout.removeAllViews();
+        mShipsGridLayout.removeAllViews();
+    }
+
     // Build the image filename based on the skin and position status, then set image resource
     private void setTargetImageResource(ImageView imgSpace, String positionStatus) {
         String targetSkin = Constants.ShopItemType.SKIN_TARGET_DEFAULT;
@@ -218,15 +223,16 @@ public class BattleshipBoardManager {
                 if(mNumShotsRemaining == 0) {
                     setOtherPlayerTurn();
                 }
-                ShipDrawableData shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
+                Ship shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
                 if(shipThatOccupiesPosition == null) {
                     mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.MISS);
                 }
                 else {
                     mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.HIT);
-                    if(shipIsDead(shipThatOccupiesPosition)) {
-                        shipThatOccupiesPosition.shipIsAlive = false;
-                        drawShip(shipThatOccupiesPosition);
+                    shipThatOccupiesPosition.decrementHitsRemaining();
+                    if(shipThatOccupiesPosition.getHitsRemaining() == 0) {
+                        shipThatOccupiesPosition.getShipDrawableData().shipIsAlive = false;
+                        drawShip(shipThatOccupiesPosition.getShipDrawableData());
                         mChallengeUserData.incrementScore();
                         mChallengeUserData.saveInBackground();
                     }
@@ -246,29 +252,16 @@ public class BattleshipBoardManager {
         mChallenge.saveInBackground();
     }
 
-    private ShipDrawableData findShipThatOccupiesPosition(int row, int col) {
+    private Ship findShipThatOccupiesPosition(int row, int col) {
         for(ShipDrawableData shipDrawableData : mShipDrawableDatas) {
             if(row >= shipDrawableData.shipRow &&
                     row < shipDrawableData.shipRow + shipDrawableData.shipHeight &&
                     col >= shipDrawableData.shipColumn &&
                     col < shipDrawableData.shipColumn + shipDrawableData.shipWidth) {
-                return shipDrawableData;
+                return shipDrawableData.ship;
             }
         }
         return null;
-    }
-
-    private boolean shipIsDead(ShipDrawableData shipDrawableData) {
-        for(int row = shipDrawableData.shipRow; row < shipDrawableData.shipRow + shipDrawableData.shipHeight; row++) {
-            for(int col = shipDrawableData.shipColumn; col < shipDrawableData.shipColumn + shipDrawableData.shipWidth; col++) {
-                switch(mBoardPositionStatus.get(row).get(col)) {
-                    case Constants.GameBoardPositionStatus.UNKNOWN:
-                    case Constants.GameBoardPositionStatus.DETECTION:
-                        return false;
-                }
-            }
-        }
-        return true;
     }
 
     // Fill the GridLayout with placeholder ImageViews so that the cells will be the correct size
@@ -375,6 +368,7 @@ public class BattleshipBoardManager {
     }
 
     public static class ShipDrawableData {
+        public Ship ship;
         public int shipRow;
         public int shipColumn;
         public int shipHeight;
@@ -383,6 +377,7 @@ public class BattleshipBoardManager {
         public boolean shipIsAlive;
 
         public ShipDrawableData(Ship ship) {
+            this.ship = ship;
             shipRow = ship.getStartRow();
             shipColumn = ship.getStartColumn();
             shipDrawableId = retrieveDrawableId(ship.getShipType(), ship.getRotation());

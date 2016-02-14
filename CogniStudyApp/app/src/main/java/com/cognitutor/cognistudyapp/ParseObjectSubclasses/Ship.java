@@ -60,4 +60,8 @@ public class Ship extends ParseObject {
     public int getHitsRemaining() {
         return getInt(Columns.hitsRemaining);
     }
+
+    public void decrementHitsRemaining() {
+        put(Columns.hitsRemaining, getHitsRemaining() - 1);
+    }
 }

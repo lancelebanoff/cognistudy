@@ -31,6 +31,8 @@ public class ChallengeActivity extends CogniActivity {
      */
     private Intent mIntent;
 
+    private int mUser1or2;
+    private int mViewingUser1or2;
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
     private BroadcastReceiver mBroadcastReceiver;
@@ -44,7 +46,10 @@ public class ChallengeActivity extends CogniActivity {
         mIntent = getIntent();
         initializeBroadcastReceiver();
 
-        initializeBoard();
+        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        mViewingUser1or2 = mUser1or2;
+
+        initializeBoard(mViewingUser1or2);
         showOrHideYourTurnButton();
     }
 
@@ -55,11 +60,10 @@ public class ChallengeActivity extends CogniActivity {
         showOrHideYourTurnButton();
     }
 
-    private void initializeBoard() {
+    private void initializeBoard(final int viewingUser1or2) {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
 
-        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, false)
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, viewingUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {
@@ -68,7 +72,7 @@ public class ChallengeActivity extends CogniActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                initializeGridLayouts();
+                                initializeGridLayouts(viewingUser1or2);
                             }
                         });
 
@@ -88,10 +92,9 @@ public class ChallengeActivity extends CogniActivity {
                         String currentUserId = PublicUserData.getPublicUserData().getBaseUserId();
                         boolean isCurrentUsersTurn = challenge.getCurTurnUserId().equals(currentUserId);
                         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
-                        if(isCurrentUsersTurn) {
+                        if (isCurrentUsersTurn) {
                             btnYourTurn.setVisibility(View.VISIBLE);
-                        }
-                        else {
+                        } else {
                             btnYourTurn.setVisibility(View.INVISIBLE);
                         }
                         return null;
@@ -99,14 +102,19 @@ public class ChallengeActivity extends CogniActivity {
                 });
     }
 
-    private void initializeGridLayouts() {
+    private void initializeGridLayouts(final int viewingUser1or2) {
         mShipsGridLayout = (GridLayout) findViewById(R.id.shipsGridLayout);
         mBattleshipBoardManager.setShipsGridLayout(mShipsGridLayout);
         ViewTreeObserver observer = mShipsGridLayout.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mBattleshipBoardManager.drawShips();
+                if(viewingUser1or2 == mUser1or2) {
+                    mBattleshipBoardManager.drawShips();
+                }
+                else {
+                    mBattleshipBoardManager.drawDeadShips();
+                }
                 removeOnGlobalLayoutListener(mShipsGridLayout, this);
             }
         });
@@ -121,6 +129,13 @@ public class ChallengeActivity extends CogniActivity {
                 removeOnGlobalLayoutListener(mTargetsGridLayout, this);
             }
         });
+    }
+
+    public void onClick_btnSwitchView(View view) {
+        mBattleshipBoardManager.clearImages();
+
+        mViewingUser1or2 = mViewingUser1or2 == 1 ? 2 : 1;
+        initializeBoard(mViewingUser1or2);
     }
 
     public void navigateToQuestionActivity(View view) {
