@@ -81,6 +81,7 @@ public class PublicUserData extends ParseObject{
     public ParseFile getProfilePic() { return getParseFile(Columns.profilePic); }
     public byte[] getProfilePicData() { return getBytes(Columns.profilePicData); }
     public String getBaseUserId() { return getString(Columns.baseUserId); }
+    public String getSearchableDisplayName() { return getString(Columns.searchableDisplayName); }
 
     public static ParseQuery<PublicUserData> getQuery() {
         return ParseQuery.getQuery(PublicUserData.class);
