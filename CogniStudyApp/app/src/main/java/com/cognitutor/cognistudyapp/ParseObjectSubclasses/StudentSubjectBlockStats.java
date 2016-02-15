@@ -1,6 +1,10 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseQuery;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Kevin on 2/13/2016.
@@ -11,8 +15,24 @@ public abstract class StudentSubjectBlockStats extends StudentBlockStats{
         public static final String subject = "subject";
     }
 
-    private static <T extends StudentCategoryBlockStats> ParseQuery<T> getCurrentUserQuery(Class<T> className, String subject) {
+    private static ParseQuery getCurrentUserQuery(String className, String category) {
+
         return getCurrentUserQuery(className)
-                .whereEqualTo(Columns.subject, subject);
+                .whereEqualTo(Columns.subject, getSubjectFromCategory(category));
+    }
+
+    @Override
+    public void setSubjectOrCategory(String category) {
+        put(Columns.subject, getSubjectFromCategory(category));
+    }
+
+    public static String getSubjectFromCategory(String category) {
+        for(String subject : Constants.getAllConstants(Constants.Subject.class)) {
+            List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
+            if(categoriesInSubject.contains(category)) {
+                return subject;
+            }
+        }
+        return null;
     }
 }

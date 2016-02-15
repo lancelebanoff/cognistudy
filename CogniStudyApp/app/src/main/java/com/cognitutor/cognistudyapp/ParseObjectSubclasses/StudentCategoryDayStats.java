@@ -9,16 +9,13 @@ import com.parse.ParseQuery;
 @ParseClassName("StudentCategoryDayStats")
 public class StudentCategoryDayStats extends StudentCategoryBlockStats {
 
-    public static ParseQuery<StudentCategoryDayStats> getQuery() { return ParseQuery.getQuery(StudentCategoryDayStats.class); }
-
-    @Override
-    public ParseQuery<StudentCategoryDayStats> getCurrentUserCurrentStats(String category) {
-        return getCurrentUserQuery(StudentCategoryDayStats.class, category);
-        //TODO: Where day == current day
-    }
-
-    public static ParseQuery<StudentCategoryDayStats> getCurrentUserCurrentDayStats(String category) {
-        return getCurrentUserQuery(StudentCategoryDayStats.class, category);
-        //TODO: Where day == current day
+    static CurrentUserCurrentBlockStats inter;
+    static {
+        inter = new CurrentUserCurrentBlockStats() {
+            @Override
+            public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
+                return getCurrentUserQuery("StudentCategoryDayStats", category);
+            }
+        };
     }
 }

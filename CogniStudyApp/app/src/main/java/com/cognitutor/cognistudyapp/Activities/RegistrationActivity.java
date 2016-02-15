@@ -9,11 +9,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SubclassUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
@@ -70,6 +72,7 @@ public class RegistrationActivity extends AuthenticationActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        StudentCategoryBlockStats.incrementAll(Constants.Category.SENTENCE_COMPLETION, true);
         /*
         try {
             PackageInfo info = getPackageManager().getPackageInfo("com.cognitutor.cognistudyapp", PackageManager.GET_SIGNATURES);

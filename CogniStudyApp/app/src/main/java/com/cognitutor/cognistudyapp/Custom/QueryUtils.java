@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -21,6 +22,10 @@ public class QueryUtils {
 
     public interface ParseQueryBuilder<TClass extends ParseObject> {
         ParseQuery<TClass> buildQuery();
+    }
+
+    public interface ParseQueryBuilderAbstract<T extends ParseObject> {
+        ParseQuery<? extends T> buildQuery();
     }
 
     public static <TClass extends ParseObject> Task<List<TClass>> findPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder, String pinName) {
