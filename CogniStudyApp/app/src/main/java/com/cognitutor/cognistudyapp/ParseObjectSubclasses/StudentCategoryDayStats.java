@@ -14,7 +14,12 @@ public class StudentCategoryDayStats extends StudentCategoryBlockStats {
         inter = new CurrentUserCurrentBlockStats() {
             @Override
             public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
-                return getCurrentUserQuery("StudentCategoryDayStats", category);
+                return getCurrentUserQuery(getClassName(), category);
+            }
+
+            @Override
+            public String getClassName() {
+                return "StudentCategoryDayStats";
             }
         };
     }

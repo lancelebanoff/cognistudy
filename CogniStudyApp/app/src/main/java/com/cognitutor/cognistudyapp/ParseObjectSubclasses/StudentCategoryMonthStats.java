@@ -8,8 +8,4 @@ import com.parse.ParseQuery;
  */
 @ParseClassName("StudentCategoryMonthStats")
 public class StudentCategoryMonthStats extends StudentCategoryBlockStats{
-    @Override
-    public ParseQuery<? extends StudentCategoryBlockStats> getCurrentUserCurrentStats(String category) {
-        return null;
-    }
 }
