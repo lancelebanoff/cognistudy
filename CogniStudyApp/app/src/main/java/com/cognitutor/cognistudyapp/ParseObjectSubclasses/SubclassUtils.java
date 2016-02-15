@@ -24,6 +24,7 @@ public class SubclassUtils {
     }
 
     public synchronized static Task<Boolean> saveAllInBackground() {
+        Log.i("saveAllInBackground", "called");
         List<ParseObject> saveList = new ArrayList<>();
         for(ParseObject object : saveSet) {
             saveList.add(object);

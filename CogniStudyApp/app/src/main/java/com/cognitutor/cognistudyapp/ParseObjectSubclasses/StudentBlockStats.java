@@ -1,5 +1,8 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import android.util.Log;
+
+import com.cognitutor.cognistudyapp.Custom.App;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
@@ -29,14 +32,16 @@ public abstract class StudentBlockStats extends ParseObject{
         String getClassName();
     }
 
-    static final Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> subclasses;
-    static {
-        Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> map = new HashMap<>();
-
-        map.put(StudentCategoryDayStats.class, StudentCategoryDayStats.inter);
-
-        subclasses = Collections.unmodifiableMap(map);
-    }
+    static Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> subclasses;
+//    static final Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> subclasses;
+//    static {
+//        Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> map = new HashMap<>();
+//
+////        map.put(StudentCategoryDayStats.class, StudentCategoryDayStats.inter);
+//        map.put(StudentCategoryDayStats.class, StudentCategoryDayStats.getInterface());
+//
+//        subclasses = Collections.unmodifiableMap(map);
+//    }
 
     public static class SuperColumns {
         public static final String baseUserId = "baseUserId";
@@ -46,6 +51,8 @@ public abstract class StudentBlockStats extends ParseObject{
     }
 
     public StudentBlockStats() {
+        if(!App.isInitFinished())
+            return;
         put(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
 //        put(SuperColumns.startDate, startDate); //TODO: Get current date
         put(SuperColumns.total, 0);
@@ -54,6 +61,10 @@ public abstract class StudentBlockStats extends ParseObject{
     }
 
     public static void incrementAll(final String category, final boolean correct) {
+
+        Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> map = new HashMap<>();
+        map.put(StudentCategoryDayStats.class, StudentCategoryDayStats.getInterface());
+        subclasses = map;
 
         for(final Class clazz : subclasses.keySet()) {
             final CurrentUserCurrentBlockStats inter = subclasses.get(clazz);
@@ -72,12 +83,14 @@ public abstract class StudentBlockStats extends ParseObject{
                 }
             });
         }
+        SubclassUtils.saveAllInBackground();
     }
 
     protected void increment(boolean correct) {
         increment(SuperColumns.total);
         if(correct)
             increment(SuperColumns.correct);
+        Log.i("total", Integer.toString(getInt(SuperColumns.total)));
         SubclassUtils.addToSaveQueue(this);
     }
 

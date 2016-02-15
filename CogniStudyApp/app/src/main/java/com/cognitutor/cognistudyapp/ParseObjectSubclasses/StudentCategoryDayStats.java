@@ -9,9 +9,23 @@ import com.parse.ParseQuery;
 @ParseClassName("StudentCategoryDayStats")
 public class StudentCategoryDayStats extends StudentCategoryBlockStats {
 
-    static CurrentUserCurrentBlockStats inter;
-    static {
-        inter = new CurrentUserCurrentBlockStats() {
+//    static CurrentUserCurrentBlockStats inter;
+//    static {
+//        inter = new CurrentUserCurrentBlockStats() {
+//            @Override
+//            public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
+//                return getCurrentUserQuery(getClassName(), category);
+//            }
+//
+//            @Override
+//            public String getClassName() {
+//                return "StudentCategoryDayStats";
+//            }
+//        };
+//    }
+
+    public static CurrentUserCurrentBlockStats getInterface() {
+        return new CurrentUserCurrentBlockStats() {
             @Override
             public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
                 return getCurrentUserQuery(getClassName(), category);
