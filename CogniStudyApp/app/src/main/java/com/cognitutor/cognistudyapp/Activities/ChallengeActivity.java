@@ -68,6 +68,8 @@ public class ChallengeActivity extends CogniActivity {
     private void initializeBoard(final int viewingUser1or2) {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
 
+        // TODO:2 stop past challenge from crashing
+
         ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, viewingUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
