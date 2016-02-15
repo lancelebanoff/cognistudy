@@ -1,4 +1,4 @@
-package com.cognitutor.cognistudyapp.Custom;
+package com.cognitutor.cognistudyapp.Adapters;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
+import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;

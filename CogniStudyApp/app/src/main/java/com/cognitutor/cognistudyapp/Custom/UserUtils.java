@@ -6,11 +6,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-
-import java.util.List;
 
 /**
  * Created by Kevin on 1/7/2016.
@@ -32,7 +29,7 @@ public class UserUtils {
                 (ParseUser.getCurrentUser().getParseObject("publicUserData").isDataAvailable() ? "is available" : "is not available"));
                 */
         PublicUserData publicUserData = (PublicUserData) ParseUser.getCurrentUser().getParseObject("publicUserData");
-        Log.d(TAG, "publicUserData is " + (publicUserData.isDataAvailable() ? "" : "not ") + "available");
+//        Log.d(TAG, "publicUserData is " + (publicUserData.isDataAvailable() ? "" : "not ") + "available");
         publicUserData.fetchIfNeeded();
 
         Student student = (Student) publicUserData.getParseObject("student");

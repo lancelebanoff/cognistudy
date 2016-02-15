@@ -41,6 +41,8 @@ public class Challenge extends ParseObject {
         setAccepted(false);
         setActivated(false);
         setHasEnded(false);
+        // TODO:2 set number of shots after answering questions
+        setNumShotsRemaining(4);
     }
 
     public Challenge() {}
@@ -81,8 +83,6 @@ public class Challenge extends ParseObject {
         return (ChallengeUserData) getParseObject(Columns.user1Data);
     }
 
-    // TODO:1 get rid of useless methods
-
     public void setUser1Data(ChallengeUserData user1Data) {
         put(Columns.user1Data, user1Data);
     }
@@ -119,11 +119,11 @@ public class Challenge extends ParseObject {
         put(Columns.quesAnsThisTurn, quesAnsThisTurn);
     }
 
-    public String getNumShotsRemaining() {
-        return getString(Columns.numShotsRemaining);
+    public int getNumShotsRemaining() {
+        return getInt(Columns.numShotsRemaining);
     }
 
-    public void setNumShotsRemaining(String numShotsRemaining) {
+    public void setNumShotsRemaining(int numShotsRemaining) {
         put(Columns.numShotsRemaining, numShotsRemaining);
     }
 

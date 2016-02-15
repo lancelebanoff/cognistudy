@@ -93,7 +93,7 @@ public class NewChallengeActivity extends CogniActivity {
             mRgTests.addView(radioButton);
 
             // Initialize chosen test to Both
-            // TODO:1 Initialize chosen tests, subjects, and categories to whatever was chosen last time
+            // TODO:2 Initialize chosen tests, subjects, and categories to whatever was chosen last time
             if(testName.equals(DEFAULT_TEST)) {
                 mRbDefaultTest = radioButton;
             }
@@ -116,7 +116,7 @@ public class NewChallengeActivity extends CogniActivity {
             mSubjectCheckboxes.add(checkBox);
 
             // Initialize all subjects to be chosen
-            // TODO:1 Initialize chosen tests, subjects, and categories to whatever was chosen last time
+            // TODO:2 Initialize chosen tests, subjects, and categories to whatever was chosen last time
             checkBox.performClick();
         }
     }
