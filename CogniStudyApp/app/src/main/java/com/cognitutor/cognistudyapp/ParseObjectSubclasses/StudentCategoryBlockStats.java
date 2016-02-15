@@ -53,7 +53,7 @@ public abstract class StudentCategoryBlockStats extends StudentBlockStats {
     public abstract ParseQuery<? extends StudentCategoryBlockStats> getCurrentUserCurrentStats(String category);
 
     public interface CurrentStatsInterface {
-//        public <T extends StudentCategoryBlockStats> ParseQuery<T> getCurrentUserCurrentStats(Class<T> type, String category);
+//        public ParseQuery<StudentCategoryBlockStats> getCurrentUserCurrentStats(Class type, String category);
         public ParseQuery<? extends StudentCategoryBlockStats> getCurrentUserCurrentStats(String category);
         public StudentCategoryBlockStats createObject();
     }
@@ -87,10 +87,23 @@ public abstract class StudentCategoryBlockStats extends StudentBlockStats {
 
             ParseQuery<? extends StudentCategoryBlockStats> query2;
 
+            new QueryUtils.ParseQueryBuilderAbstract<StudentCategoryBlockStats>() {
+                @Override
+                public ParseQuery<? extends StudentCategoryBlockStats> buildQuery() {
+                    return inter.getCurrentUserCurrentStats(category);
+                }
+            };
+
+//            QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilderAbstract<StudentCategoryBlockStats>() {
+//                @Override
+//                public ParseQuery<? extends StudentCategoryBlockStats> buildQuery() {
+//                    return inter.getCurrentUserCurrentStats(category);
+//                }
+//            })
             QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentCategoryBlockStats>() {
                 @Override
                 public ParseQuery<StudentCategoryBlockStats> buildQuery() {
-                    return inter.getCurrentUserCurrentStats(category);
+                    return (ParseQuery<StudentCategoryBlockStats>) inter.getCurrentUserCurrentStats(category);
                 }
             })
             .continueWith(new Continuation<StudentCategoryBlockStats, Object>() {
