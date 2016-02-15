@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -23,21 +24,23 @@ public class QueryUtils {
         ParseQuery<TClass> buildQuery();
     }
 
-    public static <TClass extends ParseObject> Task<List<TClass>> findPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder, String pinName) {
+    public static <TClass extends ParseObject> Task<List<TClass>> findPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder,
+                                                                                                 String pinName, boolean pinResult) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doFindCacheElseNetworkInBackground(localDataQuery, networkQuery, pinName);
+        return doFindCacheElseNetworkInBackground(localDataQuery, networkQuery, pinName, pinResult);
     }
 
-    public static <TClass extends ParseObject> Task<List<TClass>> findCacheElseNetworkInBackground(ParseQueryBuilder<TClass> builder) {
+    public static <TClass extends ParseObject> Task<List<TClass>> findCacheElseNetworkInBackground(ParseQueryBuilder<TClass> builder,
+                                                                                                   boolean pinResult) {
 
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doFindCacheElseNetworkInBackground(localDataQuery, networkQuery, null);
+        return doFindCacheElseNetworkInBackground(localDataQuery, networkQuery, null, pinResult);
     }
 
     private static <TClass extends ParseObject> Task<List<TClass>> doFindCacheElseNetworkInBackground(
-            final ParseQuery<TClass> localDataQuery, final ParseQuery<TClass> networkQuery, final String pinName) {
+            final ParseQuery<TClass> localDataQuery, final ParseQuery<TClass> networkQuery, final String pinName, final boolean pinResult) {
 
         return localDataQuery
                 .findInBackground()
@@ -69,9 +72,9 @@ public class QueryUtils {
                             Log.e("QueryUtils network err", e.getMessage());
                         }
                         List<TClass> results = task.getResult();
-                        if (pinName != null) {
+                        if (pinName != null && pinResult) {
                             ParseObject.pinAllInBackground(pinName, results);
-                        } else {
+                        } else if(pinResult) {
                             ParseObject.pinAllInBackground(results);
                         }
                         return results;
@@ -80,21 +83,22 @@ public class QueryUtils {
 
     }
 
-    public static <TClass extends ParseObject> Task<TClass> getFirstPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder, String pinName) {
+    public static <TClass extends ParseObject> Task<TClass> getFirstPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder,
+                                                                                               String pinName, boolean pinResult) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, pinName);
+        return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, pinName, pinResult);
     }
 
-    public static <TClass extends ParseObject> Task<TClass> getFirstCacheElseNetworkInBackground(ParseQueryBuilder<TClass> builder) {
+    public static <TClass extends ParseObject> Task<TClass> getFirstCacheElseNetworkInBackground(ParseQueryBuilder<TClass> builder, boolean pinResult) {
 
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, null);
+        return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, null, pinResult);
     }
 
     private static <TClass extends ParseObject> Task<TClass> doGetFirstCacheElseNetworkInBackground(
-            final ParseQuery<TClass> localDataQuery, final ParseQuery<TClass> networkQuery, final String pinName) {
+            final ParseQuery<TClass> localDataQuery, final ParseQuery<TClass> networkQuery, final String pinName, final boolean pinResult) {
 
         return localDataQuery
                 .getFirstInBackground()
@@ -126,9 +130,9 @@ public class QueryUtils {
                             Log.e("QueryUtils network err", e.getMessage());
                         }
                         TClass result = task.getResult();
-                        if (pinName != null) {
+                        if (pinName != null && pinResult) {
                             result.pinInBackground(pinName);
-                        } else {
+                        } else if(pinResult) {
                             result.pinInBackground();
                         }
                         return result;
@@ -137,20 +141,21 @@ public class QueryUtils {
 
     }
 
-    public static <TClass extends ParseObject> TClass getFirstCacheElseNetwork(ParseQueryBuilder<TClass> builder) {
+    public static <TClass extends ParseObject> TClass getFirstCacheElseNetwork(ParseQueryBuilder<TClass> builder, boolean pinResult) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, null);
+        return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, null, pinResult);
     }
-    
-    public static <TClass extends ParseObject> TClass getFirstPinElseNetwork(ParseQueryBuilder<TClass> builder, String pinName) {
+
+    public static <TClass extends ParseObject> TClass getFirstPinElseNetwork(ParseQueryBuilder<TClass> builder,
+                                                                             String pinName, boolean pinResult) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, pinName);
+        return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, pinName, pinResult);
     }
 
     private static <TClass extends ParseObject> TClass doGetFirstCacheElseNetwork(
-        final ParseQuery<TClass> localDataQuery, final ParseQuery<TClass> networkQuery, final String pinName) {
+            final ParseQuery<TClass> localDataQuery, final ParseQuery<TClass> networkQuery, final String pinName, final boolean pinResult) {
 
         TClass result = null;
         try {
@@ -164,10 +169,10 @@ public class QueryUtils {
                 }
                 result = networkQuery.getFirst();
                 result.fetchIfNeeded(); //TODO: Add this to all methods?
-                if(pinName != null) {
+                if(pinName != null && pinResult) {
                     result.pinInBackground(pinName);
                 }
-                else {
+                else if(pinResult) {
                     result.pinInBackground();
                 }
             } catch (ParseException e2) { e2.printStackTrace(); Log.e("doGetFirstNetwork", e2.getMessage()); }

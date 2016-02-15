@@ -49,6 +49,7 @@ public class App extends Application {
     public static AccessTokenTracker accessTokenTracker;
     public static ProfileTracker profileTracker;
     public static boolean isLocalDatastoreEnabled;
+    private static boolean initFinished = false;
 
     @Override public void onCreate() {
         super.onCreate();
@@ -60,6 +61,7 @@ public class App extends Application {
         FacebookSdk.sdkInitialize(getApplicationContext());
 
         Foreground.init(this);
+        initFinished = true;
 
         callbackManager = CallbackManager.Factory.create();
         accessTokenTracker = new AccessTokenTracker() {
@@ -77,6 +79,8 @@ public class App extends Application {
         };
 
     }
+
+    public static boolean isInitFinished() { return initFinished; }
 
     private void registerSubclasses() {
         ParseObject.registerSubclass(Achievement.class);

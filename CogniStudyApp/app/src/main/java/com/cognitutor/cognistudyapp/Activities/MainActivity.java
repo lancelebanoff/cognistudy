@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
@@ -20,6 +21,8 @@ import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.parse.ParseException;
@@ -38,6 +41,8 @@ public class MainActivity extends AuthenticationActivity {
             UserUtils.pinTest();
         }
         catch (ParseException e) { handleParseError(e); }
+
+
 
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -60,6 +65,7 @@ public class MainActivity extends AuthenticationActivity {
             UserUtils.getPinTest();
         }
         catch (ParseException e) { handleParseError(e); }
+        StudentCategoryBlockStats.incrementAll(Constants.Category.SENTENCE_COMPLETION, true);
     }
 
     @Override
