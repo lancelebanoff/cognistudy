@@ -50,6 +50,7 @@ public class ChallengeUtils {
 
         final Capture<Challenge> challengeCapture = new Capture<>(null);
         final Capture<ChallengeUserData> challengeUserDataCapture = new Capture<>(null);
+        final Capture<ChallengeUserData> otherUserDataCapture = new Capture<>(null);
         final Capture<GameBoard> gameBoardCapture = new Capture<>(null);
 
         Task<BattleshipBoardManager> task = Challenge.getChallenge(challengeId)
@@ -58,6 +59,15 @@ public class ChallengeUtils {
                     public Task<ChallengeUserData> then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         challengeCapture.set(challenge);
+                        int otherUser1or2 = user1or2 == 1 ? 2 : 1;
+                        return Challenge.getChallengeUserData(challenge, otherUser1or2);
+                    }
+                }).onSuccessTask(new Continuation<ChallengeUserData, Task<ChallengeUserData>>() {
+                    @Override
+                    public Task<ChallengeUserData> then(Task<ChallengeUserData> task) {
+                        ChallengeUserData otherUserData = task.getResult();
+                        otherUserDataCapture.set(otherUserData);
+                        Challenge challenge = challengeCapture.get();
                         return Challenge.getChallengeUserData(challenge, user1or2);
                     }
                 }).onSuccessTask(new Continuation<ChallengeUserData, Task<GameBoard>>() {
@@ -86,9 +96,10 @@ public class ChallengeUtils {
                         List<Ship> ships = task.getResult();
                         Challenge challenge = challengeCapture.get();
                         ChallengeUserData challengeUserData = challengeUserDataCapture.get();
+                        ChallengeUserData otherUserData = otherUserDataCapture.get();
                         GameBoard gameBoard = gameBoardCapture.get();
                         return new BattleshipBoardManager(activity, challenge, challengeUserData,
-                                gameBoard, ships, canBeAttacked);
+                                otherUserData, gameBoard, ships, canBeAttacked);
                     }
                 });
 

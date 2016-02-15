@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
@@ -73,6 +74,7 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
+                                showScores();
                             }
                         });
 
@@ -129,6 +131,14 @@ public class ChallengeActivity extends CogniActivity {
                 removeOnGlobalLayoutListener(mTargetsGridLayout, this);
             }
         });
+    }
+
+    private void showScores() {
+        TextView txtScore = (TextView) findViewById(R.id.txtScore);
+        if(txtScore.getText().toString().equals("")) { // Only set text once
+            int[] scores = mBattleshipBoardManager.getScores();
+            txtScore.setText(scores[0] + " - " + scores[1]);
+        }
     }
 
     public void onClick_btnSwitchView(View view) {

@@ -27,6 +27,7 @@ public class BattleshipBoardManager {
     private Activity mActivity;
     private Challenge mChallenge;
     private ChallengeUserData mChallengeUserData;
+    private ChallengeUserData mOtherUserData;
     private GameBoard mGameBoard;
     private ArrayList<Ship> mShips;
     private ArrayList<ShipDrawableData> mShipDrawableDatas;
@@ -46,13 +47,14 @@ public class BattleshipBoardManager {
 
     // Used for existing challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
-                                  ChallengeUserData challengeUserData, GameBoard gameBoard,
-                                  List<Ship> ships, boolean canBeAttacked) {
+                                  ChallengeUserData challengeUserData, ChallengeUserData otherUserData,
+                                  GameBoard gameBoard, List<Ship> ships, boolean canBeAttacked) {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
         mNumShotsRemaining = challenge.getNumShotsRemaining();
         mChallengeUserData = challengeUserData;
+        mOtherUserData = otherUserData;
         mGameBoard = gameBoard;
         mShips = (ArrayList<Ship>) ships;
         retrieveShipDrawableDatas();
@@ -177,6 +179,10 @@ public class BattleshipBoardManager {
             }
         }
         return shipAt;
+    }
+
+    public int[] getScores() {
+        return new int[] { mChallengeUserData.getScore(), mOtherUserData.getScore() };
     }
 
     public void clearImages() {
