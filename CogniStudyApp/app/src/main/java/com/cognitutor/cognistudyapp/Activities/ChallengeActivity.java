@@ -16,9 +16,11 @@ import android.widget.TextView;
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseFile;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -34,6 +36,7 @@ public class ChallengeActivity extends CogniActivity {
 
     private int mUser1or2;
     private int mViewingUser1or2;
+    private boolean mScoresHaveBeenLoaded;
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
     private BroadcastReceiver mBroadcastReceiver;
@@ -49,6 +52,7 @@ public class ChallengeActivity extends CogniActivity {
 
         mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
         mViewingUser1or2 = mUser1or2;
+        mScoresHaveBeenLoaded = false;
 
         initializeBoard(mViewingUser1or2);
         showOrHideYourTurnButton();
@@ -74,7 +78,11 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
-                                showScores();
+                                if(!mScoresHaveBeenLoaded) {
+                                    showScores();
+                                    showProfilePictures();
+                                    mScoresHaveBeenLoaded = true;
+                                }
                             }
                         });
 
@@ -135,10 +143,18 @@ public class ChallengeActivity extends CogniActivity {
 
     private void showScores() {
         TextView txtScore = (TextView) findViewById(R.id.txtScore);
-        if(txtScore.getText().toString().equals("")) { // Only set text once
-            int[] scores = mBattleshipBoardManager.getScores();
-            txtScore.setText(scores[0] + " - " + scores[1]);
-        }
+        int[] scores = mBattleshipBoardManager.getScores();
+        txtScore.setText(scores[0] + " - " + scores[1]);
+    }
+
+    private void showProfilePictures() {
+        ParseFile[] parseFiles = mBattleshipBoardManager.getProfilePictures();
+        RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfileRounded1);
+        RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfileRounded2);
+        img1.setParseFile(parseFiles[0]);
+        img1.loadInBackground();
+        img2.setParseFile(parseFiles[1]);
+        img2.loadInBackground();
     }
 
     public void onClick_btnSwitchView(View view) {

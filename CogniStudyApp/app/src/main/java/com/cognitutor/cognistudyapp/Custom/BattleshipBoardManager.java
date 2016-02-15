@@ -11,6 +11,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 
 import java.util.ArrayList;
@@ -183,6 +184,13 @@ public class BattleshipBoardManager {
 
     public int[] getScores() {
         return new int[] { mChallengeUserData.getScore(), mOtherUserData.getScore() };
+    }
+
+    public ParseFile[] getProfilePictures() {
+        return new ParseFile[] {
+                mChallengeUserData.getPublicUserData().getProfilePic(),
+                mOtherUserData.getPublicUserData().getProfilePic()
+        };
     }
 
     public void clearImages() {
