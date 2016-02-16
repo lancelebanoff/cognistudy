@@ -27,6 +27,11 @@ import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.parse.ParseException;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 public class MainActivity extends AuthenticationActivity {
 
     private final String TAG = "MainActivity";
@@ -41,7 +46,6 @@ public class MainActivity extends AuthenticationActivity {
             UserUtils.pinTest();
         }
         catch (ParseException e) { handleParseError(e); }
-
 
 
         // Sliding tabs
@@ -65,7 +69,7 @@ public class MainActivity extends AuthenticationActivity {
             UserUtils.getPinTest();
         }
         catch (ParseException e) { handleParseError(e); }
-        StudentCategoryBlockStats.incrementAll(Constants.Category.SENTENCE_COMPLETION, true);
+        test();
     }
 
     @Override
@@ -147,5 +151,19 @@ public class MainActivity extends AuthenticationActivity {
                 return "Menu";
             return null;
         }
+    }
+    private void test() {
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("MM DDD", Locale.US);
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss z", Locale.US);
+        TimeZone ny = TimeZone.getTimeZone("America/New_York");
+        dateFormat.setTimeZone(ny);
+        Log.d("Date: current time", dateFormat.format(date));
+
+        dateFormat = new SimpleDateFormat("MM DDD", Locale.US);
+        dateFormat.setTimeZone(ny);
+        Log.d("Date: month and day", dateFormat.format(date));
+
+//        StudentCategoryBlockStats.incrementAll(Constants.Category.SENTENCE_COMPLETION, true);
     }
 }

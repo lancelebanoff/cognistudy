@@ -72,7 +72,6 @@ public class RegistrationActivity extends AuthenticationActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        StudentCategoryBlockStats.incrementAll(Constants.Category.SENTENCE_COMPLETION, true);
         /*
         try {
             PackageInfo info = getPackageManager().getPackageInfo("com.cognitutor.cognistudyapp", PackageManager.GET_SIGNATURES);
@@ -105,8 +104,10 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     Log.d("Onclick", "User cancelled the Facebook login");
                                 } else if (user.isNew()) {
                                     Log.d("Onclick", "New user!");
+                                    UserUtils.setUserLoggedIn(true);
                                     getUserDetailsFromFB();
                                 } else {
+                                    UserUtils.setUserLoggedIn(true);
                                     setUpLocalDataStore();
                                     FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
                                         @Override

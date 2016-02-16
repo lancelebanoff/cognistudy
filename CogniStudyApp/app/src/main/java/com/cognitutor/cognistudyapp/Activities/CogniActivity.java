@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -103,6 +104,7 @@ public class CogniActivity extends AppCompatActivity {
     // </editor-fold>
 
     public void logout() throws ParseException {
+        UserUtils.setUserLoggedIn(false);
         ParseObject.unpinAll();
         ParseUser.logOut();
     }

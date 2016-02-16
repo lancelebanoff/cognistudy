@@ -17,6 +17,14 @@ import java.util.List;
  */
 public class UserUtils {
 
+    private static boolean userLoggedIn;
+
+    public static void setUserLoggedIn(boolean val) {
+        userLoggedIn = val;
+    }
+
+    public static boolean isUserLoggedIn() { return userLoggedIn; }
+
     public static PublicUserData getPublicUserData() throws ParseException {
         return (PublicUserData) ParseUser.getCurrentUser().getParseObject("publicUserData").fetchIfNeeded();
     }

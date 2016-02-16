@@ -68,6 +68,7 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     public void navigateToRegistrationActivity() {
+        UserUtils.setUserLoggedIn(false);
         doNavigate(RegistrationActivity.class, true);
     }
 

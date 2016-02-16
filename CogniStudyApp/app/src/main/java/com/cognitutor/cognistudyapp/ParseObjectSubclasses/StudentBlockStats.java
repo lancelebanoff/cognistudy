@@ -33,15 +33,6 @@ public abstract class StudentBlockStats extends ParseObject{
     }
 
     static Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> subclasses;
-//    static final Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> subclasses;
-//    static {
-//        Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> map = new HashMap<>();
-//
-////        map.put(StudentCategoryDayStats.class, StudentCategoryDayStats.inter);
-//        map.put(StudentCategoryDayStats.class, StudentCategoryDayStats.getInterface());
-//
-//        subclasses = Collections.unmodifiableMap(map);
-//    }
 
     public static class SuperColumns {
         public static final String baseUserId = "baseUserId";
@@ -51,7 +42,7 @@ public abstract class StudentBlockStats extends ParseObject{
     }
 
     public StudentBlockStats() {
-        if(!App.isInitFinished())
+        if(!App.isInitFinished() || !UserUtils.isUserLoggedIn())
             return;
         put(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
 //        put(SuperColumns.startDate, startDate); //TODO: Get current date
@@ -62,9 +53,7 @@ public abstract class StudentBlockStats extends ParseObject{
 
     public static void incrementAll(final String category, final boolean correct) {
 
-        Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> map = new HashMap<>();
-        map.put(StudentCategoryDayStats.class, StudentCategoryDayStats.getInterface());
-        subclasses = map;
+        Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> subclasses = getSubclassesMap();
 
         for(final Class clazz : subclasses.keySet()) {
             final CurrentUserCurrentBlockStats inter = subclasses.get(clazz);
@@ -84,6 +73,14 @@ public abstract class StudentBlockStats extends ParseObject{
             });
         }
         SubclassUtils.saveAllInBackground();
+    }
+
+    private static Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> getSubclassesMap() {
+        if(subclasses != null)
+            return subclasses;
+        subclasses = new HashMap<>();
+        subclasses.put(StudentCategoryDayStats.class, StudentCategoryDayStats.getInterface());
+        return subclasses;
     }
 
     protected void increment(boolean correct) {
@@ -116,4 +113,13 @@ public abstract class StudentBlockStats extends ParseObject{
         return ParseQuery.getQuery(className)
                 .whereEqualTo(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
     }
+
+//    interface DayStats {
+//        class Columns {
+//            public static final String day = "day";
+//        }
+//        default <T extends StudentBlockStats> ParseQuery<T> getDayStats(ParseQuery<T> query) {
+//            return query.whereEqualTo(Columns.day, 1);
+//        }
+//    }
 }
