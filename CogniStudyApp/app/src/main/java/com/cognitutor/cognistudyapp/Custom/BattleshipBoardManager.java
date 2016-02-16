@@ -17,6 +17,10 @@ import com.parse.ParseObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.droidsonroids.gif.AnimationListener;
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
+
 /**
  * Created by Lance on 1/5/2016.
  */
@@ -35,6 +39,7 @@ public class BattleshipBoardManager {
     private List<List<String>> mBoardPositionStatus;
     private boolean mCanBeAttacked;
     private int mNumShotsRemaining;
+    private GifImageView gifImageView;
 
     // Used for new challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
@@ -131,6 +136,8 @@ public class BattleshipBoardManager {
             ShipDrawableData shipDrawableData = ship.getShipDrawableData();
             drawShip(shipDrawableData);
         }
+
+        drawGif(2, 4, 1, 1, R.drawable.target_default_attacked);
     }
 
     public void drawDeadShips() {
@@ -370,11 +377,31 @@ public class BattleshipBoardManager {
 
     private void retrieveShipDrawableDatas() {
         mShipDrawableDatas = new ArrayList<>();
-        for(Ship ship : mShips) {
+        for (Ship ship : mShips) {
             ShipDrawableData shipDrawableData = new ShipDrawableData(ship);
             ship.setShipDrawableData(shipDrawableData);
             mShipDrawableDatas.add(shipDrawableData);
         }
+    }
+
+    private void drawGif(int row, int col, int height, int width, int shipDrawableId) {
+        gifImageView = new GifImageView(mActivity);
+        gifImageView.setImageResource(shipDrawableId);
+        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+        layoutParams.rowSpec = GridLayout.spec(row, height);
+        layoutParams.columnSpec = GridLayout.spec(col, width);
+        layoutParams.height = mShipsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * height;
+        layoutParams.width = mShipsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * width;
+        gifImageView.setLayoutParams(layoutParams);
+        mShipsGridLayout.addView(gifImageView);
+
+        GifDrawable gifDrawable = (GifDrawable) gifImageView.getDrawable();
+        gifDrawable.addAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationCompleted(int loopNumber) {
+                gifImageView.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void retrieveBoardPositionStatus() {
