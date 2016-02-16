@@ -115,7 +115,7 @@ public class BattleshipBoardManager {
                     shipData.shipDrawableId);
         }
 
-        drawGif(2, 4, 2, 2, R.drawable.explosion);
+        drawGif(2, 4, 1, 1, R.drawable.target_default_attacked);
     }
 
     public void drawDeadShips() {
