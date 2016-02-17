@@ -8,4 +8,23 @@ import com.parse.ParseQuery;
  */
 @ParseClassName("StudentCategoryMonthStats")
 public class StudentCategoryMonthStats extends StudentCategoryBlockStats{
+
+    public static StudentBlockStatsSubclassInterface getInterface() {
+        return new StudentBlockStatsSubclassInterface() {
+            @Override
+            public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
+                return getMonthStats(getCurrentUserQuery(getClassName(), category));
+            }
+
+            @Override
+            public String getClassName() {
+                return "StudentCategoryMonthStats";
+            }
+        };
+    }
+
+    @Override
+    public void setBlockNum() {
+        setMonthBlockNum();
+    }
 }

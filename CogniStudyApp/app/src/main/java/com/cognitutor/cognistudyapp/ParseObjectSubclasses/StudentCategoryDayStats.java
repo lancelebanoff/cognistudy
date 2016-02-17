@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseQuery;
 
@@ -9,26 +10,11 @@ import com.parse.ParseQuery;
 @ParseClassName("StudentCategoryDayStats")
 public class StudentCategoryDayStats extends StudentCategoryBlockStats {
 
-//    static CurrentUserCurrentBlockStats inter;
-//    static {
-//        inter = new CurrentUserCurrentBlockStats() {
-//            @Override
-//            public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
-//                return getCurrentUserQuery(getClassName(), category);
-//            }
-//
-//            @Override
-//            public String getClassName() {
-//                return "StudentCategoryDayStats";
-//            }
-//        };
-//    }
-
-    public static CurrentUserCurrentBlockStats getInterface() {
-        return new CurrentUserCurrentBlockStats() {
+    public static StudentBlockStatsSubclassInterface getInterface() {
+        return new StudentBlockStatsSubclassInterface() {
             @Override
             public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
-                return getCurrentUserQuery(getClassName(), category);
+                return getDayStats(getCurrentUserQuery(getClassName(), category));
             }
 
             @Override
@@ -36,5 +22,10 @@ public class StudentCategoryDayStats extends StudentCategoryBlockStats {
                 return "StudentCategoryDayStats";
             }
         };
+    }
+
+    @Override
+    public void setBlockNum() {
+        setDayBlockNum();
     }
 }

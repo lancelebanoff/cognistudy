@@ -20,13 +20,13 @@ public abstract class StudentCategoryBlockStats extends StudentBlockStats {
         public static final String category = "category";
     }
 
-    @Override
-    public void setSubjectOrCategory(String category) {
-        put(Columns.category, category);
-    }
-
     protected static ParseQuery getCurrentUserQuery(String className, String category) {
         return getCurrentUserQuery(className)
                 .whereEqualTo(Columns.category, category);
+    }
+
+    @Override
+    public void setSubjectOrCategory(String category) {
+        put(Columns.category, category);
     }
 }

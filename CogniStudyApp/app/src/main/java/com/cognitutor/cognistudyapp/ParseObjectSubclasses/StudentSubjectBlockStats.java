@@ -15,8 +15,7 @@ public abstract class StudentSubjectBlockStats extends StudentBlockStats{
         public static final String subject = "subject";
     }
 
-    private static ParseQuery getCurrentUserQuery(String className, String category) {
-
+    protected static ParseQuery getCurrentUserQuery(String className, String category) {
         return getCurrentUserQuery(className)
                 .whereEqualTo(Columns.subject, getSubjectFromCategory(category));
     }

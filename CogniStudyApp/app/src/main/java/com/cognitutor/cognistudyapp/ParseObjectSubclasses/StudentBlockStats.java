@@ -3,18 +3,13 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.App;
-import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import bolts.Continuation;
@@ -26,17 +21,18 @@ import bolts.Task;
 public abstract class StudentBlockStats extends ParseObject{
 
     public abstract void setSubjectOrCategory(String category);
+    public abstract void setBlockNum();
 
-    interface CurrentUserCurrentBlockStats {
+    private static Map<Class<? extends StudentBlockStats>, StudentBlockStatsSubclassInterface> subclasses;
+
+    interface StudentBlockStatsSubclassInterface {
         ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category);
         String getClassName();
     }
 
-    static Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> subclasses;
-
     public static class SuperColumns {
         public static final String baseUserId = "baseUserId";
-        public static final String startDate = "startDate";
+        public static final String blockNum = "blockNum";
         public static final String total = "total";
         public static final String correct = "correct";
     }
@@ -45,7 +41,6 @@ public abstract class StudentBlockStats extends ParseObject{
         if(!App.isInitFinished() || !UserUtils.isUserLoggedIn())
             return;
         put(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
-//        put(SuperColumns.startDate, startDate); //TODO: Get current date
         put(SuperColumns.total, 0);
         put(SuperColumns.correct, 0);
         SubclassUtils.addToSaveQueue(this);
@@ -53,10 +48,10 @@ public abstract class StudentBlockStats extends ParseObject{
 
     public static void incrementAll(final String category, final boolean correct) {
 
-        Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> subclasses = getSubclassesMap();
+        Map<Class<? extends StudentBlockStats>, StudentBlockStatsSubclassInterface> subclasses = getSubclassesMap();
 
         for(final Class clazz : subclasses.keySet()) {
-            final CurrentUserCurrentBlockStats inter = subclasses.get(clazz);
+            final StudentBlockStatsSubclassInterface inter = subclasses.get(clazz);
             final String className = inter.getClassName();
             QueryUtils.getFirstPinElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentBlockStats>() {
                 @Override
@@ -75,11 +70,16 @@ public abstract class StudentBlockStats extends ParseObject{
         SubclassUtils.saveAllInBackground();
     }
 
-    private static Map<Class<? extends StudentBlockStats>, CurrentUserCurrentBlockStats> getSubclassesMap() {
+    private static Map<Class<? extends StudentBlockStats>, StudentBlockStatsSubclassInterface> getSubclassesMap() {
         if(subclasses != null)
             return subclasses;
         subclasses = new HashMap<>();
         subclasses.put(StudentCategoryDayStats.class, StudentCategoryDayStats.getInterface());
+        subclasses.put(StudentCategoryTridayStats.class, StudentCategoryTridayStats.getInterface());
+        subclasses.put(StudentCategoryMonthStats.class, StudentCategoryMonthStats.getInterface());
+        subclasses.put(StudentSubjectDayStats.class, StudentSubjectDayStats.getInterface());
+        subclasses.put(StudentSubjectTridayStats.class, StudentSubjectTridayStats.getInterface());
+        subclasses.put(StudentSubjectMonthStats.class, StudentSubjectMonthStats.getInterface());
         return subclasses;
     }
 
@@ -91,11 +91,12 @@ public abstract class StudentBlockStats extends ParseObject{
         SubclassUtils.addToSaveQueue(this);
     }
 
-    private static void createIfNecessaryAndIncrement(StudentBlockStats blockStats, Class type,
+    private static void createIfNecessaryAndIncrement(StudentBlockStats blockStats, Class clazz,
                                                       String className, String category, boolean correct) {
         if(blockStats == null) {
-            blockStats = createInstance(type);
+            blockStats = createInstance(clazz);
             blockStats.setSubjectOrCategory(category);
+            blockStats.setBlockNum();
             ParseObject.unpinAllInBackground(className);
             blockStats.pinInBackground(className);
         }
@@ -114,12 +115,31 @@ public abstract class StudentBlockStats extends ParseObject{
                 .whereEqualTo(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
     }
 
-//    interface DayStats {
-//        class Columns {
-//            public static final String day = "day";
-//        }
-//        default <T extends StudentBlockStats> ParseQuery<T> getDayStats(ParseQuery<T> query) {
-//            return query.whereEqualTo(Columns.day, 1);
-//        }
-//    }
+    protected static ParseQuery<StudentBlockStats> getDayStats(ParseQuery<StudentBlockStats> query) {
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentDayBlockNum());
+    }
+
+    protected static ParseQuery<StudentBlockStats> getMonthStats(ParseQuery<StudentBlockStats> query) {
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentMonthBlockNum());
+    }
+
+    protected static ParseQuery<StudentBlockStats> getTridayStats(ParseQuery<StudentBlockStats> query) {
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentTridayBlockNum());
+    }
+
+    protected void setDayBlockNum() {
+        doSetBlockNum(DateUtils.getCurrentDayBlockNum());
+    }
+
+    protected void setTridayBlockNum() {
+        doSetBlockNum(DateUtils.getCurrentTridayBlockNum());
+    }
+
+    protected void setMonthBlockNum() {
+        doSetBlockNum(DateUtils.getCurrentMonthBlockNum());
+    }
+
+    private void doSetBlockNum(int num) {
+        put(SuperColumns.blockNum, num);
+    }
 }

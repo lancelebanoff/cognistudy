@@ -29,6 +29,7 @@ import com.parse.ParseException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -154,15 +155,26 @@ public class MainActivity extends AuthenticationActivity {
     }
     private void test() {
 //        SimpleDateFormat dateFormat = new SimpleDateFormat("MM DDD", Locale.US);
-        Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss z", Locale.US);
+        Date currentDate = new Date();
         TimeZone ny = TimeZone.getTimeZone("America/New_York");
-        dateFormat.setTimeZone(ny);
-        Log.d("Date: current time", dateFormat.format(date));
 
-        dateFormat = new SimpleDateFormat("MM DDD", Locale.US);
-        dateFormat.setTimeZone(ny);
-        Log.d("Date: month and day", dateFormat.format(date));
+        SimpleDateFormat dayFormatter = new SimpleDateFormat("DDD", Locale.US);
+        dayFormatter.setTimeZone(ny);
+        int currentDay = Integer.parseInt(dayFormatter.format(currentDate));
+
+        SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy", Locale.US);
+        yearFormatter.setTimeZone(ny);
+        int currentYear = Integer.parseInt(yearFormatter.format(currentDate));
+
+        int day = currentDay;
+        for(int year = currentYear; year > 2016; year--) {
+            currentDay += year % 4 == 1 ? 366 : 365;
+        }
+
+        final int year2016 = 2016;
+        GregorianCalendar calendar = new GregorianCalendar(year2016, GregorianCalendar.JANUARY, 1);
+        Date date2016Jan1 = calendar.getTime();
+        int day2016Jan1 = Integer.parseInt(dayFormatter.format(date2016Jan1));
 
 //        StudentCategoryBlockStats.incrementAll(Constants.Category.SENTENCE_COMPLETION, true);
     }
