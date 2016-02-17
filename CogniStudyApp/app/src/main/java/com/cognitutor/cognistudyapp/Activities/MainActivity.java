@@ -13,6 +13,7 @@ import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
@@ -154,28 +155,6 @@ public class MainActivity extends AuthenticationActivity {
         }
     }
     private void test() {
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("MM DDD", Locale.US);
-        Date currentDate = new Date();
-        TimeZone ny = TimeZone.getTimeZone("America/New_York");
-
-        SimpleDateFormat dayFormatter = new SimpleDateFormat("DDD", Locale.US);
-        dayFormatter.setTimeZone(ny);
-        int currentDay = Integer.parseInt(dayFormatter.format(currentDate));
-
-        SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy", Locale.US);
-        yearFormatter.setTimeZone(ny);
-        int currentYear = Integer.parseInt(yearFormatter.format(currentDate));
-
-        int day = currentDay;
-        for(int year = currentYear; year > 2016; year--) {
-            currentDay += year % 4 == 1 ? 366 : 365;
-        }
-
-        final int year2016 = 2016;
-        GregorianCalendar calendar = new GregorianCalendar(year2016, GregorianCalendar.JANUARY, 1);
-        Date date2016Jan1 = calendar.getTime();
-        int day2016Jan1 = Integer.parseInt(dayFormatter.format(date2016Jan1));
-
-//        StudentCategoryBlockStats.incrementAll(Constants.Category.SENTENCE_COMPLETION, true);
+//        DateUtils.test();
     }
 }

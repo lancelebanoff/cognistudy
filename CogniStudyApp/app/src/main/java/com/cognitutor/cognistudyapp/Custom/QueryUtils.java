@@ -74,7 +74,7 @@ public class QueryUtils {
                         List<TClass> results = task.getResult();
                         if (pinName != null && pinResult) {
                             ParseObject.pinAllInBackground(pinName, results);
-                        } else if(pinResult) {
+                        } else if (pinResult) {
                             ParseObject.pinAllInBackground(results);
                         }
                         return results;
@@ -97,6 +97,24 @@ public class QueryUtils {
         return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, null, pinResult);
     }
 
+    class QueryType {
+        public static final String local = "local";
+        public static final String network = "network";
+    }
+
+    private static void handleFault(Task<?> task, String localOrNetwork) {
+        if(task.isFaulted()) {
+            Exception e = task.getError();
+            if(e instanceof ParseException) {
+                ParseException pe = (ParseException) e;
+                if(pe.getCode() != ErrorHandler.ErrorCode.OBJECT_NOT_FOUND) {
+                    e.printStackTrace();
+                }
+            }
+            Log.e("QueryUtil " + localOrNetwork, e.getMessage());
+        }
+    }
+
     private static <TClass extends ParseObject> Task<TClass> doGetFirstCacheElseNetworkInBackground(
             final ParseQuery<TClass> localDataQuery, final ParseQuery<TClass> networkQuery, final String pinName, final boolean pinResult) {
 
@@ -105,17 +123,12 @@ public class QueryUtils {
                 .continueWithTask(new Continuation<TClass, Task<TClass>>() {
                     @Override
                     public Task<TClass> then(Task<TClass> task) throws Exception {
-                        if (task.isFaulted()) {
-                            Exception e = task.getError();
-                            e.printStackTrace();
-                            Log.e("QueryUtil localData err", e.getMessage());
-                        }
+                        handleFault(task, QueryType.local);
                         TClass result = task.getResult();
                         TaskCompletionSource<TClass> completionSource = new TaskCompletionSource<TClass>();
                         completionSource.setResult(result);
                         Task<TClass> resultTask = completionSource.getTask();
                         if (result == null) {
-                            Log.e("QueryUtils", "LocalDatastoreQuery returned empty");
                             resultTask = networkQuery.getFirstInBackground();
                         }
                         return resultTask;
@@ -124,11 +137,7 @@ public class QueryUtils {
                 .continueWith(new Continuation<TClass, TClass>() {
                     @Override
                     public TClass then(Task<TClass> task) throws Exception {
-                        if (task.isFaulted()) {
-                            Exception e = task.getError();
-                            e.printStackTrace();
-                            Log.e("QueryUtils network err", e.getMessage());
-                        }
+                        handleFault(task, QueryType.network);
                         TClass result = task.getResult();
                         if (pinName != null && pinResult) {
                             result.pinInBackground(pinName);

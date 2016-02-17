@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -34,6 +35,15 @@ public class Constants {
             constants[i] = (String) s;
         }
         return constants;
+    }
+
+    public static String getRandomConstant(Class c) {
+
+        Field[] fields = c.getFields();
+        Random rand = new Random();
+        try {
+            return (String) fields[rand.nextInt(fields.length)].get(c);
+        } catch (IllegalAccessException e) { e.printStackTrace(); return null; }
     }
 
     public static class NotificationData {

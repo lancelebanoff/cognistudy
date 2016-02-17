@@ -146,7 +146,7 @@ public class CogniMathView extends WebView {
                 "p {" +
                     "line-height:2em;" +
                 "}" +
-                ".passage span {" +
+                ".ques {" +
                     "padding-bottom:1.1em;" +
                     "white-space: nowrap;" +
                 "}" +

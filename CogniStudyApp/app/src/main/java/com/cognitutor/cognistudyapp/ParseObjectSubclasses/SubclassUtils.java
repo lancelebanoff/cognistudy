@@ -29,6 +29,7 @@ public class SubclassUtils {
         for(ParseObject object : saveSet) {
             saveList.add(object);
         }
+        saveSet.clear();
         return ParseObject.saveAllInBackground(saveList)
                 .continueWith(new Continuation<Void, Boolean>() {
                     @Override
@@ -40,7 +41,6 @@ public class SubclassUtils {
                             Log.e("utils saveAll error", e.getMessage());
                             ok = false;
                         }
-                        saveSet.clear();
                         return ok;
                     }
                 });

@@ -247,6 +247,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
 //                eO4TCrdBdn
 //                fF4lsHt2iW
+//                zpyHpKMb5S
                 startActivity(intent);
                 break;
             case R.id.btnStartChallenge:

@@ -6,10 +6,14 @@ import com.cognitutor.cognistudyapp.Custom.App;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import bolts.Continuation;
@@ -38,36 +42,80 @@ public abstract class StudentBlockStats extends ParseObject{
     }
 
     public StudentBlockStats() {
-        if(!App.isInitFinished() || !UserUtils.isUserLoggedIn())
-            return;
+//        if(!App.isInitFinished() || !UserUtils.isUserLoggedIn())
+//            return;
+//        put(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
+//        put(SuperColumns.total, 0);
+//        put(SuperColumns.correct, 0);
+//        SubclassUtils.addToSaveQueue(this);
+    }
+
+    private void initFields(String category) {
         put(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
         put(SuperColumns.total, 0);
         put(SuperColumns.correct, 0);
+        setSubjectOrCategory(category);
+        setACL();
+        setBlockNum();
+//        saveInBackground().continueWith(new Continuation<Void, Object>() {
+//            @Override
+//            public Object then(Task<Void> task) throws Exception {
+//                if(task.isFaulted()) {
+//                    Exception e = task.getError();
+//                    Log.e("initFields", e.getMessage());
+//                    if(e instanceof ParseException) {
+//                        ParseException pe = (ParseException) e;
+//                        Log.e("initFields error code:", String.valueOf(pe.getCode()));
+//                    }
+//                }
+//                return null;
+//            }
+//        });
         SubclassUtils.addToSaveQueue(this);
     }
 
-    public static void incrementAll(final String category, final boolean correct) {
+    public static Task<Boolean> incrementAll(final String category, final boolean correct) {
 
         Map<Class<? extends StudentBlockStats>, StudentBlockStatsSubclassInterface> subclasses = getSubclassesMap();
+
+        List<Task<Void>> tasks = new ArrayList<>();
 
         for(final Class clazz : subclasses.keySet()) {
             final StudentBlockStatsSubclassInterface inter = subclasses.get(clazz);
             final String className = inter.getClassName();
-            QueryUtils.getFirstPinElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentBlockStats>() {
+//            try {
+//                getOrCreateAndIncrement(inter, category, className, clazz, correct)
+//                        .waitForCompletion();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            tasks.add(getOrCreateAndIncrement(inter, category, className, clazz, correct));
+        }
+//        return SubclassUtils.saveAllInBackground();
+        return Task.whenAll(tasks)
+            .continueWithTask(new Continuation<Void, Task<Boolean>>() {
                 @Override
-                public ParseQuery<StudentBlockStats> buildQuery() {
-                    return inter.getCurrentUserCurrentStats(category);
-                }
-            }, className, true)
-            .continueWith(new Continuation<StudentBlockStats, Object>() {
-                @Override
-                public Object then(Task<StudentBlockStats> task) throws Exception {
-                    createIfNecessaryAndIncrement(task.getResult(), clazz, inter.getClassName(), category, correct);
-                    return null;
+                public Task<Boolean> then(Task<Void> task) throws Exception {
+                    return SubclassUtils.saveAllInBackground();
                 }
             });
-        }
-        SubclassUtils.saveAllInBackground();
+    }
+
+    private static Task<Void> getOrCreateAndIncrement(final StudentBlockStatsSubclassInterface inter, final String category,
+                                                       final String className, final Class clazz, final boolean correct) {
+        return QueryUtils.getFirstPinElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentBlockStats>() {
+            @Override
+            public ParseQuery<StudentBlockStats> buildQuery() {
+                return inter.getCurrentUserCurrentStats(category);
+            }
+        }, className, true)
+        .continueWith(new Continuation<StudentBlockStats, Void>() {
+            @Override
+            public Void then(Task<StudentBlockStats> task) throws Exception {
+                createIfNecessaryAndIncrement(task.getResult(), clazz, inter.getClassName(), category, correct);
+                return null;
+            }
+        });
     }
 
     private static Map<Class<? extends StudentBlockStats>, StudentBlockStatsSubclassInterface> getSubclassesMap() {
@@ -95,8 +143,7 @@ public abstract class StudentBlockStats extends ParseObject{
                                                       String className, String category, boolean correct) {
         if(blockStats == null) {
             blockStats = createInstance(clazz);
-            blockStats.setSubjectOrCategory(category);
-            blockStats.setBlockNum();
+            blockStats.initFields(category);
             ParseObject.unpinAllInBackground(className);
             blockStats.pinInBackground(className);
         }
@@ -110,33 +157,46 @@ public abstract class StudentBlockStats extends ParseObject{
         return null;
     }
 
+    private void setACL() {
+        //TODO: Implement
+    }
+
     protected static ParseQuery getCurrentUserQuery(String className) {
         return ParseQuery.getQuery(className)
                 .whereEqualTo(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
     }
 
+    private static Date testDate;
+    public static void setTestDate(Date date) { testDate = date; }
+
     protected static ParseQuery<StudentBlockStats> getDayStats(ParseQuery<StudentBlockStats> query) {
-        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentDayBlockNum());
+//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentDayBlockNum());
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getDayBlockNum(testDate));
     }
 
     protected static ParseQuery<StudentBlockStats> getMonthStats(ParseQuery<StudentBlockStats> query) {
-        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentMonthBlockNum());
+//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentMonthBlockNum());
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getMonthBlockNum(testDate));
     }
 
     protected static ParseQuery<StudentBlockStats> getTridayStats(ParseQuery<StudentBlockStats> query) {
-        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentTridayBlockNum());
+//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentTridayBlockNum());
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getTridayBlockNum(testDate));
     }
 
     protected void setDayBlockNum() {
-        doSetBlockNum(DateUtils.getCurrentDayBlockNum());
+//        doSetBlockNum(DateUtils.getCurrentDayBlockNum());
+        doSetBlockNum(DateUtils.getDayBlockNum(testDate));
     }
 
     protected void setTridayBlockNum() {
-        doSetBlockNum(DateUtils.getCurrentTridayBlockNum());
+//        doSetBlockNum(DateUtils.getCurrentTridayBlockNum());
+        doSetBlockNum(DateUtils.getTridayBlockNum(testDate));
     }
 
     protected void setMonthBlockNum() {
-        doSetBlockNum(DateUtils.getCurrentMonthBlockNum());
+//        doSetBlockNum(DateUtils.getCurrentMonthBlockNum());
+        doSetBlockNum(DateUtils.getMonthBlockNum(testDate));
     }
 
     private void doSetBlockNum(int num) {
