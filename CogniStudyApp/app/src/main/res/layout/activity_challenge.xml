@@ -73,6 +73,13 @@
         android:layout_below="@+id/btnSwitchView"
         android:layout_above="@+id/btnYourTurn" />
 
+    <GridLayout
+        android:id="@+id/animationsGridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/btnSwitchView"
+        android:layout_above="@+id/btnYourTurn" />
+
     <com.cognitutor.cognistudyapp.Custom.RoundedImageView
         android:id="@+id/imgProfileRounded1"
         android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"

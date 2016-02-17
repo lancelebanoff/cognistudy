@@ -34,11 +34,13 @@ public class ChallengeActivity extends CogniActivity {
      */
     private Intent mIntent;
 
+    private String mChallengeId;
     private int mUser1or2;
     private int mViewingUser1or2;
     private boolean mScoresHaveBeenLoaded;
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
+    private GridLayout mAnimationsGridLayout;
     private BroadcastReceiver mBroadcastReceiver;
 
     private BattleshipBoardManager mBattleshipBoardManager;
@@ -50,6 +52,7 @@ public class ChallengeActivity extends CogniActivity {
         mIntent = getIntent();
         initializeBroadcastReceiver();
 
+        mChallengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
         mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
         mViewingUser1or2 = mUser1or2;
         mScoresHaveBeenLoaded = false;
@@ -66,11 +69,10 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void initializeBoard(final int viewingUser1or2) {
-        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
 
         // TODO:2 stop past challenge from crashing
 
-        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, viewingUser1or2, false)
+        ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, viewingUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {
@@ -80,7 +82,7 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
-                                if(!mScoresHaveBeenLoaded) {
+                                if (!mScoresHaveBeenLoaded) {
                                     showScores();
                                     showProfilePictures();
                                     mScoresHaveBeenLoaded = true;
@@ -139,6 +141,18 @@ public class ChallengeActivity extends CogniActivity {
             public void onGlobalLayout() {
                 mBattleshipBoardManager.initializeTargets();
                 removeOnGlobalLayoutListener(mTargetsGridLayout, this);
+            }
+        });
+
+        mAnimationsGridLayout = (GridLayout) findViewById(R.id.animationsGridLayout);
+        mBattleshipBoardManager.setAnimationsGridLayout(mAnimationsGridLayout);
+        observer = mAnimationsGridLayout.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mBattleshipBoardManager.initializeAnimationsGridLayout();
+                mBattleshipBoardManager.showPreviousTurn();
+                removeOnGlobalLayoutListener(mAnimationsGridLayout, this);
             }
         });
     }
