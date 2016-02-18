@@ -90,7 +90,11 @@ public class GameBoard extends ParseObject {
         return (List<List<Boolean>>) get(Columns.isLastMove);
     }
 
-    public void setPositionAttacked(int row, int col) {
+    public void resetIsLastMove() {
+        put(Columns.isLastMove, createNewIsLastMove());
+    }
+
+    public void setIsLastMoveAtPosition(int row, int col) {
         List<List<Boolean>> isLastMove = getIsLastMove();
         isLastMove.get(row).set(col, true);
         put(Columns.isLastMove, isLastMove);

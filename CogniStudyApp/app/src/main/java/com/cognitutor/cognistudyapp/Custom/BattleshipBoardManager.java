@@ -302,7 +302,7 @@ public class BattleshipBoardManager {
                 }
                 setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
 
-                mGameBoard.setPositionAttacked(row, col);
+                mGameBoard.setIsLastMoveAtPosition(row, col);
                 saveGameBoard();
                 break;
         }
@@ -323,6 +323,7 @@ public class BattleshipBoardManager {
             public Void then(Task<GameBoard> task) throws Exception {
                 GameBoard opponentGameBoard = task.getResult();
                 opponentGameBoard.setShouldDisplayLastMove(false);
+                opponentGameBoard.resetIsLastMove();
                 opponentGameBoard.saveInBackground();
                 return null;
             }
