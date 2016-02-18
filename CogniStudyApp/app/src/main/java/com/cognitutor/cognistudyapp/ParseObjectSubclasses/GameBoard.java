@@ -21,6 +21,7 @@ public class GameBoard extends ParseObject {
         public static final String status = "status";
         public static final String ships = "ships";
         public static final String shipAt = "shipAt";
+        public static final String shouldDisplayLastMove = "shouldDisplayLastMove";
         public static final String lastAbilityUsed = "lastAbilityUsed";
         public static final String isLastMove = "isLastMove";
         public static final String lastAbilityXPos = "lastAbilityXPos";
@@ -31,8 +32,9 @@ public class GameBoard extends ParseObject {
         put(Columns.ships, ships);
         put(Columns.shipAt, shipAt);
         put(Columns.status, createNewStatus());
+        put(Columns.shouldDisplayLastMove, false);
         put(Columns.lastAbilityUsed, JSONObject.NULL);
-        put(Columns.isLastMove, JSONObject.NULL);
+        put(Columns.isLastMove, createNewIsLastMove());
         put(Columns.lastAbilityXPos, JSONObject.NULL);
         put(Columns.lastAbilityYPos, JSONObject.NULL);
     }
@@ -49,6 +51,17 @@ public class GameBoard extends ParseObject {
         return status;
     }
 
+    private List<List<Boolean>> createNewIsLastMove() {
+        List<List<Boolean>> isLastMove = new ArrayList<>();
+        for(int i = 0; i < Constants.GameBoard.NUM_ROWS; i++) {
+            List<Boolean> rowList = new ArrayList<Boolean>(
+                    Collections.nCopies(Constants.GameBoard.NUM_COLUMNS, false)
+            );
+            isLastMove.add(rowList);
+        }
+        return isLastMove;
+    }
+
     public GameBoard() {
 
     }
@@ -63,5 +76,27 @@ public class GameBoard extends ParseObject {
 
     public void setStatus(List<List<String>> status) {
         put(Columns.status, status);
+    }
+
+    public void setShouldDisplayLastMove(boolean shouldDisplayLastMove) {
+        put(Columns.shouldDisplayLastMove, shouldDisplayLastMove);
+    }
+
+    public boolean getShouldDisplayLastMove() {
+        return getBoolean(Columns.shouldDisplayLastMove);
+    }
+
+    public List<List<Boolean>> getIsLastMove() {
+        return (List<List<Boolean>>) get(Columns.isLastMove);
+    }
+
+    public void resetIsLastMove() {
+        put(Columns.isLastMove, createNewIsLastMove());
+    }
+
+    public void setIsLastMoveAtPosition(int row, int col) {
+        List<List<Boolean>> isLastMove = getIsLastMove();
+        isLastMove.get(row).set(col, true);
+        put(Columns.isLastMove, isLastMove);
     }
 }

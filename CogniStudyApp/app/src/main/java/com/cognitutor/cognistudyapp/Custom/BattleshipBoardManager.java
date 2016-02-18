@@ -17,6 +17,12 @@ import com.parse.ParseObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
+import pl.droidsonroids.gif.AnimationListener;
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
+
 /**
  * Created by Lance on 1/5/2016.
  */
@@ -24,6 +30,7 @@ public class BattleshipBoardManager {
 
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
+    private GridLayout mAnimationsGridLayout;
     private boolean[][] mSpaceIsOccupied;
     private Activity mActivity;
     private Challenge mChallenge;
@@ -74,6 +81,12 @@ public class BattleshipBoardManager {
         mTargetsGridLayout.setRowCount(Constants.GameBoard.NUM_ROWS);
     }
 
+    public void setAnimationsGridLayout(GridLayout animationsGridLayout) {
+        mAnimationsGridLayout = animationsGridLayout;
+        mAnimationsGridLayout.setColumnCount(Constants.GameBoard.NUM_COLUMNS);
+        mAnimationsGridLayout.setRowCount(Constants.GameBoard.NUM_ROWS);
+    }
+
     public void drawAllEmptyTargets() {
         for(int row = 0; row < mTargetsGridLayout.getRowCount(); row++) {
             for(int col = 0; col < mTargetsGridLayout.getColumnCount(); col++) {
@@ -91,6 +104,9 @@ public class BattleshipBoardManager {
     }
 
     public void initializeTargets() {
+        if(mBoardPositionStatus == null) {
+            return;
+        }
         for(int row = 0; row < mTargetsGridLayout.getRowCount(); row++) {
             for(int col = 0; col < mTargetsGridLayout.getColumnCount(); col++) {
                 // Draw target
@@ -115,7 +131,7 @@ public class BattleshipBoardManager {
     public void placeShips() {
         mSpaceIsOccupied = new boolean[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
         mShipsGridLayout.removeAllViews();
-        addPlaceholderSpaces();
+        addPlaceholderSpaces(mShipsGridLayout);
 
         mShips = new ArrayList<>();
         String[] shipTypes = Constants.getAllConstants(Constants.ShipType.class);
@@ -126,7 +142,10 @@ public class BattleshipBoardManager {
     }
 
     public void drawShips() {
-        addPlaceholderSpaces();
+        addPlaceholderSpaces(mShipsGridLayout);
+        if(mShips == null) {
+            return;
+        }
         for(Ship ship : mShips) {
             ShipDrawableData shipDrawableData = ship.getShipDrawableData();
             drawShip(shipDrawableData);
@@ -134,10 +153,33 @@ public class BattleshipBoardManager {
     }
 
     public void drawDeadShips() {
-        addPlaceholderSpaces();
+        addPlaceholderSpaces(mShipsGridLayout);
+        if(mShips == null) {
+            return;
+        }
         for(ShipDrawableData shipDrawableData : mShipDrawableDatas) {
             if(!shipDrawableData.shipIsAlive) {
                 drawShip(shipDrawableData);
+            }
+        }
+    }
+
+    public void initializeAnimationsGridLayout() {
+        addPlaceholderSpaces(mAnimationsGridLayout);
+    }
+
+    public void showPreviousTurn() {
+        if(mGameBoard == null) {
+            return;
+        }
+        if(mGameBoard.getShouldDisplayLastMove()) {
+            List<List<Boolean>> isLastMove = mGameBoard.getIsLastMove();
+            for(int i = 0; i < isLastMove.size(); i++) {
+                for(int j = 0; j < isLastMove.get(i).size(); j++) {
+                    if(isLastMove.get(i).get(j)) {
+                        drawGif(i, j, 1, 1, R.drawable.target_default_attacked);
+                    }
+                }
             }
         }
     }
@@ -153,7 +195,14 @@ public class BattleshipBoardManager {
     public void saveGameBoard() {
         mGameBoard.setStatus(mBoardPositionStatus);
         mGameBoard.saveInBackground();
+
         mChallengeUserData.saveInBackground();
+
+        if(mNumShotsRemaining != 0) { // TODO:2 When questions are working, delete this if-statement
+            mChallenge.setNumShotsRemaining(mNumShotsRemaining);
+            mChallenge.saveInBackground();
+        }
+
         ParseObject.saveAllInBackground(mShips);
     }
 
@@ -252,6 +301,9 @@ public class BattleshipBoardManager {
                     }
                 }
                 setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
+
+                mGameBoard.setIsLastMoveAtPosition(row, col);
+                saveGameBoard();
                 break;
         }
     }
@@ -264,6 +316,18 @@ public class BattleshipBoardManager {
         // TODO:2 set numShotsRemaining after answering questions
         mChallenge.setNumShotsRemaining(4);
         mChallenge.saveInBackground();
+
+        mGameBoard.setShouldDisplayLastMove(true);
+        mOtherUserData.getGameBoard().continueWith(new Continuation<GameBoard, Void>() {
+            @Override
+            public Void then(Task<GameBoard> task) throws Exception {
+                GameBoard opponentGameBoard = task.getResult();
+                opponentGameBoard.setShouldDisplayLastMove(false);
+                opponentGameBoard.resetIsLastMove();
+                opponentGameBoard.saveInBackground();
+                return null;
+            }
+        });
     }
 
     private Ship findShipThatOccupiesPosition(int row, int col) {
@@ -279,18 +343,18 @@ public class BattleshipBoardManager {
     }
 
     // Fill the GridLayout with placeholder ImageViews so that the cells will be the correct size
-    private void addPlaceholderSpaces() {
-        for(int row = 0; row < mShipsGridLayout.getRowCount(); row++) {
-            for(int col = 0; col < mShipsGridLayout.getColumnCount(); col++) {
+    private void addPlaceholderSpaces(GridLayout gridLayout) {
+        for(int row = 0; row < gridLayout.getRowCount(); row++) {
+            for(int col = 0; col < gridLayout.getColumnCount(); col++) {
                 ImageView imgSpace = new ImageView(mActivity);
                 imgSpace.setImageResource(R.drawable.target_default_unknown);
                 GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
-                layoutParams.height = mShipsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS;
-                layoutParams.width = mShipsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS;
+                layoutParams.height = gridLayout.getHeight() / Constants.GameBoard.NUM_ROWS;
+                layoutParams.width = gridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS;
                 layoutParams.columnSpec = GridLayout.spec(col);
                 layoutParams.rowSpec = GridLayout.spec(row);
                 imgSpace.setLayoutParams(layoutParams);
-                mShipsGridLayout.addView(imgSpace);
+                gridLayout.addView(imgSpace);
             }
         }
     }
@@ -369,16 +433,41 @@ public class BattleshipBoardManager {
     }
 
     private void retrieveShipDrawableDatas() {
+        if(mShips == null) {
+            return;
+        }
         mShipDrawableDatas = new ArrayList<>();
-        for(Ship ship : mShips) {
+        for (Ship ship : mShips) {
             ShipDrawableData shipDrawableData = new ShipDrawableData(ship);
             ship.setShipDrawableData(shipDrawableData);
             mShipDrawableDatas.add(shipDrawableData);
         }
     }
 
+    private void drawGif(int row, int col, int height, int width, int gifDrawableId) {
+        final GifImageView gifImageView = new GifImageView(mActivity);
+        gifImageView.setImageResource(gifDrawableId);
+        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+        layoutParams.rowSpec = GridLayout.spec(row, height);
+        layoutParams.columnSpec = GridLayout.spec(col, width);
+        layoutParams.height = mAnimationsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * height;
+        layoutParams.width = mAnimationsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * width;
+        gifImageView.setLayoutParams(layoutParams);
+        mAnimationsGridLayout.addView(gifImageView);
+
+        GifDrawable gifDrawable = (GifDrawable) gifImageView.getDrawable();
+        gifDrawable.addAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationCompleted(int loopNumber) {
+                gifImageView.setVisibility(View.GONE);
+            }
+        });
+    }
+
     private void retrieveBoardPositionStatus() {
-        mBoardPositionStatus = mGameBoard.getStatus();
+        if(mGameBoard != null) {
+            mBoardPositionStatus = mGameBoard.getStatus();
+        }
     }
 
     public static class ShipDrawableData {

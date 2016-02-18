@@ -80,20 +80,21 @@ public class ChallengeUtils {
                 }).onSuccessTask(new Continuation<GameBoard, Task<List<Ship>>>() {
                     @Override
                     public Task<List<Ship>> then(Task<GameBoard> task) {
-                        GameBoard gameBoard;
-                        if (task != null) {
-                            gameBoard = task.getResult();
-                        } else {
-                            gameBoard = null;
-                        }
+                        GameBoard gameBoard = task.getResult();
                         gameBoardCapture.set(gameBoard);
+                        if(gameBoard == null) { // If the other player hasn't set up their board yet
+                            return null;
+                        }
                         List<Ship> ships = gameBoard.getShips();
                         return ParseObject.fetchAllIfNeededInBackground(ships);
                     }
                 }).onSuccess(new Continuation<List<Ship>, BattleshipBoardManager>() {
                     @Override
                     public BattleshipBoardManager then(Task<List<Ship>> task) throws Exception {
-                        List<Ship> ships = task.getResult();
+                        List<Ship> ships = null;
+                        if(task != null) {
+                            ships = task.getResult();
+                        }
                         Challenge challenge = challengeCapture.get();
                         ChallengeUserData challengeUserData = challengeUserDataCapture.get();
                         ChallengeUserData otherUserData = otherUserDataCapture.get();
