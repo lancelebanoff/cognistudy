@@ -35,7 +35,7 @@ public class ChallengeActivity extends CogniActivity {
     private Intent mIntent;
 
     private String mChallengeId;
-    private int mUser1or2;
+    private int mCurrentUser1or2;
     private int mViewingUser1or2;
     private boolean mScoresHaveBeenLoaded;
     private GridLayout mShipsGridLayout;
@@ -53,8 +53,8 @@ public class ChallengeActivity extends CogniActivity {
         initializeBroadcastReceiver();
 
         mChallengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
-        mViewingUser1or2 = mUser1or2;
+        mCurrentUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        mViewingUser1or2 = mCurrentUser1or2;
         mScoresHaveBeenLoaded = false;
 
         initializeBoard(mViewingUser1or2);
@@ -72,7 +72,7 @@ public class ChallengeActivity extends CogniActivity {
 
         // TODO:2 stop past challenge from crashing
 
-        ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, viewingUser1or2, false)
+        ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, mCurrentUser1or2, viewingUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {
@@ -123,7 +123,7 @@ public class ChallengeActivity extends CogniActivity {
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(viewingUser1or2 == mUser1or2) {
+                if(viewingUser1or2 == mCurrentUser1or2) {
                     mBattleshipBoardManager.drawShips();
                 }
                 else {

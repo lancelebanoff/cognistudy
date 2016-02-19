@@ -44,10 +44,10 @@ public class BattleshipAttackActivity extends CogniActivity {
 
     private void initializeBoard() {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
-        int opponentUser1or2 = user1or2 == 1 ? 2: 1;
+        int currentUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        int opponentUser1or2 = currentUser1or2 == 1 ? 2: 1;
 
-        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, opponentUser1or2, true)
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, currentUser1or2, opponentUser1or2, true)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {

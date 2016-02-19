@@ -6,8 +6,6 @@ import com.parse.ParseObject;
 
 import java.util.List;
 
-import bolts.Task;
-
 /**
  * Created by Lance on 1/9/2016.
  */
@@ -63,14 +61,8 @@ public class ChallengeUserData extends ParseObject {
         increment(Columns.score);
     }
 
-    public Task<GameBoard> getGameBoard() {
-        GameBoard gameBoard = (GameBoard) getParseObject(Columns.gameBoard);
-        if(gameBoard != null) {
-            return gameBoard.fetchInBackground();
-        }
-        else {
-            return null;
-        }
+    public GameBoard getGameBoard() {
+        return (GameBoard) getParseObject(Columns.gameBoard);
     }
 
     public void setGameBoard(GameBoard gameBoard) {

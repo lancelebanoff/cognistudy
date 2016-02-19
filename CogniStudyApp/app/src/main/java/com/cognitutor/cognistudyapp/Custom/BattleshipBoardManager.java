@@ -12,6 +12,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.GetCallback;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 
@@ -19,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import bolts.Continuation;
-import bolts.Task;
 import pl.droidsonroids.gif.AnimationListener;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -328,14 +328,13 @@ public class BattleshipBoardManager {
         mChallenge.saveInBackground();
 
         mGameBoard.setShouldDisplayLastMove(true);
-        mOpponentUserData.getGameBoard().continueWith(new Continuation<GameBoard, Void>() {
+        mOpponentUserData.getGameBoard().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
             @Override
-            public Void then(Task<GameBoard> task) throws Exception {
-                GameBoard opponentGameBoard = task.getResult();
+            public void done(ParseObject object, ParseException e) {
+                GameBoard opponentGameBoard = (GameBoard) object;
                 opponentGameBoard.setShouldDisplayLastMove(false);
                 opponentGameBoard.resetIsLastMove();
                 opponentGameBoard.saveInBackground();
-                return null;
             }
         });
     }
