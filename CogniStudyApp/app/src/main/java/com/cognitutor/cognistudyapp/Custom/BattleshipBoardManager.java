@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridLayout;
@@ -15,6 +16,7 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import bolts.Continuation;
@@ -34,9 +36,10 @@ public class BattleshipBoardManager {
     private boolean[][] mSpaceIsOccupied;
     private Activity mActivity;
     private Challenge mChallenge;
-    private ChallengeUserData mChallengeUserData;
-    private ChallengeUserData mOtherUserData;
-    private GameBoard mGameBoard;
+    private ChallengeUserData mViewedChallengeUserData; // The player who owns the gamebaord that is being viewed
+    private ChallengeUserData mCurrentUserData; // The current player
+    private ChallengeUserData mOpponentUserData; // The player who is not currently playing
+    private GameBoard mGameBoard; // The gamebaord currently being viewed
     private ArrayList<Ship> mShips;
     private ArrayList<ShipDrawableData> mShipDrawableDatas;
     private List<List<String>> mBoardPositionStatus;
@@ -50,19 +53,21 @@ public class BattleshipBoardManager {
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
         mNumShotsRemaining = challenge.getNumShotsRemaining();
-        mChallengeUserData = challengeUserData;
+        mViewedChallengeUserData = challengeUserData;
     }
 
     // Used for existing challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
-                                  ChallengeUserData challengeUserData, ChallengeUserData otherUserData,
+                                  ChallengeUserData viewedChallengeUserData, ChallengeUserData currentUserData,
+                                  ChallengeUserData opponentUserData,
                                   GameBoard gameBoard, List<Ship> ships, boolean canBeAttacked) {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
         mNumShotsRemaining = challenge.getNumShotsRemaining();
-        mChallengeUserData = challengeUserData;
-        mOtherUserData = otherUserData;
+        mViewedChallengeUserData = viewedChallengeUserData;
+        mCurrentUserData = currentUserData;
+        mOpponentUserData = opponentUserData;
         mGameBoard = gameBoard;
         mShips = (ArrayList<Ship>) ships;
         retrieveShipDrawableDatas();
@@ -187,8 +192,8 @@ public class BattleshipBoardManager {
     public void saveNewGameBoard() {
         mGameBoard = new GameBoard(mShips, createShipAt());
         mGameBoard.saveInBackground();
-        mChallengeUserData.setGameBoard(mGameBoard);
-        mChallengeUserData.saveInBackground();
+        mViewedChallengeUserData.setGameBoard(mGameBoard);
+        mViewedChallengeUserData.saveInBackground();
         ParseObject.saveAllInBackground(mShips);
     }
 
@@ -196,7 +201,7 @@ public class BattleshipBoardManager {
         mGameBoard.setStatus(mBoardPositionStatus);
         mGameBoard.saveInBackground();
 
-        mChallengeUserData.saveInBackground();
+        mViewedChallengeUserData.saveInBackground();
 
         if(mNumShotsRemaining != 0) { // TODO:2 When questions are working, delete this if-statement
             mChallenge.setNumShotsRemaining(mNumShotsRemaining);
@@ -232,13 +237,13 @@ public class BattleshipBoardManager {
     }
 
     public int[] getScores() {
-        return new int[] { mChallengeUserData.getScore(), mOtherUserData.getScore() };
+        return new int[] { mCurrentUserData.getScore(), mOpponentUserData.getScore() };
     }
 
     public ParseFile[] getProfilePictures() {
         return new ParseFile[] {
-                mChallengeUserData.getPublicUserData().getProfilePic(),
-                mOtherUserData.getPublicUserData().getProfilePic()
+                mCurrentUserData.getPublicUserData().getProfilePic(),
+                mOpponentUserData.getPublicUserData().getProfilePic()
         };
     }
 
@@ -296,8 +301,13 @@ public class BattleshipBoardManager {
                     if(shipThatOccupiesPosition.getHitsRemaining() == 0) {
                         shipThatOccupiesPosition.getShipDrawableData().shipIsAlive = false;
                         drawShip(shipThatOccupiesPosition.getShipDrawableData());
-                        mChallengeUserData.incrementScore();
-                        mChallengeUserData.saveInBackground();
+                        mCurrentUserData.incrementScore();
+                        mCurrentUserData.saveInBackground();
+
+                        if(mCurrentUserData.getScore() == Constants.GameBoard.NUM_SHIPS) {
+                            endChallenge();
+                            setOtherPlayerTurn();
+                        }
                     }
                 }
                 setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
@@ -318,7 +328,7 @@ public class BattleshipBoardManager {
         mChallenge.saveInBackground();
 
         mGameBoard.setShouldDisplayLastMove(true);
-        mOtherUserData.getGameBoard().continueWith(new Continuation<GameBoard, Void>() {
+        mOpponentUserData.getGameBoard().continueWith(new Continuation<GameBoard, Void>() {
             @Override
             public Void then(Task<GameBoard> task) throws Exception {
                 GameBoard opponentGameBoard = task.getResult();
@@ -328,6 +338,19 @@ public class BattleshipBoardManager {
                 return null;
             }
         });
+    }
+
+    private void endChallenge() {
+        mChallenge.setHasEnded(true);
+        mChallenge.setEndDate(new Date());
+        mChallenge.setWinner(mCurrentUserData.getPublicUserData().getBaseUserId());
+        mChallenge.saveInBackground();
+
+        new AlertDialog.Builder(mActivity)
+                .setTitle(R.string.title_dialog_cancel_challenge)
+                .setMessage(R.string.message_dialog_cancel_challenge)
+                .setPositiveButton(R.string.yes_dialog_won_challenge, null)
+                .create().show();
     }
 
     private Ship findShipThatOccupiesPosition(int row, int col) {
