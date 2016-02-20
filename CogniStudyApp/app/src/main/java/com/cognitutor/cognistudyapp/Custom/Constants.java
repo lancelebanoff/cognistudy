@@ -70,6 +70,7 @@ public class Constants {
     public static class GameBoard {
         public static int NUM_ROWS = 11;
         public static int NUM_COLUMNS = 8;
+        public static int NUM_SHIPS = 6;
     }
 
     public static class GameBoardPositionStatus {

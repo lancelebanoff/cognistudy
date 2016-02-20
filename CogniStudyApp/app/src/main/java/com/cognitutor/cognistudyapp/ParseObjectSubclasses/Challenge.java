@@ -55,20 +55,20 @@ public class Challenge extends ParseObject {
         return getQuery().whereEqualTo(Columns.objectId, objectId).getFirstInBackground();
     }
 
-    public static Task<ChallengeUserData> getChallengeUserData(Challenge challenge, int user1or2) {
+    public ChallengeUserData getChallengeUserData(int user1or2) {
         ChallengeUserData challengeUserData;
         switch (user1or2) {
             case 1:
-                challengeUserData = challenge.getUser1Data();
+                challengeUserData = getUser1Data();
                 break;
             case 2:
-                challengeUserData = challenge.getUser2Data();
+                challengeUserData = getUser2Data();
                 break;
             default:
                 challengeUserData = null;
                 break;
         }
-        return challengeUserData.fetchInBackground();
+        return challengeUserData;
     }
 
     public String getChallengeType() {
@@ -157,6 +157,10 @@ public class Challenge extends ParseObject {
 
     public void setNumTurns(int numTurns) {
         put(Columns.numTurns, numTurns);
+    }
+
+    public void incrementNumTurns() {
+        put(Columns.numTurns, getNumTurns() + 1);
     }
 
     public String getWinner() {

@@ -30,7 +30,7 @@ public class ChallengeUtils {
                     public Task<ChallengeUserData> then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         challengeCapture.set(challenge);
-                        return Challenge.getChallengeUserData(challenge, user1or2);
+                        return challenge.getChallengeUserData(user1or2).fetchInBackground();
                     }
                 }).onSuccess(new Continuation<ChallengeUserData, BattleshipBoardManager>() {
                     @Override
@@ -46,61 +46,30 @@ public class ChallengeUtils {
     }
 
     public static Task<BattleshipBoardManager> initializeBattleshipBoardManager(
-            final Activity activity, String challengeId, final int user1or2, final boolean canBeAttacked) {
-
-        final Capture<Challenge> challengeCapture = new Capture<>(null);
-        final Capture<ChallengeUserData> challengeUserDataCapture = new Capture<>(null);
-        final Capture<ChallengeUserData> otherUserDataCapture = new Capture<>(null);
-        final Capture<GameBoard> gameBoardCapture = new Capture<>(null);
+            final Activity activity, String challengeId, final int currentUser1or2,
+            final int viewingUser1or2, final boolean canBeAttacked) {
 
         Task<BattleshipBoardManager> task = Challenge.getChallenge(challengeId)
-                .onSuccessTask(new Continuation<Challenge, Task<ChallengeUserData>>() {
+                .onSuccess(new Continuation<Challenge, BattleshipBoardManager>() {
                     @Override
-                    public Task<ChallengeUserData> then(Task<Challenge> task) throws Exception {
+                    public BattleshipBoardManager then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
-                        challengeCapture.set(challenge);
-                        int otherUser1or2 = user1or2 == 1 ? 2 : 1;
-                        return Challenge.getChallengeUserData(challenge, otherUser1or2);
-                    }
-                }).onSuccessTask(new Continuation<ChallengeUserData, Task<ChallengeUserData>>() {
-                    @Override
-                    public Task<ChallengeUserData> then(Task<ChallengeUserData> task) {
-                        ChallengeUserData otherUserData = task.getResult();
-                        otherUserDataCapture.set(otherUserData);
-                        Challenge challenge = challengeCapture.get();
-                        return Challenge.getChallengeUserData(challenge, user1or2);
-                    }
-                }).onSuccessTask(new Continuation<ChallengeUserData, Task<GameBoard>>() {
-                    @Override
-                    public Task<GameBoard> then(Task<ChallengeUserData> task) {
-                        ChallengeUserData challengeUserData = task.getResult();
-                        challengeUserDataCapture.set(challengeUserData);
-                        return challengeUserData.getGameBoard();
-                    }
-                }).onSuccessTask(new Continuation<GameBoard, Task<List<Ship>>>() {
-                    @Override
-                    public Task<List<Ship>> then(Task<GameBoard> task) {
-                        GameBoard gameBoard = task.getResult();
-                        gameBoardCapture.set(gameBoard);
-                        if(gameBoard == null) { // If the other player hasn't set up their board yet
-                            return null;
-                        }
-                        List<Ship> ships = gameBoard.getShips();
-                        return ParseObject.fetchAllIfNeededInBackground(ships);
-                    }
-                }).onSuccess(new Continuation<List<Ship>, BattleshipBoardManager>() {
-                    @Override
-                    public BattleshipBoardManager then(Task<List<Ship>> task) throws Exception {
+                        ChallengeUserData viewedUserData = challenge.getChallengeUserData(viewingUser1or2)
+                                .fetch();
+                        ChallengeUserData currentUserData = challenge.getChallengeUserData(currentUser1or2)
+                                .fetch();
+                        ChallengeUserData opponentUserData = challenge.getChallengeUserData(currentUser1or2 == 1 ? 2 : 1)
+                                .fetch();
+
+                        GameBoard gameBoard = viewedUserData.getGameBoard();
                         List<Ship> ships = null;
-                        if(task != null) {
-                            ships = task.getResult();
+                        if(gameBoard != null) {
+                            gameBoard = gameBoard.fetch();
+                            ships = ParseObject.fetchAll(gameBoard.getShips());
                         }
-                        Challenge challenge = challengeCapture.get();
-                        ChallengeUserData challengeUserData = challengeUserDataCapture.get();
-                        ChallengeUserData otherUserData = otherUserDataCapture.get();
-                        GameBoard gameBoard = gameBoardCapture.get();
-                        return new BattleshipBoardManager(activity, challenge, challengeUserData,
-                                otherUserData, gameBoard, ships, canBeAttacked);
+
+                        return new BattleshipBoardManager(activity, challenge, viewedUserData,
+                                currentUserData, opponentUserData, gameBoard, ships, canBeAttacked);
                     }
                 });
 
