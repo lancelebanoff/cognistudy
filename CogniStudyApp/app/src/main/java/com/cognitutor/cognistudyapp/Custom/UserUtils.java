@@ -52,7 +52,8 @@ public class UserUtils {
         Log.d(TAG, "privateStudentData is " + (privateStudentData.isDataAvailable() ? "" : "not ") + "available");
         privateStudentData.fetchIfNeeded();
 
-        publicUserData.pin("CurrentUser");
+        ParseObjectUtils.unpinAll("CurrentUser");
+        ParseObjectUtils.pin("CurrentUser", publicUserData);
     }
 
     public static void getPinTest() throws ParseException {

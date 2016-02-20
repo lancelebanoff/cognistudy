@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
@@ -19,6 +20,6 @@ public class AnsweredQuestionId extends ParseObject{
         if(saveNow)
             saveInBackground();
         else
-            SubclassUtils.addToSaveQueue(this);
+            ParseObjectUtils.addToSaveQueue(this);
     }
 }

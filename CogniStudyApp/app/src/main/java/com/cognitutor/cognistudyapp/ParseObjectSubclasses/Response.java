@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -26,6 +27,6 @@ public class Response extends ParseObject {
         put(Columns.correct, correct);
         put(Columns.selectedAnswer, selectedAnswer);
         put(Columns.rating, rating);
-        SubclassUtils.addToSaveQueue(this);
+        ParseObjectUtils.addToSaveQueue(this);
     }
 }

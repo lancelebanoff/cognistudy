@@ -5,6 +5,7 @@ import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -84,7 +85,10 @@ class AuthenticationActivity extends CogniActivity {
 
         final ParseInstallation installation = setUpInstallation(user.getObjectId());
 
-        publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
+        try {
+            ParseObjectUtils.unpinAll("CurrentUser");
+        } catch (ParseException e) { e.printStackTrace(); }
+        ParseObjectUtils.pinInBackground("CurrentUser", publicUserData, new SaveCallback() {
             @Override
             public void done(ParseException e) {
 

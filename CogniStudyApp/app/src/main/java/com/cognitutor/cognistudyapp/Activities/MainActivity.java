@@ -155,6 +155,6 @@ public class MainActivity extends AuthenticationActivity {
         }
     }
     private void test() {
-//        DateUtils.test();
+        DateUtils.test();
     }
 }
