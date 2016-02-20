@@ -73,9 +73,9 @@ public class QueryUtils {
                         }
                         List<TClass> results = task.getResult();
                         if (pinName != null && pinResult) {
-                            ParseObject.pinAllInBackground(pinName, results);
+                            ParseObjectUtils.pinAllInBackground(pinName, results);
                         } else if (pinResult) {
-                            ParseObject.pinAllInBackground(results);
+                            ParseObjectUtils.pinAllInBackground(results);
                         }
                         return results;
                     }
@@ -140,9 +140,9 @@ public class QueryUtils {
                         handleFault(task, QueryType.network);
                         TClass result = task.getResult();
                         if (pinName != null && pinResult) {
-                            result.pinInBackground(pinName);
+                            ParseObjectUtils.pinInBackground(pinName, result);
                         } else if(pinResult) {
-                            result.pinInBackground();
+                            ParseObjectUtils.pinInBackground(result);
                         }
                         return result;
                     }
@@ -179,10 +179,10 @@ public class QueryUtils {
                 result = networkQuery.getFirst();
                 result.fetchIfNeeded(); //TODO: Add this to all methods?
                 if(pinName != null && pinResult) {
-                    result.pinInBackground(pinName);
+                    ParseObjectUtils.pinInBackground(pinName, result);
                 }
                 else if(pinResult) {
-                    result.pinInBackground();
+                    ParseObjectUtils.pinInBackground(result);
                 }
             } catch (ParseException e2) { e2.printStackTrace(); Log.e("doGetFirstNetwork", e2.getMessage()); }
         }

@@ -1,4 +1,4 @@
-package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
+package com.cognitutor.cognistudyapp.Custom;
 
 import android.util.Log;
 
@@ -20,11 +20,67 @@ import bolts.Task;
 /**
  * Created by Kevin on 2/13/2016.
  */
-public class SubclassUtils {
+public class ParseObjectUtils {
 
+    // <editor-fold desc="Pinning">
+    private static ConcurrentSkipListSet<String> pinNames = new ConcurrentSkipListSet<>();
+
+    public static void pin(String pinName, ParseObject object) throws ParseException {
+        addPinName(pinName);
+        object.pin();
+    }
+
+    public static <T extends ParseObject> void pinAll(String pinName, List<T> objects) throws ParseException {
+        addPinName(pinName);
+        ParseObject.pinAll(objects);
+    }
+
+    public static void pinInBackground(ParseObject object) {
+        object.pinInBackground();
+    }
+
+    public static void pinInBackground(String pinName, ParseObject object) {
+        addPinName(pinName);
+        object.pinInBackground(pinName);
+    }
+
+    public static void pinInBackground(String pinName, ParseObject object, SaveCallback callback) {
+        addPinName(pinName);
+        object.pinInBackground(pinName, callback);
+    }
+
+    public static <T extends ParseObject> void pinAllInBackground(List<T> objects) {
+        ParseObject.pinAllInBackground(objects);
+    }
+
+    public static <T extends ParseObject> void pinAllInBackground(String pinName, List<T> objects) {
+        addPinName(pinName);
+        ParseObject.pinAllInBackground(objects);
+    }
+
+    private static void addPinName(String pinName) {
+        pinNames.add(pinName);
+    }
+
+    //Don't bother removing the pin name because it might be in the process of being added back by another thread
+    public static void unpinAllInBackground(String pinName) {
+        ParseObject.unpinAllInBackground(pinName);
+    }
+
+    //This will only be used when logging out
+    public static void unpinAllInBackground() {
+        ParseObject.unpinAllInBackground();
+        for(String pinName : pinNames) {
+            ParseObject.unpinAllInBackground(pinName);
+        }
+        pinNames.clear();
+    }
+    // </editor-fold>
+
+    // <editor-fold desc="Saving">
     private AtomicInteger adds;
 
-    public SubclassUtils() {
+    public ParseObjectUtils() {
         skipListSet = new ConcurrentSkipListSet<>();
         adds = new AtomicInteger(0);
     }
@@ -104,4 +160,5 @@ public class SubclassUtils {
             return -1;
         }
     }
+    // </editor-fold>
 }

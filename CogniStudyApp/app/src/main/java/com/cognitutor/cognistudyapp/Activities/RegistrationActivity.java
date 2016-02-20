@@ -9,14 +9,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
-import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SubclassUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -27,12 +22,10 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,17 +33,10 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import bolts.Continuation;
 import bolts.Task;
