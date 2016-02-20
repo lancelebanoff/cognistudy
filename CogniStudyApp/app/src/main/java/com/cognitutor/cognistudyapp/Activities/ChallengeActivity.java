@@ -1,8 +1,10 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
@@ -70,6 +72,7 @@ public class ChallengeActivity extends CogniActivity {
 
     private void initializeBoard(final int viewingUser1or2) {
 
+        hideSwitchViewButton();
         // TODO:2 stop past challenge from crashing
 
         ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, mCurrentUser1or2, viewingUser1or2, false)
@@ -82,6 +85,7 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
+                                showSwitchViewButton();
                                 if (!mScoresHaveBeenLoaded) {
                                     showScores();
                                     showProfilePictures();
@@ -93,6 +97,16 @@ public class ChallengeActivity extends CogniActivity {
                         return null;
                     }
                 });
+    }
+
+    private void showSwitchViewButton() {
+        Button btnSwitch = (Button) findViewById(R.id.btnSwitchView);
+        btnSwitch.setVisibility(View.VISIBLE);
+    }
+
+    private void hideSwitchViewButton() {
+        Button btnSwitch = (Button) findViewById(R.id.btnSwitchView);
+        btnSwitch.setVisibility(View.INVISIBLE);
     }
 
     private void showOrHideYourTurnButton() {
@@ -178,6 +192,18 @@ public class ChallengeActivity extends CogniActivity {
 
         mViewingUser1or2 = mViewingUser1or2 == 1 ? 2 : 1;
         initializeBoard(mViewingUser1or2);
+    }
+
+    public void onClick_btnResign(View view) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.title_dialog_quit_challenge)
+                .setMessage(R.string.message_dialog_quit_challenge)
+                .setNegativeButton(R.string.no_dialog_cancel_challenge, null)
+                .setPositiveButton(R.string.yes_dialog_cancel_challenge, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        mBattleshipBoardManager.quitChallenge();
+                    }
+                }).create().show();
     }
 
     public void navigateToQuestionActivity(View view) {

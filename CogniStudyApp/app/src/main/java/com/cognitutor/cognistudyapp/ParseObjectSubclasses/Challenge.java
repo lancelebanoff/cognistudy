@@ -159,6 +159,10 @@ public class Challenge extends ParseObject {
         put(Columns.numTurns, numTurns);
     }
 
+    public void incrementNumTurns() {
+        put(Columns.numTurns, getNumTurns() + 1);
+    }
+
     public String getWinner() {
         return getString(Columns.winner);
     }

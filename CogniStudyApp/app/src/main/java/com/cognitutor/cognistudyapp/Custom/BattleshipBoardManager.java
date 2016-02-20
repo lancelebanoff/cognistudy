@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridLayout;
@@ -252,6 +253,14 @@ public class BattleshipBoardManager {
         mShipsGridLayout.removeAllViews();
     }
 
+    public void quitChallenge() {
+        mChallenge.setHasEnded(true);
+        mChallenge.setEndDate(new Date());
+        mChallenge.setWinner(mOpponentUserData.getPublicUserData().getBaseUserId());
+        mChallenge.saveInBackground();
+        alertLostChallenge();
+    }
+
     // Build the image filename based on the skin and position status, then set image resource
     private void setTargetImageResource(ImageView imgSpace, String positionStatus) {
         String targetSkin = Constants.ShopItemType.SKIN_TARGET_DEFAULT;
@@ -325,10 +334,12 @@ public class BattleshipBoardManager {
         mChallenge.setOtherTurnUserId(curTurnUserId);
         // TODO:2 set numShotsRemaining after answering questions
         mChallenge.setNumShotsRemaining(4);
+        mChallenge.incrementNumTurns();
+        mChallenge.setTimeLastPlayed(new Date());
         mChallenge.saveInBackground();
 
         mGameBoard.setShouldDisplayLastMove(true);
-        mOpponentUserData.getGameBoard().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+        mCurrentUserData.getGameBoard().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
             @Override
             public void done(ParseObject object, ParseException e) {
                 GameBoard opponentGameBoard = (GameBoard) object;
@@ -340,15 +351,36 @@ public class BattleshipBoardManager {
     }
 
     private void endChallenge() {
+        setOtherPlayerTurn();
+
         mChallenge.setHasEnded(true);
         mChallenge.setEndDate(new Date());
         mChallenge.setWinner(mCurrentUserData.getPublicUserData().getBaseUserId());
         mChallenge.saveInBackground();
 
         new AlertDialog.Builder(mActivity)
-                .setTitle(R.string.title_dialog_cancel_challenge)
-                .setMessage(R.string.message_dialog_cancel_challenge)
-                .setPositiveButton(R.string.yes_dialog_won_challenge, null)
+                .setTitle(R.string.title_dialog_won_challenge)
+                .setMessage(R.string.message_dialog_won_challenge)
+                .setPositiveButton(R.string.yes_dialog_won_challenge, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        saveGameBoard();
+                        mActivity.finish();
+                    }
+                })
+                .create().show();
+    }
+
+    private void alertLostChallenge() {
+        new AlertDialog.Builder(mActivity)
+                .setTitle(R.string.title_dialog_lost_challenge)
+                .setMessage(R.string.message_dialog_lost_challenge)
+                .setPositiveButton(R.string.yes_dialog_lost_challenge, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mActivity.finish();
+                    }
+                })
                 .create().show();
     }
 
