@@ -18,7 +18,7 @@ public class AnsweredQuestionId extends ParseObject{
         put(Columns.questionId, questionId);
         if(saveNow)
             saveInBackground();
-        else
-            SubclassUtils.addToSaveQueue(this);
+//        else
+//            SubclassUtils.addToSaveQueue(this);
     }
 }

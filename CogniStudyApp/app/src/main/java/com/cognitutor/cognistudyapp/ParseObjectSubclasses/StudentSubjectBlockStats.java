@@ -15,6 +15,8 @@ public abstract class StudentSubjectBlockStats extends StudentBlockStats{
         public static final String subject = "subject";
     }
 
+    public String getSubject() { return getString(Columns.subject); }
+
     protected static ParseQuery getCurrentUserQuery(String className, String category) {
         return getCurrentUserQuery(className)
                 .whereEqualTo(Columns.subject, getSubjectFromCategory(category));
@@ -33,5 +35,12 @@ public abstract class StudentSubjectBlockStats extends StudentBlockStats{
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other))
+            return false;
+        return this.getSubject().equals(((StudentSubjectBlockStats) other).getSubject());
     }
 }

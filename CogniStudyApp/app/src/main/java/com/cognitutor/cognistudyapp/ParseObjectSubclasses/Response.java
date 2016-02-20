@@ -26,6 +26,6 @@ public class Response extends ParseObject {
         put(Columns.correct, correct);
         put(Columns.selectedAnswer, selectedAnswer);
         put(Columns.rating, rating);
-        SubclassUtils.addToSaveQueue(this);
+//        SubclassUtils.addToSaveQueue(this);
     }
 }

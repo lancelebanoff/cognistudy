@@ -28,6 +28,7 @@ public abstract class StudentBlockStats extends ParseObject{
     public abstract void setBlockNum();
 
     private static Map<Class<? extends StudentBlockStats>, StudentBlockStatsSubclassInterface> subclasses;
+    private static SubclassUtils subclassUtils = new SubclassUtils();
 
     interface StudentBlockStatsSubclassInterface {
         ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category);
@@ -40,6 +41,11 @@ public abstract class StudentBlockStats extends ParseObject{
         public static final String total = "total";
         public static final String correct = "correct";
     }
+
+    public String getBaseUserId() { return getString(SuperColumns.baseUserId); }
+    public int getBlockNum() { return getInt(SuperColumns.blockNum); }
+    public int getTotal() { return getInt(SuperColumns.total); }
+    public int getCorrect() { return getInt(SuperColumns.correct); }
 
     public StudentBlockStats() {
 //        if(!App.isInitFinished() || !UserUtils.isUserLoggedIn())
@@ -71,7 +77,7 @@ public abstract class StudentBlockStats extends ParseObject{
 //                return null;
 //            }
 //        });
-        SubclassUtils.addToSaveQueue(this);
+        subclassUtils.addToSaveQueue(this);
     }
 
     public static Task<Boolean> incrementAll(final String category, final boolean correct) {
@@ -96,7 +102,7 @@ public abstract class StudentBlockStats extends ParseObject{
             .continueWithTask(new Continuation<Void, Task<Boolean>>() {
                 @Override
                 public Task<Boolean> then(Task<Void> task) throws Exception {
-                    return SubclassUtils.saveAllInBackground();
+                    return subclassUtils.saveAllInBackground();
                 }
             });
     }
@@ -136,7 +142,7 @@ public abstract class StudentBlockStats extends ParseObject{
         if(correct)
             increment(SuperColumns.correct);
         Log.i("total", Integer.toString(getInt(SuperColumns.total)));
-        SubclassUtils.addToSaveQueue(this);
+        subclassUtils.addToSaveQueue(this);
     }
 
     private static void createIfNecessaryAndIncrement(StudentBlockStats blockStats, Class clazz,
@@ -170,36 +176,47 @@ public abstract class StudentBlockStats extends ParseObject{
     public static void setTestDate(Date date) { testDate = date; }
 
     protected static ParseQuery<StudentBlockStats> getDayStats(ParseQuery<StudentBlockStats> query) {
-//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentDayBlockNum());
-        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getDayBlockNum(testDate));
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentDayBlockNum());
+//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getDayBlockNum(testDate));
     }
 
     protected static ParseQuery<StudentBlockStats> getMonthStats(ParseQuery<StudentBlockStats> query) {
-//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentMonthBlockNum());
-        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getMonthBlockNum(testDate));
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentMonthBlockNum());
+//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getMonthBlockNum(testDate));
     }
 
     protected static ParseQuery<StudentBlockStats> getTridayStats(ParseQuery<StudentBlockStats> query) {
-//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentTridayBlockNum());
-        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getTridayBlockNum(testDate));
+        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getCurrentTridayBlockNum());
+//        return query.whereEqualTo(SuperColumns.blockNum, DateUtils.getTridayBlockNum(testDate));
     }
 
     protected void setDayBlockNum() {
-//        doSetBlockNum(DateUtils.getCurrentDayBlockNum());
-        doSetBlockNum(DateUtils.getDayBlockNum(testDate));
+        doSetBlockNum(DateUtils.getCurrentDayBlockNum());
+//        doSetBlockNum(DateUtils.getDayBlockNum(testDate));
     }
 
     protected void setTridayBlockNum() {
-//        doSetBlockNum(DateUtils.getCurrentTridayBlockNum());
-        doSetBlockNum(DateUtils.getTridayBlockNum(testDate));
+        doSetBlockNum(DateUtils.getCurrentTridayBlockNum());
+//        doSetBlockNum(DateUtils.getTridayBlockNum(testDate));
     }
 
     protected void setMonthBlockNum() {
-//        doSetBlockNum(DateUtils.getCurrentMonthBlockNum());
-        doSetBlockNum(DateUtils.getMonthBlockNum(testDate));
+        doSetBlockNum(DateUtils.getCurrentMonthBlockNum());
+//        doSetBlockNum(DateUtils.getMonthBlockNum(testDate));
     }
 
     private void doSetBlockNum(int num) {
         put(SuperColumns.blockNum, num);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if(this.getClass() != other.getClass())
+            return false;
+        StudentBlockStats otherBlockStats = (StudentBlockStats) other;
+        if(!this.getBaseUserId().equals(otherBlockStats.getBaseUserId())
+                || this.getBlockNum() != otherBlockStats.getBlockNum())
+            return false;
+        return true;
     }
 }

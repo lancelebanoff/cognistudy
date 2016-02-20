@@ -24,9 +24,12 @@ import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SubclassUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -156,5 +159,24 @@ public class MainActivity extends AuthenticationActivity {
     }
     private void test() {
 //        DateUtils.test();
+
+        SubclassUtils su = new SubclassUtils();
+
+        StudentCategoryDayStats obj = new StudentCategoryDayStats();
+        initFields(obj, Constants.Category.SENTENCE_COMPLETION, 1, su);
+
+        obj = new StudentCategoryDayStats();
+        initFields(obj, Constants.Category.ALGEBRA, 2, su);
+
+//        su.saveAllInBackground();
+    }
+
+    private void initFields(StudentBlockStats blockStats, String category, int total, SubclassUtils su) {
+        blockStats.put(StudentBlockStats.SuperColumns.baseUserId, UserUtils.getCurrentUserId());
+        blockStats.put(StudentBlockStats.SuperColumns.total, total);
+        blockStats.put(StudentBlockStats.SuperColumns.correct, 0);
+        blockStats.setSubjectOrCategory(category);
+        blockStats.setBlockNum();
+        su.addToSaveQueue(blockStats);
     }
 }

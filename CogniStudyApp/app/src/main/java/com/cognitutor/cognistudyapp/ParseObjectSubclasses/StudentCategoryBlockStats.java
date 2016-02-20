@@ -20,6 +20,8 @@ public abstract class StudentCategoryBlockStats extends StudentBlockStats {
         public static final String category = "category";
     }
 
+    public String getCategory() { return getString(Columns.category); }
+
     protected static ParseQuery getCurrentUserQuery(String className, String category) {
         return getCurrentUserQuery(className)
                 .whereEqualTo(Columns.category, category);
@@ -28,5 +30,12 @@ public abstract class StudentCategoryBlockStats extends StudentBlockStats {
     @Override
     public void setSubjectOrCategory(String category) {
         put(Columns.category, category);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if(!super.equals(other))
+            return false;
+        return this.getCategory().equals(((StudentCategoryBlockStats) other).getCategory());
     }
 }
