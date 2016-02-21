@@ -1,6 +1,5 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -9,28 +8,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
-import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.FindCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 import com.parse.ParseUser;
 
@@ -38,11 +30,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import bolts.Capture;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -59,7 +48,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private ListView theirTurnListView;
     private ListView pastChallengeListView;
 
-    public static ArrayAdapter<AnsweredQuestionId> answeredQuestionIdAdapter;
+    public static ArrayAdapter<ParseObject> answeredQuestionIdAdapter;
     private ListView answeredQuestionIdsListView;
 
     public TextView txtChange;
@@ -122,7 +111,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     private void createAnsweredQuestionIdsListView(View rootView) {
 
-        answeredQuestionIdAdapter = new ArrayAdapter<AnsweredQuestionId>(rootView.getContext(),
+        answeredQuestionIdAdapter = new ArrayAdapter<>(rootView.getContext(),
                 R.layout.list_item_answered_question_id, R.id.txtAnsweredQuestion);
         answeredQuestionIdsListView = (ListView) rootView.findViewById(R.id.listAnsweredQuestionIds);
         answeredQuestionIdsListView.setAdapter(answeredQuestionIdAdapter);

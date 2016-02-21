@@ -1,17 +1,10 @@
 package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.util.Log;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
-import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -21,7 +14,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import bolts.Capture;
 import bolts.Continuation;
@@ -192,36 +184,18 @@ public class QueryUtils {
     //</editor-fold>
 
     //<editor-fold desc="findCacheThenNetworkInBackground">
-    public class CacheThenNetworkHelper {
-
-        volatile long lastCancelled;
-
-        public <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(
-                ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
-                final String pinName, final boolean pinResult) {
-
-            final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
-            final ParseQuery<T> networkQuery = builder.buildQuery();
-            return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult, this);
-        }
-
-        public void cancelAllQueries() {
-            lastCancelled = System.currentTimeMillis();
-        }
-    }
-
     public static <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(
             ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
             final String pinName, final boolean pinResult) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult, null);
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult, null);
     }
 
-    private static <T extends ParseObject> Task<List<T>> doFindCacheThenNetworkInBackground(
-            final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery,
-            final OnDataLoadedListener<T> listener, final String pinName, final boolean pinResult, final CacheThenNetworkHelper helper) {
+    protected <T extends ParseObject> Task<List<T>> doFindCacheThenNetworkInBackground(
+            final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery, final OnDataLoadedListener<T> listener,
+            final String pinName, final boolean pinResult, final QueryUtilsCacheThenNetworkHelper helper) {
 
         final long startTime = System.currentTimeMillis();
 
@@ -253,7 +227,7 @@ public class QueryUtils {
         });
     }
 
-    private static boolean isCancelled(CacheThenNetworkHelper helper, long startTime) {
+    private static boolean isCancelled(QueryUtilsCacheThenNetworkHelper helper, long startTime) {
         return helper != null && helper.lastCancelled > startTime;
     }
 
@@ -400,3 +374,4 @@ public class QueryUtils {
     }
     //</editor-fold>
 }
+

@@ -2,7 +2,6 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
@@ -12,19 +11,24 @@ import com.cognitutor.cognistudyapp.Adapters.CogniParseQueryAdapter;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseQueryAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import bolts.Continuation;
+import bolts.Task;
+
 /**
  * Created by Kevin on 1/14/2016.
  */
-public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
+public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> implements QueryUtils.OnDataLoadedListener<PublicUserData> {
 
     private Activity mActivity;
     private PeopleListOnClickHandler mOnClickHandler;
@@ -32,6 +36,8 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
     private static Lock mLock;
     private volatile List<ParseObject> lastSearchObjects;
     private int lastFilteredSize;
+    private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
+    private List<PublicUserData> cachedPublicUserDataList;
 
     public PeopleQueryAdapter(Context context, PeopleListOnClickHandler onClickHandler) {
         super(context, new CogniParseQueryAdapter.QueryFactory<ParseObject>() {
@@ -42,6 +48,10 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
         mActivity = (Activity) context;
         mOnClickHandler = onClickHandler;
         mLock = new ReentrantLock();
+        mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
+        try {
+            cachedPublicUserDataList = getDefaultQuery().find();
+        } catch (ParseException e) { e.printStackTrace(); cachedPublicUserDataList = null; }
         reset();
     }
 
@@ -60,7 +70,7 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
         currentQuery = "";
     }
 
-    private static ParseQuery getDefaultQuery() {
+    private static ParseQuery<PublicUserData> getDefaultQuery() {
 
         return PublicUserData.getQuery()
                 .fromLocalDatastore()
@@ -111,25 +121,78 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
         public RoundedImageView imgProfile;
     }
 
+    @Override
+    public Activity getActivityForUIThread() {
+        return mActivity;
+    }
+
+    @Override
+    public void onDataLoaded(List<PublicUserData> list) {
+        Iterator<ParseObject> oldIterator = objects.iterator();
+        while(oldIterator.hasNext()) {
+            ParseObject oldObj = oldIterator.next();
+            if(oldObj == null)
+                break;
+            PublicUserData oldPud = (PublicUserData) oldObj;
+            boolean found = false;
+            Iterator<PublicUserData> newIterator = list.iterator();
+            while(newIterator.hasNext()) {
+                PublicUserData newPud = newIterator.next();
+                if(oldPud.getObjectId().equals(newPud.getObjectId())) {
+                    found = true;
+                    list.remove(newPud);
+                    break;
+                }
+            }
+            if(!found) {
+                objects.remove(oldObj);
+            }
+        }
+        List<ParseObject> converted = new ArrayList<>();
+        for(PublicUserData pud : list) {
+            converted.add(pud);
+        }
+        objects.addAll(converted);
+//        objects = converted;
+        notifyDataSetChanged();
+        lastSearchObjects = cloneLastSearch();
+    }
+
     public void search(final String queryText) {
 
         final String q = convertToSearchable(queryText);
+        final PeopleQueryAdapter thisAdapter = this;
 
         if(currentQuery.equals(q))
             return;
         currentQuery = q;
 
-        mLock.lock();
-        cancelAllQueries();
+        mCacheThenNetworkHelper.cancelAllQueries();
 
-        ParseQuery<PublicUserData> startsWithQuery = PublicUserData.getQuery()
-                .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
+        mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+            @Override
+            public ParseQuery<PublicUserData> buildQuery() {
+                return PublicUserData.getQuery()
+                        .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
+            }
+        }, thisAdapter, null, false)
+        .continueWithTask(new Continuation<List<PublicUserData>, Task<List<PublicUserData>>>() {
+            @Override
+            public Task<List<PublicUserData>> then(Task<List<PublicUserData>> task) throws Exception {
 
-        setQueryFactory(startsWithQuery);
-        addOnQueryLoadListener(getFirstSearchListener(q));
+                //If the user cancelled the search, the previous task will return null
+                if (task.getResult() == null)
+                    return null;
 
-        loadObjects(mLock);
-        mLock.unlock();
+                return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+                    @Override
+                    public ParseQuery<PublicUserData> buildQuery() {
+                        return PublicUserData.getQuery()
+                                .whereContains(PublicUserData.Columns.searchableDisplayName, q);
+                    }
+                }, thisAdapter, null, false);
+            }
+        });
     }
 
     private OnQueryLoadListener getFirstSearchListener(final String q) {
@@ -211,6 +274,22 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> {
                     listToFilter = lastSearchObjects;
                 else
                     listToFilter = objects;
+
+                List<PublicUserData> cachedPudsToAdd = new ArrayList<>();
+                for(PublicUserData fromCache : cachedPublicUserDataList) {
+                    boolean found = false;
+                    for(ParseObject fromListParseObject : listToFilter) {
+                        PublicUserData fromList = (PublicUserData) fromListParseObject;
+                        if(fromCache.getObjectId().equals(fromList.getObjectId())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found) {
+                        cachedPudsToAdd.add(fromCache);
+                    }
+                }
+                listToFilter.addAll(cachedPudsToAdd);
 
                 if(q != null && q.length() > 0) {
                     List<PublicUserData> filtered = new ArrayList<>();
