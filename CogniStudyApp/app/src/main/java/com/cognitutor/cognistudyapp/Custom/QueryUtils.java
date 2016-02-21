@@ -192,23 +192,45 @@ public class QueryUtils {
     //</editor-fold>
 
     //<editor-fold desc="findCacheThenNetworkInBackground">
+    public class CacheThenNetworkHelper {
+
+        long lastCancelled;
+
+        public <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(
+                ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
+                final String pinName, final boolean pinResult) {
+
+            final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
+            final ParseQuery<T> networkQuery = builder.buildQuery();
+            return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult, this);
+        }
+
+        public void cancelAllQueries() {
+            lastCancelled = System.currentTimeMillis();
+        }
+    }
+
     public static <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(
             ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
             final String pinName, final boolean pinResult) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult);
+        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult, null);
     }
 
     private static <T extends ParseObject> Task<List<T>> doFindCacheThenNetworkInBackground(
             final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery,
-            final OnDataLoadedListener<T> listener, final String pinName, final boolean pinResult) {
+            final OnDataLoadedListener<T> listener, final String pinName, final boolean pinResult, final CacheThenNetworkHelper helper) {
+
+        final long startTime = System.currentTimeMillis();
 
         return Task.callInBackground(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
                 final List<T> localResults = doLocalFindQuery(localDataQuery);
+                if (isCancelled(helper, startTime))
+                    return null;
                 runOnDataLoadedOnUIThread(listener, localResults);
 
                 List<T> networkResults = doNetworkFindQuery(networkQuery);
@@ -223,10 +245,16 @@ public class QueryUtils {
                 } else if (pinResult) {
                     ParseObjectUtils.pinAllInBackground(combined);
                 }
+                if (isCancelled(helper, startTime))
+                    return null;
                 runOnDataLoadedOnUIThread(listener, combined);
                 return combined;
             }
         });
+    }
+
+    private static boolean isCancelled(CacheThenNetworkHelper helper, long startTime) {
+        return helper != null && helper.lastCancelled > startTime;
     }
 
     private static <T extends ParseObject> void runOnDataLoadedOnUIThread(final OnDataLoadedListener<T> listener, final List<T> list) {
@@ -303,6 +331,7 @@ public class QueryUtils {
     }
     //</editor-fold>
 
+    //<editor-fold desc="helper functions">
     private static <T extends ParseObject> Task<T> getCompletionTask(T result) {
         TaskCompletionSource<T> completionSource = new TaskCompletionSource<T>();
         completionSource.setResult(result);
@@ -369,4 +398,5 @@ public class QueryUtils {
             return null;
         }
     }
+    //</editor-fold>
 }
