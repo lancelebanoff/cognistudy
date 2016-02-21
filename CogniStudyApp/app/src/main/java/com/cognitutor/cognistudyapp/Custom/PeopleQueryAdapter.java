@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -128,7 +129,14 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> impl
 
     @Override
     public void onDataLoaded(List<PublicUserData> list) {
-        Iterator<ParseObject> oldIterator = objects.iterator();
+        mLock.lock();
+        ConcurrentLinkedQueue<ParseObject> oldObjects = new ConcurrentLinkedQueue<>();
+        for(ParseObject oldObj : objects) {
+            oldObjects.add(oldObj);
+        }
+        int firstChangedIdx = Integer.MAX_VALUE;
+        int idx = 0;
+        Iterator<ParseObject> oldIterator = oldObjects.iterator();
         while(oldIterator.hasNext()) {
             ParseObject oldObj = oldIterator.next();
             if(oldObj == null)
@@ -141,12 +149,14 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> impl
                 if(oldPud.getObjectId().equals(newPud.getObjectId())) {
                     found = true;
                     list.remove(newPud);
+                    firstChangedIdx = Math.min(firstChangedIdx, idx);
                     break;
                 }
             }
             if(!found) {
                 objects.remove(oldObj);
             }
+            idx++;
         }
         List<ParseObject> converted = new ArrayList<>();
         for(PublicUserData pud : list) {
@@ -154,8 +164,11 @@ public class PeopleQueryAdapter extends CogniParseQueryAdapter<ParseObject> impl
         }
         objects.addAll(converted);
 //        objects = converted;
+        for(int i=firstChangedIdx; i<objects.size(); i++)
+
         notifyDataSetChanged();
         lastSearchObjects = cloneLastSearch();
+        mLock.unlock();
     }
 
     public void search(final String queryText) {
