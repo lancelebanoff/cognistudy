@@ -164,6 +164,6 @@ public class MainActivity extends AuthenticationActivity {
     }
     private void test() {
 //        DateUtils.test();
-//        QueryUtils.testCacheThenNetwork();
+        QueryUtils.testCacheThenNetwork();
     }
 }

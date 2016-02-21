@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -117,12 +118,6 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
         createPastChallengeListView(rootView);
-        QueryUtils.findCacheThenNetworkInBackground(new QueryUtils.ParseQueryBuilder<AnsweredQuestionId>() {
-            @Override
-            public ParseQuery<AnsweredQuestionId> buildQuery() {
-                return ParseQuery.getQuery(AnsweredQuestionId.class);
-            }
-        }, new Capture<List<AnsweredQuestionId>>(), MainFragment.answeredQuestionIdAdapter, "AnsweredQuestionId", true);
     }
 
     private void createAnsweredQuestionIdsListView(View rootView) {

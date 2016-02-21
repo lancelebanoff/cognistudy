@@ -37,6 +37,11 @@ public class QueryUtils {
         ParseQuery<TClass> buildQuery();
     }
 
+    public interface OnDataLoadedListener<T extends ParseObject> {
+        Activity getActivityForUIThread();
+        void onDataLoaded(List<T> list);
+    }
+
     // <editor-fold desc="findCacheElseNetworkInBackground">
     public static <TClass extends ParseObject> Task<List<TClass>> findPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder,
                                                                                                  String pinName, boolean pinResult) {
@@ -188,32 +193,23 @@ public class QueryUtils {
 
     //<editor-fold desc="findCacheThenNetworkInBackground">
     public static <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(
-            ParseQueryBuilder<T> builder, final Capture<List<T>> list, final ArrayAdapter<T> adapter,
+            ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
             final String pinName, final boolean pinResult) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, list, adapter, pinName, pinResult);
+        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult);
     }
 
     private static <T extends ParseObject> Task<List<T>> doFindCacheThenNetworkInBackground(
             final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery,
-            final Capture<List<T>> list, final ArrayAdapter<T> adapter, final String pinName, final boolean pinResult) {
+            final OnDataLoadedListener<T> listener, final String pinName, final boolean pinResult) {
 
         return Task.callInBackground(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
                 final List<T> localResults = doLocalFindQuery(localDataQuery);
-//                list.set(localResults);
-
-                ((Activity) adapter.getContext()).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.clear();
-                        adapter.addAll(localResults);
-                        adapter.notifyDataSetChanged();
-                    }
-                });
+                runOnDataLoadedOnUIThread(listener, localResults);
 
                 List<T> networkResults = doNetworkFindQuery(networkQuery);
                 final List<T> combined = new ArrayList<T>();
@@ -227,18 +223,39 @@ public class QueryUtils {
                 } else if (pinResult) {
                     ParseObjectUtils.pinAllInBackground(combined);
                 }
-//                list.set(combined);
-                ((Activity) adapter.getContext()).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.clear();
-                        adapter.addAll(combined);
-                        adapter.notifyDataSetChanged();
-                    }
-                });
+                runOnDataLoadedOnUIThread(listener, combined);
                 return combined;
             }
         });
+    }
+
+    private static <T extends ParseObject> void runOnDataLoadedOnUIThread(final OnDataLoadedListener<T> listener, final List<T> list) {
+        listener.getActivityForUIThread().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                listener.onDataLoaded(list);
+            }
+        });
+    }
+
+    private static <T extends ParseObject> void addFromLocalOrNetwork(T fromLocal, List<T> networkResults, List<T> combined) {
+
+        String localId = fromLocal.getObjectId();
+        Date localUpdatedAt = fromLocal.getUpdatedAt();
+
+        Iterator<T> iterator = networkResults.iterator();
+        while(iterator.hasNext()) {
+            T fromNetwork = iterator.next();
+            if(localId != null && localId.equals(fromNetwork.getObjectId())) {
+                if(localUpdatedAt == null || fromNetwork.getUpdatedAt().after(localUpdatedAt))
+                    combined.add(fromNetwork);
+                else
+                    combined.add(fromLocal);
+                networkResults.remove(fromNetwork);
+                return;
+            }
+        }
+        combined.add(fromLocal);
     }
 
     public static void testCacheThenNetwork() {
@@ -266,77 +283,25 @@ public class QueryUtils {
                 public ParseQuery<AnsweredQuestionId> buildQuery() {
                     return ParseQuery.getQuery(AnsweredQuestionId.class);
                 }
-            }, new Capture<List<AnsweredQuestionId>>(), MainFragment.answeredQuestionIdAdapter, "AnsweredQuestionId", true);
+            }, new QueryUtils.OnDataLoadedListener<AnsweredQuestionId>() {
+                @Override
+                public Activity getActivityForUIThread() {
+                    return (Activity) MainFragment.answeredQuestionIdAdapter.getContext();
+                }
+
+                @Override
+                public void onDataLoaded(List<AnsweredQuestionId> list) {
+                    MainFragment.answeredQuestionIdAdapter.clear();
+                    MainFragment.answeredQuestionIdAdapter.addAll(list);
+                    MainFragment.answeredQuestionIdAdapter.notifyDataSetChanged();
+                }
+            }, "AnsweredQuestionId", true);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
     //</editor-fold>
-
-    //<editor-fold desc="findCacheThenNetwork">
-    public static <T extends ParseObject> List<T> findCacheThenNetwork(
-            ParseQueryBuilder<T> builder, final Capture<List<T>> list, final ArrayAdapter<T> adapter,
-            final String pinName, final boolean pinResult) {
-
-        final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
-        final ParseQuery<T> networkQuery = builder.buildQuery();
-        return doFindCacheThenNetwork(localDataQuery, networkQuery, list, adapter, pinName, pinResult);
-    }
-
-    private static <T extends ParseObject> List<T> doFindCacheThenNetwork(
-            final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery,
-            final Capture<List<T>> list, final ArrayAdapter<T> adapter, final String pinName, final boolean pinResult) {
-
-        List<T> localResults = doLocalFindQuery(localDataQuery);
-//                list.set(localResults);
-        adapter.clear();
-        adapter.notifyDataSetChanged();
-
-        for(int i=0; i<500000000; i++) {;}
-        adapter.addAll(localResults);
-        adapter.notifyDataSetChanged();
-
-        for(int i=0; i<100000000; i++) {;}
-        List<T> networkResults = doNetworkFindQuery(networkQuery);
-        List<T> combined = new ArrayList<T>();
-        for (T fromLocal : localResults) {
-            addFromLocalOrNetwork(fromLocal, networkResults, combined);
-        }
-        combined.addAll(networkResults);
-        if (pinName != null && pinResult) {
-            ParseObjectUtils.unpinAllInBackground(pinName);
-            ParseObjectUtils.pinAllInBackground(pinName, combined);
-        } else if (pinResult) {
-            ParseObjectUtils.pinAllInBackground(combined);
-        }
-//                list.set(combined);
-        adapter.clear();
-        adapter.addAll(combined);
-        adapter.notifyDataSetChanged();
-        return combined;
-    }
-    //</editor-fold>
-
-    private static <T extends ParseObject> void addFromLocalOrNetwork(T fromLocal, List<T> networkResults, List<T> combined) {
-
-        String localId = fromLocal.getObjectId();
-        Date localUpdatedAt = fromLocal.getUpdatedAt();
-
-        Iterator<T> iterator = networkResults.iterator();
-        while(iterator.hasNext()) {
-            T fromNetwork = iterator.next();
-            if(localId != null && localId.equals(fromNetwork.getObjectId())) {
-                if(localUpdatedAt == null || fromNetwork.getUpdatedAt().after(localUpdatedAt))
-                    combined.add(fromNetwork);
-                else
-                    combined.add(fromLocal);
-                networkResults.remove(fromNetwork);
-                return;
-            }
-        }
-        combined.add(fromLocal);
-    }
 
     private static <T extends ParseObject> Task<T> getCompletionTask(T result) {
         TaskCompletionSource<T> completionSource = new TaskCompletionSource<T>();
