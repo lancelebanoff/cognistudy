@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="Your turn!"
         android:id="@+id/btnYourTurn"
-        android:onClick="navigateToQuestionActivity"
+        android:onClick="onClick_btnYourTurn"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:visibility="invisible"/>

@@ -5,6 +5,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.Date;
+import java.util.List;
 
 import bolts.Task;
 
@@ -31,6 +32,7 @@ public class Challenge extends ParseObject {
         public static final String accepted = "accepted";
         public static final String activated = "activated";
         public static final String hasEnded = "hasEnded";
+        public static final String thisTurnQuestionIds = "thisTurnQuestionIds";
     }
 
     public Challenge(ChallengeUserData user1Data, String challengeType) {
@@ -41,6 +43,7 @@ public class Challenge extends ParseObject {
         setAccepted(false);
         setActivated(false);
         setHasEnded(false);
+        setQuesAnsThisTurn(0);
         // TODO:2 set number of shots after answering questions
         setNumShotsRemaining(4);
     }
@@ -119,6 +122,12 @@ public class Challenge extends ParseObject {
         put(Columns.quesAnsThisTurn, quesAnsThisTurn);
     }
 
+    public int incrementAndGetQuesAnsThisTurn() {
+        int quesAnsThisTurn = getQuesAnsThisTurn() + 1;
+        setQuesAnsThisTurn(quesAnsThisTurn);
+        return quesAnsThisTurn;
+    }
+
     public int getNumShotsRemaining() {
         return getInt(Columns.numShotsRemaining);
     }
@@ -193,5 +202,13 @@ public class Challenge extends ParseObject {
 
     public void setHasEnded(boolean hasEnded) {
         put(Columns.hasEnded, hasEnded);
+    }
+
+    public List<String> getThisTurnQuestionIds() {
+        return (List<String>) get(Columns.thisTurnQuestionIds);
+    }
+
+    public void setThisTurnQuestionIds(List<String> thisTurnQuestionIds) {
+        put(Columns.thisTurnQuestionIds, thisTurnQuestionIds);
     }
 }

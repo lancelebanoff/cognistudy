@@ -332,6 +332,7 @@ public class BattleshipBoardManager {
         String otherTurnUserId = mChallenge.getOtherTurnUserId();
         mChallenge.setCurTurnUserId(otherTurnUserId);
         mChallenge.setOtherTurnUserId(curTurnUserId);
+        mChallenge.setQuesAnsThisTurn(0);
         // TODO:2 set numShotsRemaining after answering questions
         mChallenge.setNumShotsRemaining(4);
         mChallenge.incrementNumTurns();

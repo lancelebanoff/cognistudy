@@ -67,6 +67,10 @@ public class Constants {
         }
     }
 
+    public static class Questions {
+        public static final int NUM_QUESTIONS_PER_TURN = 3;
+    }
+
     public static class GameBoard {
         public static int NUM_ROWS = 11;
         public static int NUM_COLUMNS = 8;
