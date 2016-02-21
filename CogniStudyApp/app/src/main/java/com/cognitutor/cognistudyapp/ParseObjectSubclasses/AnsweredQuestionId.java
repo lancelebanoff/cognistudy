@@ -15,11 +15,17 @@ public class AnsweredQuestionId extends ParseObject{
     }
 
     public AnsweredQuestionId() {}
-    public AnsweredQuestionId(String questionId, boolean saveNow) {
+    public AnsweredQuestionId(String questionId) {
         put(Columns.questionId, questionId);
-        if(saveNow)
-            saveInBackground();
-        else
-            ParseObjectUtils.addToSaveQueue(this);
+    }
+
+    @Override
+    public String toString() {
+        String objectId = getObjectId();
+        String s = "objectId: ";
+        s += (objectId == null ? "null" : objectId) + ", id: ";
+        String id = getString(Columns.questionId);
+        s += (id == null ? "null" : id);
+        return s;
     }
 }

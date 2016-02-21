@@ -1,14 +1,18 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
@@ -16,6 +20,8 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Custom.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
@@ -35,6 +41,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import bolts.Capture;
+
 /**
  * Created by Lance on 12/27/2015.
  */
@@ -49,6 +57,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private ListView yourTurnListView;
     private ListView theirTurnListView;
     private ListView pastChallengeListView;
+
+    public static ArrayAdapter<AnsweredQuestionId> answeredQuestionIdAdapter;
+    private ListView answeredQuestionIdsListView;
 
     public TextView txtChange;
 
@@ -86,6 +97,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         createTheirTurnListView(rootView);
         createPastChallengeListView(rootView);
 
+        createAnsweredQuestionIdsListView(rootView);
+
         return rootView;
     }
 
@@ -104,6 +117,26 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
         createPastChallengeListView(rootView);
+        QueryUtils.findCacheThenNetworkInBackground(new QueryUtils.ParseQueryBuilder<AnsweredQuestionId>() {
+            @Override
+            public ParseQuery<AnsweredQuestionId> buildQuery() {
+                return ParseQuery.getQuery(AnsweredQuestionId.class);
+            }
+        }, new Capture<List<AnsweredQuestionId>>(), MainFragment.answeredQuestionIdAdapter, "AnsweredQuestionId", true);
+    }
+
+    private void createAnsweredQuestionIdsListView(View rootView) {
+
+        answeredQuestionIdAdapter = new ArrayAdapter<AnsweredQuestionId>(rootView.getContext(),
+                R.layout.list_item_answered_question_id, R.id.txtAnsweredQuestion);
+        answeredQuestionIdsListView = (ListView) rootView.findViewById(R.id.listAnsweredQuestionIds);
+        answeredQuestionIdsListView.setAdapter(answeredQuestionIdAdapter);
+        answeredQuestionIdAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                setListViewHeightBasedOnChildren(answeredQuestionIdsListView);
+            }
+        });
     }
 
     private void createChallengeRequestListView(View rootView) {
@@ -242,13 +275,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                Intent intent = new Intent(getActivity(), QuestionActivity.class);
-                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
-                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
-//                eO4TCrdBdn
-//                fF4lsHt2iW
-//                zpyHpKMb5S
-                startActivity(intent);
+                QueryUtils.testCacheThenNetwork();
+//                Intent intent = new Intent(getActivity(), QuestionActivity.class);
+//                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
+//                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
+//                //eO4TCrdBdn
+//                //fF4lsHt2iW
+//                //zpyHpKMb5S
+//                startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
