@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -97,18 +98,30 @@ public class BattleshipBoardManager {
         mShipsGridLayout = shipsGridLayout;
         mShipsGridLayout.setColumnCount(Constants.GameBoard.NUM_COLUMNS);
         mShipsGridLayout.setRowCount(Constants.GameBoard.NUM_ROWS);
+        ViewGroup.LayoutParams layoutParams = mShipsGridLayout.getLayoutParams();
+        layoutParams.width = mShipsGridLayout.getHeight() * Constants.GameBoard.NUM_COLUMNS
+                / Constants.GameBoard.NUM_ROWS;
+        mShipsGridLayout.setLayoutParams(layoutParams);
     }
 
     public void setTargetsGridLayout(GridLayout boardSpacesGridLayout) {
         mTargetsGridLayout = boardSpacesGridLayout;
         mTargetsGridLayout.setColumnCount(Constants.GameBoard.NUM_COLUMNS);
         mTargetsGridLayout.setRowCount(Constants.GameBoard.NUM_ROWS);
+        ViewGroup.LayoutParams layoutParams = mTargetsGridLayout.getLayoutParams();
+        layoutParams.width = mTargetsGridLayout.getHeight() * Constants.GameBoard.NUM_COLUMNS
+                / Constants.GameBoard.NUM_ROWS;
+        mTargetsGridLayout.setLayoutParams(layoutParams);
     }
 
     public void setAnimationsGridLayout(GridLayout animationsGridLayout) {
         mAnimationsGridLayout = animationsGridLayout;
         mAnimationsGridLayout.setColumnCount(Constants.GameBoard.NUM_COLUMNS);
         mAnimationsGridLayout.setRowCount(Constants.GameBoard.NUM_ROWS);
+        ViewGroup.LayoutParams layoutParams = mAnimationsGridLayout.getLayoutParams();
+        layoutParams.width = mAnimationsGridLayout.getHeight() * Constants.GameBoard.NUM_COLUMNS
+                / Constants.GameBoard.NUM_ROWS;
+        mAnimationsGridLayout.setLayoutParams(layoutParams);
     }
 
     public void drawAllEmptyTargets() {

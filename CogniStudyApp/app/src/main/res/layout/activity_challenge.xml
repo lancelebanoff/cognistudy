@@ -65,6 +65,7 @@
         android:id="@+id/shipsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
         android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnYourTurn" />
 
@@ -72,6 +73,7 @@
         android:id="@+id/targetsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
         android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnYourTurn" />
 
@@ -79,6 +81,7 @@
         android:id="@+id/animationsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
         android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnYourTurn" />
 
