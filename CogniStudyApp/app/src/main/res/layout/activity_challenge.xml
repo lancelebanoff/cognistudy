@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="Your turn!"
         android:id="@+id/btnYourTurn"
-        android:onClick="navigateToQuestionActivity"
+        android:onClick="onClick_btnYourTurn"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:visibility="invisible"/>
@@ -65,53 +65,30 @@
         android:id="@+id/shipsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/btnSwitchView"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnYourTurn" />
 
     <GridLayout
         android:id="@+id/targetsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/btnSwitchView"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnYourTurn" />
 
     <GridLayout
         android:id="@+id/animationsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/btnSwitchView"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnYourTurn" />
 
-    <com.cognitutor.cognistudyapp.Custom.RoundedImageView
-        android:id="@+id/imgProfileRounded1"
-        android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"
-        android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_toLeftOf="@+id/txtScore"
-        android:layout_alignParentTop="true"
-        android:layout_above="@+id/shipsGridLayout"
-        android:src="@drawable/default_profile_pic" />
-
-    <TextView
+    <include layout="@layout/header_challenge_score"
+        android:id="@+id/headerChallengeScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/txtScore"
-        android:text="@string/blank_score"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_toLeftOf="@+id/imgProfileRounded2" />
-
-    <com.cognitutor.cognistudyapp.Custom.RoundedImageView
-        android:id="@+id/imgProfileRounded2"
-        android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"
-        android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_above="@+id/shipsGridLayout"
-        android:src="@drawable/default_profile_pic" />
+        android:layout_alignParentTop="true"/>
 
 </RelativeLayout>

@@ -24,6 +24,9 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import bolts.Continuation;
 import bolts.Task;
 
@@ -73,7 +76,6 @@ public class ChallengeActivity extends CogniActivity {
     private void initializeBoard(final int viewingUser1or2) {
 
         hideSwitchViewButton();
-        // TODO:2 stop past challenge from crashing
 
         ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, mCurrentUser1or2, viewingUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
@@ -120,7 +122,7 @@ public class ChallengeActivity extends CogniActivity {
                         String currentUserId = PublicUserData.getPublicUserData().getBaseUserId();
                         boolean isCurrentUsersTurn = challenge.getCurTurnUserId().equals(currentUserId);
                         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
-                        if (isCurrentUsersTurn) {
+                        if (isCurrentUsersTurn && !challenge.getHasEnded()) {
                             btnYourTurn.setVisibility(View.VISIBLE);
                         } else {
                             btnYourTurn.setVisibility(View.INVISIBLE);
@@ -202,18 +204,58 @@ public class ChallengeActivity extends CogniActivity {
                 .setPositiveButton(R.string.yes_dialog_cancel_challenge, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         mBattleshipBoardManager.quitChallenge();
+                        Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
+                        btnYourTurn.setVisibility(View.INVISIBLE);
                     }
                 }).create().show();
     }
 
-    public void navigateToQuestionActivity(View view) {
+    public void onClick_btnYourTurn(View view) {
+        Challenge.getChallenge(mChallengeId)
+                .continueWith(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        int quesAnsThisTurn = challenge.getQuesAnsThisTurn();
+                        if (quesAnsThisTurn == Constants.Questions.NUM_QUESTIONS_PER_TURN) { // All questions have been answered
+                            navigateToBattleshipAttackActivity();
+                        } else {
+                            List<String> questionIds = challenge.getThisTurnQuestionIds(); // TODO:2 get the 3 chosen questions
+                            if (questionIds == null) {
+                                questionIds = chooseThreeQuestionIds(challenge); // TODO:2 choose 3 random questions
+                            }
+                            navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
+                        }
+
+                        return null;
+                    }
+                });
+    }
+
+    private List<String> chooseThreeQuestionIds(Challenge challenge) {
+        List<String> questionIds = new ArrayList<>();
+        questionIds.add("aSVEaMqEfB");
+        questionIds.add("fF4lsHt2iW");
+        questionIds.add("eO4TCrdBdn");
+        challenge.setThisTurnQuestionIds(questionIds);
+        return questionIds;
+    }
+
+    private void navigateToQuestionActivity(String questionId) {
         Intent intent = new Intent(this, QuestionActivity.class);
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
         intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
         intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
+        intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
 //        fF4lsHt2iW
 //        eO4TCrdBdn
+        startActivity(intent);
+    }
+
+    private void navigateToBattleshipAttackActivity() {
+        Intent intent = new Intent(this, BattleshipAttackActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mChallengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mCurrentUser1or2);
         startActivity(intent);
     }
 

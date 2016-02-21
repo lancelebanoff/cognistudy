@@ -5,8 +5,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
@@ -46,6 +48,7 @@ public class BattleshipBoardManager {
     private List<List<String>> mBoardPositionStatus;
     private boolean mCanBeAttacked;
     private int mNumShotsRemaining;
+    private TextView mTxtNumShotsRemaining;
 
     // Used for new challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
@@ -53,7 +56,6 @@ public class BattleshipBoardManager {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
-        mNumShotsRemaining = challenge.getNumShotsRemaining();
         mViewedChallengeUserData = challengeUserData;
     }
 
@@ -65,7 +67,6 @@ public class BattleshipBoardManager {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
-        mNumShotsRemaining = challenge.getNumShotsRemaining();
         mViewedChallengeUserData = viewedChallengeUserData;
         mCurrentUserData = currentUserData;
         mOpponentUserData = opponentUserData;
@@ -75,22 +76,52 @@ public class BattleshipBoardManager {
         retrieveBoardPositionStatus();
     }
 
+    public void startShowingNumShotsRemaining(TextView txtNumShotsRemaining) {
+        mTxtNumShotsRemaining = txtNumShotsRemaining;
+        mNumShotsRemaining = mChallenge.initializeAndGetNumShotsRemaining();
+        mChallenge.saveInBackground();
+        showNumShotsRemaining();
+    }
+
+    private void showNumShotsRemaining() {
+        final String text = mActivity.getResources().getString(R.string.num_shots_remaining)
+                + " " + mNumShotsRemaining;
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTxtNumShotsRemaining.setText(text);
+            }
+        });
+    }
+
     public void setShipsGridLayout(GridLayout shipsGridLayout) {
         mShipsGridLayout = shipsGridLayout;
         mShipsGridLayout.setColumnCount(Constants.GameBoard.NUM_COLUMNS);
         mShipsGridLayout.setRowCount(Constants.GameBoard.NUM_ROWS);
+        ViewGroup.LayoutParams layoutParams = mShipsGridLayout.getLayoutParams();
+        layoutParams.width = mShipsGridLayout.getHeight() * Constants.GameBoard.NUM_COLUMNS
+                / Constants.GameBoard.NUM_ROWS;
+        mShipsGridLayout.setLayoutParams(layoutParams);
     }
 
     public void setTargetsGridLayout(GridLayout boardSpacesGridLayout) {
         mTargetsGridLayout = boardSpacesGridLayout;
         mTargetsGridLayout.setColumnCount(Constants.GameBoard.NUM_COLUMNS);
         mTargetsGridLayout.setRowCount(Constants.GameBoard.NUM_ROWS);
+        ViewGroup.LayoutParams layoutParams = mTargetsGridLayout.getLayoutParams();
+        layoutParams.width = mTargetsGridLayout.getHeight() * Constants.GameBoard.NUM_COLUMNS
+                / Constants.GameBoard.NUM_ROWS;
+        mTargetsGridLayout.setLayoutParams(layoutParams);
     }
 
     public void setAnimationsGridLayout(GridLayout animationsGridLayout) {
         mAnimationsGridLayout = animationsGridLayout;
         mAnimationsGridLayout.setColumnCount(Constants.GameBoard.NUM_COLUMNS);
         mAnimationsGridLayout.setRowCount(Constants.GameBoard.NUM_ROWS);
+        ViewGroup.LayoutParams layoutParams = mAnimationsGridLayout.getLayoutParams();
+        layoutParams.width = mAnimationsGridLayout.getHeight() * Constants.GameBoard.NUM_COLUMNS
+                / Constants.GameBoard.NUM_ROWS;
+        mAnimationsGridLayout.setLayoutParams(layoutParams);
     }
 
     public void drawAllEmptyTargets() {
@@ -201,15 +232,10 @@ public class BattleshipBoardManager {
     public void saveGameBoard() {
         mGameBoard.setStatus(mBoardPositionStatus);
         mGameBoard.saveInBackground();
-
-        mViewedChallengeUserData.saveInBackground();
-
-        if(mNumShotsRemaining != 0) { // TODO:2 When questions are working, delete this if-statement
-            mChallenge.setNumShotsRemaining(mNumShotsRemaining);
-            mChallenge.saveInBackground();
-        }
-
         ParseObject.saveAllInBackground(mShips);
+        mViewedChallengeUserData.saveInBackground();
+        mChallenge.setNumShotsRemaining(mNumShotsRemaining);
+        mChallenge.saveInBackground();
     }
 
     public List<List<Ship>> createShipAt() {
@@ -297,8 +323,12 @@ public class BattleshipBoardManager {
             // If you haven't attacked the space yet, then change board position status
             case Constants.GameBoardPositionStatus.UNKNOWN:
             case Constants.GameBoardPositionStatus.DETECTION:
+                showNumShotsRemaining();
                 if(mNumShotsRemaining == 0) {
                     setOtherPlayerTurn();
+                } else {
+                    mChallenge.setNumShotsRemaining(mNumShotsRemaining);
+                    mChallenge.saveInBackground();
                 }
                 Ship shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
                 if(shipThatOccupiesPosition == null) {
@@ -332,8 +362,8 @@ public class BattleshipBoardManager {
         String otherTurnUserId = mChallenge.getOtherTurnUserId();
         mChallenge.setCurTurnUserId(otherTurnUserId);
         mChallenge.setOtherTurnUserId(curTurnUserId);
-        // TODO:2 set numShotsRemaining after answering questions
-        mChallenge.setNumShotsRemaining(4);
+        mChallenge.setQuesAnsThisTurn(0);
+        mChallenge.setCorrectAnsThisTurn(0);
         mChallenge.incrementNumTurns();
         mChallenge.setTimeLastPlayed(new Date());
         mChallenge.saveInBackground();

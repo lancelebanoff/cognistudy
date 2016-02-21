@@ -174,9 +174,6 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                 })
                 .setPositiveButton(R.string.yes_dialog_accept_challenge, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
-                        challenge.setAccepted(true);
-                        challenge.saveInBackground();
-
                         navigateToNewChallengeActivity(challenge.getObjectId(), user1or2);
                     }
                 }).create().show();

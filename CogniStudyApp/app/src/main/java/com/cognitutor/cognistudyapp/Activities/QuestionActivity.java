@@ -1,24 +1,14 @@
 package com.cognitutor.cognistudyapp.Activities;
 
-import android.app.Activity;
-import android.content.Context;
-import android.database.DataSetObserver;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -27,22 +17,15 @@ import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
-import com.cognitutor.cognistudyapp.Fragments.QuestionFragment;
-import com.cognitutor.cognistudyapp.Fragments.ResponseFragment;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
-import com.x5.template.Chunk;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.Reader;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import bolts.Continuation;
@@ -63,6 +46,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private Question question;
     private QuestionContents contents;
     private AnswerAdapter answerAdapter;
+    private Challenge mChallenge = null;
+    private int mQuesAnsThisTurn = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +60,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         avh.btnSetLatex.setOnClickListener(this);
         ClickableListItem.setQuestionAnswered(false);
         loadQuestion();
+
+        loadChallenge();
     }
 
     public void loadQuestion() {
@@ -122,6 +109,19 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         }
     }
 
+    private void loadChallenge() {
+        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        Challenge.getChallenge(challengeId)
+                .continueWith(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        mChallenge = task.getResult();
+
+                        return null;
+                    }
+                });
+    }
+
     private void addComponents() {
         View header = getLayoutInflater().inflate(R.layout.header_question, listView, false);
         View footer = getLayoutInflater().inflate(R.layout.footer_question, listView, false);
@@ -155,7 +155,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     public void showAnswer(View view) {
 
-        if(isSelectedAnswerCorrect()) {
+        boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
+        if(isSelectedAnswerCorrect) {
             avh.txtCorrectIncorrect.setText("Correct!");
         }
         else {
@@ -166,14 +167,46 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        viewSwitcher.showNext();
+        viewSwitcher.setVisibility(View.INVISIBLE);
+
+        incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
+    }
+
+    private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(mChallenge == null) {} // Wait until challenge is loaded
+
+                mQuesAnsThisTurn = mChallenge.incrementAndGetQuesAnsThisTurn();
+                if(isSelectedAnswerCorrect) {
+                    mChallenge.incrementCorrectAnsThisTurn();
+                }
+                mChallenge.saveInBackground();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Switch Submit button to Continue button
+                        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+                        viewSwitcher.setVisibility(View.VISIBLE);
+                        viewSwitcher.showNext();
+                    }
+                });
+            }
+        }).start();
     }
 
     public void navigateToNextActivity(View view) {
         String parentActivity = mIntent.getStringExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY);
         switch(parentActivity) {
             case Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY:
-                navigateToBattleshipAttackActivity();
+                if(mQuesAnsThisTurn == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
+                    navigateToBattleshipAttackActivity();
+                } else {
+                    String questionId = mChallenge.getThisTurnQuestionIds().get(mQuesAnsThisTurn);
+                    navigateToNextQuestionActivity(questionId);
+                }
                 break;
             case Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
                 navigateToParentActivity();
@@ -185,6 +218,18 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     }
 
     private void navigateToParentActivity() {
+        finish();
+    }
+
+    private void navigateToNextQuestionActivity(String questionId) {
+        Intent intent = new Intent(this, QuestionActivity.class);
+        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
+        intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
+//        fF4lsHt2iW
+//        eO4TCrdBdn
+        startActivity(intent);
         finish();
     }
 

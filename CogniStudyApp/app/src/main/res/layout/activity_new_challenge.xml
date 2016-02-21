@@ -94,12 +94,10 @@
             android:id="@+id/viewSwitcher"
             android:paddingTop="20dp" >
 
-            <TextView
+            <include layout="@layout/opponent_name_and_picture"
+                android:id="@+id/opponentNameAndPicture"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Player"
-                android:id="@+id/txtPlayerName" />
+                android:layout_height="wrap_content"/>
 
             <RadioGroup
                 android:id="@+id/rgOpponents"
