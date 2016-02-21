@@ -76,7 +76,6 @@ public class ChallengeActivity extends CogniActivity {
     private void initializeBoard(final int viewingUser1or2) {
 
         hideSwitchViewButton();
-        // TODO:2 stop past challenge from crashing
 
         ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, mCurrentUser1or2, viewingUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
