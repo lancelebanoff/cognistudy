@@ -206,7 +206,6 @@ public class BattleshipBoardManager {
         mGameBoard.saveInBackground();
         ParseObject.saveAllInBackground(mShips);
         mViewedChallengeUserData.saveInBackground();
-        // TODO:1 save numShotsRemaining after each shot, but make sure the calls execute in order
         mChallenge.setNumShotsRemaining(mNumShotsRemaining);
         mChallenge.saveInBackground();
     }
@@ -298,6 +297,9 @@ public class BattleshipBoardManager {
             case Constants.GameBoardPositionStatus.DETECTION:
                 if(mNumShotsRemaining == 0) {
                     setOtherPlayerTurn();
+                } else {
+                    mChallenge.setNumShotsRemaining(mNumShotsRemaining);
+                    mChallenge.saveInBackground();
                 }
                 Ship shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
                 if(shipThatOccupiesPosition == null) {
