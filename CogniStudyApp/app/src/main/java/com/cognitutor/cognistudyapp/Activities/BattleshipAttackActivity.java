@@ -52,6 +52,7 @@ public class BattleshipAttackActivity extends CogniActivity {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {
                         mBattleshipBoardManager = task.getResult();
+                        mBattleshipBoardManager.retrieveNumShotsRemaining();
 
                         runOnUiThread(new Runnable() {
                             @Override

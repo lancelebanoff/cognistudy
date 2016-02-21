@@ -33,6 +33,7 @@ public class Challenge extends ParseObject {
         public static final String activated = "activated";
         public static final String hasEnded = "hasEnded";
         public static final String thisTurnQuestionIds = "thisTurnQuestionIds";
+        public static final String correctAnsThisTurn = "correctAnsThisTurn";
     }
 
     public Challenge(ChallengeUserData user1Data, String challengeType) {
@@ -44,8 +45,8 @@ public class Challenge extends ParseObject {
         setActivated(false);
         setHasEnded(false);
         setQuesAnsThisTurn(0);
-        // TODO:2 set number of shots after answering questions
-        setNumShotsRemaining(4);
+        setCorrectAnsThisTurn(0);
+        setNumShotsRemaining(0);
     }
 
     public Challenge() {}
@@ -128,8 +129,14 @@ public class Challenge extends ParseObject {
         return quesAnsThisTurn;
     }
 
-    public int getNumShotsRemaining() {
-        return getInt(Columns.numShotsRemaining);
+    // If the number of shots has not been set yet, then set it. Then return the number of shots
+    public int initializeAndGetNumShotsRemaining() {
+        int numShotsRemaining = getInt(Columns.numShotsRemaining);
+        if(numShotsRemaining == 0) {
+            numShotsRemaining = getCorrectAnsThisTurn() + 1;
+            setNumShotsRemaining(numShotsRemaining);
+        }
+        return numShotsRemaining;
     }
 
     public void setNumShotsRemaining(int numShotsRemaining) {
@@ -210,5 +217,17 @@ public class Challenge extends ParseObject {
 
     public void setThisTurnQuestionIds(List<String> thisTurnQuestionIds) {
         put(Columns.thisTurnQuestionIds, thisTurnQuestionIds);
+    }
+
+    public int getCorrectAnsThisTurn() {
+        return getInt(Columns.correctAnsThisTurn);
+    }
+
+    public void setCorrectAnsThisTurn(int correctAnsThisTurn) {
+        put(Columns.correctAnsThisTurn, correctAnsThisTurn);
+    }
+
+    public void incrementCorrectAnsThisTurn() {
+        put(Columns.correctAnsThisTurn, getCorrectAnsThisTurn() + 1);
     }
 }

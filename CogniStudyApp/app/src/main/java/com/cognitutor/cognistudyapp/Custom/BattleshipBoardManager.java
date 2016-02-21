@@ -53,7 +53,6 @@ public class BattleshipBoardManager {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
-        mNumShotsRemaining = challenge.getNumShotsRemaining();
         mViewedChallengeUserData = challengeUserData;
     }
 
@@ -65,7 +64,6 @@ public class BattleshipBoardManager {
         mActivity = activity;
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
-        mNumShotsRemaining = challenge.getNumShotsRemaining();
         mViewedChallengeUserData = viewedChallengeUserData;
         mCurrentUserData = currentUserData;
         mOpponentUserData = opponentUserData;
@@ -73,6 +71,11 @@ public class BattleshipBoardManager {
         mShips = (ArrayList<Ship>) ships;
         retrieveShipDrawableDatas();
         retrieveBoardPositionStatus();
+    }
+
+    public void retrieveNumShotsRemaining() {
+        mNumShotsRemaining = mChallenge.initializeAndGetNumShotsRemaining();
+        mChallenge.saveInBackground();
     }
 
     public void setShipsGridLayout(GridLayout shipsGridLayout) {
@@ -201,15 +204,11 @@ public class BattleshipBoardManager {
     public void saveGameBoard() {
         mGameBoard.setStatus(mBoardPositionStatus);
         mGameBoard.saveInBackground();
-
-        mViewedChallengeUserData.saveInBackground();
-
-        if(mNumShotsRemaining != 0) { // TODO:2 When questions are working, delete this if-statement
-            mChallenge.setNumShotsRemaining(mNumShotsRemaining);
-            mChallenge.saveInBackground();
-        }
-
         ParseObject.saveAllInBackground(mShips);
+        mViewedChallengeUserData.saveInBackground();
+        // TODO:1 save numShotsRemaining after each shot, but make sure the calls execute in order
+        mChallenge.setNumShotsRemaining(mNumShotsRemaining);
+        mChallenge.saveInBackground();
     }
 
     public List<List<Ship>> createShipAt() {
@@ -333,8 +332,7 @@ public class BattleshipBoardManager {
         mChallenge.setCurTurnUserId(otherTurnUserId);
         mChallenge.setOtherTurnUserId(curTurnUserId);
         mChallenge.setQuesAnsThisTurn(0);
-        // TODO:2 set numShotsRemaining after answering questions
-        mChallenge.setNumShotsRemaining(4);
+        mChallenge.setCorrectAnsThisTurn(0);
         mChallenge.incrementNumTurns();
         mChallenge.setTimeLastPlayed(new Date());
         mChallenge.saveInBackground();

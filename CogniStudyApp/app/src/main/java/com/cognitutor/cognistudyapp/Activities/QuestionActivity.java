@@ -155,7 +155,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     public void showAnswer(View view) {
 
-        if(isSelectedAnswerCorrect()) {
+        boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
+        if(isSelectedAnswerCorrect) {
             avh.txtCorrectIncorrect.setText("Correct!");
         }
         else {
@@ -168,16 +169,19 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.setVisibility(View.INVISIBLE);
 
-        incrementQuesAnsThisTurn();
+        incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
     }
 
-    private void incrementQuesAnsThisTurn() {
+    private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while(mChallenge == null) {} // Wait until challenge is loaded
 
                 mQuesAnsThisTurn = mChallenge.incrementAndGetQuesAnsThisTurn();
+                if(isSelectedAnswerCorrect) {
+                    mChallenge.incrementCorrectAnsThisTurn();
+                }
                 mChallenge.saveInBackground();
 
                 runOnUiThread(new Runnable() {
