@@ -123,7 +123,7 @@ public class ChallengeActivity extends CogniActivity {
                         String currentUserId = PublicUserData.getPublicUserData().getBaseUserId();
                         boolean isCurrentUsersTurn = challenge.getCurTurnUserId().equals(currentUserId);
                         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
-                        if (isCurrentUsersTurn) {
+                        if (isCurrentUsersTurn && !challenge.getHasEnded()) {
                             btnYourTurn.setVisibility(View.VISIBLE);
                         } else {
                             btnYourTurn.setVisibility(View.INVISIBLE);
@@ -205,6 +205,8 @@ public class ChallengeActivity extends CogniActivity {
                 .setPositiveButton(R.string.yes_dialog_cancel_challenge, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         mBattleshipBoardManager.quitChallenge();
+                        Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
+                        btnYourTurn.setVisibility(View.INVISIBLE);
                     }
                 }).create().show();
     }
