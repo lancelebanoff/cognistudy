@@ -61,4 +61,5 @@
     <string name="yes_dialog_lost_challenge">Darn</string>
     <string name="title_dialog_quit_challenge">Resign</string>
     <string name="message_dialog_quit_challenge">Are you sure you want to resign?</string>
+    <string name="num_shots_remaining">Shots remaining: </string>
 </resources>

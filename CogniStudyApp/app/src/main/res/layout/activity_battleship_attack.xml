@@ -20,9 +20,9 @@
         android:id="@+id/shipsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnDone"
         android:clickable="false" />
 
@@ -30,9 +30,9 @@
         android:id="@+id/targetsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnDone"
         android:clickable="true" />
 
@@ -40,10 +40,24 @@
         android:id="@+id/animationsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnDone"
         android:clickable="false" />
+
+    <TextView
+        android:id="@+id/txtNumShotsRemaining"
+        android:text="@string/num_shots_remaining"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true" />
+
+    <include layout="@layout/header_challenge_score"
+        android:id="@+id/headerChallengeScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"/>
 
 </RelativeLayout>

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
@@ -46,6 +47,7 @@ public class BattleshipBoardManager {
     private List<List<String>> mBoardPositionStatus;
     private boolean mCanBeAttacked;
     private int mNumShotsRemaining;
+    private TextView mTxtNumShotsRemaining;
 
     // Used for new challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
@@ -73,9 +75,22 @@ public class BattleshipBoardManager {
         retrieveBoardPositionStatus();
     }
 
-    public void retrieveNumShotsRemaining() {
+    public void startShowingNumShotsRemaining(TextView txtNumShotsRemaining) {
+        mTxtNumShotsRemaining = txtNumShotsRemaining;
         mNumShotsRemaining = mChallenge.initializeAndGetNumShotsRemaining();
         mChallenge.saveInBackground();
+        showNumShotsRemaining();
+    }
+
+    private void showNumShotsRemaining() {
+        final String text = mActivity.getResources().getString(R.string.num_shots_remaining)
+                + " " + mNumShotsRemaining;
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTxtNumShotsRemaining.setText(text);
+            }
+        });
     }
 
     public void setShipsGridLayout(GridLayout shipsGridLayout) {
@@ -295,6 +310,7 @@ public class BattleshipBoardManager {
             // If you haven't attacked the space yet, then change board position status
             case Constants.GameBoardPositionStatus.UNKNOWN:
             case Constants.GameBoardPositionStatus.DETECTION:
+                showNumShotsRemaining();
                 if(mNumShotsRemaining == 0) {
                     setOtherPlayerTurn();
                 } else {
