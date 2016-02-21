@@ -12,6 +12,7 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -73,31 +74,78 @@ public abstract class StudentBlockStats extends ParseObject{
         ParseObjectUtils.addToSaveQueue(this);
     }
 
+    enum ParallelOption {
+        ALL_AT_ONCE, SEVERAL, NONE
+    }
+
     public static Task<Boolean> incrementAll(final String category, final boolean correct) {
 
         Map<Class<? extends StudentBlockStats>, StudentBlockStatsSubclassInterface> subclasses = getSubclassesMap();
 
-        List<Task<Void>> tasks = new ArrayList<>();
+        final long start;
+        ParallelOption option = ParallelOption.ALL_AT_ONCE;
+        Iterator<Class<? extends StudentBlockStats>> iterator = subclasses.keySet().iterator();
 
-        for(final Class clazz : subclasses.keySet()) {
-            final StudentBlockStatsSubclassInterface inter = subclasses.get(clazz);
-            final String className = inter.getClassName();
-//            try {
-//                getOrCreateAndIncrement(inter, category, className, clazz, correct)
-//                        .waitForCompletion();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-            tasks.add(getOrCreateAndIncrement(inter, category, className, clazz, correct));
-        }
-//        return SubclassUtils.saveAllInBackground();
-        return Task.whenAll(tasks)
-            .continueWithTask(new Continuation<Void, Task<Boolean>>() {
-                @Override
-                public Task<Boolean> then(Task<Void> task) throws Exception {
-                    return ParseObjectUtils.saveAllInBackground();
+        if(option == ParallelOption.NONE) {
+            start = System.currentTimeMillis();
+            while (iterator.hasNext()) {
+                final Class clazz = iterator.next();
+                final StudentBlockStatsSubclassInterface inter = subclasses.get(clazz);
+                final String className = inter.getClassName();
+                try {
+                    getOrCreateAndIncrement(inter, category, className, clazz, correct)
+                            .waitForCompletion();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            });
+            }
+            Log.d("time taken", String.valueOf(System.currentTimeMillis() - start));
+            return ParseObjectUtils.saveAllInBackground();
+        }
+        else if(option == ParallelOption.SEVERAL) {
+            //Running all 6 blockstats tasks at the same time is problematic when using certain types of queries in QueryUtils
+            //This became a problem after taking out inBackground queries in QueryUtils
+            start = System.currentTimeMillis();
+            int length = subclasses.keySet().size();
+            final int MAX_NUM_THREADS = 3;
+            int N = length / MAX_NUM_THREADS;
+            int M = MAX_NUM_THREADS;
+            for (int n = 0; n < N; n++) {
+                List<Task<Void>> tasks = new ArrayList<>();
+                for (int m = 0; m < M; m++) {
+                    if (!iterator.hasNext())
+                        break;
+                    final Class clazz = iterator.next();
+                    final StudentBlockStatsSubclassInterface inter = subclasses.get(clazz);
+                    final String className = inter.getClassName();
+                    tasks.add(getOrCreateAndIncrement(inter, category, className, clazz, correct));
+                }
+                try {
+                    Task.whenAll(tasks).waitForCompletion();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Log.d("time taken", String.valueOf(System.currentTimeMillis() - start));
+            return ParseObjectUtils.saveAllInBackground();
+        }
+        else {
+            start = System.currentTimeMillis();
+            List<Task<Void>> tasks = new ArrayList<>();
+            for (final Class clazz : subclasses.keySet()) {
+                final StudentBlockStatsSubclassInterface inter = subclasses.get(clazz);
+                final String className = inter.getClassName();
+                tasks.add(getOrCreateAndIncrement(inter, category, className, clazz, correct));
+            }
+            return Task.whenAll(tasks)
+                    .continueWithTask(new Continuation<Void, Task<Boolean>>() {
+                        @Override
+                        public Task<Boolean> then(Task<Void> task) throws Exception {
+                            Log.d("time taken", String.valueOf(System.currentTimeMillis() - start));
+                            return ParseObjectUtils.saveAllInBackground();
+                        }
+                    });
+        }
     }
 
     private static Task<Void> getOrCreateAndIncrement(final StudentBlockStatsSubclassInterface inter, final String category,

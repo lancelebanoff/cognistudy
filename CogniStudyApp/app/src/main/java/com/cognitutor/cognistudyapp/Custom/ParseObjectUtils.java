@@ -7,6 +7,7 @@ import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -72,7 +73,10 @@ public class ParseObjectUtils {
     //This will only be used when logging out
     public static void unpinAllInBackground() {
         ParseObject.unpinAllInBackground();
+        //Extra layer of assurance that everything will be unpinned that should be
+        pinNames.addAll(Arrays.asList(Constants.getAllConstants(Constants.PinNames.class)));
         for(String pinName : pinNames) {
+            Log.d("pinName: ", pinName);
             ParseObject.unpinAllInBackground(pinName);
         }
         pinNames.clear();

@@ -54,6 +54,17 @@ public class Constants {
         }
     }
 
+    public static class PinNames {
+        public static final String CurrentUser = "CurrentUser";
+        //TODO: Possibly remove these later
+        public static final String StudentCategoryDayStats = "StudentCategoryDayStats";
+        public static final String StudentCategoryTridayStats = "StudentCategoryTridayStats";
+        public static final String StudentCategoryMonthStats = "StudentCategoryMonthStats";
+        public static final String StudentSubjectDayStats = "StudentSubjectDayStats";
+        public static final String StudentSubjectTridayStats = "StudentSubjectTridayStats";
+        public static final String StudentSubjectMonthStats = "StudentSubjectMonthStats";
+    }
+
     public static class IntentExtra {
         public static final String FINISH_CHALLENGE_ACTIVITY = "FINISH_CHALLENGE_ACTIVITY";
         public static final String FINISH_NEW_CHALLENGE_ACTIVITY = "FINISH_NEW_CHALLENGE_ACTIVITY";
