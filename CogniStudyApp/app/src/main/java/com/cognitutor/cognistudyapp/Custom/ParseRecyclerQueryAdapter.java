@@ -52,7 +52,7 @@ public abstract class ParseRecyclerQueryAdapter<T extends ParseObject, U extends
 
     private final QueryFactory<T> mFactory;
     private final boolean hasStableIds;
-    private final List<T> mItems;
+    public final List<T> mItems;
 
     // PRIMARY CONSTRUCTOR
     public ParseRecyclerQueryAdapter(final QueryFactory<T> factory, final boolean hasStableIds) {
@@ -126,7 +126,7 @@ public abstract class ParseRecyclerQueryAdapter<T extends ParseObject, U extends
 
             @Override public void done(
                     List<T> queriedItems,
-                    @Nullable ParseException e) {
+                    ParseException e) {
                 if (e == null) {
                     mItems.clear();
                     mItems.addAll(queriedItems);

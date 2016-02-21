@@ -2,6 +2,8 @@ package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,7 +34,8 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
 
     private PeopleListOnClickHandler onClickHandler;
     private PeopleQueryAdapter peopleQueryAdapter;
-    private ListView listView;
+//    private ListView listView;
+    private RecyclerView recyclerView;
     private SearchView searchView;
 
     public static final PeopleFragment newInstance(PeopleListOnClickHandler onClickHandler) {
@@ -87,8 +90,11 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         peopleQueryAdapter.setImageKey(PublicUserData.Columns.profilePic);
         */
 
-        listView = (ListView) rootView.findViewById(R.id.list);
-        listView.setAdapter(peopleQueryAdapter);
+//        listView = (ListView) rootView.findViewById(R.id.list);
+//        listView.setAdapter(peopleQueryAdapter);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(peopleQueryAdapter);
         peopleQueryAdapter.loadObjects();
 
         return rootView;
