@@ -1,21 +1,21 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 public class ChooseDisplayNameActivity extends AuthenticationActivity {
@@ -41,7 +41,8 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
                     if (objects.size() == 0) {
-                        setUpStudentObjects(ParseUser.getCurrentUser(), null, displayName, null, null, new SaveCallback() {
+                        ParseFile profilePic = getDefaultProfilePic();
+                        setUpStudentObjects(ParseUser.getCurrentUser(), null, displayName, profilePic, null, new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
                                 setUpLocalDataStore();
@@ -57,5 +58,14 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
                 }
             }
         });
+    }
+
+    public ParseFile getDefaultProfilePic() {
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),
+                R.drawable.default_profile_pic);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] image = stream.toByteArray();
+        return new ParseFile("default_profile_pic.png", image);
     }
 }
