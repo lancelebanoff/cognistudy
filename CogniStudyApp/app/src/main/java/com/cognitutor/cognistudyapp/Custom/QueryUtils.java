@@ -194,7 +194,7 @@ public class QueryUtils {
     //<editor-fold desc="findCacheThenNetworkInBackground">
     public class CacheThenNetworkHelper {
 
-        long lastCancelled;
+        volatile long lastCancelled;
 
         public <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(
                 ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
