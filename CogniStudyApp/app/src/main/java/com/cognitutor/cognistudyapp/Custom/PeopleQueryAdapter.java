@@ -3,14 +3,13 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.support.v7.widget.RecyclerView.ViewHolder.*;
 
-import com.cognitutor.cognistudyapp.Adapters.CogniParseQueryAdapter;
+import com.cognitutor.cognistudyapp.Adapters.CogniRecyclerAdapter;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
@@ -20,10 +19,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -33,22 +29,21 @@ import bolts.Task;
 /**
  * Created by Kevin on 1/14/2016.
  */
-public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, PeopleQueryAdapter.ViewHolder> implements QueryUtils.OnDataLoadedListener<PublicUserData> {
+public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, PeopleQueryAdapter.ViewHolder> {
 
     private Activity mActivity;
     private PeopleListOnClickHandler mOnClickHandler;
     private volatile String currentQuery;
-    private static Lock mLock;
-    private volatile List<ParseObject> lastSearchObjects;
+    private volatile List<PublicUserData> lastSearchObjects;
     private int lastFilteredSize;
+    private Lock mLock;
     private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
     private List<PublicUserData> cachedPublicUserDataList;
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ParseObject object = mItems.get(position);
 
-        final PublicUserData publicUserData = (PublicUserData) object;
+        final PublicUserData publicUserData = mItems.get(position);
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtName.setText(publicUserData.getDisplayName());
@@ -58,21 +53,20 @@ public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, P
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = View.inflate(mActivity, R.layout.list_item_people, null);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_people, null);
         ViewHolder holder = new ViewHolder(view);
         return holder;
     }
 
-    public PeopleQueryAdapter(Context context, PeopleListOnClickHandler onClickHandler) {
-        super(new ParseQueryAdapter.QueryFactory<ParseObject>() {
+    public PeopleQueryAdapter(Activity activity, PeopleListOnClickHandler onClickHandler) {
+        super(activity, new ParseQueryAdapter.QueryFactory<PublicUserData>() {
             public ParseQuery create() {
                 return getDefaultQuery();
             }
-        }, false);
-        mActivity = (Activity) context;
+        }, true); //TODO: Try true for hasStableIds
         mOnClickHandler = onClickHandler;
-        mLock = new ReentrantLock();
         mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
+        mLock = new ReentrantLock();
         try {
             cachedPublicUserDataList = getDefaultQuery().find();
         } catch (ParseException e) { e.printStackTrace(); cachedPublicUserDataList = null; }
@@ -83,8 +77,7 @@ public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, P
 
         mLock.lock();
         reset();
-//        setQueryFactory(getDefaultQuery());
-        loadObjects();
+        loadObjects(); //TODO: delete this?
         mLock.unlock();
     }
 
@@ -103,35 +96,6 @@ public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, P
         //TODO: Add this?
         //.whereNotEqualTo(PublicUserData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId());
     }
-
-//    @Override
-//    public View getItemView(ParseObject object, View view, ViewGroup parent) {
-//        final ViewHolder holder;
-//        if(view == null) {
-//            view = View.inflate(mActivity, R.layout.list_item_people, null);
-//            holder = createViewHolder(view);
-//            view.setTag(holder);
-//        }
-//        else {
-//            holder = (ViewHolder) view.getTag();
-//        }
-//
-//        super.getItemView(object, view, parent);
-//
-//        final PublicUserData publicUserData = (PublicUserData) object;
-//        holder.imgProfile.setParseFile(publicUserData.getProfilePic());
-//        holder.imgProfile.loadInBackground();
-//        holder.txtName.setText(publicUserData.getDisplayName());
-//
-//        view.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mOnClickHandler.onListItemClick(publicUserData);
-//            }
-//        });
-//
-//        return view;
-//    }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         public TextView txtName;
@@ -156,64 +120,9 @@ public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, P
     }
 
     @Override
-    public Activity getActivityForUIThread() {
-        return mActivity;
-    }
-
-    @Override
     public void onDataLoaded(List<PublicUserData> list) {
         mLock.lock();
-        int oldNumItems = mItems.size();
-        ConcurrentLinkedQueue<ParseObject> oldObjects = new ConcurrentLinkedQueue<>();
-        for(ParseObject oldObj : mItems) {
-            oldObjects.add(oldObj);
-        }
-        int firstChangedIdx = Integer.MAX_VALUE;
-        int idx = 0;
-        Iterator<ParseObject> oldIterator = oldObjects.iterator();
-        while(oldIterator.hasNext()) {
-            ParseObject oldObj = oldIterator.next();
-            if(oldObj == null)
-                break;
-            PublicUserData oldPud = (PublicUserData) oldObj;
-            boolean found = false;
-            Iterator<PublicUserData> newIterator = list.iterator();
-            while(newIterator.hasNext()) {
-                PublicUserData newPud = newIterator.next();
-                if(oldPud.getObjectId().equals(newPud.getObjectId())) {
-                    found = true;
-                    list.remove(newPud);
-                    firstChangedIdx = Math.min(firstChangedIdx, idx);
-                    break;
-                }
-            }
-            if(!found) {
-                mItems.remove(oldObj);
-            }
-            idx++;
-        }
-        List<ParseObject> converted = new ArrayList<>();
-        for(PublicUserData pud : list) {
-            converted.add(pud);
-        }
-        mItems.addAll(converted);
-//        objects = converted;
-        int newNumItems = mItems.size();
-        for(int i=0; i<Math.min(oldNumItems, newNumItems); i++) {
-            notifyItemChanged(i);
-        }
-        if(newNumItems > oldNumItems) {
-            for(int i=oldNumItems; i<newNumItems; i++) {
-                notifyItemInserted(i);
-            }
-        }
-        else if(oldNumItems > newNumItems) {
-            for(int i=newNumItems; i<oldNumItems; i++) {
-                notifyItemRemoved(i);
-            }
-        }
-
-//        notifyDataSetChanged();
+        super.onDataLoaded(list);
         lastSearchObjects = cloneLastSearch();
         mLock.unlock();
     }
@@ -235,7 +144,7 @@ public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, P
                 return PublicUserData.getQuery()
                         .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
             }
-        }, thisAdapter, null, false)
+        }, thisAdapter, ParseObjectUtils.PinNames.PeopleSearch, true)
         .continueWithTask(new Continuation<List<PublicUserData>, Task<List<PublicUserData>>>() {
             @Override
             public Task<List<PublicUserData>> then(Task<List<PublicUserData>> task) throws Exception {
@@ -250,69 +159,10 @@ public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, P
                         return PublicUserData.getQuery()
                                 .whereContains(PublicUserData.Columns.searchableDisplayName, q);
                     }
-                }, thisAdapter, null, false);
+                }, thisAdapter, ParseObjectUtils.PinNames.PeopleSearch, true);
             }
         });
     }
-
-    private OnQueryLoadListener getFirstSearchListener(final String q) {
-        return new OnQueryLoadListener() {
-            @Override
-            public void onLoading() {
-
-            }
-
-            @Override
-            public void onLoaded(List objects, Exception e) {
-                mLock.lock();
-
-                removeOnQueryLoadListener(this);
-
-                //TODO: if user is still typing, cancel this?
-                if(!currentQuery.equals(q) || objects == null) {
-                    mLock.unlock();
-                    return;
-                }
-                lastSearchObjects = cloneLastSearch();
-                ParseQuery<PublicUserData> containsQuery = PublicUserData.getQuery()
-                        .whereContains(PublicUserData.Columns.searchableDisplayName, q);
-//                setQueryFactory(containsQuery);
-                addOnQueryLoadListener(getSecondSearchListener());
-//                loadObjects(mLock, lastSearchObjects.size() + 1);
-                mLock.unlock();
-            }
-        };
-    }
-
-    private OnQueryLoadListener getSecondSearchListener() {
-        return new OnQueryLoadListener() {
-            @Override
-            public void onLoading() {
-
-            }
-
-            @Override
-            public void onLoaded(List objects, Exception e) {
-
-                mLock.lock();
-
-                removeOnQueryLoadListener(this);
-                lastSearchObjects = cloneLastSearch();
-
-                mLock.unlock();
-            }
-        };
-    }
-
-//    private void setQueryFactory(final ParseQuery query) {
-//        this.queryFactory = new QueryFactory<ParseObject>() {
-//            @Override
-//            public ParseQuery<ParseObject> create() {
-//                return query;
-//            }
-//        };
-//        removeAllOnQueryLoadListeners();
-//    }
 
     private String convertToSearchable(String q) {
 
@@ -322,14 +172,16 @@ public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, P
     }
 
     public Filter getFilter() {
+
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
 
+                mCacheThenNetworkHelper.cancelAllQueries();
                 mLock.lock();
                 String q = convertToSearchable(constraint.toString());
                 FilterResults result = new FilterResults();
-                List<ParseObject> listToFilter;
+                List<PublicUserData> listToFilter;
                 if(lastSearchObjects != null)
                     listToFilter = lastSearchObjects;
                 else
@@ -372,77 +224,20 @@ public class PeopleQueryAdapter extends ParseRecyclerQueryAdapter<ParseObject, P
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
+
                 mLock.lock();
-
                 List<PublicUserData> list = (List<PublicUserData>) results.values;
-
-                if(list.size() == lastFilteredSize) {
-                    mLock.unlock();
-                    return;
-                }
-                lastFilteredSize = list.size();
-
-//                clear();
-                int oldNumItems = mItems.size();
-//                mItems.clear();
-
-                ConcurrentLinkedQueue<ParseObject> oldObjects = new ConcurrentLinkedQueue<>();
-                for(ParseObject oldObj : mItems) {
-                    oldObjects.add(oldObj);
-                }
-                int firstChangedIdx = Integer.MAX_VALUE;
-                int idx = 0;
-                Iterator<ParseObject> oldIterator = oldObjects.iterator();
-                while(oldIterator.hasNext()) {
-                    ParseObject oldObj = oldIterator.next();
-                    if(oldObj == null)
-                        break;
-                    PublicUserData oldPud = (PublicUserData) oldObj;
-                    boolean found = false;
-                    Iterator<PublicUserData> newIterator = list.iterator();
-                    while(newIterator.hasNext()) {
-                        PublicUserData newPud = newIterator.next();
-                        if(oldPud.getObjectId().equals(newPud.getObjectId())) {
-                            found = true;
-                            list.remove(newPud);
-                            firstChangedIdx = Math.min(firstChangedIdx, idx);
-                            break;
-                        }
-                    }
-                    if(!found) {
-                        mItems.remove(oldObj);
-                    }
-                    idx++;
-                }
-                List<ParseObject> converted = new ArrayList<>();
-                for(PublicUserData pud : list) {
-                    converted.add(pud);
-                }
-                mItems.addAll(converted);
-//        objects = converted;
-                int newNumItems = mItems.size();
-                for(int i=0; i<Math.min(oldNumItems, newNumItems); i++) {
-                    notifyItemChanged(i);
-                }
-                if(newNumItems > oldNumItems) {
-                    for(int i=oldNumItems; i<newNumItems; i++) {
-                        notifyItemInserted(i);
-                    }
-                }
-                else if(oldNumItems > newNumItems) {
-                    for(int i=newNumItems; i<oldNumItems; i++) {
-                        notifyItemRemoved(i);
-                    }
-                }
-
-//                notifyDataSetChanged();
+                callSuperOnDataLoaded(list);
                 mLock.unlock();
             }
         };
     }
 
-    private List<ParseObject> cloneLastSearch() {
-        return (List<ParseObject>) ((ArrayList<ParseObject>) mItems).clone();
+    private void callSuperOnDataLoaded(List<PublicUserData> list) {
+        super.onDataLoaded(list);
     }
 
+    private List<PublicUserData> cloneLastSearch() {
+        return (List<PublicUserData>) ((ArrayList<PublicUserData>) mItems).clone();
+    }
 }

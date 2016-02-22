@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseQuery;
@@ -19,7 +20,7 @@ public class StudentCategoryDayStats extends StudentCategoryBlockStats {
 
             @Override
             public String getClassName() {
-                return "StudentCategoryDayStats";
+                return Constants.ClassName.StudentCategoryDayStats;
             }
         };
     }

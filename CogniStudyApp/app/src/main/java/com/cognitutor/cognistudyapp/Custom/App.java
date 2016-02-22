@@ -9,6 +9,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -105,6 +106,7 @@ public class App extends Application {
         ParseObject.registerSubclass(StudentSubjectDayStats.class);
         ParseObject.registerSubclass(StudentSubjectTridayStats.class);
         ParseObject.registerSubclass(StudentSubjectMonthStats.class);
+        ParseObject.registerSubclass(PinnedObject.class);
     }
 }
 

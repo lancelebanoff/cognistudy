@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.*;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -54,15 +55,13 @@ public class Constants {
         }
     }
 
-    public static class PinNames {
-        public static final String CurrentUser = "CurrentUser";
-        //TODO: Possibly remove these later
-        public static final String StudentCategoryDayStats = "StudentCategoryDayStats";
-        public static final String StudentCategoryTridayStats = "StudentCategoryTridayStats";
-        public static final String StudentCategoryMonthStats = "StudentCategoryMonthStats";
-        public static final String StudentSubjectDayStats = "StudentSubjectDayStats";
-        public static final String StudentSubjectTridayStats = "StudentSubjectTridayStats";
-        public static final String StudentSubjectMonthStats = "StudentSubjectMonthStats";
+    public static class ClassName {
+        public static final String StudentCategoryDayStats = StudentCategoryDayStats.class.getSimpleName();
+        public static final String StudentCategoryTridayStats = StudentCategoryTridayStats.class.getSimpleName();
+        public static final String StudentCategoryMonthStats = StudentCategoryMonthStats.class.getSimpleName();
+        public static final String StudentSubjectDayStats = StudentSubjectDayStats.class.getSimpleName();
+        public static final String StudentSubjectTridayStats = StudentSubjectTridayStats.class.getSimpleName();
+        public static final String StudentSubjectMonthStats = StudentSubjectMonthStats.class.getSimpleName();
     }
 
     public static class IntentExtra {

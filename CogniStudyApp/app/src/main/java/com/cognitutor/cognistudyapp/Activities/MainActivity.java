@@ -164,6 +164,7 @@ public class MainActivity extends AuthenticationActivity {
     }
     private void test() {
 //        DateUtils.test();
+        Log.d("ClassName", Constants.ClassName.StudentCategoryDayStats);
         QueryUtils.testCacheThenNetwork();
     }
 }

@@ -19,6 +19,9 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import bolts.Continuation;
+import bolts.Task;
+
 public class CogniActivity extends AppCompatActivity {
 
     private static ConnectivityManager cMgr = null;
@@ -106,11 +109,18 @@ public class CogniActivity extends AppCompatActivity {
 
     public void logout() throws ParseException {
         UserUtils.setUserLoggedIn(false);
-        ParseObjectUtils.unpinAllInBackground();
-        ParseUser.logOut();
+        ParseObjectUtils.unpinAllInBackground()
+            .continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    ParseUser.logOut();
+                    return null;
+                }
+            });
     }
 
     // Check for Internet connectivity
+    //TODO: Add this to QueryUtils functions
     private static boolean isNetworkConnected() {
 
         //Log.d(TAG, "Checking connectivity");
