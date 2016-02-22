@@ -52,11 +52,6 @@ public class MainActivity extends AuthenticationActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try {
-            UserUtils.pinTest();
-        }
-        catch (ParseException e) { handleParseError(e); }
-
 
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -75,10 +70,6 @@ public class MainActivity extends AuthenticationActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            UserUtils.getPinTest();
-        }
-        catch (ParseException e) { handleParseError(e); }
         test();
     }
 
@@ -164,7 +155,10 @@ public class MainActivity extends AuthenticationActivity {
     }
     private void test() {
 //        DateUtils.test();
-        Log.d("ClassName", Constants.ClassName.StudentCategoryDayStats);
         QueryUtils.testCacheThenNetwork();
+//        try {
+//            UserUtils.getPinTest();
+//        }
+//        catch (ParseException e) { handleParseError(e); }
     }
 }

@@ -4,6 +4,8 @@ import android.support.v4.content.res.TypedArrayUtils;
 import android.text.format.DateUtils;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.FindCallback;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;

@@ -22,7 +22,7 @@ import bolts.Task;
 public class PinnedObject extends ParseObject{
 
     public class Columns {
-        public static final String baseUserID = "baseUserID";
+        public static final String baseUserId = "baseUserId";
         public static final String pinTime = "pinTime";
         public static final String pinName = "pinName";
         public static final String pinObjectId = "pinObjectId";
@@ -32,7 +32,7 @@ public class PinnedObject extends ParseObject{
     public PinnedObject() {}
 
     public PinnedObject(String pinName, ParseObject object) {
-        put(Columns.baseUserID, UserUtils.getCurrentUserId());
+        put(Columns.baseUserId, UserUtils.getCurrentUserId());
         put(Columns.pinTime, new Date());
         put(Columns.pinName, pinName);
         if(object.getObjectId() != null)
@@ -93,7 +93,7 @@ public class PinnedObject extends ParseObject{
         return ParseObjectUtils.deleteObjectsInBackground(query);
     }
 
-    public String getBaseUserId() { return getString(Columns.baseUserID); }
+    public String getBaseUserId() { return getString(Columns.baseUserId); }
     public Date getPinTime() { return getDate(Columns.pinTime); }
     public String getPinName() { return getString(Columns.pinName); }
     public String getPinObjectId() { return getString(Columns.pinObjectId); }

@@ -1,20 +1,15 @@
 package com.cognitutor.cognistudyapp.Adapters;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 
-import com.cognitutor.cognistudyapp.Custom.ParseRecyclerQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQueryAdapter;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Kevin on 2/21/2016.

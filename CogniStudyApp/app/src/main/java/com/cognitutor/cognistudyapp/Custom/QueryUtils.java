@@ -186,16 +186,16 @@ public class QueryUtils {
     //<editor-fold desc="findCacheThenNetworkInBackground">
     public static <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(
             ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
-            final String pinName, final boolean pinResult) {
+            final String pinName, final boolean deleteOldPinnedResults) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult, null);
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, deleteOldPinnedResults, null);
     }
 
     protected <T extends ParseObject> Task<List<T>> doFindCacheThenNetworkInBackground(
             final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery, final OnDataLoadedListener<T> listener,
-            final String pinName, final boolean pinResult, final QueryUtilsCacheThenNetworkHelper helper) {
+            final String pinName, final boolean deleteOldPinnedResults, final QueryUtilsCacheThenNetworkHelper helper) {
 
         final long startTime = System.currentTimeMillis();
 
@@ -213,11 +213,13 @@ public class QueryUtils {
                     addFromLocalOrNetwork(fromLocal, networkResults, combined);
                 }
                 combined.addAll(networkResults);
-                if (pinName != null && pinResult) {
-                    ParseObjectUtils.unpinAllInBackground(pinName);
-                    ParseObjectUtils.pinAllInBackground(pinName, combined);
-                } else if (pinResult) {
-                    ParseObjectUtils.pinAllInBackground(combined);
+                if (pinName != null) {
+                    if(deleteOldPinnedResults) {
+                        ParseObjectUtils.unpinAllInBackground(pinName).waitForCompletion(); //TODO: Does this work?
+                    }
+                    ParseObjectUtils.pinAllInBackground(pinName, combined).waitForCompletion();
+                } else { //if (deleteOldPinnedResults) {
+                    ParseObjectUtils.pinAllInBackground(combined).waitForCompletion();
                 }
                 if (isCancelled(helper, startTime))
                     return null;
@@ -297,7 +299,19 @@ public class QueryUtils {
                     MainFragment.answeredQuestionIdAdapter.addAll(list);
                     MainFragment.answeredQuestionIdAdapter.notifyDataSetChanged();
                 }
-            }, "AnsweredQuestionId", true);
+            }, "AnsweredQuestionId", false)
+            .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
+                @Override
+                public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
+                    List<AnsweredQuestionId> listFromLocal = ParseQuery.getQuery(AnsweredQuestionId.class)
+                            .fromLocalDatastore()
+                            .find();
+                    for(AnsweredQuestionId obj : listFromLocal) {
+                        Log.d("testCacheThenNetwork", "objectId: " + obj.getObjectId() + ", questionId: " + obj.getString("questionId"));
+                    }
+                    return null;
+                }
+            });
         }
         catch (Exception e) {
             e.printStackTrace();

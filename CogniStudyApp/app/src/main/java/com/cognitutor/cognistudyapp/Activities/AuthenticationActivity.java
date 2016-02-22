@@ -85,35 +85,33 @@ class AuthenticationActivity extends CogniActivity {
 
         final ParseInstallation installation = setUpInstallation(user.getObjectId());
 
-        try {
-            ParseObjectUtils.unpinAll("CurrentUser");
-        } catch (ParseException e) { e.printStackTrace(); }
-        ParseObjectUtils.pinInBackground("CurrentUser", publicUserData, new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
+        ParseObjectUtils.pinInBackground("CurrentUser", publicUserData)
+            .continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    if (task.isFaulted()) {
+                        Log.e("pinInBackground", task.getError().getMessage());
+                    }
+                    //noinspection ConstantConditions
+                    if(fbLinked) {
+                        FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
+                            @Override
+                            public Void then(Task<Void> task) throws Exception {
 
-                if (e != null) {
-                    Log.e("pinInBackground", e.getMessage());
-                }
-                //noinspection ConstantConditions
-                if(fbLinked) {
-                    FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
-                        @Override
-                        public Void then(Task<Void> task) throws Exception {
-
-                            if (task.isFaulted()) {
-                                Log.e("getFriendsInBackground", task.getError().getMessage());
+                                if (task.isFaulted()) {
+                                    Log.e("getFriendsInBackground", task.getError().getMessage());
+                                }
+                                saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
+                                return null;
                             }
-                            saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
-                            return null;
-                        }
-                    });
+                        });
+                    }
+                    else {
+                        saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
+                    }
+                    return null;
                 }
-                else {
-                    saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
-                }
-            }
-        });
+            });
     }
 
     private void saveObjects(PrivateStudentData privateStudentData, Student student, PublicUserData publicUserData,

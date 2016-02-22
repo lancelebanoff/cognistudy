@@ -3,4 +3,4 @@ var m2 = require('cloud/doesEmailExist.js');
 var m3 = require('cloud/userCount.js');
 var m4 = require('cloud/deleteChallenge.js');
 var m5 = require('cloud/testPush.js');
-
+var m6 = require('cloud/deletePinnedObjects.js');

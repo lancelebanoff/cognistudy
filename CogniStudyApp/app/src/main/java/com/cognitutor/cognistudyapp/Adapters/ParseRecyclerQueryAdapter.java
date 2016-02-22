@@ -1,4 +1,4 @@
-package com.cognitutor.cognistudyapp.Custom;
+package com.cognitutor.cognistudyapp.Adapters;
 
 /*
  * The MIT License (MIT)

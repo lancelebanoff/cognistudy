@@ -1,7 +1,6 @@
-package com.cognitutor.cognistudyapp.Custom;
+package com.cognitutor.cognistudyapp.Adapters;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,8 +8,11 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.TextView;
 
-import com.cognitutor.cognistudyapp.Adapters.CogniRecyclerAdapter;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
+import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
+import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
@@ -35,7 +37,6 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     private PeopleListOnClickHandler mOnClickHandler;
     private volatile String currentQuery;
     private volatile List<PublicUserData> lastSearchObjects;
-    private int lastFilteredSize;
     private Lock mLock;
     private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
     private List<PublicUserData> cachedPublicUserDataList;
@@ -83,16 +84,15 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 
     private void reset() {
         lastSearchObjects = null;
-        lastFilteredSize = 0;
         currentQuery = "";
     }
 
     private static ParseQuery<PublicUserData> getDefaultQuery() {
 
         return PublicUserData.getQuery()
-                .fromLocalDatastore()
-                .whereContainedIn(PublicUserData.Columns.objectId, PrivateStudentData.getFriendPublicUserIds())
-                .whereEqualTo(PublicUserData.Columns.fbLinked, true);
+                .fromLocalDatastore();
+//                .whereContainedIn(PublicUserData.Columns.objectId, PrivateStudentData.getFriendPublicUserIds())
+//                .whereEqualTo(PublicUserData.Columns.fbLinked, true);
         //TODO: Add this?
         //.whereNotEqualTo(PublicUserData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId());
     }
@@ -144,7 +144,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                 return PublicUserData.getQuery()
                         .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
             }
-        }, thisAdapter, ParseObjectUtils.PinNames.PeopleSearch, true)
+        }, thisAdapter, ParseObjectUtils.PinNames.PeopleSearch, false)
         .continueWithTask(new Continuation<List<PublicUserData>, Task<List<PublicUserData>>>() {
             @Override
             public Task<List<PublicUserData>> then(Task<List<PublicUserData>> task) throws Exception {
@@ -159,7 +159,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                         return PublicUserData.getQuery()
                                 .whereContains(PublicUserData.Columns.searchableDisplayName, q);
                     }
-                }, thisAdapter, ParseObjectUtils.PinNames.PeopleSearch, true);
+                }, thisAdapter, ParseObjectUtils.PinNames.PeopleSearch, false);
             }
         });
     }
