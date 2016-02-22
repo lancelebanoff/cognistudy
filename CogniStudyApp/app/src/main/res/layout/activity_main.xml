@@ -12,7 +12,8 @@
         app:tabMode="scrollable"
         android:background="@color/colorPrimary"
         app:tabTextColor="@color/white"
-        app:tabSelectedTextColor="@color/white"/>
+        app:tabSelectedTextColor="@color/white"
+        app:tabIndicatorColor="@color/colorPrimaryDark"/>
 
     <com.cognitutor.cognistudyapp.Custom.CogniViewPager
         android:id="@+id/viewpager"

@@ -2,11 +2,13 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
@@ -44,11 +46,72 @@ public class MainActivity extends AuthenticationActivity {
         mViewPager.setOffscreenPageLimit(5);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
+        setTabLayoutIconsAndColors(tabLayout);
 
         try {
             UserUtils.getPinTest();
         }
         catch (ParseException e) { handleParseError(e); }
+    }
+
+    private void setTabLayoutIconsAndColors(TabLayout tabLayout) {
+        // Initialize tab icons and colors
+        for(int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            switch (i) {
+                case 0:
+                    tab.setIcon(R.drawable.icon_home); // TODO:1 google material icons
+                    break;
+                case 1:
+                    tab.setIcon(R.drawable.icon_people);
+                    break;
+                case 2:
+                    tab.setIcon(R.drawable.icon_messages);
+                    break;
+                case 3:
+                    tab.setIcon(R.drawable.icon_analytics);
+                    break;
+                case 4:
+                    tab.setIcon(R.drawable.icon_settings);
+                    break;
+            }
+            int color;
+            if(i == 0) {
+                color = ContextCompat.getColor(mActivity, R.color.white);
+            } else {
+                color = ContextCompat.getColor(mActivity, R.color.colorPrimaryLight);
+            }
+            tab.getIcon().mutate().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+        }
+
+        // Change colors when tabs are selected
+        tabLayout.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager) {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                super.onTabSelected(tab);
+                tab.getIcon().setColorFilter(
+                        ContextCompat.getColor(mActivity, R.color.white),
+                        PorterDuff.Mode.MULTIPLY
+                );
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                super.onTabUnselected(tab);
+                tab.getIcon().mutate().setColorFilter(
+                        ContextCompat.getColor(mActivity, R.color.colorPrimaryLight),
+                        PorterDuff.Mode.MULTIPLY
+                );
+            }
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                super.onTabReselected(tab);
+                tab.getIcon().setColorFilter(
+                        ContextCompat.getColor(mActivity, R.color.white),
+                        PorterDuff.Mode.MULTIPLY
+                );
+            }
+        });
     }
 
     @Override
@@ -127,17 +190,17 @@ public class MainActivity extends AuthenticationActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             // TODO:3 make these images
-            if(position == Fragments.Main.ordinal())
-                return "Home";
-            if(position == Fragments.People.ordinal())
-                return "People";
-            if(position == Fragments.Messages.ordinal())
-                return "Messages";
-            if(position == Fragments.Analytics.ordinal())
-                return "Statistics";
-            if(position == Fragments.Menu.ordinal())
-                return "Menu";
-            return null;
+//            if(position == Fragments.Main.ordinal())
+//                return "Home";
+//            if(position == Fragments.People.ordinal())
+//                return "People";
+//            if(position == Fragments.Messages.ordinal())
+//                return "Messages";
+//            if(position == Fragments.Analytics.ordinal())
+//                return "Statistics";
+//            if(position == Fragments.Menu.ordinal())
+//                return "Menu";
+            return "";
         }
     }
 }
