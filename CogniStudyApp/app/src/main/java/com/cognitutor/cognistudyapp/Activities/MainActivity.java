@@ -7,8 +7,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
@@ -21,7 +19,6 @@ import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.facebook.AccessToken;
 import com.parse.ParseException;
 
 public class MainActivity extends AuthenticationActivity {
@@ -44,6 +41,7 @@ public class MainActivity extends AuthenticationActivity {
         mViewPager = (CogniViewPager) findViewById(R.id.viewpager);
         mViewPager.setAdapter(sectionsPagerAdapter);
         mViewPager.setActivityRef(this);
+        mViewPager.setOffscreenPageLimit(5);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
 

@@ -26,14 +26,14 @@
                 android:id="@+id/txtChange"
                 android:text="Initial" />
 
-            <Button
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Question"
                 android:id="@+id/btnQuestion"
                 android:layout_centerHorizontal="true" />
 
-            <Button
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Start Challenge!"
@@ -41,7 +41,7 @@
                 android:layout_below="@id/btnQuestion"
                 android:layout_centerHorizontal="true" />
 
-            <Button
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
                 android:layout_below="@+id/btnStartChallenge"
                 android:layout_centerHorizontal="true" />
 
-            <Button
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -68,8 +68,8 @@
                 android:layout_gravity="center"
                 android:layout_below="@id/btnDeleteUser"
                 card_view:cardUseCompatPadding="true"
-                card_view:contentPaddingLeft="5dp"
-                card_view:contentPaddingRight="5dp"
+                card_view:contentPaddingLeft="3dp"
+                card_view:contentPaddingRight="3dp"
                 card_view:contentPaddingBottom="5dp"
                 card_view:cardCornerRadius="7dp"
                 card_view:cardBackgroundColor="@color/purple">
@@ -103,8 +103,8 @@
                 android:layout_gravity="center"
                 android:layout_below="@id/cvChallengeRequests"
                 card_view:cardUseCompatPadding="true"
-                card_view:contentPaddingLeft="5dp"
-                card_view:contentPaddingRight="5dp"
+                card_view:contentPaddingLeft="3dp"
+                card_view:contentPaddingRight="3dp"
                 card_view:contentPaddingBottom="5dp"
                 card_view:cardCornerRadius="7dp"
                 card_view:cardBackgroundColor="@color/green">
@@ -138,8 +138,8 @@
             android:layout_gravity="center"
             android:layout_below="@id/cvYourTurnChallenges"
             card_view:cardUseCompatPadding="true"
-            card_view:contentPaddingLeft="5dp"
-            card_view:contentPaddingRight="5dp"
+            card_view:contentPaddingLeft="3dp"
+            card_view:contentPaddingRight="3dp"
             card_view:contentPaddingBottom="5dp"
             card_view:cardCornerRadius="7dp"
             card_view:cardBackgroundColor="@color/orange">
@@ -173,8 +173,8 @@
             android:layout_gravity="center"
             android:layout_below="@id/cvTheirTurnChallenges"
             card_view:cardUseCompatPadding="true"
-            card_view:contentPaddingLeft="5dp"
-            card_view:contentPaddingRight="5dp"
+            card_view:contentPaddingLeft="3dp"
+            card_view:contentPaddingRight="3dp"
             card_view:contentPaddingBottom="5dp"
             card_view:cardCornerRadius="7dp"
             card_view:cardBackgroundColor="@color/red">

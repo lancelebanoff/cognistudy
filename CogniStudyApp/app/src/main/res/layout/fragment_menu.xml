@@ -3,49 +3,49 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.MenuFragment">
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Suggested Questions"
         android:id="@+id/btnSuggestedQuestions"
         android:layout_gravity="left|top" />
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Bookmarks"
         android:id="@+id/btnBookmarks"
         android:layout_gravity="right|top" />
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Achievements"
         android:id="@+id/btnAchievements"
         android:layout_gravity="left|center_vertical" />
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Shop"
         android:id="@+id/btnShop"
         android:layout_gravity="center" />
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Settings"
         android:id="@+id/btnSettings"
         android:layout_gravity="right|center_vertical" />
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Help"
         android:id="@+id/btnHelp"
         android:layout_gravity="left|bottom" />
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Logout"
