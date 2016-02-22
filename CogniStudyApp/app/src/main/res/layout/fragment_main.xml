@@ -72,7 +72,7 @@
                 card_view:contentPaddingRight="5dp"
                 card_view:contentPaddingBottom="5dp"
                 card_view:cardCornerRadius="7dp"
-                card_view:cardBackgroundColor="@color/dark_yellow">
+                card_view:cardBackgroundColor="@color/purple">
 
                 <RelativeLayout
                     android:layout_width="wrap_content"

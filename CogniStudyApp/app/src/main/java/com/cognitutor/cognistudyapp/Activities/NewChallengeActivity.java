@@ -338,9 +338,6 @@ public class NewChallengeActivity extends CogniActivity {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
-                        challenge.setAccepted(true);
-                        challenge.saveInBackground();
-
                         ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
                         user2Data.setSubjects(mSelectedSubjects);
                         user2Data.setCategories(mSelectedCategories);

@@ -106,6 +106,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
             setChallengeActivated();
         }
         else {
+            setChallengeAccepted();
             navigateToChallengeActivity();
         }
         finish();
@@ -118,6 +119,19 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         challenge.setActivated(true);
+                        challenge.saveInBackground();
+                        return null;
+                    }
+                });
+    }
+
+    private void setChallengeAccepted() {
+        Challenge.getChallenge(mChallengeId)
+                .onSuccess(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        challenge.setAccepted(true);
                         challenge.saveInBackground();
                         return null;
                     }
