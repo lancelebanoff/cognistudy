@@ -19,6 +19,11 @@ public class StudentCategoryDayStats extends StudentCategoryBlockStats {
             }
 
             @Override
+            public ParseQuery<StudentBlockStats> getPinnedStatsToUnpin(String category) {
+                return getCurrentUserQuery(getClassName(), category);
+            }
+
+            @Override
             public String getClassName() {
                 return Constants.ClassName.StudentCategoryDayStats;
             }

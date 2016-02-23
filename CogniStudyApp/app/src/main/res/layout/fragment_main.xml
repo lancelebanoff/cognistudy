@@ -54,8 +54,8 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DeleteUser"
-                android:id="@+id/btnDeleteUser"
+                android:text="Log LocalDatastore"
+                android:id="@+id/btnViewLocalDatastore"
                 android:onClick="onClick"
                 android:layout_below="@id/btnLogout"
                 android:layout_centerHorizontal="true" />
@@ -63,7 +63,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/btnDeleteUser"
+                android:layout_below="@id/btnViewLocalDatastore"
                 android:id="@+id/txtChallengeRequests"
                 android:text="Challenge Requests" />
 

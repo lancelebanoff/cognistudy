@@ -60,17 +60,20 @@ public class MainActivity extends AuthenticationActivity {
         mViewPager.setActivityRef(this);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        try {
-            UserUtils.getPinTest();
-        }
-        catch (ParseException e) { handleParseError(e); }
     }
 
+    //TODO: Remove testing later
     @Override
     protected void onResume() {
         super.onResume();
-        test();
+        onResumeTest();
+    }
+
+    //TODO: Remove testing later
+    @Override
+    protected void onPause() {
+        super.onPause();
+        onPauseTest();
     }
 
     @Override
@@ -153,12 +156,19 @@ public class MainActivity extends AuthenticationActivity {
             return null;
         }
     }
-    private void test() {
-//        DateUtils.test();
-        QueryUtils.testCacheThenNetwork();
+    private void onResumeTest() {
+//        DateUtils.test(true);
+//        QueryUtils.testCacheThenNetwork();
+//        ParseObjectUtils.testPins(false);
 //        try {
 //            UserUtils.getPinTest();
 //        }
 //        catch (ParseException e) { handleParseError(e); }
+    }
+
+    private static boolean onPauseFinished = false;
+
+    private void onPauseTest() {
+//        ParseObjectUtils.testPins(true);
     }
 }

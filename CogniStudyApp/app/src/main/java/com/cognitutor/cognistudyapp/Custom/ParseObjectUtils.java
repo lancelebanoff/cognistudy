@@ -2,8 +2,15 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -21,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -28,6 +36,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import bolts.Continuation;
 import bolts.Task;
+import bolts.TaskCompletionSource;
 
 /**
  * Created by Kevin on 2/13/2016.
@@ -36,6 +45,20 @@ public class ParseObjectUtils {
 
     // <editor-fold desc="Saving">
     public static HashSet<ParseObject> saveSet = new HashSet<>();
+    private static HashMap<String, HashSet<ParseObject>> pinMap = new HashMap<>();
+
+    public synchronized static void addToSaveThenPinQueue(String pinName, ParseObject object) {
+        saveSet.add(object);
+        HashSet<ParseObject> pinSet;
+        if(pinMap.containsKey(pinName)) {
+            pinSet = pinMap.get(pinName);
+        }
+        else {
+            pinSet = new HashSet<>();
+            pinMap.put(pinName, pinSet);
+        }
+        pinSet.add(object);
+    }
 
     public synchronized static void addToSaveQueue(ParseObject object) {
         saveSet.add(object);
@@ -43,25 +66,75 @@ public class ParseObjectUtils {
 
     public synchronized static Task<Boolean> saveAllInBackground() {
         Log.i("saveAllInBackground", "called");
-        List<ParseObject> saveList = new ArrayList<>();
-        for(ParseObject object : saveSet) {
-            saveList.add(object);
-        }
+        List<ParseObject> saveList = convertSetToList(saveSet);
         saveSet.clear();
+        final Map<String, HashSet<ParseObject>> clonedPinMap = (Map<String, HashSet<ParseObject>>) pinMap.clone();
+        pinMap.clear();
         return ParseObject.saveAllInBackground(saveList)
-                .continueWith(new Continuation<Void, Boolean>() {
-                    @Override
-                    public Boolean then(Task<Void> task) throws Exception {
-                        boolean ok = true;
-                        if (task.isFaulted()) {
-                            Exception e = task.getError();
-                            e.printStackTrace();
-                            Log.e("utils saveAll error", e.getMessage());
-                            ok = false;
-                        }
-                        return ok;
+            .continueWithTask(new Continuation<Void, Task<Boolean>>() {
+                @Override
+                public Task<Boolean> then(Task<Void> task) throws Exception {
+                    if (task.isFaulted()) {
+                        handleException(task.getError(), "utils saveAll error");
+                        return getCompletionTask(false);
                     }
-                });
+                    if(clonedPinMap.isEmpty())
+                        return getCompletionTask(true);
+                    return pinFromMap(clonedPinMap);
+                }
+            });
+    }
+
+    private static <T> Task<T> getCompletionTask(T result) {
+        TaskCompletionSource<T> completionSource = new TaskCompletionSource<T>();
+        completionSource.setResult(result);
+        return completionSource.getTask();
+    }
+
+    private static Task<Boolean> pinFromMap(Map<String, HashSet<ParseObject>> map) {
+        List<Task<Void>> tasks = new ArrayList<>();
+        for(String pinName : map.keySet()) {
+            List<ParseObject> list = convertSetToList(map.get(pinName));
+            try {
+                pinAllInBackground(pinName, list).waitForCompletion();
+            } catch (Exception e) {
+                handleException(e, "utils saveAll pinning error");
+                return getCompletionTask(false);
+            }
+        }
+        return getCompletionTask(true);
+    }
+
+//    private static Task<Boolean> pinFromMap(Map<String, HashSet<ParseObject>> map) {
+//        List<Task<Void>> tasks = new ArrayList<>();
+//        for(String pinName : map.keySet()) {
+//            List<ParseObject> list = convertSetToList(map.get(pinName));
+//            tasks.add(pinAllInBackground(pinName, list));
+//        }
+//        return Task.whenAll(tasks)
+//            .continueWith(new Continuation<Void, Boolean>() {
+//                @Override
+//                public Boolean then(Task<Void> task) throws Exception {
+//                    if (task.isFaulted()) {
+//                        handleException(task.getError(), "utils saveAll pinning error");
+//                        return false;
+//                    }
+//                    return true;
+//                }
+//            });
+//    }
+
+    private static void handleException(Exception e, String tag) {
+        e.printStackTrace();
+        Log.e(tag, e.getMessage());
+    }
+
+    private static List<ParseObject> convertSetToList(Set<ParseObject> set) {
+        List<ParseObject> list = new ArrayList<>();
+        for(ParseObject object : set) {
+            list.add(object);
+        }
+        return list;
     }
     // </editor-fold>
 
@@ -205,9 +278,27 @@ public class ParseObjectUtils {
             });
     }
 
-    public static void unpinAllInBackground(List<ParseObject> objects) {
+    public static Task<Void> unpinAllInBackground(ParseQuery<ParseObject> query) {
+        return query
+                .fromLocalDatastore()
+                .findInBackground()
+                .continueWithTask(new Continuation<List<ParseObject>, Task<Void>>() {
+                    @Override
+                    public Task<Void> then(Task<List<ParseObject>> task) throws Exception {
+                        if (task.isFaulted()) {
+                            handleException(task.getError(), "unpinAll from Query");
+                        }
+                        List<ParseObject> list = task.getResult();
+                        if (list.size() == 0)
+                            return getCompletionTask(null);
+                        return unpinAllInBackground(list);
+                    }
+                });
+    }
+
+    public static Task<Void> unpinAllInBackground(List<ParseObject> objects) {
         deletePinnedObjectsInBackground(objects);
-        ParseObject.unpinAllInBackground(objects);
+        return ParseObject.unpinAllInBackground(objects);
     }
 
     //This will only be used when logging out
@@ -216,6 +307,12 @@ public class ParseObjectUtils {
 //        return PinnedObject.deleteAllPinnedObjectsInBackground().continueWith...
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("baseUserId", ParseUser.getCurrentUser().getObjectId());
+        try {
+            int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
+                    .fromLocalDatastore()
+                    .count();
+            Log.d("unpinAllinBg", "PinnedObjects before unpinAll = " + numFromLocal);
+        } catch (ParseException e) { e.printStackTrace(); }
         return ParseCloud.callFunctionInBackground("deletePinnedObjects", params)
             .continueWith(new Continuation<Object, Void>() {
                 @Override
@@ -229,7 +326,14 @@ public class ParseObjectUtils {
                     for (String pinName : pinNames) {
                         Log.d("pinName: ", pinName);
                         ParseObject.unpinAllInBackground(pinName);
+//                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
                     }
+                    try {
+                        int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
+                                .fromLocalDatastore()
+                                .count();
+                        Log.d("unpinAllinBg", "PinnedObjects after unpinAll = " + numFromLocal);
+                    } catch (ParseException e) { e.printStackTrace(); }
                     return null;
                 }
             });
@@ -278,7 +382,6 @@ public class ParseObjectUtils {
 //                        public Object then(Task<Void> task) throws Exception {
 //                            if (task.isFaulted()) {
 //                                Log.e("DeleteObjectsInBackg", task.getError().getMessage());
-//                                //TODO: I once got an invalid session token error here. Create Cloud Code function for deleting PinnedObjects?
 //                            }
 //                            return null;
 //                        }
@@ -286,6 +389,78 @@ public class ParseObjectUtils {
                 return null;
                 }
             });
+    }
+
+    public static void testPins(boolean pin) {
+
+        String id1 = "id1";
+        String id2 = "id2";
+        String id3 = "id3";
+
+        String pinName = "AnsweredQuestionId";
+
+        try {
+            if(pin) {
+                AnsweredQuestionId aid1 = new AnsweredQuestionId(id1);
+                ParseObjectUtils.addToSaveThenPinQueue(pinName, aid1);
+//                pin(pinName, aid1);
+
+                AnsweredQuestionId aid2 = new AnsweredQuestionId(id2);
+                ParseObjectUtils.addToSaveThenPinQueue(pinName, aid2);
+//                pin(pinName, aid2);
+
+                ParseObjectUtils.saveAllInBackground();
+            }
+            else {
+                unpinAllInBackground(pinName);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("testPins", e.getMessage());
+        }
+    }
+
+    public static void logPinnedObjects() {
+
+        try {
+            List<Class> classes = new ArrayList<Class>();
+            classes.add(PublicUserData.class);
+            classes.add(StudentCategoryDayStats.class);
+            classes.add(StudentCategoryTridayStats.class);
+            classes.add(StudentCategoryMonthStats.class);
+            classes.add(StudentSubjectDayStats.class);
+            classes.add(StudentSubjectTridayStats.class);
+            classes.add(StudentSubjectMonthStats.class);
+            classes.add(PinnedObject.class);
+
+            List<PinnedObject> pinnedObjects = ParseQuery.getQuery(PinnedObject.class)
+                    .fromLocalDatastore()
+                    .find();
+            Log.d("Num Pinned", PinnedObject.class.getSimpleName() + " = " + pinnedObjects.size());
+            List<String> pinnedObjectIds = new ArrayList<>();
+            for (PinnedObject pinnedObject : pinnedObjects) {
+                pinnedObjectIds.add(pinnedObject.getPinObjectId());
+            }
+
+            int actualNumPinned = 0;
+            for (Class clazz : classes) {
+                List<ParseObject> objects = ParseQuery.getQuery(clazz.getSimpleName())
+                        .fromLocalDatastore()
+                        .find();
+                int numPinned = objects.size();
+                Log.d("Num Pinned", clazz.getSimpleName() + " = " + numPinned);
+                if (clazz == PinnedObject.class)
+                    continue;
+                actualNumPinned += numPinned;
+                for (ParseObject obj : objects) {
+                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
+                        Log.d("PinnedObject Mismatch!", "============ " + obj.getObjectId() + " not represented by PinnedObject");
+                    }
+                    Log.d("Obj data  ", "    " + obj.toString());
+                }
+            }
+            Log.d("Actual Num Pinned", String.valueOf(actualNumPinned));
+        } catch (ParseException e) { e.printStackTrace(); }
     }
     // </editor-fold>
 }

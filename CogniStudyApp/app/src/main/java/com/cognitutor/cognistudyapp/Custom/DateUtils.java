@@ -93,7 +93,7 @@ public class DateUtils {
         return getYear(new Date());
     }
 
-    public static void test() {
+    public static void test(boolean randomDate) {
 
         Random rand = new Random();
 
@@ -135,12 +135,17 @@ public class DateUtils {
 
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy.MM.dd");
             Date date = null;
-//            try {
-//                date = inputFormat.parse(dateString);
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-            date = new Date();
+
+            if(randomDate) {
+                try {
+                    date = inputFormat.parse(dateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                date = new Date();
+            }
 
             int dayBlockNum = getDayBlockNum(date);
             int tridayBlockNum = getTridayBlockNum(date);

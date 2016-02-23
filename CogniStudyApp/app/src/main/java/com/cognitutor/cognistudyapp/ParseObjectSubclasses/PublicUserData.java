@@ -119,4 +119,9 @@ public class PublicUserData extends ParseObject{
                 .fromLocalDatastore()
                 .whereEqualTo(column, baseUserId);
     }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() + " | " + getDisplayName();
+    }
 }

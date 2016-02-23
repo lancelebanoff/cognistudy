@@ -85,6 +85,7 @@ class AuthenticationActivity extends CogniActivity {
 
         final ParseInstallation installation = setUpInstallation(user.getObjectId());
 
+        //TODO: This does not add a PinnedObject instance for current user since the user has not been saved to Parse yet
         ParseObjectUtils.pinInBackground("CurrentUser", publicUserData)
             .continueWith(new Continuation<Void, Void>() {
                 @Override

@@ -32,6 +32,7 @@ public abstract class StudentBlockStats extends ParseObject{
     interface StudentBlockStatsSubclassInterface {
         ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category);
         String getClassName();
+        ParseQuery<StudentBlockStats> getPinnedStatsToUnpin(String category);
     }
 
     public static class SuperColumns {
@@ -41,13 +42,11 @@ public abstract class StudentBlockStats extends ParseObject{
         public static final String correct = "correct";
     }
 
+    public int getBlockNum() { return getInt(SuperColumns.blockNum); }
+    public int getTotal() { return getInt(SuperColumns.total); }
+    public int getCorrect() { return getInt(SuperColumns.correct); }
+
     public StudentBlockStats() {
-//        if(!App.isInitFinished() || !UserUtils.isUserLoggedIn())
-//            return;
-//        put(SuperColumns.baseUserId, UserUtils.getCurrentUserId());
-//        put(SuperColumns.total, 0);
-//        put(SuperColumns.correct, 0);
-//        SubclassUtils.addToSaveQueue(this);
     }
 
     private void initFields(String category) {
@@ -83,7 +82,7 @@ public abstract class StudentBlockStats extends ParseObject{
         Map<Class<? extends StudentBlockStats>, StudentBlockStatsSubclassInterface> subclasses = getSubclassesMap();
 
         final long start;
-        ParallelOption option = ParallelOption.ALL_AT_ONCE;
+        ParallelOption option = ParallelOption.NONE;
         Iterator<Class<? extends StudentBlockStats>> iterator = subclasses.keySet().iterator();
 
         if(option == ParallelOption.NONE) {
@@ -159,7 +158,8 @@ public abstract class StudentBlockStats extends ParseObject{
         .continueWith(new Continuation<StudentBlockStats, Void>() {
             @Override
             public Void then(Task<StudentBlockStats> task) throws Exception {
-                createIfNecessaryAndIncrement(task.getResult(), clazz, inter.getClassName(), category, correct);
+                createIfNecessaryAndIncrement(task.getResult(), clazz, inter.getClassName(), category,
+                                                inter.getPinnedStatsToUnpin(category), correct);
                 return null;
             }
         });
@@ -183,18 +183,17 @@ public abstract class StudentBlockStats extends ParseObject{
         if(correct)
             increment(SuperColumns.correct);
         Log.i("total", Integer.toString(getInt(SuperColumns.total)));
-        ParseObjectUtils.addToSaveQueue(this);
     }
 
-    private static void createIfNecessaryAndIncrement(StudentBlockStats blockStats, Class clazz,
-                                                      String className, String category, boolean correct) {
+    private static void createIfNecessaryAndIncrement(StudentBlockStats blockStats, Class clazz, String className, String category,
+                                                      ParseQuery deletePinQuery, boolean correct) {
         if(blockStats == null) {
             blockStats = createInstance(clazz);
             blockStats.initFields(category);
-            ParseObjectUtils.unpinAllInBackground(className);
-            ParseObjectUtils.pinInBackground(className, blockStats);
+            ParseObjectUtils.unpinAllInBackground(deletePinQuery);
         }
         blockStats.increment(correct);
+        ParseObjectUtils.addToSaveThenPinQueue(className, blockStats);
     }
 
     private static <T extends StudentBlockStats> T createInstance(Class<T> clazz) {
@@ -260,5 +259,18 @@ public abstract class StudentBlockStats extends ParseObject{
 
     private void doSetBlockNum(int num) {
         put(SuperColumns.blockNum, num);
+    }
+
+    @Override
+    public String toString() {
+        String s = "";
+        HashMap<String, String> map = new HashMap<>();
+        map.put(SuperColumns.blockNum, String.format("%2d", getBlockNum()));
+        map.put("objectId", getObjectId());
+        for(String key : map.keySet()) {
+            s += key + ": " + map.get(key) + " | ";
+        }
+        s += String.valueOf(getCorrect()) + "/" + String.valueOf(getTotal());
+        return s;
     }
 }
