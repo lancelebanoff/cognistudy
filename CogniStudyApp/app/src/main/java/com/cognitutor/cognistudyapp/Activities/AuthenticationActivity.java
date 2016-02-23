@@ -5,6 +5,7 @@ import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -68,6 +69,7 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     public void navigateToRegistrationActivity() {
+        UserUtils.setUserLoggedIn(false);
         doNavigate(RegistrationActivity.class, true);
     }
 
@@ -83,32 +85,34 @@ class AuthenticationActivity extends CogniActivity {
 
         final ParseInstallation installation = setUpInstallation(user.getObjectId());
 
-        publicUserData.pinInBackground("CurrentUser", new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
+        //TODO: This does not add a PinnedObject instance for current user since the user has not been saved to Parse yet
+        ParseObjectUtils.pinInBackground("CurrentUser", publicUserData)
+            .continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    if (task.isFaulted()) {
+                        Log.e("pinInBackground", task.getError().getMessage());
+                    }
+                    //noinspection ConstantConditions
+                    if(fbLinked) {
+                        FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
+                            @Override
+                            public Void then(Task<Void> task) throws Exception {
 
-                if (e != null) {
-                    Log.e("pinInBackground", e.getMessage());
-                }
-                //noinspection ConstantConditions
-                if(fbLinked) {
-                    FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
-                        @Override
-                        public Void then(Task<Void> task) throws Exception {
-
-                            if (task.isFaulted()) {
-                                Log.e("getFriendsInBackground", task.getError().getMessage());
+                                if (task.isFaulted()) {
+                                    Log.e("getFriendsInBackground", task.getError().getMessage());
+                                }
+                                saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
+                                return null;
                             }
-                            saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
-                            return null;
-                        }
-                    });
+                        });
+                    }
+                    else {
+                        saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
+                    }
+                    return null;
                 }
-                else {
-                    saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
-                }
-            }
-        });
+            });
     }
 
     private void saveObjects(PrivateStudentData privateStudentData, Student student, PublicUserData publicUserData,

@@ -12,10 +12,15 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class CogniActivity extends AppCompatActivity {
 
@@ -103,12 +108,19 @@ public class CogniActivity extends AppCompatActivity {
     // </editor-fold>
 
     public void logout() throws ParseException {
-        ParseObject.unpinAll("CurrentUser");
-        ParseObject.unpinAll("fbFriends");
-        ParseUser.logOut();
+        UserUtils.setUserLoggedIn(false);
+        ParseObjectUtils.unpinAllInBackground()
+            .continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    ParseUser.logOut();
+                    return null;
+                }
+            });
     }
 
     // Check for Internet connectivity
+    //TODO: Add this to QueryUtils functions
     private static boolean isNetworkConnected() {
 
         //Log.d(TAG, "Checking connectivity");

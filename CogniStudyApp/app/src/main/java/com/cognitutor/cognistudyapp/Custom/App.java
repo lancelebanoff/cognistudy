@@ -5,19 +5,31 @@ import android.app.Application;
 import android.os.Bundle;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectBlockStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -28,6 +40,7 @@ import com.facebook.ProfileTracker;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.parse.ParseRole;
 
 /**
  * Created by Kevin on 12/30/2015.
@@ -38,6 +51,7 @@ public class App extends Application {
     public static AccessTokenTracker accessTokenTracker;
     public static ProfileTracker profileTracker;
     public static boolean isLocalDatastoreEnabled;
+    private static boolean initFinished = false;
 
     @Override public void onCreate() {
         super.onCreate();
@@ -49,6 +63,7 @@ public class App extends Application {
         FacebookSdk.sdkInitialize(getApplicationContext());
 
         Foreground.init(this);
+        initFinished = true;
 
         callbackManager = CallbackManager.Factory.create();
         accessTokenTracker = new AccessTokenTracker() {
@@ -64,7 +79,10 @@ public class App extends Application {
                 //TODO: Do something here
             }
         };
+
     }
+
+    public static boolean isInitFinished() { return initFinished; }
 
     private void registerSubclasses() {
         ParseObject.registerSubclass(Achievement.class);
@@ -82,6 +100,15 @@ public class App extends Application {
         ParseObject.registerSubclass(QuestionContents.class);
         ParseObject.registerSubclass(QuestionData.class);
         ParseObject.registerSubclass(QuestionBundle.class);
+        ParseObject.registerSubclass(AnsweredQuestionId.class);
+        ParseObject.registerSubclass(Response.class);
+        ParseObject.registerSubclass(StudentCategoryDayStats.class);
+        ParseObject.registerSubclass(StudentCategoryTridayStats.class);
+        ParseObject.registerSubclass(StudentCategoryMonthStats.class);
+        ParseObject.registerSubclass(StudentSubjectDayStats.class);
+        ParseObject.registerSubclass(StudentSubjectTridayStats.class);
+        ParseObject.registerSubclass(StudentSubjectMonthStats.class);
+        ParseObject.registerSubclass(PinnedObject.class);
     }
 }
 

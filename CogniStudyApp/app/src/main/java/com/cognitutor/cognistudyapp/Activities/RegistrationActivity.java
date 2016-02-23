@@ -11,7 +11,7 @@ import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -22,10 +22,10 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,16 +33,10 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -53,6 +47,11 @@ public class RegistrationActivity extends AuthenticationActivity {
     private String facebookId;
     private String displayName;
     private static final String TAG = "RegistrationActivity";
+
+    private ParseQuery<AnsweredQuestionId> getTestQuery(String id) {
+        return ParseQuery.getQuery(AnsweredQuestionId.class)
+                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +90,10 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     Log.d("Onclick", "User cancelled the Facebook login");
                                 } else if (user.isNew()) {
                                     Log.d("Onclick", "New user!");
+                                    UserUtils.setUserLoggedIn(true);
                                     getUserDetailsFromFB();
                                 } else {
+                                    UserUtils.setUserLoggedIn(true);
                                     setUpLocalDataStore();
                                     FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
                                         @Override

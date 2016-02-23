@@ -13,7 +13,6 @@ import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
@@ -21,7 +20,6 @@ import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseException;
 
 public class MainActivity extends AuthenticationActivity {
 
@@ -33,10 +31,6 @@ public class MainActivity extends AuthenticationActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try {
-            UserUtils.pinTest();
-        }
-        catch (ParseException e) { handleParseError(e); }
 
         // Sliding tabs
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -48,11 +42,6 @@ public class MainActivity extends AuthenticationActivity {
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
         setTabLayoutIconsAndColors(tabLayout);
-
-        try {
-            UserUtils.getPinTest();
-        }
-        catch (ParseException e) { handleParseError(e); }
     }
 
     private void setTabLayoutIconsAndColors(TabLayout tabLayout) {
@@ -114,13 +103,18 @@ public class MainActivity extends AuthenticationActivity {
         });
     }
 
+    //TODO: Remove testing later
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            UserUtils.getPinTest();
-        }
-        catch (ParseException e) { handleParseError(e); }
+        onResumeTest();
+    }
+
+    //TODO: Remove testing later
+    @Override
+    protected void onPause() {
+        super.onPause();
+        onPauseTest();
     }
 
     @Override
@@ -202,5 +196,20 @@ public class MainActivity extends AuthenticationActivity {
 //                return "Menu";
             return "";
         }
+    }
+    private void onResumeTest() {
+//        DateUtils.test(true);
+//        QueryUtils.testCacheThenNetwork();
+//        ParseObjectUtils.testPins(false);
+//        try {
+//            UserUtils.getPinTest();
+//        }
+//        catch (ParseException e) { handleParseError(e); }
+    }
+
+    private static boolean onPauseFinished = false;
+
+    private void onPauseTest() {
+//        ParseObjectUtils.testPins(true);
     }
 }

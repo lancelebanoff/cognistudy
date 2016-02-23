@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -89,28 +90,16 @@ public class Student extends ParseObject{
         return ParseQuery.getQuery(Student.class);
     }
 
-    public static Student getStudent() {
-        return getStudent(ParseUser.getCurrentUser().getObjectId());
-    }
-
-    public static Student getStudent(String baseUserId) {
-
-        try { return getLocalDataQuery(baseUserId).getFirst(); }
-        catch (ParseException e) { e.printStackTrace(); return null; }
-    }
-
     public static Task<Student> getStudentInBackground() {
         return getStudentInBackground(ParseUser.getCurrentUser().getObjectId());
     }
 
-    public static Task<Student> getStudentInBackground(String baseUserId) {
-        return getLocalDataQuery(baseUserId).getFirstInBackground();
-    }
-
-    private static ParseQuery<Student> getLocalDataQuery(String baseUserId) {
-
-        return Student.getQuery()
-                .fromLocalDatastore()
-                .whereEqualTo(Columns.baseUserId, baseUserId);
+    public static Task<Student> getStudentInBackground(final String baseUserId) {
+        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<Student>() {
+            @Override
+            public ParseQuery<Student> buildQuery() {
+                return Student.getQuery().whereEqualTo(Columns.baseUserId, baseUserId);
+            }
+        }, true);
     }
 }

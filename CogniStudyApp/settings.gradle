@@ -1,1 +1,1 @@
-include ':MathView-0.0.4', ':app'
+include ':app', ':MathView-0.0.4'

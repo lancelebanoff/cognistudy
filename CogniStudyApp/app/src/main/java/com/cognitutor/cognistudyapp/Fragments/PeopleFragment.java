@@ -2,28 +2,18 @@ package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ListView;
 import android.widget.SearchView;
 
 import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.Activities.TutorProfileActivity;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
-import com.cognitutor.cognistudyapp.Custom.PeopleQueryAdapter;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.Adapters.PeopleQueryAdapter;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
-
-import java.util.List;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -32,7 +22,8 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
 
     private PeopleListOnClickHandler onClickHandler;
     private PeopleQueryAdapter peopleQueryAdapter;
-    private ListView listView;
+//    private ListView listView;
+    private RecyclerView recyclerView;
     private SearchView searchView;
 
     public static final PeopleFragment newInstance(PeopleListOnClickHandler onClickHandler) {
@@ -82,13 +73,10 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         });
 
         peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler);
-        /*
-        peopleQueryAdapter.setTextKey(PublicUserData.Columns.displayName);
-        peopleQueryAdapter.setImageKey(PublicUserData.Columns.profilePic);
-        */
 
-        listView = (ListView) rootView.findViewById(R.id.list);
-        listView.setAdapter(peopleQueryAdapter);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(peopleQueryAdapter);
         peopleQueryAdapter.loadObjects();
 
         return rootView;

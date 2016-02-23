@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class LoadingActivity extends Activity {
 
