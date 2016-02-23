@@ -17,6 +17,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
@@ -91,6 +92,7 @@ public class App extends Application {
         ParseObject.registerSubclass(Challenge.class);
         ParseObject.registerSubclass(ChallengeUserData.class);
         ParseObject.registerSubclass(GameBoard.class);
+        ParseObject.registerSubclass(Ship.class);
         ParseObject.registerSubclass(StudentCategoryRollingStats.class);
         ParseObject.registerSubclass(StudentSubjectRollingStats.class);
         ParseObject.registerSubclass(StudentTotalRollingStats.class);

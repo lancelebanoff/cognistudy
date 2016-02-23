@@ -54,7 +54,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         mChallengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
         mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
 
-        ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, mUser1or2, false)
+        ChallengeUtils.initializeNewBattleshipBoardManager(this, mChallengeId, mUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {
@@ -101,7 +101,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     }
 
     public void onClick_btnStartChallenge(View view) {
-        mBattleshipBoardManager.saveGameBoard();
+        mBattleshipBoardManager.saveNewGameBoard();
         if(mUser1or2 == 1) {
             setChallengeActivated();
         }

@@ -52,4 +52,14 @@
     <string name="yes_dialog_accept_challenge">Yes</string>
     <string name="no_dialog_accept_challenge">No</string>
     <string name="cancel_dialog_accept_challenge">Cancel</string>
+    <string name="blank_score"></string>
+    <string name="title_dialog_won_challenge">You win!</string>
+    <string name="message_dialog_won_challenge">Congratulations! You win the challenge.</string>
+    <string name="yes_dialog_won_challenge">Yay!</string>
+    <string name="title_dialog_lost_challenge">So sorry...</string>
+    <string name="message_dialog_lost_challenge">You lose the challenge.</string>
+    <string name="yes_dialog_lost_challenge">Darn</string>
+    <string name="title_dialog_quit_challenge">Resign</string>
+    <string name="message_dialog_quit_challenge">Are you sure you want to resign?</string>
+    <string name="num_shots_remaining">Shots remaining: </string>
 </resources>

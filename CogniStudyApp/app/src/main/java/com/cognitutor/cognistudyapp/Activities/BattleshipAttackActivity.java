@@ -7,12 +7,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseFile;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -29,30 +31,45 @@ public class BattleshipAttackActivity extends CogniActivity {
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
     private BattleshipBoardManager mBattleshipBoardManager;
+    private boolean mScoresHaveBeenLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_battleship_attack);
         mIntent = getIntent();
+        mScoresHaveBeenLoaded = false;
+
+        // Exit ChallengeActivity
+        Intent finishActivityIntent = new Intent(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY);
+        sendBroadcast(finishActivityIntent);
 
         initializeBoard();
     }
 
     private void initializeBoard() {
         String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        int currentUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        int opponentUser1or2 = currentUser1or2 == 1 ? 2: 1;
 
-        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, user1or2, true)
+        ChallengeUtils.initializeBattleshipBoardManager(this, challengeId, currentUser1or2, opponentUser1or2, true)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
                     public Void then(Task<BattleshipBoardManager> task) throws Exception {
                         mBattleshipBoardManager = task.getResult();
 
+                        TextView txtNumShotsRemaining = (TextView) findViewById(R.id.txtNumShotsRemaining);
+                        mBattleshipBoardManager.startShowingNumShotsRemaining(txtNumShotsRemaining);
+
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 initializeGridLayouts();
+                                if (!mScoresHaveBeenLoaded) {
+                                    showScores();
+                                    showProfilePictures();
+                                    mScoresHaveBeenLoaded = true;
+                                }
                             }
                         });
 
@@ -85,34 +102,31 @@ public class BattleshipAttackActivity extends CogniActivity {
         });
     }
 
-    public void onClick_btnDone(View view) {
-        setOtherPlayerTurn();
-
-        // Exit ChallengeActivity and start a new one
-        Intent finishActivityIntent = new Intent(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY);
-        sendBroadcast(finishActivityIntent);
-        Intent startActivityIntent = new Intent(this, ChallengeActivity.class);
-        startActivityIntent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        startActivityIntent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        startActivity(startActivityIntent);
-        finish();
+    private void showScores() {
+        TextView txtScore = (TextView) findViewById(R.id.txtScore);
+        int[] scores = mBattleshipBoardManager.getScores();
+        txtScore.setText(scores[0] + " - " + scores[1]);
     }
 
-    private void setOtherPlayerTurn() {
-        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        Challenge.getChallenge(challengeId)
-                .onSuccess(new Continuation<Challenge, Void>() {
-                    @Override
-                    public Void then(Task<Challenge> task) throws Exception {
-                        Challenge challenge = task.getResult();
-                        String curTurnUserId = challenge.getCurTurnUserId();
-                        String otherTurnUserId = challenge.getOtherTurnUserId();
-                        challenge.setCurTurnUserId(otherTurnUserId);
-                        challenge.setOtherTurnUserId(curTurnUserId);
-                        challenge.saveInBackground();
-                        return null;
-                    }
-                });
+    private void showProfilePictures() {
+        ParseFile[] parseFiles = mBattleshipBoardManager.getProfilePictures();
+        RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfileRounded1);
+        RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfileRounded2);
+        img1.setParseFile(parseFiles[0]);
+        img1.loadInBackground();
+        img2.setParseFile(parseFiles[1]);
+        img2.loadInBackground();
+    }
+
+    @Override
+    public void onBackPressed() {
+        mBattleshipBoardManager.saveGameBoard();
+        super.onBackPressed();
+    }
+
+    public void onClick_btnDone(View view) {
+        mBattleshipBoardManager.saveGameBoard();
+        finish();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:text="R"
         android:id="@+id/btnResign"
+        android:onClick="onClick_btnResign"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -22,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="Your turn!"
         android:id="@+id/btnYourTurn"
-        android:onClick="navigateToQuestionActivity"
+        android:onClick="onClick_btnYourTurn"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:visibility="invisible"/>
@@ -49,22 +50,45 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Switch"
+        android:id="@+id/btnSwitchView"
+        android:onClick="onClick_btnSwitchView"
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
     <GridLayout
         android:id="@+id/shipsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnYourTurn" />
 
     <GridLayout
         android:id="@+id/targetsGridLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/headerChallengeScore"
         android:layout_above="@+id/btnYourTurn" />
+
+    <GridLayout
+        android:id="@+id/animationsGridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/headerChallengeScore"
+        android:layout_above="@+id/btnYourTurn" />
+
+    <include layout="@layout/header_challenge_score"
+        android:id="@+id/headerChallengeScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"/>
 
 </RelativeLayout>

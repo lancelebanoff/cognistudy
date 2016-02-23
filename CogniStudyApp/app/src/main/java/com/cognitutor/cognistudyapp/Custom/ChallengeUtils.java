@@ -5,6 +5,10 @@ import android.app.Activity;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
+import com.parse.ParseObject;
+
+import java.util.List;
 
 import bolts.Capture;
 import bolts.Continuation;
@@ -15,11 +19,10 @@ import bolts.Task;
  */
 public class ChallengeUtils {
 
-    public static Task<BattleshipBoardManager> initializeBattleshipBoardManager(
+    public static Task<BattleshipBoardManager> initializeNewBattleshipBoardManager(
             final Activity activity, String challengeId, final int user1or2, final boolean canBeAttacked) {
 
         final Capture<Challenge> challengeCapture = new Capture<>(null);
-        final Capture<ChallengeUserData> challengeUserDataCapture = new Capture<>(null);
 
         Task<BattleshipBoardManager> task = Challenge.getChallenge(challengeId)
                 .onSuccessTask(new Continuation<Challenge, Task<ChallengeUserData>>() {
@@ -27,29 +30,46 @@ public class ChallengeUtils {
                     public Task<ChallengeUserData> then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         challengeCapture.set(challenge);
-                        return Challenge.getChallengeUserData(challenge, user1or2);
+                        return challenge.getChallengeUserData(user1or2).fetchInBackground();
                     }
-                }).onSuccessTask(new Continuation<ChallengeUserData, Task<GameBoard>>() {
+                }).onSuccess(new Continuation<ChallengeUserData, BattleshipBoardManager>() {
                     @Override
-                    public Task<GameBoard> then(Task<ChallengeUserData> task) {
+                    public BattleshipBoardManager then(Task<ChallengeUserData> task) {
                         ChallengeUserData challengeUserData = task.getResult();
-                        challengeUserDataCapture.set(challengeUserData);
-                        return challengeUserData.getGameBoard();
-                    }
-                }).onSuccess(new Continuation<GameBoard, BattleshipBoardManager>() {
-                    @Override
-                    public BattleshipBoardManager then(Task<GameBoard> task) {
-                        GameBoard gameBoard;
-                        if(task != null) {
-                            gameBoard = task.getResult();
-                        }
-                        else {
-                            gameBoard = null;
-                        }
                         Challenge challenge = challengeCapture.get();
-                        ChallengeUserData challengeUserData = challengeUserDataCapture.get();
                         return new BattleshipBoardManager(activity, challenge, challengeUserData,
-                                gameBoard, canBeAttacked);
+                                canBeAttacked);
+                    }
+                });
+
+        return task;
+    }
+
+    public static Task<BattleshipBoardManager> initializeBattleshipBoardManager(
+            final Activity activity, String challengeId, final int currentUser1or2,
+            final int viewingUser1or2, final boolean canBeAttacked) {
+
+        Task<BattleshipBoardManager> task = Challenge.getChallenge(challengeId)
+                .onSuccess(new Continuation<Challenge, BattleshipBoardManager>() {
+                    @Override
+                    public BattleshipBoardManager then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        ChallengeUserData viewedUserData = challenge.getChallengeUserData(viewingUser1or2)
+                                .fetch();
+                        ChallengeUserData currentUserData = challenge.getChallengeUserData(currentUser1or2)
+                                .fetch();
+                        ChallengeUserData opponentUserData = challenge.getChallengeUserData(currentUser1or2 == 1 ? 2 : 1)
+                                .fetch();
+
+                        GameBoard gameBoard = viewedUserData.getGameBoard();
+                        List<Ship> ships = null;
+                        if(gameBoard != null) {
+                            gameBoard = gameBoard.fetch();
+                            ships = ParseObject.fetchAll(gameBoard.getShips());
+                        }
+
+                        return new BattleshipBoardManager(activity, challenge, viewedUserData,
+                                currentUserData, opponentUserData, gameBoard, ships, canBeAttacked);
                     }
                 });
 

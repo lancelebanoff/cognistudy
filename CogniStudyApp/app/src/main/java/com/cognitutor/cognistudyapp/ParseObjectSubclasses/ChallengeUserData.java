@@ -6,8 +6,6 @@ import com.parse.ParseObject;
 
 import java.util.List;
 
-import bolts.Task;
-
 /**
  * Created by Lance on 1/9/2016.
  */
@@ -26,7 +24,6 @@ public class ChallengeUserData extends ParseObject {
     public ChallengeUserData(PublicUserData publicUserData, List<String> subjects, List<String> categories) {
         put(Columns.publicUserData, publicUserData);
         put(Columns.score, 0);
-        // TODO:1 put gameboard and responses
         put(Columns.subjects, subjects);
         put(Columns.categories, categories);
     }
@@ -34,7 +31,6 @@ public class ChallengeUserData extends ParseObject {
     public ChallengeUserData(PublicUserData publicUserData) {
         put(Columns.publicUserData, publicUserData);
         put(Columns.score, 0);
-        // TODO:1 put gameboard and responses
     }
 
     public ChallengeUserData() {}
@@ -48,8 +44,6 @@ public class ChallengeUserData extends ParseObject {
         }
         return null;
     }
-
-    // TODO:1 get rid of useless methods
 
     public void setPublicUserData(PublicUserData publicUserData) {
         put(Columns.publicUserData, publicUserData);
@@ -67,14 +61,8 @@ public class ChallengeUserData extends ParseObject {
         increment(Columns.score);
     }
 
-    public Task<GameBoard> getGameBoard() {
-        GameBoard gameBoard = (GameBoard) getParseObject(Columns.gameBoard);
-        if(gameBoard != null) {
-            return gameBoard.fetchInBackground();
-        }
-        else {
-            return null;
-        }
+    public GameBoard getGameBoard() {
+        return (GameBoard) getParseObject(Columns.gameBoard);
     }
 
     public void setGameBoard(GameBoard gameBoard) {

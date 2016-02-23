@@ -5,6 +5,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.Date;
+import java.util.List;
 
 import bolts.Task;
 
@@ -31,6 +32,8 @@ public class Challenge extends ParseObject {
         public static final String accepted = "accepted";
         public static final String activated = "activated";
         public static final String hasEnded = "hasEnded";
+        public static final String thisTurnQuestionIds = "thisTurnQuestionIds";
+        public static final String correctAnsThisTurn = "correctAnsThisTurn";
     }
 
     public Challenge(ChallengeUserData user1Data, String challengeType) {
@@ -41,6 +44,9 @@ public class Challenge extends ParseObject {
         setAccepted(false);
         setActivated(false);
         setHasEnded(false);
+        setQuesAnsThisTurn(0);
+        setCorrectAnsThisTurn(0);
+        setNumShotsRemaining(0);
     }
 
     public Challenge() {}
@@ -53,20 +59,20 @@ public class Challenge extends ParseObject {
         return getQuery().whereEqualTo(Columns.objectId, objectId).getFirstInBackground();
     }
 
-    public static Task<ChallengeUserData> getChallengeUserData(Challenge challenge, int user1or2) {
+    public ChallengeUserData getChallengeUserData(int user1or2) {
         ChallengeUserData challengeUserData;
         switch (user1or2) {
             case 1:
-                challengeUserData = challenge.getUser1Data();
+                challengeUserData = getUser1Data();
                 break;
             case 2:
-                challengeUserData = challenge.getUser2Data();
+                challengeUserData = getUser2Data();
                 break;
             default:
                 challengeUserData = null;
                 break;
         }
-        return challengeUserData.fetchInBackground();
+        return challengeUserData;
     }
 
     public String getChallengeType() {
@@ -80,8 +86,6 @@ public class Challenge extends ParseObject {
     public ChallengeUserData getUser1Data() {
         return (ChallengeUserData) getParseObject(Columns.user1Data);
     }
-
-    // TODO:1 get rid of useless methods
 
     public void setUser1Data(ChallengeUserData user1Data) {
         put(Columns.user1Data, user1Data);
@@ -119,11 +123,23 @@ public class Challenge extends ParseObject {
         put(Columns.quesAnsThisTurn, quesAnsThisTurn);
     }
 
-    public String getNumShotsRemaining() {
-        return getString(Columns.numShotsRemaining);
+    public int incrementAndGetQuesAnsThisTurn() {
+        int quesAnsThisTurn = getQuesAnsThisTurn() + 1;
+        setQuesAnsThisTurn(quesAnsThisTurn);
+        return quesAnsThisTurn;
     }
 
-    public void setNumShotsRemaining(String numShotsRemaining) {
+    // If the number of shots has not been set yet, then set it. Then return the number of shots
+    public int initializeAndGetNumShotsRemaining() {
+        int numShotsRemaining = getInt(Columns.numShotsRemaining);
+        if(numShotsRemaining == 0) {
+            numShotsRemaining = getCorrectAnsThisTurn() + 1;
+            setNumShotsRemaining(numShotsRemaining);
+        }
+        return numShotsRemaining;
+    }
+
+    public void setNumShotsRemaining(int numShotsRemaining) {
         put(Columns.numShotsRemaining, numShotsRemaining);
     }
 
@@ -159,6 +175,10 @@ public class Challenge extends ParseObject {
         put(Columns.numTurns, numTurns);
     }
 
+    public void incrementNumTurns() {
+        put(Columns.numTurns, getNumTurns() + 1);
+    }
+
     public String getWinner() {
         return getString(Columns.winner);
     }
@@ -189,5 +209,25 @@ public class Challenge extends ParseObject {
 
     public void setHasEnded(boolean hasEnded) {
         put(Columns.hasEnded, hasEnded);
+    }
+
+    public List<String> getThisTurnQuestionIds() {
+        return (List<String>) get(Columns.thisTurnQuestionIds);
+    }
+
+    public void setThisTurnQuestionIds(List<String> thisTurnQuestionIds) {
+        put(Columns.thisTurnQuestionIds, thisTurnQuestionIds);
+    }
+
+    public int getCorrectAnsThisTurn() {
+        return getInt(Columns.correctAnsThisTurn);
+    }
+
+    public void setCorrectAnsThisTurn(int correctAnsThisTurn) {
+        put(Columns.correctAnsThisTurn, correctAnsThisTurn);
+    }
+
+    public void incrementCorrectAnsThisTurn() {
+        put(Columns.correctAnsThisTurn, getCorrectAnsThisTurn() + 1);
     }
 }

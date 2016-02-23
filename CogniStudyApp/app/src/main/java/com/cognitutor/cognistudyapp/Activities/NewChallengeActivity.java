@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -93,7 +92,7 @@ public class NewChallengeActivity extends CogniActivity {
             mRgTests.addView(radioButton);
 
             // Initialize chosen test to Both
-            // TODO:1 Initialize chosen tests, subjects, and categories to whatever was chosen last time
+            // TODO:2 Initialize chosen tests, subjects, and categories to whatever was chosen last time
             if(testName.equals(DEFAULT_TEST)) {
                 mRbDefaultTest = radioButton;
             }
@@ -116,7 +115,7 @@ public class NewChallengeActivity extends CogniActivity {
             mSubjectCheckboxes.add(checkBox);
 
             // Initialize all subjects to be chosen
-            // TODO:1 Initialize chosen tests, subjects, and categories to whatever was chosen last time
+            // TODO:2 Initialize chosen tests, subjects, and categories to whatever was chosen last time
             checkBox.performClick();
         }
     }
@@ -173,23 +172,31 @@ public class NewChallengeActivity extends CogniActivity {
             }
         }
         else {
-            String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-            Challenge.getChallenge(challengeId)
-                    .onSuccess(new Continuation<Challenge, Void>() {
-                        @Override
-                        public Void then(Task<Challenge> task) throws Exception {
-                            Challenge challenge = task.getResult();
-                            ChallengeUserData user1Data = challenge.getUser1Data().fetchIfNeeded();
-                            PublicUserData user1PublicUserData = user1Data.getPublicUserData();
-                            String user1Name = user1PublicUserData.getDisplayName();
+            LinearLayout llOpponent = (LinearLayout) findViewById(R.id.llOpponent);
+            llOpponent.setVisibility(View.INVISIBLE);
 
-                            // TODO:2 Display name and photo
-                            TextView txtPlayerName = (TextView) findViewById(R.id.txtPlayerName);
-                            txtPlayerName.setText(user1Name);
-
-                            return null;
-                        }
-                    });
+//            String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+//            Challenge.getChallenge(challengeId)
+//                    .onSuccess(new Continuation<Challenge, Void>() {
+//                        @Override
+//                        public Void then(Task<Challenge> task) throws Exception {
+//                            // Retrieve opponent's name and photo
+//                            Challenge challenge = task.getResult();
+//                            ChallengeUserData user1Data = challenge.getUser1Data().fetchIfNeeded();
+//                            PublicUserData user1PublicUserData = user1Data.getPublicUserData();
+//                            String user1Name = user1PublicUserData.getDisplayName();
+//                            ParseFile user1Picture = user1PublicUserData.getProfilePic();
+//
+//                            // Display opponent's name and photo
+//                            TextView txtPlayerName = (TextView) findViewById(R.id.txtName);
+//                            txtPlayerName.setText(user1Name);
+//                            RoundedImageView profilePic = (RoundedImageView) findViewById(R.id.imgProfileRounded);
+//                            profilePic.setParseFile(user1Picture);
+//                            profilePic.loadInBackground();
+//
+//                            return null;
+//                        }
+//                    });
         }
     }
 
@@ -331,8 +338,10 @@ public class NewChallengeActivity extends CogniActivity {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
-                        ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
+                        challenge.setAccepted(true);
+                        challenge.saveInBackground();
 
+                        ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
                         user2Data.setSubjects(mSelectedSubjects);
                         user2Data.setCategories(mSelectedCategories);
                         user2Data.saveInBackground();
