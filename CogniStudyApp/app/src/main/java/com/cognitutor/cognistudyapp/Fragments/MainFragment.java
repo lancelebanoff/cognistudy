@@ -2,6 +2,8 @@ package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,11 +78,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         b.setOnClickListener(this);
 
         txtChange = (TextView) rootView.findViewById(R.id.txtChange);
-
-        createChallengeRequestListView(rootView);
-        createYourTurnListView(rootView);
-        createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
+        createAllListViews(rootView);
+        setSwipeRefreshLayout(rootView);
 
         return rootView;
     }
@@ -96,6 +95,13 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         super.onResume();
 
         View rootView = getActivity().findViewById(R.id.viewpager);
+        createChallengeRequestListView(rootView);
+        createYourTurnListView(rootView);
+        createTheirTurnListView(rootView);
+        createPastChallengeListView(rootView);
+    }
+
+    private void createAllListViews(View rootView) {
         createChallengeRequestListView(rootView);
         createYourTurnListView(rootView);
         createTheirTurnListView(rootView);
@@ -234,7 +240,28 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         listView.setLayoutParams(params);
     }
 
-    @Override
+    private void setSwipeRefreshLayout(View rootView) {
+        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh(swipeRefreshLayout);
+            }
+        });
+    }
+
+    private void refresh(final SwipeRefreshLayout swipeRefreshLayout) {
+        final View rootView = getView();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                createAllListViews(rootView);
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }, 1000);
+
+
+    }@Override
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:

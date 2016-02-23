@@ -1,9 +1,10 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/relativeLayout"
+    android:id="@+id/swipeRefreshLayout"
     tools:context=".Fragments.MainFragment">
 
     <ScrollView
@@ -203,4 +204,4 @@
 
         </RelativeLayout>
     </ScrollView>
-</RelativeLayout>
+</android.support.v4.widget.SwipeRefreshLayout>
