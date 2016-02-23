@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.*;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -36,12 +38,30 @@ public class Constants {
         return constants;
     }
 
+    public static String getRandomConstant(Class c) {
+
+        Field[] fields = c.getFields();
+        Random rand = new Random();
+        try {
+            return (String) fields[rand.nextInt(fields.length)].get(c);
+        } catch (IllegalAccessException e) { e.printStackTrace(); return null; }
+    }
+
     public static class NotificationData {
         public static final String ACTIVITY = "ACTIVITY";
         public static class Activity {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String CONVERSATION_ACTIVITY = "CONVERSATION_ACTIVITY";
         }
+    }
+
+    public static class ClassName {
+        public static final String StudentCategoryDayStats = StudentCategoryDayStats.class.getSimpleName();
+        public static final String StudentCategoryTridayStats = StudentCategoryTridayStats.class.getSimpleName();
+        public static final String StudentCategoryMonthStats = StudentCategoryMonthStats.class.getSimpleName();
+        public static final String StudentSubjectDayStats = StudentSubjectDayStats.class.getSimpleName();
+        public static final String StudentSubjectTridayStats = StudentSubjectTridayStats.class.getSimpleName();
+        public static final String StudentSubjectMonthStats = StudentSubjectMonthStats.class.getSimpleName();
     }
 
     public static class IntentExtra {

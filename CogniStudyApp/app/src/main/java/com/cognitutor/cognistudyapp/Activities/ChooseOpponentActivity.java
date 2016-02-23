@@ -18,6 +18,7 @@ import com.parse.GetCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.HashMap;
 
@@ -77,7 +78,7 @@ public class ChooseOpponentActivity extends CogniActivity {
 
                     challenge.setUser2Data(user2Data);
                     challenge.setCurTurnUserId(user2Data.getPublicUserData().getBaseUserId());
-                    challenge.setOtherTurnUserId(PublicUserData.getPublicUserData().getBaseUserId());
+                    challenge.setOtherTurnUserId(ParseUser.getCurrentUser().getObjectId());
                     challenge.saveInBackground();
                 } else {
                     e.printStackTrace();

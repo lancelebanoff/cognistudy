@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.parse.ParseClassName;
+import com.parse.ParseRelation;
 
 /**
  * Created by Kevin on 1/18/2016.
@@ -10,6 +11,7 @@ public class StudentCategoryRollingStats extends StudentTRollingStats {
 
     public class Columns {
         public static final String category = "category";
+        public static final String answeredQuestionIds = "answeredQuestionIds";
     }
 
     public StudentCategoryRollingStats() {}

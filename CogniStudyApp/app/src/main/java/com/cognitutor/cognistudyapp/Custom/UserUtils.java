@@ -14,6 +14,14 @@ import com.parse.ParseUser;
  */
 public class UserUtils {
 
+    private static boolean userLoggedIn;
+
+    public static void setUserLoggedIn(boolean val) {
+        userLoggedIn = val;
+    }
+
+    public static boolean isUserLoggedIn() { return userLoggedIn; }
+
     public static PublicUserData getPublicUserData() throws ParseException {
         return (PublicUserData) ParseUser.getCurrentUser().getParseObject("publicUserData").fetchIfNeeded();
     }
@@ -41,7 +49,8 @@ public class UserUtils {
         Log.d(TAG, "privateStudentData is " + (privateStudentData.isDataAvailable() ? "" : "not ") + "available");
         privateStudentData.fetchIfNeeded();
 
-        publicUserData.pin("CurrentUser");
+        ParseObjectUtils.unpinAll("CurrentUser");
+        ParseObjectUtils.pin("CurrentUser", publicUserData);
     }
 
     public static void getPinTest() throws ParseException {
@@ -87,5 +96,9 @@ public class UserUtils {
         */
 
         //Log.d("getPinTest", "Skipping method");
+    }
+
+    public static String getCurrentUserId() {
+        return ParseUser.getCurrentUser().getObjectId();
     }
 }

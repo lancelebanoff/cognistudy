@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FunctionCallback;
@@ -253,6 +254,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
                     }
                 }
                 else {
+                    UserUtils.setUserLoggedIn(true);
                     navigateToNewDestination(); //Will go to main activity if user has verified email and chosen display name, or appropriate activity otherwise
                 }
             }

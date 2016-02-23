@@ -22,6 +22,7 @@ import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseUser;
 import com.parse.ParseFile;
 
 import java.util.ArrayList;
@@ -119,7 +120,7 @@ public class ChallengeActivity extends CogniActivity {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
-                        String currentUserId = PublicUserData.getPublicUserData().getBaseUserId();
+                        String currentUserId = ParseUser.getCurrentUser().getObjectId();
                         boolean isCurrentUsersTurn = challenge.getCurTurnUserId().equals(currentUserId);
                         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
                         if (isCurrentUsersTurn && !challenge.getHasEnded()) {
