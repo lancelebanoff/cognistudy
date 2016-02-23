@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -244,6 +245,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     private void setSwipeRefreshLayout(View rootView) {
         final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -281,7 +283,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             case R.id.btnLogout:
                 try {
                     logout();
-                } catch (ParseException e) { handleParseError(e); return; }
+                } catch (ParseException e) { handleParseError(e);
+                    return; }
                 navigateToRegistrationActivity();
                 break;
             case R.id.btnViewLocalDatastore:
