@@ -17,9 +17,11 @@ import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 
@@ -43,8 +45,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private Intent mIntent;
     private ListView listView;
     private ActivityViewHolder avh;
-    private Question question;
-    private QuestionContents contents;
+    private Question mQuestion;
+    private QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
     private Challenge mChallenge = null;
     private int mQuesAnsThisTurn = -1;
@@ -67,12 +69,12 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     public void loadQuestion() {
 
         try {
-            question = Question.getQuestionWithContents(mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID));
+            mQuestion = Question.getQuestionWithContents(mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID));
         } catch(ParseException e) { handleParseError(e); return; }
 
-        contents = question.getQuestionContents();
+        mQuestionContents = mQuestion.getQuestionContents();
 
-        List<String> answers = contents.getAnswers();
+        List<String> answers = mQuestionContents.getAnswers();
         answerAdapter = new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER); //TODO: Choose letter or roman
         listView.setAdapter(answerAdapter);
 
@@ -84,12 +86,12 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             }
         });
 
-        avh.mvQuestion.setText(contents.getQuestionText());
+        avh.mvQuestion.setText(mQuestionContents.getQuestionText());
 //        avh.mvQuestion.loadUrl("file:///android_asset/html/passage.html");
-        avh.mvExplanation.setText(contents.getExplanation());
+        avh.mvExplanation.setText(mQuestionContents.getExplanation());
 
-        if(question.isBundle()) {
-            avh.wvPassage.loadData(buildPassageHtml(contents.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
+        if(mQuestion.isBundle()) {
+            avh.wvPassage.loadData(buildPassageHtml(mQuestionContents.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
         }
 //        avh.wvPassage.loadData(
 //                "<html><body>" +
@@ -110,7 +112,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     }
 
     private void loadChallenge() {
-        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        String challengeId = getChallengeId();
         Challenge.getChallenge(challengeId)
                 .continueWith(new Continuation<Challenge, Void>() {
                     @Override
@@ -120,6 +122,10 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                         return null;
                     }
                 });
+    }
+
+    private String getChallengeId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
     }
 
     private void addComponents() {
@@ -150,7 +156,15 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     }
 
     private boolean isSelectedAnswerCorrect() {
-        return answerAdapter.getSelectedAnswer() == contents.getCorrectIdx();
+        return getSelectedAnswer() == getCorrectAnswer();
+    }
+
+    private int getSelectedAnswer() {
+        return answerAdapter.getSelectedAnswer();
+    }
+
+    private int getCorrectAnswer() {
+        return mQuestionContents.getCorrectIdx();
     }
 
     public void showAnswer(View view) {
@@ -169,7 +183,21 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.setVisibility(View.INVISIBLE);
 
+        createResponse(isSelectedAnswerCorrect);
+
+        incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
+
         incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
+    }
+
+    private void createResponse(boolean isSelectedAnswerCorrect) {
+        //TODO: Implement rating
+        Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
+        ParseObjectUtils.pinThenSaveEventually(getChallengeId(), response);
+    }
+
+    private void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
+
     }
 
     private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {

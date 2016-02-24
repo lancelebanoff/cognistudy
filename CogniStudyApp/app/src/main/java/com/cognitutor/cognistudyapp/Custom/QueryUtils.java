@@ -35,6 +35,15 @@ public class QueryUtils {
     }
 
     // <editor-fold desc="findCacheElseNetworkInBackground">
+
+    /**
+     * Does a fromPin() query on the localDatastore followed by a network query
+     * @param builder The query to be executed, excluding fromPin()
+     * @param pinName The pin name to be used
+     * @param pinResult True if the results of the network query should be pinned with the supplied pinName
+     * @param <TClass> extends ParseObject
+     * @return
+     */
     public static <TClass extends ParseObject> Task<List<TClass>> findPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder,
                                                                                                  String pinName, boolean pinResult) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);

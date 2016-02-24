@@ -17,6 +17,7 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -260,16 +261,18 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                Intent intent = new Intent(getActivity(), QuestionActivity.class);
-                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
-                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
-                //eO4TCrdBdn
-                //fF4lsHt2iW
-                //zpyHpKMb5S
-                startActivity(intent);
+                DateUtils.test(false);
+//                Intent intent = new Intent(getActivity(), QuestionActivity.class);
+//                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
+//                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
+//                //eO4TCrdBdn
+//                //fF4lsHt2iW
+//                //zpyHpKMb5S
+//                startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
-                navigateToNewChallengeActivity();
+                DateUtils.test(false);
+//                navigateToNewChallengeActivity();
                 break;
             case R.id.btnLogout:
                 try {

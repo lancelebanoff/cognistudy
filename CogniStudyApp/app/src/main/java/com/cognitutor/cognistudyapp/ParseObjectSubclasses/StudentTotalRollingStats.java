@@ -12,6 +12,12 @@ public class StudentTotalRollingStats extends StudentTRollingStats {
     }
 
     public StudentTotalRollingStats() {}
+
+    /**
+     * Calls saveInBackground() after creation
+     *
+     * @param baseUserId
+     */
     public StudentTotalRollingStats(String baseUserId) {
         super(baseUserId);
         saveInBackground();

@@ -4,13 +4,19 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -138,6 +144,33 @@ public class ParseObjectUtils {
     }
     // </editor-fold>
 
+    // <editor-fold desc="Save and Pin">
+    public static Task<Void> saveThenPinInBackground(final String pinName, final ParseObject object) {
+        return object.saveInBackground()
+                .continueWithTask(new Continuation<Void, Task<Void>>() {
+                    @Override
+                    public Task<Void> then(Task<Void> task) throws Exception {
+                        return pinInBackground(pinName, object);
+                    }
+                });
+    }
+
+    /**
+     *
+     * Pins the object in the background with the given pinName and saves it eventually.
+     * <br />
+     * This DOES NOT create a PinnedObject for the object that is pinned
+     *
+     * @param pinName The pin name to assign to the object
+     * @param object The object to be pinned
+     *
+     */
+    public static void pinThenSaveEventually(String pinName, ParseObject object) {
+        object.pinInBackground(pinName);
+        object.saveEventually();
+    }
+    // </editor-fold>
+
     // <editor-fold desc="Pinning">
     public static class PinNames {
 
@@ -174,7 +207,8 @@ public class ParseObjectUtils {
     }
 
     public static void pinInBackground(ParseObject object) {
-        pinAllWithMax(null, convertToList(object));
+        object.pinInBackground();
+//        pinAllWithMax(null, convertToList(object));
     }
 
     public static Task<Void> pinInBackground(String pinName, ParseObject object) {
@@ -182,7 +216,8 @@ public class ParseObjectUtils {
     }
 
     public static <T extends ParseObject> Task<Void> pinAllInBackground(List<T> objects) {
-        return pinAllWithMaxInBackground(null, objects);
+        return ParseObject.pinAllInBackground(objects);
+//        return pinAllWithMaxInBackground(null, objects);
     }
 
     public static <T extends ParseObject> Task<Void> pinAllInBackground(String pinName, List<T> objects) {
@@ -190,6 +225,8 @@ public class ParseObjectUtils {
     }
 
     private static <T extends ParseObject> void doPinAll(final String pinName, final List<T> objects) throws ParseException{
+        if(pinName == null)
+            Log.e("doPinAll", "Pin name is null");
         addAllPinnedObjectsInBackground(pinName == null ? "" : pinName, objects);
         ParseObject.pinAll(objects);
     }
@@ -202,6 +239,9 @@ public class ParseObjectUtils {
 
     private static <T extends ParseObject> void pinAllWithMax(final String pinName, final List<T> objects) {
 
+        if(pinName == null) {
+            Log.e("pinAllWithMax", "pinName is null");
+        }
         //TODO: Take this out when testing with PinnedObject is removed
         //This section is probably only necessary for PinnedObject functionality. I believe that
         //ParseObject.pin() or pinAll() will still work if some of the objects are already pinned.
@@ -211,7 +251,7 @@ public class ParseObjectUtils {
             try {
                 T fromLocal = ParseQuery.getQuery((Class<T>) obj.getClass())
                         .fromLocalDatastore()
-                        .get(obj.getObjectId());
+                        .get(obj.getObjectId()); //TODO: What happens when obj.getObjectId is null?
             }
             catch (ParseException e) { //obj did not exist in the local datastore
                 if(e.getCode() != ErrorHandler.ErrorCode.OBJECT_NOT_FOUND) {
@@ -425,6 +465,12 @@ public class ParseObjectUtils {
         try {
             List<Class> classes = new ArrayList<Class>();
             classes.add(PublicUserData.class);
+            classes.add(Student.class);
+            classes.add(PrivateStudentData.class);
+            classes.add(StudentCategoryRollingStats.class);
+            classes.add(StudentSubjectRollingStats.class);
+            classes.add(StudentTotalRollingStats.class);
+            classes.add(Response.class);
             classes.add(StudentCategoryDayStats.class);
             classes.add(StudentCategoryTridayStats.class);
             classes.add(StudentCategoryMonthStats.class);
