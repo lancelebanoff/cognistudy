@@ -3,7 +3,6 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
@@ -37,7 +36,7 @@ class AuthenticationActivity extends CogniActivity {
 
         if(dest == MainActivity.class) {
             try {
-                UserUtils.pinTest();
+                UserUtils.pinCurrentUser();
             } catch (ParseException e) { handleParseError(e); ParseUser.logOut(); navigateToRegistrationActivity(); return; }
 
         }
@@ -59,7 +58,7 @@ class AuthenticationActivity extends CogniActivity {
 
     public void setUpLocalDataStore() {
         try {
-            UserUtils.pinTest();
+            UserUtils.pinCurrentUser();
         }
         catch (ParseException e) { handleParseError(e); return; }
     }
@@ -94,7 +93,7 @@ class AuthenticationActivity extends CogniActivity {
                         Log.e("pinInBackground", task.getError().getMessage());
                     }
                     //noinspection ConstantConditions
-                    if(fbLinked) {
+                    if (fbLinked) {
                         FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
                             @Override
                             public Void then(Task<Void> task) throws Exception {
@@ -106,8 +105,7 @@ class AuthenticationActivity extends CogniActivity {
                                 return null;
                             }
                         });
-                    }
-                    else {
+                    } else {
                         saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
                     }
                     return null;

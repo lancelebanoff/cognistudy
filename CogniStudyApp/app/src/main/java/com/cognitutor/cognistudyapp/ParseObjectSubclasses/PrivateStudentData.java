@@ -53,6 +53,8 @@ public class PrivateStudentData extends ParseObject{
         put(Columns.baseUserId, user.getObjectId());
     }
 
+    public String getBaseUserId() { return getString(Columns.baseUserId); }
+
     public static ParseQuery<PrivateStudentData> getQuery() {
         return ParseQuery.getQuery(PrivateStudentData.class);
     }
@@ -101,5 +103,10 @@ public class PrivateStudentData extends ParseObject{
             e.printStackTrace();
         }
         return friendPublicUserIds;
+    }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() + " | baseUserId: " + getBaseUserId();
     }
 }

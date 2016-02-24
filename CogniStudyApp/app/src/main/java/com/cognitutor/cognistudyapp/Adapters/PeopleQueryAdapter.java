@@ -138,28 +138,28 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 
         mCacheThenNetworkHelper.cancelAllQueries();
 
-        mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
-            @Override
-            public ParseQuery<PublicUserData> buildQuery() {
-                return PublicUserData.getQuery()
-                        .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
-            }
-        }, thisAdapter, ParseObjectUtils.PinNames.PeopleSearch, false)
-        .continueWithTask(new Continuation<List<PublicUserData>, Task<List<PublicUserData>>>() {
-            @Override
-            public Task<List<PublicUserData>> then(Task<List<PublicUserData>> task) throws Exception {
-
-                //If the user cancelled the search, the previous task will return null
-                if (task.getResult() == null)
-                    return null;
-
-                return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+        mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(ParseObjectUtils.PinNames.PeopleSearch,
+                false, thisAdapter, new QueryUtils.ParseQueryBuilder <PublicUserData> () {
                     @Override
                     public ParseQuery<PublicUserData> buildQuery() {
                         return PublicUserData.getQuery()
-                                .whereContains(PublicUserData.Columns.searchableDisplayName, q);
+                                .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
                     }
-                }, thisAdapter, ParseObjectUtils.PinNames.PeopleSearch, false);
+        })
+        .continueWithTask(new Continuation<List<PublicUserData>, Task<List<PublicUserData>>>() {
+            @Override
+            public Task<List<PublicUserData>> then(Task<List<PublicUserData>> task) throws Exception {
+                //If the user cancelled the search, the previous task will return null
+                if (task.getResult() == null)
+                    return null;
+                return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(ParseObjectUtils.PinNames.PeopleSearch,
+                        false, thisAdapter, new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+                            @Override
+                            public ParseQuery<PublicUserData> buildQuery() {
+                                return PublicUserData.getQuery()
+                                        .whereContains(PublicUserData.Columns.searchableDisplayName, q);
+                            }
+                });
             }
         });
     }

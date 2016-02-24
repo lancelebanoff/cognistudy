@@ -90,7 +90,14 @@ public class PublicUserData extends ParseObject{
     }
 
     public static PublicUserData getPublicUserData() {
-        return getPublicUserDataFromBaseUserId(ParseUser.getCurrentUser().getObjectId());
+        return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+            @Override
+            public ParseQuery<PublicUserData> buildQuery() {
+                return PublicUserData.getQuery()
+                        .whereEqualTo(Columns.baseUserId, UserUtils.getCurrentUserId());
+            }
+        });
+//        return getPublicUserDataFromBaseUserId(ParseUser.getCurrentUser().getObjectId());
     }
 
     public static PublicUserData getPublicUserData(String publicUserDataID) {
@@ -122,6 +129,6 @@ public class PublicUserData extends ParseObject{
 
     @Override
     public String toString() {
-        return "objectId: " + getObjectId() + " | " + getDisplayName();
+        return "objectId: " + getObjectId() + " | baseUserId: " + getBaseUserId() + " | " + getDisplayName();
     }
 }

@@ -5,9 +5,16 @@ import android.util.Log;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/7/2016.
@@ -30,8 +37,8 @@ public class UserUtils {
         return getPublicUserData().getStudent();
     }
 
-    public static void pinTest() throws  ParseException {
-        String TAG = "pinStudentObjects";
+    public static void pinCurrentUser() throws  ParseException {
+        String TAG = "pinCurrentUser";
         /*
         Log.d("pinSutdentObjects", "publicUserData " +
                 (ParseUser.getCurrentUser().getParseObject("publicUserData").isDataAvailable() ? "is available" : "is not available"));
@@ -43,7 +50,7 @@ public class UserUtils {
         Student student = (Student) publicUserData.getParseObject("student");
         Log.d(TAG, "student is " + (student.isDataAvailable() ? "" : "not ") + "available");
         student.fetchIfNeeded();
-        //TODO: Get and pin all Student_RollingStats objects from student
+        pinRollingStatsInBackground(student);
 
         PrivateStudentData privateStudentData = (PrivateStudentData) student.getParseObject("privateStudentData");
         Log.d(TAG, "privateStudentData is " + (privateStudentData.isDataAvailable() ? "" : "not ") + "available");
@@ -51,6 +58,26 @@ public class UserUtils {
 
         ParseObjectUtils.unpinAll("CurrentUser");
         ParseObjectUtils.pin("CurrentUser", publicUserData);
+    }
+
+    private static Task<Boolean> pinRollingStatsInBackground(final Student student) {
+
+        return Task.callInBackground(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                try {
+                    student.fetchIfNeeded();
+                } catch (ParseException e) { e.printStackTrace(); Log.e("pinRollingStatsInBg", e.getMessage()); return false; }
+                List<StudentTRollingStats> rollingStatsList = new ArrayList<>();
+                rollingStatsList.addAll(student.getStudentCategoryRollingStats());
+                rollingStatsList.addAll(student.getStudentSubjectRollingStats());
+                rollingStatsList.addAll(student.getStudentTotalRollingStats());
+                for(StudentTRollingStats rollingStats : rollingStatsList) {
+                    rollingStats.pin(ParseObjectUtils.PinNames.CurrentUser);
+                }
+                return true;
+            }
+        });
     }
 
     public static void getPinTest() throws ParseException {

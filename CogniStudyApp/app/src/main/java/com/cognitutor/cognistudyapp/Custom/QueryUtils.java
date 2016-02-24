@@ -34,20 +34,39 @@ public class QueryUtils {
         void onDataLoaded(List<T> list);
     }
 
-    // <editor-fold desc="findCacheElseNetworkInBackground">
-    public static <TClass extends ParseObject> Task<List<TClass>> findPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder,
-                                                                                                 String pinName, boolean pinResult) {
-        final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);
-        final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doFindCacheElseNetworkInBackground(localDataQuery, networkQuery, pinName, new Capture<Boolean>(pinResult));
+    public interface OnDataLoadedSingleObjectListener<T extends ParseObject> {
+        Activity getActivityForUIThread();
+        void onDataLoaded(T result);
     }
 
-    public static <TClass extends ParseObject> Task<List<TClass>> findCacheElseNetworkInBackground(ParseQueryBuilder<TClass> builder,
-                                                                                                   boolean pinResult) {
+    // <editor-fold desc="findCacheElseNetworkInBackground">
+
+    /**
+     * Does a fromPin(pinName) query on the localDatastore followed by a network query
+     * If no cached results are found, the network results will be pinned with the given pinName
+     * @param builder The query to be executed, excluding fromPin()
+     * @param pinName The pin name to be used
+     * @param <TClass> extends ParseObject
+     * @return
+     */
+    public static <TClass extends ParseObject> Task<List<TClass>> findPinElseNetworkInBackground(String pinName, ParseQueryBuilder<TClass> builder) {
+        final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);
+        final ParseQuery<TClass> networkQuery = builder.buildQuery();
+        return doFindCacheElseNetworkInBackground(localDataQuery, networkQuery, pinName, new Capture<Boolean>(true));
+    }
+
+    /**
+     * Does a fromLocalDatastore() query on the localDatastore followed by a network query
+     * If no cached results are found, the network results will be pinned with no pin name
+     * @param builder The query to be executed, excluding fromPin()
+     * @param <TClass> extends ParseObject
+     * @return
+     */
+    public static <TClass extends ParseObject> Task<List<TClass>> findCacheElseNetworkInBackground(ParseQueryBuilder<TClass> builder) {
 
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doFindCacheElseNetworkInBackground(localDataQuery, networkQuery, null, new Capture<Boolean>(pinResult));
+        return doFindCacheElseNetworkInBackground(localDataQuery, networkQuery, null, new Capture<Boolean>(true));
     }
 
     private static <TClass extends ParseObject> Task<List<TClass>> doFindCacheElseNetworkInBackground(
@@ -85,18 +104,17 @@ public class QueryUtils {
     // </editor-fold>
 
     // <editor-fold desc="getFirstCacheElseNetworkInBackground">
-    public static <TClass extends ParseObject> Task<TClass> getFirstPinElseNetworkInBackground(ParseQueryBuilder<TClass> builder,
-                                                                                               String pinName, boolean pinResult) {
+    public static <TClass extends ParseObject> Task<TClass> getFirstPinElseNetworkInBackground(String pinName, ParseQueryBuilder<TClass> builder) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, pinName, new Capture<Boolean>(pinResult));
+        return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, pinName, new Capture<Boolean>(true));
     }
 
-    public static <TClass extends ParseObject> Task<TClass> getFirstCacheElseNetworkInBackground(ParseQueryBuilder<TClass> builder, boolean pinResult) {
+    public static <TClass extends ParseObject> Task<TClass> getFirstCacheElseNetworkInBackground(ParseQueryBuilder<TClass> builder) {
 
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, null, new Capture<Boolean>(pinResult));
+        return doGetFirstCacheElseNetworkInBackground(localDataQuery, networkQuery, null, new Capture<Boolean>(true));
     }
 
     private static <TClass extends ParseObject> Task<TClass> doGetFirstCacheElseNetworkInBackground(
@@ -154,17 +172,16 @@ public class QueryUtils {
     // </editor-fold>
 
     // <editor-fold desc="getFirstCacheElseNetwork">
-    public static <TClass extends ParseObject> TClass getFirstCacheElseNetwork(ParseQueryBuilder<TClass> builder, boolean pinResult) {
+    public static <TClass extends ParseObject> TClass getFirstCacheElseNetwork(ParseQueryBuilder<TClass> builder) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, null, pinResult);
+        return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, null, true);
     }
 
-    public static <TClass extends ParseObject> TClass getFirstPinElseNetwork(ParseQueryBuilder<TClass> builder,
-                                                                             String pinName, boolean pinResult) {
+    public static <TClass extends ParseObject> TClass getFirstPinElseNetwork(String pinName, ParseQueryBuilder<TClass> builder) {
         final ParseQuery<TClass> localDataQuery = builder.buildQuery().fromPin(pinName);
         final ParseQuery<TClass> networkQuery = builder.buildQuery();
-        return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, pinName, pinResult);
+        return doGetFirstCacheElseNetwork(localDataQuery, networkQuery, pinName, true);
     }
 
     private static <TClass extends ParseObject> TClass doGetFirstCacheElseNetwork(
@@ -183,14 +200,68 @@ public class QueryUtils {
     }
     //</editor-fold>
 
-    //<editor-fold desc="findCacheThenNetworkInBackground">
-    public static <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(
-            ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
-            final String pinName, final boolean deleteOldPinnedResults) {
+    //<editor-fold desc="(find/getFirst)CacheThenNetworkInBackground">
+
+    /**
+     * Finds objects with the given query using fromLocalDatastore(), then updates the results with the network results. This DOES NOT
+     * use fromPin().
+     * <br />
+     * The OnDataLoadedListener's onLoaded() method will be called when results are returned from the cache, and again when results
+     * are returned from the network.
+     * @param pinName The pinName with which to pin the network results.
+     * @param deleteOldPinnedResults True if all objects previously pinned with this pinName should be unpinned
+     * @param builder
+     * @param listener
+     * @param <T> extends ParseObject
+     * @return
+     */
+    public static <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(final String pinName, final boolean deleteOldPinnedResults,
+                     final OnDataLoadedListener<T> listener, ParseQueryBuilder<T> builder) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
         return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, deleteOldPinnedResults, null);
+    }
+
+    /**
+     * Finds objects with the given query using fromPin(pinName), then updates the results with the network results.
+     * <br />
+     * The OnDataLoadedListener's onLoaded() method will be called when results are returned from the cache, and again when results
+     * are returned from the network.
+     * @param pinName The pinName with which to execute the cache query and with which to pin the network results.
+     * @param deleteOldPinnedResults True if all objects previously pinned with this pinName should be unpinned
+     * @param builder
+     * @param listener
+     * @param <T> extends ParseObject
+     * @return
+     */
+    public static <T extends ParseObject> Task<List<T>> findFromPinThenNetworkInBackground(final String pinName,
+                       final boolean deleteOldPinnedResults, final OnDataLoadedListener<T> listener, ParseQueryBuilder<T> builder) {
+
+        final ParseQuery<T> localDataQuery = builder.buildQuery().fromPin(pinName);
+        final ParseQuery<T> networkQuery = builder.buildQuery();
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, deleteOldPinnedResults, null);
+    }
+
+    /**
+     * Finds objects with the given query using fromLocalDatastore(), then updates the results with the network results. This does not
+     * use fromPin().
+     * <br />
+     * The network results will be pinned without a pinName.
+     * <br />
+     * The OnDataLoadedListener's onLoaded() method will be called when results are returned from the cache, and again when results
+     * are returned from the network.
+     * @param builder
+     * @param listener
+     * @param <T> extends ParseObject
+     * @return
+     */
+    public static <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackground(final OnDataLoadedListener<T> listener,
+                                                                                         ParseQueryBuilder<T> builder) {
+
+        final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
+        final ParseQuery<T> networkQuery = builder.buildQuery();
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, null, false, null);
     }
 
     protected <T extends ParseObject> Task<List<T>> doFindCacheThenNetworkInBackground(
@@ -202,10 +273,11 @@ public class QueryUtils {
         return Task.callInBackground(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
-                final List<T> localResults = doLocalFindQuery(localDataQuery);
+                List<T> localResults = doLocalFindQuery(localDataQuery);
                 if (isCancelled(helper, startTime))
                     return null;
-                runOnDataLoadedOnUIThread(listener, localResults);
+                if (listener != null)
+                    runOnDataLoadedOnUIThread(listener, localResults);
 
                 List<T> networkResults = doNetworkFindQuery(networkQuery);
                 final List<T> combined = new ArrayList<T>();
@@ -214,8 +286,8 @@ public class QueryUtils {
                 }
                 combined.addAll(networkResults);
                 if (pinName != null) {
-                    if(deleteOldPinnedResults) {
-                        ParseObjectUtils.unpinAllInBackground(pinName).waitForCompletion(); //TODO: Does this work?
+                    if (deleteOldPinnedResults) {
+                        ParseObjectUtils.unpinAllInBackground(pinName).waitForCompletion();
                     }
                     ParseObjectUtils.pinAllInBackground(pinName, combined).waitForCompletion();
                 } else { //if (deleteOldPinnedResults) {
@@ -223,8 +295,93 @@ public class QueryUtils {
                 }
                 if (isCancelled(helper, startTime))
                     return null;
-                runOnDataLoadedOnUIThread(listener, combined);
+                if (listener != null)
+                    runOnDataLoadedOnUIThread(listener, combined);
                 return combined;
+            }
+        });
+    }
+
+    /**
+     * Gets the first object that matches the given query using fromLocalDatastore(), then updates the results with the network results. This DOES NOT
+     * use fromPin().
+     * <br />
+     * The OnDataLoadedListener's onLoaded() method will be called when result is returned from the cache, and again when result
+     * is returned from the network.
+     * @param pinName The pinName with which to pin the network result.
+     * @param listener
+     * @param builder
+     * @param <T> extends ParseObject
+     * @return
+     */
+    public static <T extends ParseObject> Task<T> getFirstCacheThenNetworkInBackground(final String pinName,
+                                   final OnDataLoadedSingleObjectListener<T> listener, final ParseQueryBuilder<T> builder) {
+
+        final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
+        final ParseQuery<T> networkQuery = builder.buildQuery();
+        return doGetFirstCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName);
+    }
+
+    /**
+     * Finds the first object with the given query using fromPin(pinName), then updates the result with the network result.
+     * <br />
+     * The OnDataLoadedListener's onLoaded() method will be called when result is returned from the cache, and again when result
+     * is returned from the network.
+     * @param pinName The pinName with which to execute the cache query and with which to pin the network result.
+     * @param builder
+     * @param listener
+     * @param <T> extends ParseObject
+     * @return
+     */
+    public static <T extends ParseObject> Task<T> findFromPinThenNetworkInBackground(final String pinName,
+                       ParseQueryBuilder<T> builder, final OnDataLoadedSingleObjectListener<T> listener) {
+
+        final ParseQuery<T> localDataQuery = builder.buildQuery().fromPin(pinName);
+        final ParseQuery<T> networkQuery = builder.buildQuery();
+        return doGetFirstCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName);
+    }
+
+    /**
+     * Finds the first object with the given query using fromLocalDatastore(), then updates the result with the network result. This does not
+     * use fromPin().
+     * <br />
+     * The network result will be pinned without a pinName.
+     * <br />
+     * The OnDataLoadedListener's onLoaded() method will be called when the result is returned from the cache, and again when the result
+     * is returned from the network.
+     * @param builder
+     * @param listener
+     * @param <T> extends ParseObject
+     * @return
+     */
+    public static <T extends ParseObject> Task<T> getFirstCacheThenNetworkInBackground(ParseQueryBuilder<T> builder,
+                                                                         final OnDataLoadedSingleObjectListener<T> listener) {
+
+        final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
+        final ParseQuery<T> networkQuery = builder.buildQuery();
+        return doGetFirstCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, null);
+    }
+
+    private static <T extends ParseObject> Task<T> doGetFirstCacheThenNetworkInBackground(
+            final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery, final OnDataLoadedSingleObjectListener<T> listener,
+            final String pinName) {
+
+        return Task.callInBackground(new Callable<T>() {
+            @Override
+            public T call() throws Exception {
+                T localResults = doLocalGetQuery(localDataQuery);
+                if (listener != null)
+                    runOnDataLoadedOnUIThread(listener, localResults);
+
+                T networkResults = doNetworkGetQuery(networkQuery);
+                if (pinName != null) {
+                    ParseObjectUtils.pinInBackground(pinName, networkResults).waitForCompletion();
+                } else {
+                    ParseObjectUtils.pinInBackground(networkResults).waitForCompletion();
+                }
+                if (listener != null)
+                    runOnDataLoadedOnUIThread(listener, networkResults);
+                return networkResults;
             }
         });
     }
@@ -238,6 +395,16 @@ public class QueryUtils {
             @Override
             public void run() {
                 listener.onDataLoaded(list);
+            }
+        });
+    }
+
+    private static <T extends ParseObject> void runOnDataLoadedOnUIThread(final OnDataLoadedSingleObjectListener<T> listener,
+                                                                          final T result) {
+        listener.getActivityForUIThread().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                listener.onDataLoaded(result);
             }
         });
     }
@@ -271,6 +438,41 @@ public class QueryUtils {
 
             String pinName = "AnsweredQuestionId";
 
+            final Capture<AnsweredQuestionId> aid1 = new Capture<>();
+            getFirstCacheThenNetworkInBackground("AnsweredQuestionId",
+                    new OnDataLoadedSingleObjectListener<AnsweredQuestionId>() {
+                        @Override
+                        public Activity getActivityForUIThread() {
+                            return (Activity) MainFragment.answeredQuestionIdAdapter.getContext();
+                        }
+
+                        @Override
+                        public void onDataLoaded(AnsweredQuestionId result) {
+                            if(result != null)
+                                Log.d("testCacheThenNetwork", "aid1 questionId = " + result.getString("questionId"));
+                            else
+                                Log.d("testCacheThenNetwork", "aid1 is null");
+                        }
+                    }, new ParseQueryBuilder<AnsweredQuestionId>() {
+                        @Override
+                        public ParseQuery<AnsweredQuestionId> buildQuery() {
+                            return ParseQuery.getQuery(AnsweredQuestionId.class)
+                                    .whereEqualTo("objectId", "zpWum1VCfT");
+                        }
+                    }).continueWith(new Continuation<AnsweredQuestionId, Object>() {
+                @Override
+                public Object then(Task<AnsweredQuestionId> task) throws Exception {
+                    if (task.getResult() == null)
+                        return null;
+                    aid1.set(task.getResult());
+                    return null;
+                }
+            }).waitForCompletion();
+
+            if(aid1.get() != null)
+                Log.d("testCacheThenNetwork", "aid1 questionId = " + aid1.get().getString("questionId"));
+            else
+                Log.d("testCacheThenNetwork", "aid1 is null");
 //            AnsweredQuestionId aid1 = new AnsweredQuestionId(id1);
 //            ParseObjectUtils.pin(pinName, aid1);
 //
@@ -280,38 +482,38 @@ public class QueryUtils {
 //            AnsweredQuestionId aid3 = new AnsweredQuestionId(id3);
 //            aid3.save();
 
-            MainFragment.answeredQuestionIdAdapter.clear();
-
-            QueryUtils.findCacheThenNetworkInBackground(new QueryUtils.ParseQueryBuilder<AnsweredQuestionId>() {
-                @Override
-                public ParseQuery<AnsweredQuestionId> buildQuery() {
-                    return ParseQuery.getQuery(AnsweredQuestionId.class);
-                }
-            }, new QueryUtils.OnDataLoadedListener<AnsweredQuestionId>() {
-                @Override
-                public Activity getActivityForUIThread() {
-                    return (Activity) MainFragment.answeredQuestionIdAdapter.getContext();
-                }
-
-                @Override
-                public void onDataLoaded(List<AnsweredQuestionId> list) {
-                    MainFragment.answeredQuestionIdAdapter.clear();
-                    MainFragment.answeredQuestionIdAdapter.addAll(list);
-                    MainFragment.answeredQuestionIdAdapter.notifyDataSetChanged();
-                }
-            }, "AnsweredQuestionId", false)
-            .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
-                @Override
-                public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
-                    List<AnsweredQuestionId> listFromLocal = ParseQuery.getQuery(AnsweredQuestionId.class)
-                            .fromLocalDatastore()
-                            .find();
-                    for(AnsweredQuestionId obj : listFromLocal) {
-                        Log.d("testCacheThenNetwork", "objectId: " + obj.getObjectId() + ", questionId: " + obj.getString("questionId"));
-                    }
-                    return null;
-                }
-            });
+//            MainFragment.answeredQuestionIdAdapter.clear();
+//
+//            QueryUtils.findCacheThenNetworkInBackground("AnsweredQuestionId", false, new QueryUtils.OnDataLoadedListener<AnsweredQuestionId>() {
+//                @Override
+//                public Activity getActivityForUIThread() {
+//                    return (Activity) MainFragment.answeredQuestionIdAdapter.getContext();
+//                }
+//
+//                @Override
+//                public void onDataLoaded(List<AnsweredQuestionId> list) {
+//                    MainFragment.answeredQuestionIdAdapter.clear();
+//                    MainFragment.answeredQuestionIdAdapter.addAll(list);
+//                    MainFragment.answeredQuestionIdAdapter.notifyDataSetChanged();
+//                }
+//            }, new QueryUtils.ParseQueryBuilder<AnsweredQuestionId>() {
+//                @Override
+//                public ParseQuery<AnsweredQuestionId> buildQuery() {
+//                    return ParseQuery.getQuery(AnsweredQuestionId.class);
+//                }
+//            })
+//            .continueWith(new Continuation<List<AnsweredQuestionId>, Object>() {
+//                @Override
+//                public Object then(Task<List<AnsweredQuestionId>> task) throws Exception {
+//                    List<AnsweredQuestionId> listFromLocal = ParseQuery.getQuery(AnsweredQuestionId.class)
+//                            .fromLocalDatastore()
+//                            .find();
+//                    for(AnsweredQuestionId obj : listFromLocal) {
+//                        Log.d("testCacheThenNetwork", "objectId: " + obj.getObjectId() + ", questionId: " + obj.getString("questionId"));
+//                    }
+//                    return null;
+//                }
+//            });
         }
         catch (Exception e) {
             e.printStackTrace();

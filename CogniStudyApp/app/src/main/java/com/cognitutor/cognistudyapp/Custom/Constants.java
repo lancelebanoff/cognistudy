@@ -91,6 +91,10 @@ public class Constants {
         public static final int NUM_QUESTIONS_PER_TURN = 3;
     }
 
+    public static class QuestionRating {
+        public static final String NOT_RATED = "NOT_RATED";
+    }
+
     public static class GameBoard {
         public static int NUM_ROWS = 11;
         public static int NUM_COLUMNS = 8;
