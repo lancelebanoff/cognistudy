@@ -12,6 +12,9 @@ import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/7/2016.
@@ -57,14 +60,24 @@ public class UserUtils {
         ParseObjectUtils.pin("CurrentUser", publicUserData);
     }
 
-    private static void pinRollingStatsInBackground(Student student) {
-        List<StudentTRollingStats> rollingStatsList = new ArrayList<>();
-        rollingStatsList.addAll(student.getStudentCategoryRollingStats());
-        rollingStatsList.addAll(student.getStudentSubjectRollingStats());
-        rollingStatsList.addAll(student.getStudentTotalRollingStats());
-        for(StudentTRollingStats rollingStats : rollingStatsList) {
-            rollingStats.pinInBackground(ParseObjectUtils.PinNames.CurrentUser);
-        }
+    private static Task<Boolean> pinRollingStatsInBackground(final Student student) {
+
+        return Task.callInBackground(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                try {
+                    student.fetchIfNeeded();
+                } catch (ParseException e) { e.printStackTrace(); Log.e("pinRollingStatsInBg", e.getMessage()); return false; }
+                List<StudentTRollingStats> rollingStatsList = new ArrayList<>();
+                rollingStatsList.addAll(student.getStudentCategoryRollingStats());
+                rollingStatsList.addAll(student.getStudentSubjectRollingStats());
+                rollingStatsList.addAll(student.getStudentTotalRollingStats());
+                for(StudentTRollingStats rollingStats : rollingStatsList) {
+                    rollingStats.pin(ParseObjectUtils.PinNames.CurrentUser);
+                }
+                return true;
+            }
+        });
     }
 
     public static void getPinTest() throws ParseException {

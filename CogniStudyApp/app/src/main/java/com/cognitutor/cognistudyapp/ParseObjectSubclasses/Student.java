@@ -107,6 +107,11 @@ public class Student extends ParseObject{
             public ParseQuery<Student> buildQuery() {
                 return Student.getQuery().whereEqualTo(Columns.baseUserId, baseUserId);
             }
-        }, true);
+        });
+    }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() + " | baseUserId: " + getBaseUserId();
     }
 }

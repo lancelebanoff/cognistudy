@@ -75,7 +75,7 @@ public abstract class StudentTRollingStats extends ParseObject{
             public ParseQuery<StudentTRollingStats> buildQuery() {
                 return getCurrentUserStatsQuery(clazz, category);
             }
-        }, true);
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -85,7 +85,7 @@ public abstract class StudentTRollingStats extends ParseObject{
             public ParseQuery<StudentTRollingStats> buildQuery() {
                 return getCurrentUserStatsQuery(clazz, category);
             }
-        }, true);
+        });
     }
 
     @SuppressWarnings("unchecked")

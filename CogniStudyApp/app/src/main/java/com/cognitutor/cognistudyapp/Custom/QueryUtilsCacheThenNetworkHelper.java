@@ -14,13 +14,12 @@ public class QueryUtilsCacheThenNetworkHelper extends QueryUtils {
 
     volatile long lastCancelled;
 
-    public <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackgroundCancelleable(
-            QueryUtils.ParseQueryBuilder<T> builder, final QueryUtils.OnDataLoadedListener<T> listener,
-            final String pinName, final boolean pinResult) {
+    public <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackgroundCancelleable(final String pinName,
+          final boolean deleteOldPinnedResults, final QueryUtils.OnDataLoadedListener<T> listener, QueryUtils.ParseQueryBuilder<T> builder) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, pinResult, this);
+        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, deleteOldPinnedResults, this);
     }
 
     public void cancelAllQueries() {

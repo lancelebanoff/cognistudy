@@ -206,9 +206,9 @@ public class ParseObjectUtils {
         pinAllWithMax(pinName, objects);
     }
 
-    public static void pinInBackground(ParseObject object) {
-        object.pinInBackground();
-//        pinAllWithMax(null, convertToList(object));
+    public static Task<Void> pinInBackground(ParseObject object) {
+//        object.pinInBackground();
+        return pinAllWithMaxInBackground(null, convertToList(object));
     }
 
     public static Task<Void> pinInBackground(String pinName, ParseObject object) {
@@ -216,15 +216,15 @@ public class ParseObjectUtils {
     }
 
     public static <T extends ParseObject> Task<Void> pinAllInBackground(List<T> objects) {
-        return ParseObject.pinAllInBackground(objects);
-//        return pinAllWithMaxInBackground(null, objects);
+//        return ParseObject.pinAllInBackground(objects);
+        return pinAllWithMaxInBackground(null, objects);
     }
 
     public static <T extends ParseObject> Task<Void> pinAllInBackground(String pinName, List<T> objects) {
         return pinAllWithMaxInBackground(pinName, objects);
     }
 
-    private static <T extends ParseObject> void doPinAll(final String pinName, final List<T> objects) throws ParseException{
+    private static <T extends ParseObject> void doNewPinAll(final String pinName, final List<T> objects) throws ParseException{
         if(pinName == null)
             Log.e("doPinAll", "Pin name is null");
         addAllPinnedObjectsInBackground(pinName == null ? "" : pinName, objects);
@@ -239,36 +239,41 @@ public class ParseObjectUtils {
 
     private static <T extends ParseObject> void pinAllWithMax(final String pinName, final List<T> objects) {
 
-        if(pinName == null) {
+        if(pinName == null)
             Log.e("pinAllWithMax", "pinName is null");
-        }
+
+        if(objects.size() == 0)
+            return;
+
+        List<T> newObjectsToPin = new ArrayList<>();
+        List<T> objectsAlreadyPinned = new ArrayList<>();
         //TODO: Take this out when testing with PinnedObject is removed
         //This section is probably only necessary for PinnedObject functionality. I believe that
         //ParseObject.pin() or pinAll() will still work if some of the objects are already pinned.
         //Without this section, a new PinnedObject will be created even if the object already exists in the cache.
-        List<T> objectsToPin = new ArrayList<>();
         for (T obj : objects) {
             try {
                 T fromLocal = ParseQuery.getQuery((Class<T>) obj.getClass())
                         .fromLocalDatastore()
                         .get(obj.getObjectId()); //TODO: What happens when obj.getObjectId is null?
+                objectsAlreadyPinned.add(fromLocal);
             }
             catch (ParseException e) { //obj did not exist in the local datastore
                 if(e.getCode() != ErrorHandler.ErrorCode.OBJECT_NOT_FOUND) {
                     e.printStackTrace();
                     Log.e("pinAllWithMax inital", e.getMessage());
                 }
-                objectsToPin.add(obj);
+                newObjectsToPin.add(obj);
             }
         }
-        if(objectsToPin.size() == 0)
-            return;
 
         try {
-            final int numWaiting = objectsToPin.size();
+            ParseObject.pinAll(objectsAlreadyPinned);
+
             final Integer max = (pinName == null) ? null : PinNamesToMaxPinned.get(pinName);
+            final int numWaiting = newObjectsToPin.size();
             if (max == null) {
-                doPinAll(pinName, objectsToPin);
+                doNewPinAll(pinName, newObjectsToPin);
                 return;
             }
 
@@ -283,7 +288,7 @@ public class ParseObjectUtils {
 
                 PinnedObject.unpinAllObjectsAndDelete(listToUnpin);
             }
-            doPinAll(pinName, objectsToPin.subList(0, Math.min(max, objectsToPin.size())));
+            doNewPinAll(pinName, newObjectsToPin.subList(0, Math.min(max, newObjectsToPin.size())));
         } catch (ParseException e) {
             e.printStackTrace();
             Log.e("pinAllWithMax", e.getMessage());
@@ -477,6 +482,7 @@ public class ParseObjectUtils {
             classes.add(StudentSubjectDayStats.class);
             classes.add(StudentSubjectTridayStats.class);
             classes.add(StudentSubjectMonthStats.class);
+            classes.add(AnsweredQuestionId.class);
             classes.add(PinnedObject.class);
 
             List<PinnedObject> pinnedObjects = ParseQuery.getQuery(PinnedObject.class)
@@ -494,15 +500,16 @@ public class ParseObjectUtils {
                         .fromLocalDatastore()
                         .find();
                 int numPinned = objects.size();
+                Log.d("Line Break", " ");
                 Log.d("Num Pinned", clazz.getSimpleName() + " = " + numPinned);
                 if (clazz == PinnedObject.class)
                     continue;
                 actualNumPinned += numPinned;
                 for (ParseObject obj : objects) {
-                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
-                        Log.d("PinnedObject Mismatch!", "============ " + obj.getObjectId() + " not represented by PinnedObject");
-                    }
                     Log.d("Obj data  ", "    " + obj.toString());
+                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
+                        Log.d("Obj data  ", "    ============ " + obj.getObjectId() + " not represented by PinnedObject");
+                    }
                 }
             }
             Log.d("Actual Num Pinned", String.valueOf(actualNumPinned));
