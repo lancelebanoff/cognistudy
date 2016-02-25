@@ -62,7 +62,7 @@ public class MainActivity extends AuthenticationActivity {
                     tab.setIcon(R.drawable.icon_analytics);
                     break;
                 case 4:
-                    tab.setIcon(R.drawable.icon_settings);
+                    tab.setIcon(R.drawable.icon_menu);
                     break;
             }
             int color;
