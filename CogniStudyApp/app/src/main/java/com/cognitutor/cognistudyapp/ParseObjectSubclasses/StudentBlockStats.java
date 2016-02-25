@@ -149,12 +149,12 @@ public abstract class StudentBlockStats extends ParseObject{
 
     private static Task<Void> getOrCreateAndIncrement(final StudentBlockStatsSubclassInterface inter, final String category,
                                                        final String className, final Class clazz, final boolean correct) {
-        return QueryUtils.getFirstPinElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentBlockStats>() {
+        return QueryUtils.getFirstPinElseNetworkInBackground(className, new QueryUtils.ParseQueryBuilder<StudentBlockStats>() {
             @Override
             public ParseQuery<StudentBlockStats> buildQuery() {
                 return inter.getCurrentUserCurrentStats(category);
             }
-        }, className, true)
+        })
         .continueWith(new Continuation<StudentBlockStats, Void>() {
             @Override
             public Void then(Task<StudentBlockStats> task) throws Exception {

@@ -85,11 +85,18 @@ public class Student extends ParseObject{
     public void setPublicAnalytics(boolean val) { put(Columns.publicAnalytics, val); }
     public boolean getPublicAnalytics() { return getBoolean(Columns.publicAnalytics); }
     public String getBaseUserId() { return getString(Columns.baseUserId); }
+    public List<StudentCategoryRollingStats> getStudentCategoryRollingStats() { return getList(Columns.studentCategoryRollingStats); }
+    public List<StudentCategoryRollingStats> getStudentSubjectRollingStats() { return getList(Columns.studentSubjectRollingStats); }
+    public List<StudentCategoryRollingStats> getStudentTotalRollingStats() { return getList(Columns.studentTotalRollingStats); }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);
     }
 
+    /**
+     * Gets the current user's student object in the background
+     * @return A task with the student object when the background task completes
+     */
     public static Task<Student> getStudentInBackground() {
         return getStudentInBackground(ParseUser.getCurrentUser().getObjectId());
     }
@@ -100,6 +107,11 @@ public class Student extends ParseObject{
             public ParseQuery<Student> buildQuery() {
                 return Student.getQuery().whereEqualTo(Columns.baseUserId, baseUserId);
             }
-        }, true);
+        });
+    }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() + " | baseUserId: " + getBaseUserId();
     }
 }
