@@ -129,9 +129,10 @@ public class ParseObjectUtils {
         Log.e(tag, e.getMessage());
     }
 
-    private static List<ParseObject> convertSetToList(Set<ParseObject> set) {
-        List<ParseObject> list = new ArrayList<>();
-        for(ParseObject object : set) {
+    //TODO: Move this somewhere else
+    public static <T> List<T> convertSetToList(Set<T> set) {
+        List<T> list = new ArrayList<>();
+        for(T object : set) {
             list.add(object);
         }
         return list;
@@ -202,10 +203,14 @@ public class ParseObjectUtils {
     }
 
     private static <T extends ParseObject> void doNewPinAll(final String pinName, final List<T> objects) throws ParseException{
-        if(pinName == null)
-            Log.e("doPinAll", "Pin name is null");
         addAllPinnedObjectsInBackground(pinName == null ? "" : pinName, objects);
-        ParseObject.pinAll(objects);
+        if(pinName == null) {
+            ParseObject.pinAll(objects);
+            Log.e("doPinAll", "Pin name is null");
+        }
+        else {
+            ParseObject.pinAll(pinName, objects);
+        }
     }
 
     private static List<ParseObject> convertToList(ParseObject object) {
@@ -245,7 +250,7 @@ public class ParseObjectUtils {
         }
 
         try {
-            ParseObject.pinAll(objectsAlreadyPinned);
+//            ParseObject.pinAll(objectsAlreadyPinned); //????????? Idk what I did here. I left out the pin name too.
 
             final Integer max = (pinName == null) ? null : PinNamesToMaxPinned.get(pinName);
             final int numWaiting = newObjectsToPin.size();
@@ -342,13 +347,13 @@ public class ParseObjectUtils {
                     if(task.isFaulted()) {
                         Log.e("deletePinnedObjects", task.getError().getMessage());
                     }
-                    ParseObject.unpinAllInBackground();
+                    ParseObject.unpinAllInBackground().waitForCompletion();
                     //Extra layer of assurance that everything will be unpinned that should be
                     List<String> pinNames = Arrays.asList(Constants.getAllConstants(Constants.PinNames.class));
                     for (String pinName : pinNames) {
                         Log.d("pinName: ", pinName);
-                        ParseObject.unpinAllInBackground(pinName);
-//                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+//                        ParseObject.unpinAllInBackground(pinName);
+                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
                     }
                     try {
                         int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
@@ -485,9 +490,9 @@ public class ParseObjectUtils {
                 actualNumPinned += numPinned;
                 for (ParseObject obj : objects) {
                     Log.d("Obj data  ", "    " + obj.toString());
-                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
-                        Log.d("Obj data  ", "    ============ " + obj.getObjectId() + " not represented by PinnedObject");
-                    }
+//                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
+//                        Log.d("Obj data  ", "    ============ " + obj.getObjectId() + " not represented by PinnedObject");
+//                    }
                 }
             }
             Log.d("Actual Num Pinned", String.valueOf(actualNumPinned));

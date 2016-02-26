@@ -39,6 +39,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
+
 /**
  * Created by Lance on 12/27/2015.
  */
@@ -265,9 +268,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                testGetAchievement();
+//                testGetAchievement();
 //                QueryUtils.testCacheThenNetwork();
-//                DateUtils.test(false);
+                DateUtils.test(false);
 //                Intent intent = new Intent(getActivity(), QuestionActivity.class);
 //                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionIds
 //                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
@@ -277,7 +280,46 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 //                startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
-                testIncrementAchievement();
+//                ParseObject.unpinAllInBackground()
+//                        .continueWith(new Continuation<Void, Object>() {
+//                            @Override
+//                            public Object then(Task<Void> task) throws Exception {
+//                                if(task.isFaulted()) {
+//                                    Log.e("Unpin Error", "Unpin ALL error: " + task.getError().getMessage());
+//                                }
+//                                else {
+//                                    Log.d("Unpin Fine", "Unpin ALL succeeded!");
+//                                }
+//                                return null;
+//                            }
+//                        });
+                ParseObject.unpinAllInBackground(Constants.PinNames.BlockStats)
+                    .continueWith(new Continuation<Void, Object>() {
+                        @Override
+                        public Object then(Task<Void> task) throws Exception {
+                            if(task.isFaulted()) {
+                                Log.e("Unpin Error", "Unpin BlockStats error: " + task.getError().getMessage());
+                            }
+                            else {
+                                Log.d("Unpin Fine", "Unpin BlockStats succeeded!");
+                            }
+                            return null;
+                        }
+                    });
+//                ParseObject.unpinAllInBackground(Constants.PinNames.CurrentUser)
+//                    .continueWith(new Continuation<Void, Object>() {
+//                        @Override
+//                        public Object then(Task<Void> task) throws Exception {
+//                            if(task.isFaulted()) {
+//                                Log.e("Unpin Error", "Unpin CurrentUser error: " + task.getError().getMessage());
+//                            }
+//                            else {
+//                                Log.d("Unpin Fine", "Unpin CurrentUser succeeded!");
+//                            }
+//                            return null;
+//                        }
+//                    });
+//                testIncrementAchievement();
 //                DateUtils.test(false);
 //                navigateToNewChallengeActivity();
                 break;

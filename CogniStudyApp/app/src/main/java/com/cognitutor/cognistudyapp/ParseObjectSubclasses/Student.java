@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -14,6 +15,7 @@ import com.parse.ParseUser;
 import java.util.ArrayList;
 import java.util.List;
 
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -94,23 +96,18 @@ public class Student extends ParseObject{
     public List<StudentCategoryRollingStats> getStudentCategoryRollingStats() { return getList(Columns.studentCategoryRollingStats); }
     public List<StudentSubjectRollingStats> getStudentSubjectRollingStats() { return getList(Columns.studentSubjectRollingStats); }
     public StudentTotalRollingStats getStudentTotalRollingStats() { return (StudentTotalRollingStats) getParseObject(Columns.studentTotalRollingStats); }
-    public ParseRelation<StudentCategoryDayStats> getStudentCategoryDayStats() { return getRelation(Columns.studentCategoryDayStats); }
-    public ParseRelation<StudentCategoryTridayStats> getStudentCategoryTridayStats() { return getRelation(Columns.studentCategoryTridayStats); }
-    public ParseRelation<StudentCategoryMonthStats> getStudentCategoryMonthStats() { return getRelation(Columns.studentCategoryMonthStats); }
-    public ParseRelation<StudentSubjectDayStats> getStudentSubjectDayStats() { return getRelation(Columns.studentSubjectDayStats); }
-    public ParseRelation<StudentSubjectTridayStats> getStudentSubjectTridayStats() { return getRelation(Columns.studentSubjectTridayStats); }
-    public ParseRelation<StudentSubjectMonthStats> getStudentSubjectMonthStats() { return getRelation(Columns.studentSubjectMonthStats); }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);
     }
 
-    /**
-     * Gets the current user's student object in the background
-     * @return A task with the student object when the background task completes
-     */
     public static Task<Student> getStudentInBackground() {
-        return getStudentInBackground(ParseUser.getCurrentUser().getObjectId());
+        return QueryUtils.getFirstPinElseNetworkInBackground(Constants.PinNames.CurrentUser, new QueryUtils.ParseQueryBuilder<Student>() {
+            @Override
+            public ParseQuery<Student> buildQuery() {
+                return Student.getQuery().whereEqualTo(Columns.baseUserId, UserUtils.getCurrentUserId());
+            }
+        });
     }
 
     public static Task<Student> getStudentInBackground(final String baseUserId) {
@@ -120,6 +117,27 @@ public class Student extends ParseObject{
                 return Student.getQuery().whereEqualTo(Columns.baseUserId, baseUserId);
             }
         });
+    }
+
+    public static Task<ParseQuery> getBlockStatsQueryInBackground(final Class<? extends StudentBlockStats> clazz) {
+        return getStudentInBackground()
+                .continueWith(new Continuation<Student, ParseQuery>() {
+                    @Override
+                    public ParseQuery then(Task<Student> task) throws Exception {
+                        Student student = task.getResult();
+                        return student.getBlockStatsQuery(student, clazz);
+                    }
+                });
+    }
+
+    public ParseQuery getBlockStatsQuery(Student student, final Class<? extends StudentBlockStats> clazz) {
+        return student.getStudentBlockStatsRelation(clazz).getQuery();
+    }
+
+    public ParseRelation getStudentBlockStatsRelation(Class<? extends StudentBlockStats> clazz) {
+        String className = clazz.getSimpleName();
+        String columnName = className.substring(0, 1).toLowerCase() + className.substring(1);
+        return getRelation(columnName);
     }
 
     @Override

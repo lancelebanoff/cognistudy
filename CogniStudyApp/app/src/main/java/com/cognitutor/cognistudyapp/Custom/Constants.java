@@ -380,6 +380,8 @@ public class Constants {
         public static final String PublicUserData = "PublicUserData";
         public static final String Challenge = "Challenge";
         public static final String CurrentUser = "CurrentUser";
+        public static final String BlockStats = "BlockStats";
+        public static final String fbFriends = "fbFriends";
         //TODO: Possibly remove these later
         public static final String StudentCategoryDayStats = ClassName.StudentCategoryDayStats;
         public static final String StudentCategoryTridayStats = ClassName.StudentCategoryTridayStats;

@@ -3,13 +3,13 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.parse.ParseException;
-import com.parse.ParseQuery;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -44,8 +44,32 @@ public class UserUtils {
                 .whereEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
                 .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData)
                 .getFirst();
+//        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
         ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
-        pinRollingStatsInBackground(publicUserData.getStudent());
+        Student student = publicUserData.getStudent();
+        pinRollingStatsInBackground(student);
+        pinBlockStatsInBackground(student);
+    }
+
+    private static Task<Object> pinBlockStatsInBackground(final Student student) {
+        return StudentBlockStats.pinAllBlockStatsInBackground(student);
+//        return Task.callInBackground(new Callable<Boolean>() {
+//            @Override
+//            public Boolean call() throws Exception {
+//                try {
+//                    student.fetchIfNeeded();
+//                } catch (ParseException e) { e.printStackTrace(); Log.e("pinBlockStatsInBg", e.getMessage()); return false; }
+//                List<Class<? extends StudentBlockStats>> subclasses = StudentBlockStats.getStudentBlockStatsSubclasses();
+//                List<ParseObject> blockStatsToPin = new ArrayList<ParseObject>();
+//                for(Class<? extends StudentBlockStats> clazz : subclasses) {
+//                    ParseRelation<? extends StudentBlockStats> relation = student.getStudentBlockStatsRelation(clazz);
+//                    List<? extends StudentBlockStats> blockStatsList = relation.getQuery().find();
+//                    blockStatsToPin.addAll(blockStatsList);
+//                }
+//                ParseObjectUtils.pinAll(Constants.PinNames.CurrentUser, blockStatsToPin);
+//                return true;
+//            }
+//        });
     }
 
     private static Task<Boolean> pinRollingStatsInBackground(final Student student) {
@@ -59,17 +83,17 @@ public class UserUtils {
                 List<StudentTRollingStats> rollingStatsList = new ArrayList<>();
                 List<AnsweredQuestionIds> answeredQuestionIdsList = new ArrayList<>();
                 rollingStatsList.addAll(student.getStudentCategoryRollingStats());
+                rollingStatsList.addAll(student.getStudentSubjectRollingStats());
+                rollingStatsList.add(student.getStudentTotalRollingStats());
                 for(StudentTRollingStats rollingStats : rollingStatsList) {
-                    if(!(rollingStats instanceof StudentCategoryRollingStats)) continue; //Unnecessary if order of the code does not change
                     rollingStats.fetchIfNeeded();
+                    if(!(rollingStats instanceof StudentCategoryRollingStats)) continue; //Unnecessary if order of the code does not change
                     AnsweredQuestionIds answeredQuestionIds = ((StudentCategoryRollingStats) rollingStats).getAnsweredQuestionIds();
                     answeredQuestionIdsList.add(answeredQuestionIds);
                 }
-                rollingStatsList.addAll(student.getStudentSubjectRollingStats());
-                rollingStatsList.add(student.getStudentTotalRollingStats());
                 //TODO: Change ParseObjectUtils.pin to ParseObject.pin (later)
-                ParseObjectUtils.pinAll(Constants.PinNames.CurrentUser, rollingStatsList);
-                ParseObjectUtils.pinAll(Constants.PinNames.CurrentUser, answeredQuestionIdsList);
+                ParseObjectUtils.pinAllInBackground(Constants.PinNames.CurrentUser, rollingStatsList);
+                ParseObjectUtils.pinAllInBackground(Constants.PinNames.CurrentUser, answeredQuestionIdsList);
                 return true;
             }
         });
