@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
@@ -20,10 +21,9 @@ import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseUser;
 import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,12 +103,12 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void showSwitchViewButton() {
-        Button btnSwitch = (Button) findViewById(R.id.btnSwitchView);
+        ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
         btnSwitch.setVisibility(View.VISIBLE);
     }
 
     private void hideSwitchViewButton() {
-        Button btnSwitch = (Button) findViewById(R.id.btnSwitchView);
+        ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
         btnSwitch.setVisibility(View.INVISIBLE);
     }
 
