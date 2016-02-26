@@ -8,6 +8,7 @@ import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -32,6 +33,12 @@ public class Student extends ParseObject{
         public static final String studentSubjectRollingStats = "studentSubjectRollingStats";
         public static final String studentTotalRollingStats = "studentTotalRollingStats";
         public static final String privateStudentData = "privateStudentData";
+        public static final String studentCategoryDayStats = "studentCategoryDayStats";
+        public static final String studentCategoryTridayStats = "studentCategoryTridayStats";
+        public static final String studentCategoryMonthStats = "studentCategoryMonthStats";
+        public static final String studentSubjectDayStats = "studentSubjectDayStats";
+        public static final String studentSubjectTridayStats = "studentSubjectTridayStats";
+        public static final String studentSubjectMonthStats = "studentSubjectMonthStats";
     }
 
     public Student() {}
@@ -87,6 +94,12 @@ public class Student extends ParseObject{
     public List<StudentCategoryRollingStats> getStudentCategoryRollingStats() { return getList(Columns.studentCategoryRollingStats); }
     public List<StudentSubjectRollingStats> getStudentSubjectRollingStats() { return getList(Columns.studentSubjectRollingStats); }
     public StudentTotalRollingStats getStudentTotalRollingStats() { return (StudentTotalRollingStats) getParseObject(Columns.studentTotalRollingStats); }
+    public ParseRelation<StudentCategoryDayStats> getStudentCategoryDayStats() { return getRelation(Columns.studentCategoryDayStats); }
+    public ParseRelation<StudentCategoryTridayStats> getStudentCategoryTridayStats() { return getRelation(Columns.studentCategoryTridayStats); }
+    public ParseRelation<StudentCategoryMonthStats> getStudentCategoryMonthStats() { return getRelation(Columns.studentCategoryMonthStats); }
+    public ParseRelation<StudentSubjectDayStats> getStudentSubjectDayStats() { return getRelation(Columns.studentSubjectDayStats); }
+    public ParseRelation<StudentSubjectTridayStats> getStudentSubjectTridayStats() { return getRelation(Columns.studentSubjectTridayStats); }
+    public ParseRelation<StudentSubjectMonthStats> getStudentSubjectMonthStats() { return getRelation(Columns.studentSubjectMonthStats); }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);
