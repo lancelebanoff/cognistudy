@@ -129,9 +129,10 @@ public class ParseObjectUtils {
         Log.e(tag, e.getMessage());
     }
 
-    private static List<ParseObject> convertSetToList(Set<ParseObject> set) {
-        List<ParseObject> list = new ArrayList<>();
-        for(ParseObject object : set) {
+    //TODO: Move this somewhere else
+    public static <T> List<T> convertSetToList(Set<T> set) {
+        List<T> list = new ArrayList<>();
+        for(T object : set) {
             list.add(object);
         }
         return list;

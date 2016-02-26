@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,8 +18,8 @@ public abstract class StudentSubjectBlockStats extends StudentBlockStats{
 
     public String getSubject() { return getString(Columns.subject); }
 
-    protected static ParseQuery getCurrentUserQuery(String className, String category) {
-        return getCurrentUserQuery(className)
+    protected static ParseQuery getCurrentUserSuperQuery(ParseRelation relation, String category) {
+        return relation.getQuery()
                 .whereEqualTo(Columns.subject, getSubjectFromCategory(category));
     }
 

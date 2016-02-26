@@ -1,8 +1,8 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseClassName;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 
 /**
  * Created by Kevin on 2/13/2016.
@@ -12,21 +12,21 @@ public class StudentSubjectDayStats extends StudentSubjectBlockStats {
 
     public static StudentBlockStatsSubclassInterface getInterface() {
         return new StudentBlockStatsSubclassInterface() {
+
             @Override
-            public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
-                return getDayStats(getCurrentUserQuery(getClassName(), category));
+            public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(Student student, String category) {
+                return getCurrentDayStats(getAllCurrentUserStats(student, category));
             }
 
             @Override
-            public ParseQuery<StudentBlockStats> getPinnedStatsToUnpin(String category) {
-                return getCurrentUserQuery(getClassName(), category);
-            }
-
-            @Override
-            public String getClassName() {
-                return Constants.ClassName.StudentSubjectDayStats;
+            public ParseQuery<StudentBlockStats> getAllCurrentUserStats(Student student, String category) {
+                return getCurrentUserSuperQuery(getRelation(student), category);
             }
         };
+    }
+
+    private static ParseRelation getRelation(Student student) {
+        return student.getStudentBlockStatsRelation(StudentSubjectDayStats.class);
     }
 
     @Override
