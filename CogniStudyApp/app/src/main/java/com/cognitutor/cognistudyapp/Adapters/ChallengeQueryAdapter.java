@@ -62,7 +62,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         mActivity = (Activity) context;
     }
 
-    // Used past challenges, which uses an "or" query
+    // Use this constructor for past challenges, which uses an "or" query
     public ChallengeQueryAdapter(Context context, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {

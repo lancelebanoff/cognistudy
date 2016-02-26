@@ -39,21 +39,6 @@ public class MenuFragment extends CogniFragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_menu, container, false);
 
-//        int[] allButtonIds = {
-//                R.id.btnSuggestedQuestions,
-//                R.id.btnBookmarks,
-//                R.id.btnAchievements,
-//                R.id.btnShop,
-//                R.id.btnSettings,
-//                R.id.btnHelp,
-//                R.id.btnLogout
-//        };
-//
-//        for(int buttonId : allButtonIds) {
-//            Button b = (Button) rootView.findViewById(buttonId);
-//            b.setOnClickListener(this);
-//        }
-
         createMenuListView(rootView);
 
         return rootView;
@@ -97,13 +82,13 @@ public class MenuFragment extends CogniFragment {
 
     private List<MenuItem> getMenuItems() {
         ArrayList<MenuItem> menuItems = new ArrayList<>();
-        menuItems.add(new MenuItem(Constants.MenuItem.SUGGESTED_QUESTIONS, R.drawable.icon_settings));
-        menuItems.add(new MenuItem(Constants.MenuItem.BOOKMARKS, R.drawable.icon_settings));
-        menuItems.add(new MenuItem(Constants.MenuItem.ACHIEVEMENTS, R.drawable.icon_settings));
-        menuItems.add(new MenuItem(Constants.MenuItem.SHOP, R.drawable.icon_settings));
+        menuItems.add(new MenuItem(Constants.MenuItem.SUGGESTED_QUESTIONS, R.drawable.icon_suggested_questions));
+        menuItems.add(new MenuItem(Constants.MenuItem.BOOKMARKS, R.drawable.icon_bookmarks));
+        menuItems.add(new MenuItem(Constants.MenuItem.ACHIEVEMENTS, R.drawable.icon_achievements));
+        menuItems.add(new MenuItem(Constants.MenuItem.SHOP, R.drawable.icon_shop));
         menuItems.add(new MenuItem(Constants.MenuItem.SETTINGS, R.drawable.icon_settings));
-        menuItems.add(new MenuItem(Constants.MenuItem.HELP, R.drawable.icon_settings));
-        menuItems.add(new MenuItem(Constants.MenuItem.SIGN_OUT, R.drawable.icon_settings));
+        menuItems.add(new MenuItem(Constants.MenuItem.HELP, R.drawable.icon_help));
+        menuItems.add(new MenuItem(Constants.MenuItem.SIGN_OUT, R.drawable.icon_sign_out));
         return menuItems;
     }
 
