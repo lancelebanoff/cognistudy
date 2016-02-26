@@ -236,7 +236,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
         e.printStackTrace();
     }
 
-    private void loginUser(final String email, String password) {
+     void loginUser(final String email, String password) {
 
         setWaiting(true);
         ParseUser.logInInBackground(email, password, new LogInCallback() {

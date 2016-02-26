@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -438,30 +438,30 @@ public class QueryUtils {
 
             String pinName = "AnsweredQuestionId";
 
-            final Capture<AnsweredQuestionId> aid1 = new Capture<>();
+            final Capture<AnsweredQuestionIds> aid1 = new Capture<>();
             getFirstCacheThenNetworkInBackground("AnsweredQuestionId",
-                    new OnDataLoadedSingleObjectListener<AnsweredQuestionId>() {
+                    new OnDataLoadedSingleObjectListener<AnsweredQuestionIds>() {
                         @Override
                         public Activity getActivityForUIThread() {
                             return (Activity) MainFragment.answeredQuestionIdAdapter.getContext();
                         }
 
                         @Override
-                        public void onDataLoaded(AnsweredQuestionId result) {
+                        public void onDataLoaded(AnsweredQuestionIds result) {
                             if(result != null)
-                                Log.d("testCacheThenNetwork", "aid1 questionId = " + result.getString("questionId"));
+                                Log.d("testCacheThenNetwork", "aid1 questionIds = " + result.getString("questionIds"));
                             else
                                 Log.d("testCacheThenNetwork", "aid1 is null");
                         }
-                    }, new ParseQueryBuilder<AnsweredQuestionId>() {
+                    }, new ParseQueryBuilder<AnsweredQuestionIds>() {
                         @Override
-                        public ParseQuery<AnsweredQuestionId> buildQuery() {
-                            return ParseQuery.getQuery(AnsweredQuestionId.class)
+                        public ParseQuery<AnsweredQuestionIds> buildQuery() {
+                            return ParseQuery.getQuery(AnsweredQuestionIds.class)
                                     .whereEqualTo("objectId", "zpWum1VCfT");
                         }
-                    }).continueWith(new Continuation<AnsweredQuestionId, Object>() {
+                    }).continueWith(new Continuation<AnsweredQuestionIds, Object>() {
                 @Override
-                public Object then(Task<AnsweredQuestionId> task) throws Exception {
+                public Object then(Task<AnsweredQuestionIds> task) throws Exception {
                     if (task.getResult() == null)
                         return null;
                     aid1.set(task.getResult());
@@ -470,7 +470,7 @@ public class QueryUtils {
             }).waitForCompletion();
 
             if(aid1.get() != null)
-                Log.d("testCacheThenNetwork", "aid1 questionId = " + aid1.get().getString("questionId"));
+                Log.d("testCacheThenNetwork", "aid1 questionIds = " + aid1.get().getString("questionIds"));
             else
                 Log.d("testCacheThenNetwork", "aid1 is null");
 //            AnsweredQuestionId aid1 = new AnsweredQuestionId(id1);
@@ -509,7 +509,7 @@ public class QueryUtils {
 //                            .fromLocalDatastore()
 //                            .find();
 //                    for(AnsweredQuestionId obj : listFromLocal) {
-//                        Log.d("testCacheThenNetwork", "objectId: " + obj.getObjectId() + ", questionId: " + obj.getString("questionId"));
+//                        Log.d("testCacheThenNetwork", "objectId: " + obj.getObjectId() + ", questionIds: " + obj.getString("questionIds"));
 //                    }
 //                    return null;
 //                }

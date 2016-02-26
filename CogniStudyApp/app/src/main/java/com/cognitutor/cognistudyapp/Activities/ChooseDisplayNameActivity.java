@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -45,7 +46,11 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
                         setUpStudentObjects(ParseUser.getCurrentUser(), null, displayName, profilePic, null, new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
-                                setUpLocalDataStore();
+                                if(e != null) {
+                                    e.printStackTrace();
+                                    Log.e("ChooseDisplayName", "Error in AuthAct/saveObjects " + e.getMessage());
+                                }
+                                doPinCurrentUser();
                                 navigateToMainActivity();
                             }
                         });

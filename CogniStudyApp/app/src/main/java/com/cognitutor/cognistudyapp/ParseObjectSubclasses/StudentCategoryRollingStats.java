@@ -1,8 +1,12 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
+import com.parse.GetCallback;
 import com.parse.ParseClassName;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 
@@ -21,6 +25,7 @@ public class StudentCategoryRollingStats extends StudentTRollingStats {
 
     public StudentCategoryRollingStats() {}
 
+    public String getCategory() { return getString(Columns.category); }
     /**
      * Calls saveInBackground() after creation
      * @param baseUserId
@@ -29,40 +34,35 @@ public class StudentCategoryRollingStats extends StudentTRollingStats {
     public StudentCategoryRollingStats(String baseUserId, String category) {
         super(baseUserId);
         put(Columns.category, category);
+        put(Columns.answeredQuestionIds, new AnsweredQuestionIds(category));
         saveInBackground();
     }
 
-//    public static StudentCategoryRollingStats getCurrentUserStats() {
-//        return null;
-//    }
-//
-//    private static ParseQuery<StudentCategoryRollingStats> getQuery() { return ParseQuery.getQuery(StudentCategoryRollingStats.class); }
-//
-//    private static ParseQuery<StudentCategoryRollingStats> getUserQuery(String baseUserId) {
-//        return getQuery()
-//                .whereEqualTo(SuperColumns.baseUserId, baseUserId);
-//    }
-//
-//    private static ParseQuery<StudentCategoryRollingStats> getStatsQuery(String baseUserId, String category) {
-//        return getUserQuery(baseUserId)
-//                .whereEqualTo(Columns.category, category);
-//    }
-//
-//    private static ParseQuery<StudentCategoryRollingStats> getCurrentUserStatsQuery(String category) {
-//        return getStatsQuery(UserUtils.getCurrentUserId(), category);
-//    }
-//
-//    public static Task<StudentCategoryRollingStats> getCurrentUserStatsInBackground(final String category) {
-//        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentCategoryRollingStats>() {
-//            @Override
-//            public ParseQuery<StudentCategoryRollingStats> buildQuery() {
-//                return getCurrentUserStatsQuery(category);
-//            }
-//        }, true);
-//    }
-//
-//    public static Task<StudentCategoryRollingStats> getOtherUserStatsInBackground(final String baseUserID, final String category) {
-//        return getStatsQuery(baseUserID, category)
-//                .getFirstInBackground();
-//    }
+    public AnsweredQuestionIds getAnsweredQuestionIds() { return (AnsweredQuestionIds) getParseObject(Columns.answeredQuestionIds); }
+
+    public void addAnsweredQuestionIdAndSaveEventually(final String questionId) {
+        final AnsweredQuestionIds answeredQuestionIds = (AnsweredQuestionIds) getParseObject(Columns.answeredQuestionIds);
+        answeredQuestionIds.fetchFromLocalDatastoreInBackground(new GetCallback<ParseObject>() {
+            @Override
+            public void done(ParseObject object, ParseException e) {
+                if (object != null) {
+                    answeredQuestionIds.addAnsweredQuestionIdAndSaveEventually(questionId);
+                    return;
+                }
+                //TODO: What to do when internet is down
+                answeredQuestionIds.fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                    @Override
+                    public void done(ParseObject object, ParseException e) {
+                        answeredQuestionIds.pinInBackground(Constants.PinNames.CurrentUser);
+                        answeredQuestionIds.addAnsweredQuestionIdAndSaveEventually(questionId);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%-23s", getCategory()) + " | " + super.toString();
+    }
 }

@@ -28,6 +28,9 @@ public class LoadingActivity extends Activity {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null)
             return RegistrationActivity.class;
+        //TODO: Remove this later
+        if(currentUser.getUsername().equals(RegistrationActivity.autoGenUsername))
+            return MainActivity.class;
         if (!currentUser.getBoolean("fbLinked") && !currentUser.getBoolean("emailVerified"))
             return VerityEmailActivity.class;
         if (!currentUser.getBoolean("displayNameSet"))

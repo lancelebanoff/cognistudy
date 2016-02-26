@@ -81,6 +81,10 @@ public class Constants {
         }
     }
 
+    enum CacheOrNetwork {
+        CACHE, NETWORK
+    }
+
     public static class ChallengeAttribute {
         public static class Winner {
             public static final String NO_WINNER = "NO_WINNER";
@@ -368,4 +372,20 @@ public class Constants {
         public static final String DELETE_CHALLENGE = "deleteChallenge";
     }
 
+    public static class PinNames {
+
+        public static final String PinData = "PinData";
+
+        public static final String PeopleSearch = "PeopleSearch";
+        public static final String PublicUserData = "PublicUserData";
+        public static final String Challenge = "Challenge";
+        public static final String CurrentUser = "CurrentUser";
+        //TODO: Possibly remove these later
+        public static final String StudentCategoryDayStats = ClassName.StudentCategoryDayStats;
+        public static final String StudentCategoryTridayStats = ClassName.StudentCategoryTridayStats;
+        public static final String StudentCategoryMonthStats = ClassName.StudentCategoryMonthStats;
+        public static final String StudentSubjectDayStats = ClassName.StudentSubjectDayStats;
+        public static final String StudentSubjectTridayStats = ClassName.StudentSubjectTridayStats;
+        public static final String StudentSubjectMonthStats = ClassName.StudentSubjectMonthStats;
+    }
 }

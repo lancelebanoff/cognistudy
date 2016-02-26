@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.parse.ParseACL;
@@ -35,9 +36,7 @@ public class Student extends ParseObject{
 
     public Student() {}
     public Student(ParseUser user, PrivateStudentData privateStudentData) {
-        ParseACL acl = new ParseACL(user);
-        acl.setPublicReadAccess(true);
-        setACL(acl);
+        setACL(ACLUtils.getPublicReadPrivateWriteACL());
 
         String baseUserId = user.getObjectId();
 
@@ -86,8 +85,8 @@ public class Student extends ParseObject{
     public boolean getPublicAnalytics() { return getBoolean(Columns.publicAnalytics); }
     public String getBaseUserId() { return getString(Columns.baseUserId); }
     public List<StudentCategoryRollingStats> getStudentCategoryRollingStats() { return getList(Columns.studentCategoryRollingStats); }
-    public List<StudentCategoryRollingStats> getStudentSubjectRollingStats() { return getList(Columns.studentSubjectRollingStats); }
-    public List<StudentCategoryRollingStats> getStudentTotalRollingStats() { return getList(Columns.studentTotalRollingStats); }
+    public List<StudentSubjectRollingStats> getStudentSubjectRollingStats() { return getList(Columns.studentSubjectRollingStats); }
+    public StudentTotalRollingStats getStudentTotalRollingStats() { return (StudentTotalRollingStats) getParseObject(Columns.studentTotalRollingStats); }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);

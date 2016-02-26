@@ -9,9 +9,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -22,9 +22,9 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.SignUpCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,11 +47,6 @@ public class RegistrationActivity extends AuthenticationActivity {
     private String facebookId;
     private String displayName;
     private static final String TAG = "RegistrationActivity";
-
-    private ParseQuery<AnsweredQuestionId> getTestQuery(String id) {
-        return ParseQuery.getQuery(AnsweredQuestionId.class)
-                .whereEqualTo(AnsweredQuestionId.Columns.questionId, id);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +89,7 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     getUserDetailsFromFB();
                                 } else {
                                     UserUtils.setUserLoggedIn(true);
-                                    setUpLocalDataStore();
+                                    doPinCurrentUser();
                                     FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
                                         @Override
                                         public Void then(Task<Void> task) throws Exception {
@@ -213,13 +208,79 @@ public class RegistrationActivity extends AuthenticationActivity {
                     @Override
                     public void done(ParseException e) {
                         if(e != null) {
-                            Log.e("setUpStudentObjects err", e.getMessage());
+                            e.printStackTrace();
+                            Log.e("RegistrationActSaveFB", "Error in AuthAct/saveObjects " + e.getMessage());
                         }
-                        setUpLocalDataStore();
+                        doPinCurrentUser();
                         navigateToMainActivity();
                     }
                 });
             }
         });
+    }
+
+
+    //TODO: Remove all of this later
+    public static final String autoGenUsername = "autoCreatedUsername";
+    public void autoCreateUser(View view) {
+        final ParseUser user = new ParseUser();
+        final String email = "KevinJoslyn@aol.com";
+        final String password = "password";
+        final String username = autoGenUsername;
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setEmail(email);
+        user.put("fbLinked", false);
+        user.put("displayNameSet", true);
+        UserUtils.setUserLoggedIn(true);
+
+        user.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                loginUser(username, password);
+            }
+        });
+    }
+
+    private void loginUser(final String email, final String password) {
+        ParseUser.logInInBackground(email, password, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (e != null) {
+                    if (e.getCode() == ErrorHandler.ErrorCode.INVALID_LOGIN_PARAMS) {
+                    } else {
+                        handleParseError(e);
+                        return;
+                    }
+                } else {
+                    final ParseFile profilePic = getDefaultProfilePic();
+                    profilePic.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            setUpStudentObjects(ParseUser.getCurrentUser(), null, "AutoGen Person", profilePic, null, new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    if (e != null) {
+                                        e.printStackTrace();
+                                        Log.e("RegistrationActLogin", "Error in AuthAct/saveObjects " + e.getMessage());
+                                    }
+                                    doPinCurrentUser();
+                                    navigateToMainActivity();
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private ParseFile getDefaultProfilePic() {
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),
+                R.drawable.default_profile_pic);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] image = stream.toByteArray();
+        return new ParseFile("default_profile_pic.png", image);
     }
 }

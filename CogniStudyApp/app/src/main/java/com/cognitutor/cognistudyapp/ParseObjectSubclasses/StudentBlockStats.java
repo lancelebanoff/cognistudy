@@ -56,20 +56,6 @@ public abstract class StudentBlockStats extends ParseObject{
         setSubjectOrCategory(category);
         setACL();
         setBlockNum();
-//        saveInBackground().continueWith(new Continuation<Void, Object>() {
-//            @Override
-//            public Object then(Task<Void> task) throws Exception {
-//                if(task.isFaulted()) {
-//                    Exception e = task.getError();
-//                    Log.e("initFields", e.getMessage());
-//                    if(e instanceof ParseException) {
-//                        ParseException pe = (ParseException) e;
-//                        Log.e("initFields error code:", String.valueOf(pe.getCode()));
-//                    }
-//                }
-//                return null;
-//            }
-//        });
         ParseObjectUtils.addToSaveQueue(this);
     }
 
@@ -191,9 +177,15 @@ public abstract class StudentBlockStats extends ParseObject{
             blockStats = createInstance(clazz);
             blockStats.initFields(category);
             ParseObjectUtils.unpinAllInBackground(deletePinQuery);
+            blockStats.increment(correct);
+            ParseObjectUtils.addToSaveThenPinQueue(className, blockStats);
         }
-        blockStats.increment(correct);
-        ParseObjectUtils.addToSaveThenPinQueue(className, blockStats);
+        else {
+            //Increment operations are performed atomically in Parse. When followed by saveInBackground(), the effect
+            //is incrementAndGet()
+            blockStats.increment(correct);
+            blockStats.saveInBackground();
+        }
     }
 
     private static <T extends StudentBlockStats> T createInstance(Class<T> clazz) {

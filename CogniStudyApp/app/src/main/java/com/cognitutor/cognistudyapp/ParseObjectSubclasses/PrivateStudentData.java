@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -39,9 +40,7 @@ public class PrivateStudentData extends ParseObject{
     }
     public PrivateStudentData() {}
     public PrivateStudentData(ParseUser user) {
-        ParseACL acl = new ParseACL(user);
-        acl.setPublicReadAccess(false);
-        setACL(acl);
+        setACL(ACLUtils.getPrivateReadACL());
 
         put(Columns.numCoins, 0);
         put(Columns.friends, new ArrayList<PublicUserData>());

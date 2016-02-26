@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Fragments;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,12 +21,14 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 import com.parse.ParseUser;
 
@@ -262,10 +265,11 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                QueryUtils.testCacheThenNetwork();
+                testGetAchievement();
+//                QueryUtils.testCacheThenNetwork();
 //                DateUtils.test(false);
 //                Intent intent = new Intent(getActivity(), QuestionActivity.class);
-//                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
+//                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionIds
 //                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
 //                //eO4TCrdBdn
 //                //fF4lsHt2iW
@@ -273,7 +277,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 //                startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
-                DateUtils.test(false);
+                testIncrementAchievement();
+//                DateUtils.test(false);
 //                navigateToNewChallengeActivity();
                 break;
             case R.id.btnLogout:
@@ -310,5 +315,25 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         else {
             txtChange.setText("Test 1");
         }
+    }
+
+    private void testGetAchievement() {
+        try {
+            Achievement achievement;
+            achievement = ParseQuery.getQuery(Achievement.class)
+                    .get("KRfsoskAZj");
+            ParseObjectUtils.pin("Achievement", achievement);
+        } catch (Exception e) { e.printStackTrace(); Log.e("testGetAchievement", e.getMessage()); }
+    }
+
+    private void testIncrementAchievement() {
+        try {
+            Achievement achievement = ParseQuery.getQuery(Achievement.class)
+                    .fromLocalDatastore()
+                    .get("KRfsoskAZj");
+            achievement.increment("numToGain");
+            achievement.increment("test");
+            achievement.saveEventually();
+        } catch (Exception e) { e.printStackTrace(); Log.e("testIncrement", e.getMessage()); }
     }
 }

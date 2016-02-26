@@ -3,6 +3,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
@@ -10,6 +11,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseACL;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseInstallation;
@@ -18,6 +20,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import bolts.Continuation;
@@ -56,7 +59,7 @@ class AuthenticationActivity extends CogniActivity {
         doNavigate(MainActivity.class, true);
     }
 
-    public void setUpLocalDataStore() {
+    public void doPinCurrentUser() {
         try {
             UserUtils.pinCurrentUser();
         }
@@ -80,12 +83,13 @@ class AuthenticationActivity extends CogniActivity {
         final PrivateStudentData privateStudentData = new PrivateStudentData(user);
         final Student student = new Student(user, privateStudentData);
         final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
+        //TODO: Remove this
         finalizeUser(user, publicUserData, fbLinked);
 
         final ParseInstallation installation = setUpInstallation(user.getObjectId());
 
         //TODO: This does not add a PinnedObject instance for current user since the user has not been saved to Parse yet
-        ParseObjectUtils.pinInBackground("CurrentUser", publicUserData)
+        ParseObjectUtils.pinInBackground(Constants.PinNames.CurrentUser, publicUserData)
             .continueWith(new Continuation<Void, Void>() {
                 @Override
                 public Void then(Task<Void> task) throws Exception {
@@ -121,18 +125,6 @@ class AuthenticationActivity extends CogniActivity {
         objects.add(publicUserData);
         objects.add(user);
         objects.add(installation);
-        ParseObject.saveAllInBackground(objects).continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                if(task.isFaulted()) {
-                    Log.e("Error saving", task.getError().getMessage());
-                }
-                else {
-                    Log.e("Saving", "Everythings fine");
-                }
-                return null;
-            }
-        });
         ParseObject.saveAllInBackground(objects, callback);
     }
     

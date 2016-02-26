@@ -2,7 +2,8 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.util.Log;
 
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -22,23 +23,16 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -172,28 +166,11 @@ public class ParseObjectUtils {
     // </editor-fold>
 
     // <editor-fold desc="Pinning">
-    public static class PinNames {
-
-        public static final String PinData = "PinData";
-
-        public static final String PeopleSearch = "PeopleSearch";
-        public static final String PublicUserData = "PublicUserData";
-        public static final String Challenge = "Challenge";
-        public static final String CurrentUser = "CurrentUser";
-        //TODO: Possibly remove these later
-        public static final String StudentCategoryDayStats = Constants.ClassName.StudentCategoryDayStats;
-        public static final String StudentCategoryTridayStats = Constants.ClassName.StudentCategoryTridayStats;
-        public static final String StudentCategoryMonthStats = Constants.ClassName.StudentCategoryMonthStats;
-        public static final String StudentSubjectDayStats = Constants.ClassName.StudentSubjectDayStats;
-        public static final String StudentSubjectTridayStats = Constants.ClassName.StudentSubjectTridayStats;
-        public static final String StudentSubjectMonthStats = Constants.ClassName.StudentSubjectMonthStats;
-    }
-
     public static final Map<String, Integer> PinNamesToMaxPinned;
     static {
         Map<String, Integer> map = new HashMap<>();
 
-        map.put(PinNames.PeopleSearch, 20);
+        map.put(Constants.PinNames.PeopleSearch, 20);
 
         PinNamesToMaxPinned = Collections.unmodifiableMap(map);
     }
@@ -367,7 +344,7 @@ public class ParseObjectUtils {
                     }
                     ParseObject.unpinAllInBackground();
                     //Extra layer of assurance that everything will be unpinned that should be
-                    List<String> pinNames = Arrays.asList(Constants.getAllConstants(PinNames.class));
+                    List<String> pinNames = Arrays.asList(Constants.getAllConstants(Constants.PinNames.class));
                     for (String pinName : pinNames) {
                         Log.d("pinName: ", pinName);
                         ParseObject.unpinAllInBackground(pinName);
@@ -446,11 +423,11 @@ public class ParseObjectUtils {
 
         try {
             if(pin) {
-                AnsweredQuestionId aid1 = new AnsweredQuestionId(id1);
+                AnsweredQuestionIds aid1 = new AnsweredQuestionIds(id1);
                 ParseObjectUtils.addToSaveThenPinQueue(pinName, aid1);
 //                pin(pinName, aid1);
 
-                AnsweredQuestionId aid2 = new AnsweredQuestionId(id2);
+                AnsweredQuestionIds aid2 = new AnsweredQuestionIds(id2);
                 ParseObjectUtils.addToSaveThenPinQueue(pinName, aid2);
 //                pin(pinName, aid2);
 
@@ -482,7 +459,8 @@ public class ParseObjectUtils {
             classes.add(StudentSubjectDayStats.class);
             classes.add(StudentSubjectTridayStats.class);
             classes.add(StudentSubjectMonthStats.class);
-            classes.add(AnsweredQuestionId.class);
+            classes.add(AnsweredQuestionIds.class);
+            classes.add(Achievement.class);
             classes.add(PinnedObject.class);
 
             List<PinnedObject> pinnedObjects = ParseQuery.getQuery(PinnedObject.class)

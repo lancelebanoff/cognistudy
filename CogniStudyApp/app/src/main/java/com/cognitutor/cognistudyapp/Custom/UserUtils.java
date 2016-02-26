@@ -2,9 +2,11 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -37,27 +39,13 @@ public class UserUtils {
         return getPublicUserData().getStudent();
     }
 
-    public static void pinCurrentUser() throws  ParseException {
-        String TAG = "pinCurrentUser";
-        /*
-        Log.d("pinSutdentObjects", "publicUserData " +
-                (ParseUser.getCurrentUser().getParseObject("publicUserData").isDataAvailable() ? "is available" : "is not available"));
-                */
-        PublicUserData publicUserData = (PublicUserData) ParseUser.getCurrentUser().getParseObject("publicUserData");
-//        Log.d(TAG, "publicUserData is " + (publicUserData.isDataAvailable() ? "" : "not ") + "available");
-        publicUserData.fetchIfNeeded();
-
-        Student student = (Student) publicUserData.getParseObject("student");
-        Log.d(TAG, "student is " + (student.isDataAvailable() ? "" : "not ") + "available");
-        student.fetchIfNeeded();
-        pinRollingStatsInBackground(student);
-
-        PrivateStudentData privateStudentData = (PrivateStudentData) student.getParseObject("privateStudentData");
-        Log.d(TAG, "privateStudentData is " + (privateStudentData.isDataAvailable() ? "" : "not ") + "available");
-        privateStudentData.fetchIfNeeded();
-
-        ParseObjectUtils.unpinAll("CurrentUser");
-        ParseObjectUtils.pin("CurrentUser", publicUserData);
+    public static void pinCurrentUser() throws ParseException {
+        PublicUserData publicUserData = PublicUserData.getQuery()
+                .whereEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
+                .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData)
+                .getFirst();
+        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
+        pinRollingStatsInBackground(publicUserData.getStudent());
     }
 
     private static Task<Boolean> pinRollingStatsInBackground(final Student student) {
@@ -69,60 +57,22 @@ public class UserUtils {
                     student.fetchIfNeeded();
                 } catch (ParseException e) { e.printStackTrace(); Log.e("pinRollingStatsInBg", e.getMessage()); return false; }
                 List<StudentTRollingStats> rollingStatsList = new ArrayList<>();
+                List<AnsweredQuestionIds> answeredQuestionIdsList = new ArrayList<>();
                 rollingStatsList.addAll(student.getStudentCategoryRollingStats());
-                rollingStatsList.addAll(student.getStudentSubjectRollingStats());
-                rollingStatsList.addAll(student.getStudentTotalRollingStats());
                 for(StudentTRollingStats rollingStats : rollingStatsList) {
-                    rollingStats.pin(ParseObjectUtils.PinNames.CurrentUser);
+                    if(!(rollingStats instanceof StudentCategoryRollingStats)) continue; //Unnecessary if order of the code does not change
+                    rollingStats.fetchIfNeeded();
+                    AnsweredQuestionIds answeredQuestionIds = ((StudentCategoryRollingStats) rollingStats).getAnsweredQuestionIds();
+                    answeredQuestionIdsList.add(answeredQuestionIds);
                 }
+                rollingStatsList.addAll(student.getStudentSubjectRollingStats());
+                rollingStatsList.add(student.getStudentTotalRollingStats());
+                //TODO: Change ParseObjectUtils.pin to ParseObject.pin (later)
+                ParseObjectUtils.pinAll(Constants.PinNames.CurrentUser, rollingStatsList);
+                ParseObjectUtils.pinAll(Constants.PinNames.CurrentUser, answeredQuestionIdsList);
                 return true;
             }
         });
-    }
-
-    public static void getPinTest() throws ParseException {
-
-        PublicUserData publicUserDataFromPin = ParseQuery.getQuery(PublicUserData.class)
-                //.fromPin("CurrentUser")
-                .fromLocalDatastore()
-                .whereEqualTo("baseUserId", ParseUser.getCurrentUser().getObjectId())
-                .include("student")
-                .include("privateStudentData")
-                .getFirst();
-
-        PrivateStudentData privateStudentData = (PrivateStudentData) publicUserDataFromPin
-                .getParseObject("student")
-                .getParseObject("privateStudentData");
-
-        PrivateStudentData privateStudentData1 = ParseQuery.getQuery(PrivateStudentData.class)
-                .fromLocalDatastore()
-                .whereEqualTo(PrivateStudentData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId())
-                .getFirst();
-        /*
-        Log.d("After client fetch", "publicUserData objectId is " + publicUserDataFromPin.getObjectId());
-        Log.d("After client fetch", "student objectId is " + publicUserDataFromPin.getStudent().getObjectId());
-        Log.d("After client fetch", "privateStudentData objectId is " + publicUserDataFromPin.getStudent().getPrivateStudentData().getObjectId());
-        */
-        Log.d("After client fetch", "privateStudentData objectId is " + privateStudentData.getObjectId());
-        Log.d("After client fetch", "privateStudentData1 objectId is " + privateStudentData1.getObjectId());
-
-        /*
-        List<PublicUserData> list = ParseQuery.getQuery(PublicUserData.class)
-                .fromPin("CurrentUser")
-                .include("student")
-                .include("privateStudentData")
-                .find();
-
-        Log.d("After client fetch", "Here are the users");
-        for(int i=1; i<=list.size(); i++) {
-            PublicUserData p = list.get(i-1);
-            Log.d("User " + i, "publicUserData objectId is " + p.getObjectId());
-            Log.d("User " + i, "student objectId is " + p.getStudent().getObjectId());
-            Log.d("User " + i, "privateStudentData objectId is " + p.getStudent().getPrivateStudentData().getObjectId());
-        }
-        */
-
-        //Log.d("getPinTest", "Skipping method");
     }
 
     public static String getCurrentUserId() {
