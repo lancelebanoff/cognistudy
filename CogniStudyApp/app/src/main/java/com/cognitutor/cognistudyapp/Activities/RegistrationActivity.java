@@ -224,7 +224,7 @@ public class RegistrationActivity extends AuthenticationActivity {
     public static final String autoGenUsername = "autoCreatedUsername";
     public void autoCreateUser(View view) {
         final ParseUser user = new ParseUser();
-        final String email = "KevinJoslyn@aol.com";
+        final String email = "KJoslyn29@gmail.com";
         final String password = "password";
         final String username = autoGenUsername;
         user.setUsername(username);
@@ -237,12 +237,12 @@ public class RegistrationActivity extends AuthenticationActivity {
         user.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
-                loginUser(username, password);
+                loginUserAuto(username, password);
             }
         });
     }
 
-    private void loginUser(final String email, final String password) {
+    private void loginUserAuto(final String email, final String password) {
         ParseUser.logInInBackground(email, password, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException e) {

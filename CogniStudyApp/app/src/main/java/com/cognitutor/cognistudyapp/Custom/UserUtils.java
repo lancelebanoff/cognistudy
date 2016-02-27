@@ -44,7 +44,8 @@ public class UserUtils {
                 .whereEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
                 .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData)
                 .getFirst();
-        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
+//        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
+        publicUserData.pin(Constants.PinNames.CurrentUser);
         Student student = publicUserData.getStudent();
         pinRollingStatsInBackground(student);
         StudentBlockStats.pinAllBlockStatsInBackground(student);
@@ -70,8 +71,10 @@ public class UserUtils {
                     answeredQuestionIdsList.add(answeredQuestionIds);
                 }
                 //TODO: Change ParseObjectUtils.pin to ParseObject.pin (later)
-                ParseObjectUtils.pinAllInBackground(Constants.PinNames.CurrentUser, rollingStatsList);
-                ParseObjectUtils.pinAllInBackground(Constants.PinNames.CurrentUser, answeredQuestionIdsList);
+//                ParseObjectUtils.pinAllInBackground(Constants.PinNames.CurrentUser, rollingStatsList);
+//                ParseObjectUtils.pinAllInBackground(Constants.PinNames.CurrentUser, answeredQuestionIdsList);
+                ParseObject.pinAllInBackground(Constants.PinNames.CurrentUser, rollingStatsList);
+                ParseObject.pinAllInBackground(Constants.PinNames.CurrentUser, answeredQuestionIdsList);
                 return true;
             }
         });

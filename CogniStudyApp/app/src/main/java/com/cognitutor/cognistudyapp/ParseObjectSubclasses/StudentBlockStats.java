@@ -166,8 +166,8 @@ public abstract class StudentBlockStats extends ParseObject{
                     } catch (ParseException e) {
                     }
                 }
-//                return ParseObject.pinAllInBackground(Constants.PinNames.BlockStats, blockStatsToPin);
-                return ParseObjectUtils.pinAllInBackground(Constants.PinNames.BlockStats, blockStatsToPin);
+                return ParseObject.pinAllInBackground(Constants.PinNames.BlockStats, blockStatsToPin);
+//                return ParseObjectUtils.pinAllInBackground(Constants.PinNames.BlockStats, blockStatsToPin);
             }
         });
     }
@@ -188,32 +188,33 @@ public abstract class StudentBlockStats extends ParseObject{
         });
     }
 
-    private static void createIfNecessaryAndIncrement(StudentBlockStats existed, Class<? extends StudentBlockStats> clazz,
+    private static Task<Void> createIfNecessaryAndIncrement(StudentBlockStats existed, Class<? extends StudentBlockStats> clazz,
                                                       final Student student, String category, boolean correct) {
         if(existed == null) {
             final StudentBlockStats created = createInstance(clazz);
             created.initFields(category);
 //            ParseObjectUtils.unpinAllInBackground(deletePinQuery);
             created.increment(correct);
-            created.saveInBackground()
-            .continueWith(new Continuation<Void, Object>() {
-                @Override
-                public Object then(Task<Void> task) throws Exception {
-                    Log.d("created objectId", created.getObjectId());
-                    Log.d("student objectId", student.getObjectId());
-                    addBlockStatsToRelationAndSaveEventually(student, created);
-                    created.pinInBackground(Constants.PinNames.BlockStats);
-//                    ParseObjectUtils.pinInBackground(Constants.PinNames.BlockStats, created);
-                    return null;
-                }
-            });
+            created.pinInBackground(Constants.PinNames.BlockStats);
+            return created.saveInBackground()
+                    .continueWith(new Continuation<Void, Void>() {
+                        @Override
+                        public Void then(Task<Void> task) throws Exception {
+                            Log.d("created objectId", created.getObjectId());
+                            Log.d("student objectId", student.getObjectId());
+                            addBlockStatsToRelationAndSaveEventually(student, created);
+        //                    created.pinInBackground(Constants.PinNames.BlockStats);
+        //                    ParseObjectUtils.pinInBackground(Constants.PinNames.BlockStats, created);
+                            return null;
+                        }
+                    });
 //            ParseObjectUtils.addToSaveThenPinQueue(Constants.PinNames.BlockStats, blockStats);
         }
         else {
             //Increment operations are performed atomically in Parse. When followed by saveInBackground(), the effect
             //is incrementAndGet()
             existed.increment(correct);
-            existed.saveInBackground();
+            return existed.saveInBackground();
         }
     }
 
