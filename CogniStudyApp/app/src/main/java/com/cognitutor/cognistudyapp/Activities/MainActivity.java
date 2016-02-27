@@ -2,45 +2,24 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
+import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
-import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.DateUtils;
-import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
-import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
 import com.cognitutor.cognistudyapp.R;
-import com.facebook.AccessToken;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import bolts.Capture;
 
 public class MainActivity extends AuthenticationActivity {
 
@@ -58,8 +37,70 @@ public class MainActivity extends AuthenticationActivity {
         mViewPager = (CogniViewPager) findViewById(R.id.viewpager);
         mViewPager.setAdapter(sectionsPagerAdapter);
         mViewPager.setActivityRef(this);
+        mViewPager.setOffscreenPageLimit(5);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
+        setTabLayoutIconsAndColors(tabLayout);
+    }
+
+    private void setTabLayoutIconsAndColors(TabLayout tabLayout) {
+        // Initialize tab icons and colors
+        for(int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            switch (i) {
+                case 0:
+                    tab.setIcon(R.drawable.icon_home); // TODO:1 google material icons
+                    break;
+                case 1:
+                    tab.setIcon(R.drawable.icon_people);
+                    break;
+                case 2:
+                    tab.setIcon(R.drawable.icon_messages);
+                    break;
+                case 3:
+                    tab.setIcon(R.drawable.icon_analytics);
+                    break;
+                case 4:
+                    tab.setIcon(R.drawable.icon_menu);
+                    break;
+            }
+            int color;
+            if(i == 0) {
+                color = ContextCompat.getColor(mActivity, R.color.white);
+            } else {
+                color = ContextCompat.getColor(mActivity, R.color.colorPrimaryLight);
+            }
+            tab.getIcon().mutate().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+        }
+
+        // Change colors when tabs are selected
+        tabLayout.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager) {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                super.onTabSelected(tab);
+                tab.getIcon().setColorFilter(
+                        ContextCompat.getColor(mActivity, R.color.white),
+                        PorterDuff.Mode.MULTIPLY
+                );
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                super.onTabUnselected(tab);
+                tab.getIcon().mutate().setColorFilter(
+                        ContextCompat.getColor(mActivity, R.color.colorPrimaryLight),
+                        PorterDuff.Mode.MULTIPLY
+                );
+            }
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                super.onTabReselected(tab);
+                tab.getIcon().setColorFilter(
+                        ContextCompat.getColor(mActivity, R.color.white),
+                        PorterDuff.Mode.MULTIPLY
+                );
+            }
+        });
     }
 
     //TODO: Remove testing later
@@ -143,17 +184,17 @@ public class MainActivity extends AuthenticationActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             // TODO:3 make these images
-            if(position == Fragments.Main.ordinal())
-                return "Home";
-            if(position == Fragments.People.ordinal())
-                return "People";
-            if(position == Fragments.Messages.ordinal())
-                return "Messages";
-            if(position == Fragments.Analytics.ordinal())
-                return "Statistics";
-            if(position == Fragments.Menu.ordinal())
-                return "Menu";
-            return null;
+//            if(position == Fragments.Main.ordinal())
+//                return "Home";
+//            if(position == Fragments.People.ordinal())
+//                return "People";
+//            if(position == Fragments.Messages.ordinal())
+//                return "Messages";
+//            if(position == Fragments.Analytics.ordinal())
+//                return "Statistics";
+//            if(position == Fragments.Menu.ordinal())
+//                return "Menu";
+            return "";
         }
     }
     private void onResumeTest() {

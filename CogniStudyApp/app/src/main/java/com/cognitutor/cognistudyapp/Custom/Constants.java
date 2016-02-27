@@ -1,11 +1,17 @@
 package com.cognitutor.cognistudyapp.Custom;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.*;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -45,6 +51,21 @@ public class Constants {
         try {
             return (String) fields[rand.nextInt(fields.length)].get(c);
         } catch (IllegalAccessException e) { e.printStackTrace(); return null; }
+    }
+
+    public static class MenuItem {
+        public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
+        public static final String BOOKMARKS = "Bookmarks";
+        public static final String ACHIEVEMENTS = "Achievements";
+        public static final String SHOP = "Shop";
+        public static final String SETTINGS = "Settings";
+        public static final String HELP = "Help";
+        public static final String SIGN_OUT = "Sign Out";
+
+        public static class Attribute {
+            public static final String LABEL = "LABEL";
+            public static final String ICON = "ICON";
+        }
     }
 
     public static class NotificationData {

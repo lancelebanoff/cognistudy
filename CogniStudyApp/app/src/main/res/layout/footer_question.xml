@@ -33,7 +33,7 @@
         android:id="@+id/viewSwitcher"
         android:layout_centerHorizontal="true" >
 
-        <Button
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
             android:enabled="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
             android:id="@+id/btnSubmit"
             android:onClick="showAnswer" />
 
-        <Button
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Continue"
@@ -58,7 +58,7 @@
         android:text="Modify"
         android:background="@color/grey"/>
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:visibility="gone"
         android:id="@+id/btnSetLatex"
         android:layout_below="@id/txtModifyQuestion"

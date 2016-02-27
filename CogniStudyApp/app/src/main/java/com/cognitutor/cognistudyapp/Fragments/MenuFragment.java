@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 import com.cognitutor.cognistudyapp.Activities.AchievementsActivity;
 import com.cognitutor.cognistudyapp.Activities.BookmarksActivity;
@@ -15,13 +17,18 @@ import com.cognitutor.cognistudyapp.Activities.HelpActivity;
 import com.cognitutor.cognistudyapp.Activities.SettingsActivity;
 import com.cognitutor.cognistudyapp.Activities.ShopActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsActivity;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Lance on 12/27/2015.
  */
-public class MenuFragment extends CogniFragment implements View.OnClickListener {
+public class MenuFragment extends CogniFragment {
 
     public static final MenuFragment newInstance() {
         return new MenuFragment();
@@ -32,45 +39,80 @@ public class MenuFragment extends CogniFragment implements View.OnClickListener 
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_menu, container, false);
 
-        int[] allButtonIds = {
-                R.id.btnSuggestedQuestions,
-                R.id.btnBookmarks,
-                R.id.btnAchievements,
-                R.id.btnShop,
-                R.id.btnSettings,
-                R.id.btnHelp,
-                R.id.btnLogout
-        };
-        for(int buttonId : allButtonIds) {
-            Button b = (Button) rootView.findViewById(buttonId);
-            b.setOnClickListener(this);
-        }
+        createMenuListView(rootView);
 
         return rootView;
     }
 
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()) {
-            case R.id.btnSuggestedQuestions:
+    private void createMenuListView(View rootView) {
+        final ListView listView = (ListView) rootView.findViewById(R.id.listView);
+
+        String[] from = new String[] {
+                Constants.MenuItem.Attribute.LABEL,
+                Constants.MenuItem.Attribute.ICON
+        };
+        int[] to = new int[] {
+                R.id.txtLabel,
+                R.id.imgIcon
+        };
+        List<HashMap<String, String>> menuItemMaps = new ArrayList<HashMap<String, String>>();
+
+        List<MenuItem> menuItems = getMenuItems();
+        for(MenuItem menuItem : menuItems) {
+            HashMap<String, String> menuItemMap = new HashMap<>();
+            menuItemMap.put(Constants.MenuItem.Attribute.LABEL, menuItem.label);
+            menuItemMap.put(Constants.MenuItem.Attribute.ICON, Integer.toString(menuItem.icon));
+            menuItemMaps.add(menuItemMap);
+        }
+
+        final SimpleAdapter adapter = new SimpleAdapter(
+                rootView.getContext(), menuItemMaps, R.layout.list_item_menu, from, to
+        );
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                HashMap menuItemMap = (HashMap) adapter.getItem(position);
+                String label = menuItemMap.get(Constants.MenuItem.Attribute.LABEL).toString();
+                onClick(label);
+            }
+        });
+    }
+
+    private List<MenuItem> getMenuItems() {
+        ArrayList<MenuItem> menuItems = new ArrayList<>();
+        menuItems.add(new MenuItem(Constants.MenuItem.SUGGESTED_QUESTIONS, R.drawable.icon_suggested_questions));
+        menuItems.add(new MenuItem(Constants.MenuItem.BOOKMARKS, R.drawable.icon_bookmarks));
+        menuItems.add(new MenuItem(Constants.MenuItem.ACHIEVEMENTS, R.drawable.icon_achievements));
+        menuItems.add(new MenuItem(Constants.MenuItem.SHOP, R.drawable.icon_shop));
+        menuItems.add(new MenuItem(Constants.MenuItem.SETTINGS, R.drawable.icon_settings));
+        menuItems.add(new MenuItem(Constants.MenuItem.HELP, R.drawable.icon_help));
+        menuItems.add(new MenuItem(Constants.MenuItem.SIGN_OUT, R.drawable.icon_sign_out));
+        return menuItems;
+    }
+
+    private void onClick(String label) {
+        switch(label) {
+            case Constants.MenuItem.SUGGESTED_QUESTIONS:
                 navigateToActivity(SuggestedQuestionsActivity.class);
                 break;
-            case R.id.btnBookmarks:
+            case Constants.MenuItem.BOOKMARKS:
                 navigateToActivity(BookmarksActivity.class);
                 break;
-            case R.id.btnAchievements:
+            case Constants.MenuItem.ACHIEVEMENTS:
                 navigateToActivity(AchievementsActivity.class);
                 break;
-            case R.id.btnShop:
+            case Constants.MenuItem.SHOP:
                 navigateToActivity(ShopActivity.class);
                 break;
-            case R.id.btnSettings:
+            case Constants.MenuItem.SETTINGS:
                 navigateToActivity(SettingsActivity.class);
                 break;
-            case R.id.btnHelp:
+            case Constants.MenuItem.HELP:
                 navigateToActivity(HelpActivity.class);
                 break;
-            case R.id.btnLogout:
+            case Constants.MenuItem.SIGN_OUT:
                 promptLogout();
                 break;
         }
@@ -100,5 +142,16 @@ public class MenuFragment extends CogniFragment implements View.OnClickListener 
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    public class MenuItem {
+
+        public String label;
+        public int icon;
+
+        public MenuItem(String label, int icon) {
+            this.label = label;
+            this.icon = icon;
+        }
     }
 }

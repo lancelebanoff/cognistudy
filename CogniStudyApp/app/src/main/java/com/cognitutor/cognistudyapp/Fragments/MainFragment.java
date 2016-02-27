@@ -1,8 +1,10 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,17 +25,14 @@ import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQueryAdapter;
-import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -84,13 +83,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         b.setOnClickListener(this);
 
         txtChange = (TextView) rootView.findViewById(R.id.txtChange);
-
-        createChallengeRequestListView(rootView);
-        createYourTurnListView(rootView);
-        createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
-
-        createAnsweredQuestionIdsListView(rootView);
+        createAllListViews(rootView);
+        setSwipeRefreshLayout(rootView);
 
         return rootView;
     }
@@ -112,18 +106,11 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         createPastChallengeListView(rootView);
     }
 
-    private void createAnsweredQuestionIdsListView(View rootView) {
-
-        answeredQuestionIdAdapter = new ArrayAdapter<>(rootView.getContext(),
-                R.layout.list_item_answered_question_id, R.id.txtAnsweredQuestion);
-        answeredQuestionIdsListView = (ListView) rootView.findViewById(R.id.listAnsweredQuestionIds);
-        answeredQuestionIdsListView.setAdapter(answeredQuestionIdAdapter);
-        answeredQuestionIdAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                setListViewHeightBasedOnChildren(answeredQuestionIdsListView);
-            }
-        });
+    private void createAllListViews(View rootView) {
+        createChallengeRequestListView(rootView);
+        createYourTurnListView(rootView);
+        createTheirTurnListView(rootView);
+        createPastChallengeListView(rootView);
     }
 
     private void createChallengeRequestListView(View rootView) {
@@ -258,7 +245,29 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         listView.setLayoutParams(params);
     }
 
-    @Override
+    private void setSwipeRefreshLayout(View rootView) {
+        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh(swipeRefreshLayout);
+            }
+        });
+    }
+
+    private void refresh(final SwipeRefreshLayout swipeRefreshLayout) {
+        final View rootView = getView();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                createAllListViews(rootView);
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }, 1000);
+
+
+    }@Override
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
@@ -276,7 +285,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             case R.id.btnLogout:
                 try {
                     logout();
-                } catch (ParseException e) { handleParseError(e); return; }
+                } catch (ParseException e) { handleParseError(e);
+                    return; }
                 navigateToRegistrationActivity();
                 break;
             case R.id.btnViewLocalDatastore:

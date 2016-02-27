@@ -49,8 +49,8 @@
     <string name="yes_dialog_cancel_challenge">Yes</string>
     <string name="no_dialog_cancel_challenge">No</string>
     <string name="message_dialog_accept_challenge">Do you accept this challenge?</string>
-    <string name="yes_dialog_accept_challenge">Yes</string>
-    <string name="no_dialog_accept_challenge">No</string>
+    <string name="yes_dialog_accept_challenge">Accept</string>
+    <string name="no_dialog_accept_challenge">Reject</string>
     <string name="cancel_dialog_accept_challenge">Cancel</string>
     <string name="blank_score"></string>
     <string name="title_dialog_won_challenge">You win!</string>
