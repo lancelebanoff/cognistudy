@@ -113,7 +113,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     }
 
     private void setChallengeActivated() {
-        Challenge.getChallenge(mChallengeId)
+        Challenge.getChallengeInBackground(mChallengeId)
                 .onSuccess(new Continuation<Challenge, Void>() {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
@@ -126,7 +126,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     }
 
     private void setChallengeAccepted() {
-        Challenge.getChallenge(mChallengeId)
+        Challenge.getChallengeInBackground(mChallengeId)
                 .onSuccess(new Continuation<Challenge, Void>() {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {

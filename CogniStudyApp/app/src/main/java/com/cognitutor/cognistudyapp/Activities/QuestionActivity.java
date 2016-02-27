@@ -31,6 +31,7 @@ import com.parse.ParseException;
 import org.apache.commons.io.IOUtils;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import bolts.Continuation;
@@ -131,7 +132,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     private void loadChallenge() {
         String challengeId = getChallengeId();
-        Challenge.getChallenge(challengeId)
+        Challenge.getChallengeInBackground(challengeId)
                 .continueWith(new Continuation<Challenge, Void>() {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
@@ -229,7 +230,17 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                 if(isSelectedAnswerCorrect) {
                     mChallenge.incrementCorrectAnsThisTurn();
                 }
-                mChallenge.saveInBackground();
+                if(mChallenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE) &&
+                        mChallenge.getQuesAnsThisTurn() == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
+                    mQuesAnsThisTurn = 0;
+                    mChallenge.setQuesAnsThisTurn(0);
+                    chooseThreeQuestionIds();
+                }
+                try {
+                    mChallenge.save();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -242,6 +253,15 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                 });
             }
         }).start();
+    }
+
+    private List<String> chooseThreeQuestionIds() {
+        List<String> questionIds = new ArrayList<>();
+        questionIds.add("aSVEaMqEfB");
+        questionIds.add("fF4lsHt2iW");
+        questionIds.add("eO4TCrdBdn");
+        mChallenge.setThisTurnQuestionIds(questionIds);
+        return questionIds;
     }
 
     public void navigateToNextActivity(View view) {

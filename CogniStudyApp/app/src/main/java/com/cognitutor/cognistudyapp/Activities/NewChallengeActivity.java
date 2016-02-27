@@ -176,7 +176,7 @@ public class NewChallengeActivity extends CogniActivity {
             llOpponent.setVisibility(View.INVISIBLE);
 
 //            String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-//            Challenge.getChallenge(challengeId)
+//            Challenge.getChallengeInBackground(challengeId)
 //                    .onSuccess(new Continuation<Challenge, Void>() {
 //                        @Override
 //                        public Void then(Task<Challenge> task) throws Exception {
@@ -308,17 +308,20 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void saveNewChallenge() {
-        PublicUserData user1PublicUserData = PublicUserData.getPublicUserData();
-        ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, mSelectedSubjects,
+        final PublicUserData user1PublicUserData = PublicUserData.getPublicUserData();
+        final ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, mSelectedSubjects,
                 mSelectedCategories);
         user1Data.saveInBackground();
 
-        final Challenge challenge = new Challenge(user1Data, getChallengeType());
+        final String challengeType = getChallengeType();
+        final Challenge challenge = new Challenge(user1Data, challengeType);
         challenge.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    if (mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
+                    if (challengeType.equals(Constants.ChallengeType.PRACTICE)) {
+                        savePracticeChallenge(challenge, user1PublicUserData);
+                    } else if (mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
                         navigateToChooseOpponentActivity(challenge.getObjectId(), 1);
                     } else {
                         navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
@@ -330,10 +333,22 @@ public class NewChallengeActivity extends CogniActivity {
         });
     }
 
+    private void savePracticeChallenge(final Challenge challenge, PublicUserData publicUserData) {
+        challenge.setCurTurnUserId(publicUserData.getBaseUserId());
+        challenge.setActivated(true);
+        challenge.setAccepted(true);
+        challenge.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                navigateToPracticeChallengeActivity(challenge.getObjectId(), 1);
+            }
+        });
+    }
+
     private void saveExistingChallenge() {
         final String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
 
-        Challenge.getChallenge(challengeId)
+        Challenge.getChallengeInBackground(challengeId)
                 .onSuccess(new Continuation<Challenge, Void>() {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
@@ -348,6 +363,14 @@ public class NewChallengeActivity extends CogniActivity {
                         return null;
                     }
                 });
+    }
+
+    private void navigateToPracticeChallengeActivity(String challengeId, int user1or2) {
+        Intent intent = new Intent(this, PracticeChallengeActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
+        startActivity(intent);
+        finish();
     }
 
     private void navigateToChooseBoardConfigurationActivity(String challengeId, int user1or2) {

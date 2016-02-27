@@ -163,8 +163,8 @@ public class Constants {
     }
 
     public static class Category {
-        public static final String COMMAND_OF_EVIDENCE = "Command of Evidence";
-        public static final String WORDS_IN_CONTEXT = "Words in Context";
+        public static final String SOCIAL_STUDIES_SCIENCE = "Social Studies/Science";
+        public static final String ARTS_LITERATURE = "Arts/Literature";
         public static final String PRE_ALGEBRA = "Pre-Algebra";
         public static final String ALGEBRA = "Algebra";
         public static final String GEOMETRY = "Geometry";
@@ -178,7 +178,7 @@ public class Constants {
 
         public static String[] getCategories() {
             return new String[] {
-                    COMMAND_OF_EVIDENCE, WORDS_IN_CONTEXT, PRE_ALGEBRA, ALGEBRA, GEOMETRY, TRIGONOMETRY,
+                    SOCIAL_STUDIES_SCIENCE, ARTS_LITERATURE, PRE_ALGEBRA, ALGEBRA, GEOMETRY, TRIGONOMETRY,
                     DATA_ANALYSIS_STATISTICS_PROBABILITY, USAGE_AND_MECHANICS, RHETORICAL_SKILLS,
                     DATA_REPRESENTATION, RESEARCH_SUMMARIES, CONFLICTING_VIEWPOINTS
             } ;
@@ -200,8 +200,8 @@ public class Constants {
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
         map.put(Test.SAT, new String[] {
-                Category.COMMAND_OF_EVIDENCE,
-                Category.WORDS_IN_CONTEXT,
+                Category.SOCIAL_STUDIES_SCIENCE,
+                Category.ARTS_LITERATURE,
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
@@ -210,8 +210,8 @@ public class Constants {
                 Category.RHETORICAL_SKILLS
         });
         map.put(Test.ACT, new String[] {
-                Category.COMMAND_OF_EVIDENCE,
-                Category.WORDS_IN_CONTEXT,
+                Category.SOCIAL_STUDIES_SCIENCE,
+                Category.ARTS_LITERATURE,
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
@@ -223,8 +223,8 @@ public class Constants {
                 Category.CONFLICTING_VIEWPOINTS
         });
         map.put(Test.BOTH, new String[] {
-                Category.COMMAND_OF_EVIDENCE,
-                Category.WORDS_IN_CONTEXT,
+                Category.SOCIAL_STUDIES_SCIENCE,
+                Category.ARTS_LITERATURE,
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
@@ -242,7 +242,7 @@ public class Constants {
     public static final Map<String, String[]> SubjectToCategory;
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
-        map.put(Subject.READING, new String[]{Category.COMMAND_OF_EVIDENCE, Category.WORDS_IN_CONTEXT});
+        map.put(Subject.READING, new String[]{Category.SOCIAL_STUDIES_SCIENCE, Category.ARTS_LITERATURE});
         map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.DATA_ANALYSIS_STATISTICS_PROBABILITY});
         map.put(Subject.ENGLISH, new String[]{Category.USAGE_AND_MECHANICS, Category.RHETORICAL_SKILLS});
         map.put(Subject.SCIENCE, new String[]{Category.DATA_REPRESENTATION, Category.RESEARCH_SUMMARIES, Category.CONFLICTING_VIEWPOINTS});

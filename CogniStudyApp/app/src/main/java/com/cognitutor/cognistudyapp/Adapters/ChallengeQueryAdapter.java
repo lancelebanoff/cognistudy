@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
+import com.cognitutor.cognistudyapp.Activities.PracticeChallengeActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
@@ -98,52 +99,76 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         super.getItemView(object, view, parent);
 
         final Challenge challenge = (Challenge) object;
-        challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject object, ParseException e) {
-                final ChallengeUserData user1Data = (ChallengeUserData) object;
-                challenge.getUser2Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-                    @Override
-                    public void done(ParseObject object, ParseException e) {
-                        final ChallengeUserData user2Data = (ChallengeUserData) object;
+        if(challenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
+            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject object, ParseException e) {
+                    ChallengeUserData challengeUserData = (ChallengeUserData) object;
+                    setItemViewContentsForPractice(holder, challengeUserData);
 
-                        String user1BaseUserId = user1Data.getPublicUserData().getBaseUserId();
-                        String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
-                        ChallengeUserData currentChallengeUserData, opponentChallengeUserData;
-                        final int user1or2;
-                        if (user1BaseUserId.equals(currentUserBaseUserId)) {
-                            currentChallengeUserData = user1Data;
-                            opponentChallengeUserData = user2Data;
-                            user1or2 = 1;
-                        } else {
-                            currentChallengeUserData = user2Data;
-                            opponentChallengeUserData = user1Data;
-                            user1or2 = 2;
+                    finalView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            navigateToPracticeChallengeActivity(challenge.getObjectId(), 1);
                         }
-                        setItemViewContents(holder, currentChallengeUserData, opponentChallengeUserData);
+                    });
+                }
+            });
+        }
+        else {
+            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject object, ParseException e) {
+                    final ChallengeUserData user1Data = (ChallengeUserData) object;
+                    challenge.getUser2Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                        @Override
+                        public void done(ParseObject object, ParseException e) {
+                            final ChallengeUserData user2Data = (ChallengeUserData) object;
 
-                        finalView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                String userId = PublicUserData.getPublicUserData().getBaseUserId();
-                                if(!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId)) {
-                                    promptAcceptChallenge(challenge, user1or2);
-                                }
-                                else {
-                                    navigateToChallengeActivity(challenge.getObjectId(), user1or2);
-                                }
+                            String user1BaseUserId = user1Data.getPublicUserData().getBaseUserId();
+                            String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
+                            ChallengeUserData currentChallengeUserData, opponentChallengeUserData;
+                            final int user1or2;
+                            if (user1BaseUserId.equals(currentUserBaseUserId)) {
+                                currentChallengeUserData = user1Data;
+                                opponentChallengeUserData = user2Data;
+                                user1or2 = 1;
+                            } else {
+                                currentChallengeUserData = user2Data;
+                                opponentChallengeUserData = user1Data;
+                                user1or2 = 2;
                             }
-                        });
-                    }
-                });
-            }
-        });
+                            setItemViewContents(holder, currentChallengeUserData, opponentChallengeUserData);
+
+                            finalView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String userId = PublicUserData.getPublicUserData().getBaseUserId();
+                                    if (!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId)) {
+                                        promptAcceptChallenge(challenge, user1or2);
+                                    } else {
+                                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
 
         return finalView;
     }
 
     private void navigateToChallengeActivity(String challengeId, int user1or2) {
         Intent intent = new Intent(mActivity, ChallengeActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
+        mActivity.startActivity(intent);
+    }
+
+    private void navigateToPracticeChallengeActivity(String challengeId, int user1or2) {
+        Intent intent = new Intent(mActivity, PracticeChallengeActivity.class);
         intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
         intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
         mActivity.startActivity(intent);
@@ -200,6 +225,13 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
             holder.txtSubjects.setText("");
             holder.txtScore.setText("");
         }
+    }
+
+    private void setItemViewContentsForPractice(ViewHolder holder, ChallengeUserData challengeUserData) {
+        holder.imgProfile.setParseFile(challengeUserData.getPublicUserData().getProfilePic());
+        holder.imgProfile.loadInBackground();
+        holder.txtName.setText("Practice");
+        holder.setTxtSubjects(challengeUserData.getSubjects());
     }
 
     private static class ViewHolder {
