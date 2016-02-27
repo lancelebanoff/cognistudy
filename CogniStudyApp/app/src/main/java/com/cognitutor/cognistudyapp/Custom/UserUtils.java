@@ -44,32 +44,10 @@ public class UserUtils {
                 .whereEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
                 .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData)
                 .getFirst();
-//        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
         ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
         Student student = publicUserData.getStudent();
         pinRollingStatsInBackground(student);
-        pinBlockStatsInBackground(student);
-    }
-
-    private static Task<Object> pinBlockStatsInBackground(final Student student) {
-        return StudentBlockStats.pinAllBlockStatsInBackground(student);
-//        return Task.callInBackground(new Callable<Boolean>() {
-//            @Override
-//            public Boolean call() throws Exception {
-//                try {
-//                    student.fetchIfNeeded();
-//                } catch (ParseException e) { e.printStackTrace(); Log.e("pinBlockStatsInBg", e.getMessage()); return false; }
-//                List<Class<? extends StudentBlockStats>> subclasses = StudentBlockStats.getStudentBlockStatsSubclasses();
-//                List<ParseObject> blockStatsToPin = new ArrayList<ParseObject>();
-//                for(Class<? extends StudentBlockStats> clazz : subclasses) {
-//                    ParseRelation<? extends StudentBlockStats> relation = student.getStudentBlockStatsRelation(clazz);
-//                    List<? extends StudentBlockStats> blockStatsList = relation.getQuery().find();
-//                    blockStatsToPin.addAll(blockStatsList);
-//                }
-//                ParseObjectUtils.pinAll(Constants.PinNames.CurrentUser, blockStatsToPin);
-//                return true;
-//            }
-//        });
+        StudentBlockStats.pinAllBlockStatsInBackground(student);
     }
 
     private static Task<Boolean> pinRollingStatsInBackground(final Student student) {

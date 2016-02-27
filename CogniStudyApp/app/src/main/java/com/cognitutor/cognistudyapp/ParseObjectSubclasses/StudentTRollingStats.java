@@ -103,10 +103,10 @@ public abstract class StudentTRollingStats extends ParseObject{
             public Object then(Task<StudentTRollingStats> task) throws Exception {
                 //TODO: Handle null result?
                 StudentTRollingStats stats = task.getResult();
-                stats.doIncrementAndSaveEventually(correct);
                 if(stats instanceof StudentCategoryRollingStats) {
                     ((StudentCategoryRollingStats) stats).addAnsweredQuestionIdAndSaveEventually(questionId);
                 }
+                stats.doIncrementAndSaveEventually(correct);
                 return null;
             }
         });
@@ -143,11 +143,11 @@ public abstract class StudentTRollingStats extends ParseObject{
             return query;
         }
         else if(clazz == StudentCategoryRollingStats.class) {
-            return query.whereEqualTo(StudentSubjectRollingStats.Columns.subject, category);
+            return query.whereEqualTo(StudentCategoryRollingStats.Columns.category, category);
         }
         else if(clazz == StudentSubjectRollingStats.class) {
             String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
-            return query.whereEqualTo(StudentCategoryRollingStats.Columns.category, subject);
+            return query.whereEqualTo(StudentSubjectRollingStats.Columns.subject, subject);
         }
         return null;
     }

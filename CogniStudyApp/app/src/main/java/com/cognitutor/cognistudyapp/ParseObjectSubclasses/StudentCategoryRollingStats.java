@@ -42,23 +42,7 @@ public class StudentCategoryRollingStats extends StudentTRollingStats {
 
     public void addAnsweredQuestionIdAndSaveEventually(final String questionId) {
         final AnsweredQuestionIds answeredQuestionIds = (AnsweredQuestionIds) getParseObject(Columns.answeredQuestionIds);
-        answeredQuestionIds.fetchFromLocalDatastoreInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject object, ParseException e) {
-                if (object != null) {
-                    answeredQuestionIds.addAnsweredQuestionIdAndSaveEventually(questionId);
-                    return;
-                }
-                //TODO: What to do when internet is down
-                answeredQuestionIds.fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-                    @Override
-                    public void done(ParseObject object, ParseException e) {
-                        answeredQuestionIds.pinInBackground(Constants.PinNames.CurrentUser);
-                        answeredQuestionIds.addAnsweredQuestionIdAndSaveEventually(questionId);
-                    }
-                });
-            }
-        });
+        answeredQuestionIds.addAnsweredQuestionIdAndSaveEventually(questionId);
     }
 
     @Override

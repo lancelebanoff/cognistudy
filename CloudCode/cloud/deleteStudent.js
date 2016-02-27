@@ -1,61 +1,145 @@
 Parse.Cloud.define("deleteStudent", function(request, response) {
 
+
 	Parse.Cloud.useMasterKey();
+	var id = request.params.userId;
 
-	var baseUserId = request.params.baseUserId;
-
-	var classes = ["PinnedObject", "PrivateStudentData", "PublicUserData", "Student", "StudentCategoryDayStats",
-		"StudentCategoryTridayStats", "StudentCategoryMonthStats", "StudentSubjectDayStats", "StudentSubjectTridayStats",
-		"StudentSubjectMonthStats", "StudentCategoryRollingStats", "StudentSubjectRollingStats", "StudentTotalRollingStats"];
-
-	var promises = [];
-	promises.push(deleteAllObjectsOn("User", "objectId", baseUserId));
-	for(var i=0; i<classes.length; i++) {
-		promises.push(deleteAllObjectsOn(classes[i], "baseUserId", baseUserId));
-	}
-
-	Parse.Promise.when(promises).then(function(results) {
-		response.success("All objects deleted");
-	},
-	function(errors) {
-		for(var e=0; e<errors.length; e++) {
-			console.log(errors[e]);
+	var query = new Parse.Query("PinnedObject");
+	query.equalTo("baseUserId", id);
+	query.find({ useMasterKey: true,
+		success: function(results) {
+			// var fetchedResults = results;
+			console.log("Size of results = " + results.length);
+			Parse.Object.fetchAll(results).then(function(fetchedResults) {
+				Parse.Object.destroyAll(fetchedResults).then(function(success) {
+					console.log("Pinned objects deleted");
+					response.success("Done!");
+				}, function(error) {
+					response.error("destroyAll for pinned objects failed");
+				});
+			}, function(error) {
+				response.error("Error fetching pinnedObjects");
+			});
+		},
+		error: function() {
+			response.error("PinnedObject lookup failed");
 		}
-		response.error("Error deleting objects");
+	});
+
+	query = new Parse.Query(Parse.User);
+	query.equalTo("objectId", id);
+	query.find({ useMasterKey: true,
+		success: function(results) {
+			if(results.length == 0) {
+				response.success("no user found for id" + id);
+			}
+			else {
+				var objects = [];
+				var user = results[0];
+				objects.push(user);
+				var publicUserData = user.get("publicUserData");
+				publicUserData.fetch({ useMasterKey: true,
+					success: function(publicUserData) {
+						objects.push(publicUserData);
+						var student = publicUserData.get("student");
+						student.fetch({
+							success: function(student) {
+								objects.push(student);
+
+								var ok = deleteRollingStats(objects, student);
+								if(ok)
+									console.log("Delete stats returned successfully");
+								else
+									console.log("Delete stats returned fail");
+								console.log("After deleteRollingStats, size of objects is " + objects.length);
+
+								var privateStudentData = student.get("privateStudentData");
+								privateStudentData.fetch({ useMasterKey: true,
+									success: function(privateStudentData) {
+										objects.push(privateStudentData);
+										Parse.Object.destroyAll(objects).then(function(success) {
+											response.success("All objects deleted");
+										}, function(error) {
+											response.error("destroyAll failed");
+										});
+									},
+									error: function() {
+										response.error("privateStudentData lookup failed");
+									}
+								});
+							},
+							error: function() {
+								response.error("student fetch failed");
+							}
+						});
+					},
+					error: function() {
+						response.error("publicUserData fetch failed");
+					}
+				});
+			}
+		},
+		error: function() {
+			response.error("user lookup failed");
+		}
 	});
 });
 
-function deleteAllObjectsOn(className, key, value) {
-
-	Parse.Cloud.useMasterKey();
-
-	var promise = new Parse.Promise();
-
-	var query;
-	if(className === "User")
-		query = new Parse.Query(Parse.User);
-	else
-		query = new Parse.Query(className);
-	query.equalTo(key, value);
-
-	query.find({useMasterKey: true,
-		success: function(results) {
-			console.log("Found " + results.length + " objects of class " + className);
-			Parse.Object.fetchAll(results).then(function(fetchedResults) {
-				Parse.Object.destroyAll(fetchedResults).then(function(success) {
-					console.log(className + "objects deleted");
-					promise.resolve();
-				}, function(error) {
-					promise.reject("Error deleting " + className);
+function deleteRollingStats(objects, student) {
+	var catStats = student.get("studentCategoryRollingStats");
+	for(var i=0; i<catStats.length; i++) {
+		catStats[i].fetch({
+			success: function(stats) {
+				objects.push(stats);
+				var answeredQuestionIds = stats.get("answeredQuestionIds");
+				answeredQuestionIds.fetch({
+					success: function(result) {
+						objects.push(result);
+					},
+					error: function() {
+						console.log("Error fetching answeredQuestionIds");
+						return false;
+					}
 				});
-			}, function(error) {
-				promise.reject("Error fetching " + className);
-			});
+			},
+			error: function() {
+				console.log("Error fetching studentCategoryRollingStats");
+				return false;
+			}
+		});
+	}
+
+	var subStats = student.get("studentSubjectRollingStats");
+	console.log("adding studentSubjectRollingStats");
+	if(!addFromArray(objects, subStats))
+		return false;
+
+	var totStats = student.get("studentTotalRollingStats");
+	totStats.fetch({
+		success: function(tot) {
+			objects.push(tot);
 		},
-		error: function(error) {
-			console.log("No " + className + " objects found");
-			promise.resolve();
+		error: function() {
+			console.log("Error fetching studentTotalRollingStats");
 		}
 	});
-	return promise;
+	console.log("Size of objects is " + objects.length);
+
+	return true;
+}
+
+function addFromArray(objects, array) {
+	for(var i=0; i<array.length; i++) {
+		array[i].fetch({
+			success: function(row) {
+				objects.push(row);
+			},
+			error: function() {
+				console.log("Error fetching row");
+				return false;
+			}
+		});
+	}
+	console.log("Size of objects is " + objects.length);
+	return true;
 }

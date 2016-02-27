@@ -36,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -268,9 +269,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-//                testGetAchievement();
-//                QueryUtils.testCacheThenNetwork();
-                DateUtils.test(false);
+                DateUtils.generateRandomYearStats();
+//                DateUtils.test(false);
 //                Intent intent = new Intent(getActivity(), QuestionActivity.class);
 //                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionIds
 //                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
@@ -280,48 +280,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 //                startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
-//                ParseObject.unpinAllInBackground()
-//                        .continueWith(new Continuation<Void, Object>() {
-//                            @Override
-//                            public Object then(Task<Void> task) throws Exception {
-//                                if(task.isFaulted()) {
-//                                    Log.e("Unpin Error", "Unpin ALL error: " + task.getError().getMessage());
-//                                }
-//                                else {
-//                                    Log.d("Unpin Fine", "Unpin ALL succeeded!");
-//                                }
-//                                return null;
-//                            }
-//                        });
-                ParseObject.unpinAllInBackground(Constants.PinNames.BlockStats)
-                    .continueWith(new Continuation<Void, Object>() {
-                        @Override
-                        public Object then(Task<Void> task) throws Exception {
-                            if(task.isFaulted()) {
-                                Log.e("Unpin Error", "Unpin BlockStats error: " + task.getError().getMessage());
-                            }
-                            else {
-                                Log.d("Unpin Fine", "Unpin BlockStats succeeded!");
-                            }
-                            return null;
-                        }
-                    });
-//                ParseObject.unpinAllInBackground(Constants.PinNames.CurrentUser)
-//                    .continueWith(new Continuation<Void, Object>() {
-//                        @Override
-//                        public Object then(Task<Void> task) throws Exception {
-//                            if(task.isFaulted()) {
-//                                Log.e("Unpin Error", "Unpin CurrentUser error: " + task.getError().getMessage());
-//                            }
-//                            else {
-//                                Log.d("Unpin Fine", "Unpin CurrentUser succeeded!");
-//                            }
-//                            return null;
-//                        }
-//                    });
-//                testIncrementAchievement();
-//                DateUtils.test(false);
-//                navigateToNewChallengeActivity();
+                navigateToNewChallengeActivity();
                 break;
             case R.id.btnLogout:
                 try {
@@ -357,25 +316,5 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         else {
             txtChange.setText("Test 1");
         }
-    }
-
-    private void testGetAchievement() {
-        try {
-            Achievement achievement;
-            achievement = ParseQuery.getQuery(Achievement.class)
-                    .get("KRfsoskAZj");
-            ParseObjectUtils.pin("Achievement", achievement);
-        } catch (Exception e) { e.printStackTrace(); Log.e("testGetAchievement", e.getMessage()); }
-    }
-
-    private void testIncrementAchievement() {
-        try {
-            Achievement achievement = ParseQuery.getQuery(Achievement.class)
-                    .fromLocalDatastore()
-                    .get("KRfsoskAZj");
-            achievement.increment("numToGain");
-            achievement.increment("test");
-            achievement.saveEventually();
-        } catch (Exception e) { e.printStackTrace(); Log.e("testIncrement", e.getMessage()); }
     }
 }

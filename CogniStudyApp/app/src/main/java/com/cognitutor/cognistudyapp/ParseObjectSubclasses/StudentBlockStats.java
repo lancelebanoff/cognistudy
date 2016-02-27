@@ -9,14 +9,12 @@ import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
@@ -203,7 +201,7 @@ public abstract class StudentBlockStats extends ParseObject{
                 public Object then(Task<Void> task) throws Exception {
                     Log.d("created objectId", created.getObjectId());
                     Log.d("student objectId", student.getObjectId());
-                    addBlockStatsToRelation(student, created);
+                    addBlockStatsToRelationAndSaveEventually(student, created);
                     created.pinInBackground(Constants.PinNames.BlockStats);
 //                    ParseObjectUtils.pinInBackground(Constants.PinNames.BlockStats, created);
                     return null;
@@ -226,22 +224,10 @@ public abstract class StudentBlockStats extends ParseObject{
         Log.i("total", Integer.toString(getInt(SuperColumns.total)));
     }
 
-    private static Task<Boolean> addBlockStatsToRelation(final Student student, final StudentBlockStats blockStats) {
+    private static Task<Void> addBlockStatsToRelationAndSaveEventually(final Student student, final StudentBlockStats blockStats) {
         student.getStudentBlockStatsRelation(blockStats.getClass()).add(blockStats);
-        return student.saveInBackground()
-        .continueWith(new Continuation<Void, Boolean>() {
-            @Override
-            public Boolean then(Task<Void> task) throws Exception {
-                if(task.isFaulted()) {
-                    Log.e("Error saving student", task.getError().getMessage());
-                }
-                else {
-                    Log.d("Adding blockStat to relation", "Saved successfully!");
-                }
-                return null;
-            }
-        });
-//        student.saveEventually();
+//        return student.saveInBackground();
+        return student.saveEventually();
     }
 
     private static <T extends StudentBlockStats> T createInstance(Class<T> clazz) {

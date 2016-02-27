@@ -373,6 +373,7 @@ public class Constants {
     }
 
     public static class PinNames {
+        //TODO: Remove deprecated PinNames later
 
         public static final String PinData = "PinData";
 
@@ -381,13 +382,6 @@ public class Constants {
         public static final String Challenge = "Challenge";
         public static final String CurrentUser = "CurrentUser";
         public static final String BlockStats = "BlockStats";
-        public static final String fbFriends = "fbFriends";
-        //TODO: Possibly remove these later
-        public static final String StudentCategoryDayStats = ClassName.StudentCategoryDayStats;
-        public static final String StudentCategoryTridayStats = ClassName.StudentCategoryTridayStats;
-        public static final String StudentCategoryMonthStats = ClassName.StudentCategoryMonthStats;
-        public static final String StudentSubjectDayStats = ClassName.StudentSubjectDayStats;
-        public static final String StudentSubjectTridayStats = ClassName.StudentSubjectTridayStats;
-        public static final String StudentSubjectMonthStats = ClassName.StudentSubjectMonthStats;
+        public static final String fbFriends = "fbFriends"; //deprecated
     }
 }
