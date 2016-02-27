@@ -85,7 +85,7 @@ public class NewChallengeActivity extends CogniActivity {
             }
         });
 
-        String[] testNames = Constants.getAllConstants(Constants.Test.class);
+        String[] testNames = Constants.Test.getTests();
         for(String testName : testNames) {
             RadioButton radioButton = new RadioButton(this);
             radioButton.setText(testName);
@@ -101,7 +101,7 @@ public class NewChallengeActivity extends CogniActivity {
 
     private void displaySubjects() {
         LinearLayout llSubjects = (LinearLayout) findViewById(R.id.llSubjects);
-        String[] subjectNames = Constants.getAllConstants(Constants.Subject.class);
+        String[] subjectNames = Constants.Subject.getSubjects();
         for(String subjectName : subjectNames) {
             CheckBox checkBox = new CheckBox(this);
             checkBox.setText(subjectName);
@@ -126,7 +126,7 @@ public class NewChallengeActivity extends CogniActivity {
         llCategories.setOrientation(LinearLayout.VERTICAL);
         mSvCategories.addView(llCategories);
 
-        String[] categories = Constants.getAllConstants(Constants.Category.class);
+        String[] categories = Constants.Category.getCategories();
         for(String category : categories) {
             View checkBoxView = View.inflate(this, R.layout.checkbox_category, null);
             CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox);
@@ -160,7 +160,7 @@ public class NewChallengeActivity extends CogniActivity {
                 }
             });
 
-            String[] opponentTypes = Constants.getAllConstants(Constants.OpponentType.class);
+            String[] opponentTypes = Constants.OpponentType.getOpponentTypes();
             for(String opponentType : opponentTypes) {
                 RadioButton radioButton = new RadioButton(this);
                 radioButton.setText(opponentType);

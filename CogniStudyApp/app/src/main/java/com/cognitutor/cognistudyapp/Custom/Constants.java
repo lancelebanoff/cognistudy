@@ -134,6 +134,10 @@ public class Constants {
         public static final String RANDOM = "Random";
         public static final String COMPUTER = "Computer";
         public static final String PRACTICE = "Practice";
+
+        public static String[] getOpponentTypes() {
+            return new String[] {FRIEND, RANDOM, COMPUTER, PRACTICE};
+        }
     }
 
     // <editor-fold desc="Tests, Subjects and Categories">
@@ -141,6 +145,10 @@ public class Constants {
         public static final String SAT = "SAT";
         public static final String ACT = "ACT";
         public static final String BOTH = "Both";
+
+        public static String[] getTests() {
+            return new String[] {SAT, ACT, BOTH} ;
+        }
     }
 
     public static class Subject {
@@ -148,22 +156,33 @@ public class Constants {
         public static final String MATH = "Math";
         public static final String ENGLISH = "English";
         public static final String SCIENCE = "Science";
+
+        public static String[] getSubjects() {
+            return new String[] {READING, MATH, ENGLISH, SCIENCE} ;
+        }
     }
 
     public static class Category {
-        public static final String PASSAGE_READING = "Passage Reading";
-        public static final String SENTENCE_COMPLETION = "Sentence Completion";
+        public static final String COMMAND_OF_EVIDENCE = "Command of Evidence";
+        public static final String WORDS_IN_CONTEXT = "Words in Context";
         public static final String PRE_ALGEBRA = "Pre-Algebra";
         public static final String ALGEBRA = "Algebra";
         public static final String GEOMETRY = "Geometry";
         public static final String TRIGONOMETRY = "Trigonometry";
         public static final String DATA_ANALYSIS_STATISTICS_PROBABILITY = "Data Analysis, Statistics, Probability";
-        public static final String IDENTIFYING_SENTENCE_ERRORS = "Identifying Sentence Errors";
-        public static final String IMPROVING_SENTENCES = "Improving Sentences";
-        public static final String IMPROVING_PARAGRAPHS = "Improving Paragraphs";
+        public static final String USAGE_AND_MECHANICS = "Usage and Mechanics";
+        public static final String RHETORICAL_SKILLS = "Rhetorical Skills";
         public static final String DATA_REPRESENTATION = "Data Representation";
         public static final String RESEARCH_SUMMARIES = "Research Summaries";
         public static final String CONFLICTING_VIEWPOINTS = "Conflicting Viewpoints";
+
+        public static String[] getCategories() {
+            return new String[] {
+                    COMMAND_OF_EVIDENCE, WORDS_IN_CONTEXT, PRE_ALGEBRA, ALGEBRA, GEOMETRY, TRIGONOMETRY,
+                    DATA_ANALYSIS_STATISTICS_PROBABILITY, USAGE_AND_MECHANICS, RHETORICAL_SKILLS,
+                    DATA_REPRESENTATION, RESEARCH_SUMMARIES, CONFLICTING_VIEWPOINTS
+            } ;
+        }
     }
 
     public static final Map<String, String[]> TestToSubject;
@@ -181,38 +200,51 @@ public class Constants {
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
         map.put(Test.SAT, new String[] {
-                Category.PASSAGE_READING,
-                Category.SENTENCE_COMPLETION,
+                Category.COMMAND_OF_EVIDENCE,
+                Category.WORDS_IN_CONTEXT,
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
                 Category.DATA_ANALYSIS_STATISTICS_PROBABILITY,
-                Category.IDENTIFYING_SENTENCE_ERRORS,
-                Category.IMPROVING_SENTENCES,
-                Category.IMPROVING_PARAGRAPHS
+                Category.USAGE_AND_MECHANICS,
+                Category.RHETORICAL_SKILLS
         });
         map.put(Test.ACT, new String[] {
-                Category.PASSAGE_READING,
+                Category.COMMAND_OF_EVIDENCE,
+                Category.WORDS_IN_CONTEXT,
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
                 Category.TRIGONOMETRY,
-                Category.IMPROVING_SENTENCES,
-                Category.IMPROVING_PARAGRAPHS,
+                Category.USAGE_AND_MECHANICS,
+                Category.RHETORICAL_SKILLS,
                 Category.DATA_REPRESENTATION,
                 Category.RESEARCH_SUMMARIES,
                 Category.CONFLICTING_VIEWPOINTS
         });
-        map.put(Test.BOTH, getAllConstants(Category.class));
+        map.put(Test.BOTH, new String[] {
+                Category.COMMAND_OF_EVIDENCE,
+                Category.WORDS_IN_CONTEXT,
+                Category.PRE_ALGEBRA,
+                Category.ALGEBRA,
+                Category.GEOMETRY,
+                Category.DATA_ANALYSIS_STATISTICS_PROBABILITY,
+                Category.TRIGONOMETRY,
+                Category.USAGE_AND_MECHANICS,
+                Category.RHETORICAL_SKILLS,
+                Category.DATA_REPRESENTATION,
+                Category.RESEARCH_SUMMARIES,
+                Category.CONFLICTING_VIEWPOINTS
+        });
         TestToCategory = Collections.unmodifiableMap(map);
     }
 
     public static final Map<String, String[]> SubjectToCategory;
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
-        map.put(Subject.READING, new String[]{Category.PASSAGE_READING, Category.SENTENCE_COMPLETION});
+        map.put(Subject.READING, new String[]{Category.COMMAND_OF_EVIDENCE, Category.WORDS_IN_CONTEXT});
         map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.DATA_ANALYSIS_STATISTICS_PROBABILITY});
-        map.put(Subject.ENGLISH, new String[]{Category.IDENTIFYING_SENTENCE_ERRORS, Category.IMPROVING_SENTENCES, Category.IMPROVING_PARAGRAPHS});
+        map.put(Subject.ENGLISH, new String[]{Category.USAGE_AND_MECHANICS, Category.RHETORICAL_SKILLS});
         map.put(Subject.SCIENCE, new String[]{Category.DATA_REPRESENTATION, Category.RESEARCH_SUMMARIES, Category.CONFLICTING_VIEWPOINTS});
         SubjectToCategory = Collections.unmodifiableMap(map);
     }
