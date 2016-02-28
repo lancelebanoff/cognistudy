@@ -15,6 +15,7 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.PracticeChallengeActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
+import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -24,6 +25,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +37,7 @@ import java.util.List;
 public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
 
     private Activity mActivity;
+    private MainFragment mFragment;
 
     /*
     public PeopleQueryAdapter(Context context) {
@@ -49,7 +52,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         });
     }
     */
-    public ChallengeQueryAdapter(Context context, final List<Pair> keyValuePairs) {
+    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<Pair> keyValuePairs) {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 ParseQuery query = Challenge.getQuery();
@@ -61,10 +64,11 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
             }
         });
         mActivity = (Activity) context;
+        mFragment = fragment;
     }
 
     // Use this constructor for past challenges, which uses an "or" query
-    public ChallengeQueryAdapter(Context context, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
+    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 List<ParseQuery<Challenge>> queries = new ArrayList<>();
@@ -80,6 +84,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
             }
         });
         mActivity = (Activity) context;
+        mFragment = fragment;
     }
 
     @Override
@@ -194,7 +199,12 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                         challenge.setHasEnded(true);
                         challenge.setEndDate(new Date());
                         challenge.setWinner(Constants.ChallengeAttribute.Winner.NO_WINNER);
-                        challenge.saveInBackground();
+                        challenge.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                mFragment.refresh();
+                            }
+                        });
                     }
                 })
                 .setPositiveButton(R.string.yes_dialog_accept_challenge, new DialogInterface.OnClickListener() {

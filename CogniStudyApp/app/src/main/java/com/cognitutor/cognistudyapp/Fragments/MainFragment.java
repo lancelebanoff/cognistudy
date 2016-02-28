@@ -50,6 +50,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     public static ArrayAdapter<ParseObject> answeredQuestionIdAdapter;
     private ListView answeredQuestionIdsListView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     public TextView txtChange;
 
@@ -118,7 +119,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
-        challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+        challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         challengeRequestListView = (ListView) rootView.findViewById(R.id.listChallengeRequests);
         challengeRequestListView.setFocusable(false);
@@ -145,7 +146,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
-        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
         yourTurnListView.setFocusable(false);
@@ -171,7 +172,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
-        theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+        theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         theirTurnListView = (ListView) rootView.findViewById(R.id.listTheirTurnChallenges);
         theirTurnListView.setFocusable(false);
@@ -205,7 +206,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         List<List<Pair>> keyValuePairsList = new ArrayList<>();
         keyValuePairsList.add(keyValuePairs1);
         keyValuePairsList.add(keyValuePairs2);
-        pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairsList, true);
+        pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairsList, true);
 
         pastChallengeListView = (ListView) rootView.findViewById(R.id.listPastChallenges);
         pastChallengeListView.setFocusable(false);
@@ -231,6 +232,13 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             return;
         }
 
+        View parentCardView = (View) listView.getParent().getParent();
+        if(listAdapter.getCount() == 0) {
+            parentCardView.setVisibility(View.GONE);
+        } else {
+            parentCardView.setVisibility(View.VISIBLE);
+        }
+
         int totalHeight = 0;
         for (int i = 0; i < listAdapter.getCount(); i++) {
             View listItem = listAdapter.getView(i, null, listView);
@@ -244,28 +252,30 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     }
 
     private void setSwipeRefreshLayout(View rootView) {
-        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh(swipeRefreshLayout);
+                refresh();
             }
         });
     }
 
-    private void refresh(final SwipeRefreshLayout swipeRefreshLayout) {
+    public void refresh() {
         final View rootView = getView();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 createAllListViews(rootView);
-                swipeRefreshLayout.setRefreshing(false);
+                if(mSwipeRefreshLayout != null) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
             }
         }, 1000);
+    }
 
-
-    }@Override
+    @Override
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
