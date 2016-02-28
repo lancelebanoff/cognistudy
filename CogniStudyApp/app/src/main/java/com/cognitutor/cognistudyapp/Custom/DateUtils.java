@@ -108,19 +108,37 @@ public class DateUtils {
         return getYear(new Date());
     }
 
-    public static void generateRandomYearStats() {
-        final String TAG = "randomYearStats";
+    public enum BlockType {
+        DAY, TRIDAY, MONTH
+    }
+
+    public static void generateRandomStats(BlockType blockType) {
+        final String TAG = "randomStats";
         Random rand = new Random();
 
         float chanceCorrect = 50;
         Calendar calendar = Calendar.getInstance(ny, Locale.US);
-        for(int day = 0; day < 10; day++) {
+        int N, calendarField, amountToAdd;
+        if(blockType == BlockType.MONTH) {
+            calendarField = Calendar.MONTH;
+            amountToAdd = 1;
+            N = 12;
+        }
+        else  {
+            calendarField = Calendar.DAY_OF_YEAR;
+            N = 10;
+            if(blockType == BlockType.TRIDAY)
+                amountToAdd = 3;
+            else
+                amountToAdd = 1;
+        }
+        for(int n = 0; n < N; n++) {
             Date date = calendar.getTime();
             int[] blockNums = getDayTridayMonthBlockNums(date);
             boolean playedToday = didItHappen(rand, 80);
             if(!playedToday) {
                 Log.d(TAG + " numQues", "=== Skipping " + blockNumsToString(blockNums));
-                calendar.add(Calendar.DAY_OF_YEAR, 1);
+                calendar.add(calendarField, amountToAdd);
                 continue;
             }
             int numAnswered;
@@ -133,13 +151,14 @@ public class DateUtils {
             for(int i=0; i<numAnswered; i++) {
                 chanceCorrect = answerRandomQuestion(date, chanceCorrect, rand, TAG);
             }
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            calendar.add(calendarField, amountToAdd);
         }
     }
 
     private static float answerRandomQuestion(Date date, float chanceCorrect, Random rand, String TAG) {
 
-        float improvementFactor = (float) 1.002;
+//        float improvementFactor = (float) 1.002;
+        float improvementFactor = (float) 1.005;
 //        float improvementFactor = (float) 1.05;
 
         int[] blockNums = getDayTridayMonthBlockNums(date);

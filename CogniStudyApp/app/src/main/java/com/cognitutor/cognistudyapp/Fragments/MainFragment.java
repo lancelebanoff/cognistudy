@@ -269,7 +269,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                DateUtils.generateRandomYearStats();
+                DateUtils.generateRandomStats(DateUtils.BlockType.MONTH);
 //                DateUtils.test(false);
 //                Intent intent = new Intent(getActivity(), QuestionActivity.class);
 //                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionIds
