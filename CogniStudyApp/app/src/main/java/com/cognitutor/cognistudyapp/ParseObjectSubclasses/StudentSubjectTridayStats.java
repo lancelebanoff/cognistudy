@@ -1,7 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseClassName;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 /**
@@ -10,23 +10,8 @@ import com.parse.ParseQuery;
 @ParseClassName("StudentSubjectTridayStats")
 public class StudentSubjectTridayStats extends StudentSubjectBlockStats {
 
-    public static StudentBlockStatsSubclassInterface getInterface() {
-        return new StudentBlockStatsSubclassInterface() {
-            @Override
-            public ParseQuery<StudentBlockStats> getCurrentUserCurrentStats(String category) {
-                return getTridayStats(getCurrentUserQuery(getClassName(), category));
-            }
-
-            @Override
-            public ParseQuery<StudentBlockStats> getPinnedStatsToUnpin(String category) {
-                return getCurrentUserQuery(getClassName(), category);
-            }
-
-            @Override
-            public String getClassName() {
-                return Constants.ClassName.StudentSubjectTridayStats;
-            }
-        };
+    public ParseQuery<ParseObject> getCurrentBlockStats(String category) {
+        return getCurrentTridayStats(getClassQuery(category));
     }
 
     @Override

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.TextView;
 
-import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
@@ -138,7 +138,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 
         mCacheThenNetworkHelper.cancelAllQueries();
 
-        mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(ParseObjectUtils.PinNames.PeopleSearch,
+        mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(Constants.PinNames.PeopleSearch,
                 false, thisAdapter, new QueryUtils.ParseQueryBuilder <PublicUserData> () {
                     @Override
                     public ParseQuery<PublicUserData> buildQuery() {
@@ -152,7 +152,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                 //If the user cancelled the search, the previous task will return null
                 if (task.getResult() == null)
                     return null;
-                return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(ParseObjectUtils.PinNames.PeopleSearch,
+                return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(Constants.PinNames.PeopleSearch,
                         false, thisAdapter, new QueryUtils.ParseQueryBuilder<PublicUserData>() {
                             @Override
                             public ParseQuery<PublicUserData> buildQuery() {

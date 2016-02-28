@@ -22,11 +22,13 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 import org.json.JSONException;
@@ -34,6 +36,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -82,17 +87,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         b = (Button) rootView.findViewById(R.id.btnViewLocalDatastore);
         b.setOnClickListener(this);
 
-        txtChange = (TextView) rootView.findViewById(R.id.txtChange);
         createAllListViews(rootView);
         setSwipeRefreshLayout(rootView);
 
         return rootView;
-    }
-
-    @Override
-    public void onDestroyView() {
-        txtChange = null;
-        super.onDestroyView();
     }
 
     @Override
@@ -311,11 +309,5 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     @Override
     public void onReceiveHandler() {
-        if (txtChange.getText().equals("Test 1")) {
-            txtChange.setText("Test 2!!!");
-        }
-        else {
-            txtChange.setText("Test 1");
-        }
     }
 }

@@ -33,4 +33,14 @@
         android:layout_below="@+id/btnFacebookSignIn"
         android:layout_centerHorizontal="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Auto Create User"
+        android:id="@+id/btnAutoCreateUser"
+        android:layout_marginTop="42dp"
+        android:onClick="autoCreateUser"
+        android:layout_below="@+id/btnEmailSignIn"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

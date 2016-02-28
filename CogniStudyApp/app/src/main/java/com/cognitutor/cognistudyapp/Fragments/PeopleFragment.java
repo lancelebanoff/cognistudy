@@ -11,6 +11,7 @@ import android.widget.SearchView;
 
 import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.Activities.TutorProfileActivity;
+import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Adapters.PeopleQueryAdapter;
 import com.cognitutor.cognistudyapp.R;
@@ -23,7 +24,7 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
     private PeopleListOnClickHandler onClickHandler;
     private PeopleQueryAdapter peopleQueryAdapter;
 //    private ListView listView;
-    private RecyclerView recyclerView;
+    private CogniRecyclerView recyclerView;
     private SearchView searchView;
 
     public static final PeopleFragment newInstance(PeopleListOnClickHandler onClickHandler) {
@@ -74,7 +75,7 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
 
         peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler);
 
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        recyclerView = (CogniRecyclerView) rootView.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(peopleQueryAdapter);
         peopleQueryAdapter.loadObjects();

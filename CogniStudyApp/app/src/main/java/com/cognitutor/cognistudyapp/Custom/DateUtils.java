@@ -4,15 +4,18 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectBlockStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.parse.ParseObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.UUID;
 
 /**
  * Created by Kevin on 2/16/2016.
@@ -20,13 +23,17 @@ import java.util.TimeZone;
 public class DateUtils {
 
     static SimpleDateFormat dayOfYearFormatter;
+    static SimpleDateFormat dayInMonthFormatter;
     static SimpleDateFormat monthFormatter;
     static SimpleDateFormat yearFormatter;
+    static TimeZone ny = TimeZone.getTimeZone("America/New_York");
     static {
-        TimeZone ny = TimeZone.getTimeZone("America/New_York");
 
         dayOfYearFormatter = new SimpleDateFormat("DDD", Locale.US);
         dayOfYearFormatter.setTimeZone(ny);
+
+        dayInMonthFormatter = new SimpleDateFormat("DD", Locale.US);
+        dayInMonthFormatter.setTimeZone(ny);
 
         monthFormatter = new SimpleDateFormat("MM", Locale.US);
         monthFormatter.setTimeZone(ny);
@@ -70,11 +77,19 @@ public class DateUtils {
     }
 
     private static int getDayOfYear(Date date) {
-        return Integer.parseInt(dayOfYearFormatter.format(date)) - 1;
+        return Integer.parseInt(dayOfYearFormatter.format(date)) - 1; //TODO: Remove -1?
     }
 
     private static int getCurrentDayOfYear() {
         return getDayOfYear(new Date());
+    }
+
+    private static int getDayOfMonth(Date date) {
+        return Integer.parseInt(dayInMonthFormatter.format(date));
+    }
+
+    private static int getCurrentDayOfMonth() {
+        return getDayOfMonth(new Date());
     }
 
     private static int getMonth(Date date) {
@@ -93,6 +108,107 @@ public class DateUtils {
         return getYear(new Date());
     }
 
+    public enum BlockType {
+        DAY, TRIDAY, MONTH
+    }
+
+    public static void generateRandomStats(BlockType blockType) {
+        final String TAG = "randomStats";
+        Random rand = new Random();
+
+        float chanceCorrect = 50;
+        Calendar calendar = Calendar.getInstance(ny, Locale.US);
+        int N, calendarField, amountToAdd;
+        if(blockType == BlockType.MONTH) {
+            calendarField = Calendar.MONTH;
+            amountToAdd = 1;
+            N = 12;
+        }
+        else  {
+            calendarField = Calendar.DAY_OF_YEAR;
+            N = 10;
+            if(blockType == BlockType.TRIDAY)
+                amountToAdd = 3;
+            else
+                amountToAdd = 1;
+        }
+        for(int n = 0; n < N; n++) {
+            Date date = calendar.getTime();
+            int[] blockNums = getDayTridayMonthBlockNums(date);
+            boolean playedToday = didItHappen(rand, 80);
+            if(!playedToday) {
+                Log.d(TAG + " numQues", "=== Skipping " + blockNumsToString(blockNums));
+                calendar.add(calendarField, amountToAdd);
+                continue;
+            }
+            int numAnswered;
+            boolean answeredMoreThan10Questions = didItHappen(rand, 50);
+            if(!answeredMoreThan10Questions)
+                numAnswered = rand.nextInt(10) + 1;
+            else
+                numAnswered = rand.nextInt(20) + 11;
+            Log.d(TAG + " numQues", "=== Answered " + numAnswered + " questions on " + blockNumsToString(blockNums));
+            for(int i=0; i<numAnswered; i++) {
+                chanceCorrect = answerRandomQuestion(date, chanceCorrect, rand, TAG);
+            }
+            calendar.add(calendarField, amountToAdd);
+        }
+    }
+
+    private static float answerRandomQuestion(Date date, float chanceCorrect, Random rand, String TAG) {
+
+//        float improvementFactor = (float) 1.002;
+        float improvementFactor = (float) 1.005;
+//        float improvementFactor = (float) 1.05;
+
+        int[] blockNums = getDayTridayMonthBlockNums(date);
+        String category = Constants.getRandomConstant(Constants.Category.class);
+        String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
+        boolean correct = didItHappen(rand, chanceCorrect);
+
+        String randomId = getRandomQuestionId();
+
+        Log.d(TAG + " quesAns", blockNumsToString(blockNums) + " | " + questionToString(subject, category, correct, randomId));
+
+        StudentBlockStats.setTestDate(date);
+        try {
+            StudentTRollingStats.incrementAllInBackground(randomId, category, correct);
+            StudentBlockStats.incrementAll(category, correct)
+                    .waitForCompletion();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return chanceCorrect * improvementFactor;
+    }
+
+    private static String blockNumsToString(int[] blockNums) {
+        return "Day: " + blockNums[0] + " | Triday: " + blockNums[1] + " | Month: " + blockNums[2];
+    }
+
+    private static String questionToString(String subject, String category, boolean correct, String randomId) {
+        return "Subject: " + subject + " | Category: " + category + " | Correct: " + correct + " | QuestionId: " + randomId;
+    }
+
+    private static String getRandomQuestionId() {
+        return UUID.randomUUID().toString().replace('-', 'd').substring(0,10);
+    }
+
+    private static int[] getDayTridayMonthBlockNums(Date date) {
+        int[] blockNums = new int[3];
+        blockNums[0] = getDayBlockNum(date);
+        blockNums[1]  = getTridayBlockNum(date);
+        blockNums[2] = getMonthBlockNum(date);
+        return blockNums;
+    }
+
+    private static boolean didItHappen(Random rand, float percent) {
+        int num = rand.nextInt(100) + 1;
+        if(num > Math.min(Math.round(percent), 100))
+            return false;
+        return true;
+    }
+
     public static void test(boolean randomDate) {
 
         Random rand = new Random();
@@ -102,32 +218,7 @@ public class DateUtils {
             int year = 2016;
 //            int month = rand.nextInt(12) + 1;
             int month = 1;
-            int day = 0;
-            switch (month) {
-                case GregorianCalendar.JANUARY:
-                case GregorianCalendar.MARCH:
-                case GregorianCalendar.MAY:
-                case GregorianCalendar.JULY:
-                case GregorianCalendar.AUGUST:
-                case GregorianCalendar.OCTOBER:
-                case GregorianCalendar.DECEMBER: {
-                    day = rand.nextInt(31) + 1;
-                }
-                case GregorianCalendar.APRIL:
-                case GregorianCalendar.JUNE:
-                case GregorianCalendar.SEPTEMBER:
-                case GregorianCalendar.NOVEMBER: {
-                    day = rand.nextInt(30) + 1;
-                }
-                case GregorianCalendar.FEBRUARY: {
-                    if(year % 4 == 0) {
-                        day = rand.nextInt(29) + 1;
-                    }
-                    else {
-                        day = rand.nextInt(28) + 1;
-                    }
-                }
-            }
+            int day = getRandomDayInMonth(month, year);
             String dateString = String.valueOf(year) + "." + String.format("%02d", month) + "." + String.format("%02d", day);
             String category = Constants.getRandomConstant(Constants.Category.class);
             String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
@@ -151,17 +242,50 @@ public class DateUtils {
             int tridayBlockNum = getTridayBlockNum(date);
             int monthBlockNum = getMonthBlockNum(date);
 
+            String randomId = UUID.randomUUID().toString().replace('-', 'd').substring(0,10);
+
             Log.d("DateTest", "Day: " + dayBlockNum + " | Triday: " + tridayBlockNum + " | Month: " + monthBlockNum
                     + " | Subject: " + subject + " | Category: " + category + " | Correct: " + correct);
 
             StudentBlockStats.setTestDate(date);
 //            StudentBlockStats.incrementAll(category, correct);
             try {
+                StudentTRollingStats.incrementAllInBackground(randomId, category, correct);
                 StudentBlockStats.incrementAll(category, correct)
                     .waitForCompletion();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static int getRandomDayInMonth(int month, int year) {
+        Random rand = new Random();
+        switch (month) {
+            case GregorianCalendar.JANUARY:
+            case GregorianCalendar.MARCH:
+            case GregorianCalendar.MAY:
+            case GregorianCalendar.JULY:
+            case GregorianCalendar.AUGUST:
+            case GregorianCalendar.OCTOBER:
+            case GregorianCalendar.DECEMBER: {
+                return rand.nextInt(31) + 1;
+            }
+            case GregorianCalendar.APRIL:
+            case GregorianCalendar.JUNE:
+            case GregorianCalendar.SEPTEMBER:
+            case GregorianCalendar.NOVEMBER: {
+                return rand.nextInt(30) + 1;
+            }
+            case GregorianCalendar.FEBRUARY: {
+                if(year % 4 == 0) {
+                    return rand.nextInt(29) + 1;
+                }
+                else {
+                    return rand.nextInt(28) + 1;
+                }
+            }
+        }
+        return 1;
     }
 }

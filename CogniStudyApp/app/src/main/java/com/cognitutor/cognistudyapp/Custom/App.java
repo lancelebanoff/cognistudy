@@ -5,7 +5,7 @@ import android.app.Application;
 import android.os.Bundle;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
@@ -19,13 +19,10 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
@@ -40,7 +37,6 @@ import com.facebook.ProfileTracker;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
-import com.parse.ParseRole;
 
 /**
  * Created by Kevin on 12/30/2015.
@@ -100,7 +96,7 @@ public class App extends Application {
         ParseObject.registerSubclass(QuestionContents.class);
         ParseObject.registerSubclass(QuestionData.class);
         ParseObject.registerSubclass(QuestionBundle.class);
-        ParseObject.registerSubclass(AnsweredQuestionId.class);
+        ParseObject.registerSubclass(AnsweredQuestionIds.class);
         ParseObject.registerSubclass(Response.class);
         ParseObject.registerSubclass(StudentCategoryDayStats.class);
         ParseObject.registerSubclass(StudentCategoryTridayStats.class);

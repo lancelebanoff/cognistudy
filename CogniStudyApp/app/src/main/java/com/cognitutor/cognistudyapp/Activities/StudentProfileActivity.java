@@ -26,7 +26,7 @@ public class StudentProfileActivity extends CogniActivity {
         holder = createViewHolder();
         mIntent = getIntent();
 
-        publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra("publicUserDataId"));
+        publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra("publicUserDataId")); //TODO: Change this
         if(publicUserData == null) { return; } //TODO: Handle this?
         holder.txtName.setText(publicUserData.getDisplayName());
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());

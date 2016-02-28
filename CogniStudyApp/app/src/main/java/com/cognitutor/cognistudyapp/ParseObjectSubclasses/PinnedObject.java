@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseACL;
@@ -42,7 +43,7 @@ public class PinnedObject extends ParseObject{
         acl.setPublicReadAccess(false);
         setACL(acl);
         //DO NOT use ParseObjectUtils's method for pinning, it will cause recursion!
-        pinInBackground(ParseObjectUtils.PinNames.PinData);
+        pinInBackground(Constants.PinNames.PinData);
         this.saveEventually();
     }
 

@@ -80,14 +80,15 @@ public class FacebookUtils {
         }
         return Task.whenAll(tasks).continueWithTask(new Continuation<Void, Task<Void>>() {
 
-            @Override
-            public Task<Void> then(Task<Void> task) throws Exception {
-                if (task.isFaulted()) {
-                    Log.e("Error in fetching", task.getError().toString());
-                }
-                return ParseObjectUtils.pinAllInBackground("fbFriends", friends); //TODO: What?
-            }
-        }).continueWithTask(new Continuation<Void, Task<Void>>() {
+//            @Override
+//            public Task<Void> then(Task<Void> task) throws Exception {
+//                if (task.isFaulted()) {
+//                    Log.e("Error in fetching", task.getError().toString());
+//                }
+////                return ParseObjectUtils.pinAllInBackground("fbFriends", friends); //TODO: What?
+//                return ParseObject.pinAllInBackground(Constants.PinNames.CurrentUser, friends);
+//            }
+//        }).continueWithTask(new Continuation<Void, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Void> task) throws Exception {
                 if (task.isFaulted()) {
