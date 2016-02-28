@@ -2,7 +2,8 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.util.Log;
 
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionId;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -22,23 +23,16 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -135,9 +129,10 @@ public class ParseObjectUtils {
         Log.e(tag, e.getMessage());
     }
 
-    private static List<ParseObject> convertSetToList(Set<ParseObject> set) {
-        List<ParseObject> list = new ArrayList<>();
-        for(ParseObject object : set) {
+    //TODO: Move this somewhere else
+    public static <T> List<T> convertSetToList(Set<T> set) {
+        List<T> list = new ArrayList<>();
+        for(T object : set) {
             list.add(object);
         }
         return list;
@@ -172,28 +167,11 @@ public class ParseObjectUtils {
     // </editor-fold>
 
     // <editor-fold desc="Pinning">
-    public static class PinNames {
-
-        public static final String PinData = "PinData";
-
-        public static final String PeopleSearch = "PeopleSearch";
-        public static final String PublicUserData = "PublicUserData";
-        public static final String Challenge = "Challenge";
-        public static final String CurrentUser = "CurrentUser";
-        //TODO: Possibly remove these later
-        public static final String StudentCategoryDayStats = Constants.ClassName.StudentCategoryDayStats;
-        public static final String StudentCategoryTridayStats = Constants.ClassName.StudentCategoryTridayStats;
-        public static final String StudentCategoryMonthStats = Constants.ClassName.StudentCategoryMonthStats;
-        public static final String StudentSubjectDayStats = Constants.ClassName.StudentSubjectDayStats;
-        public static final String StudentSubjectTridayStats = Constants.ClassName.StudentSubjectTridayStats;
-        public static final String StudentSubjectMonthStats = Constants.ClassName.StudentSubjectMonthStats;
-    }
-
     public static final Map<String, Integer> PinNamesToMaxPinned;
     static {
         Map<String, Integer> map = new HashMap<>();
 
-        map.put(PinNames.PeopleSearch, 20);
+        map.put(Constants.PinNames.PeopleSearch, 20);
 
         PinNamesToMaxPinned = Collections.unmodifiableMap(map);
     }
@@ -225,10 +203,14 @@ public class ParseObjectUtils {
     }
 
     private static <T extends ParseObject> void doNewPinAll(final String pinName, final List<T> objects) throws ParseException{
-        if(pinName == null)
-            Log.e("doPinAll", "Pin name is null");
         addAllPinnedObjectsInBackground(pinName == null ? "" : pinName, objects);
-        ParseObject.pinAll(objects);
+        if(pinName == null) {
+            ParseObject.pinAll(objects);
+            Log.e("doPinAll", "Pin name is null");
+        }
+        else {
+            ParseObject.pinAll(pinName, objects);
+        }
     }
 
     private static List<ParseObject> convertToList(ParseObject object) {
@@ -268,7 +250,7 @@ public class ParseObjectUtils {
         }
 
         try {
-            ParseObject.pinAll(objectsAlreadyPinned);
+//            ParseObject.pinAll(objectsAlreadyPinned); //????????? Idk what I did here. I left out the pin name too.
 
             final Integer max = (pinName == null) ? null : PinNamesToMaxPinned.get(pinName);
             final int numWaiting = newObjectsToPin.size();
@@ -365,13 +347,13 @@ public class ParseObjectUtils {
                     if(task.isFaulted()) {
                         Log.e("deletePinnedObjects", task.getError().getMessage());
                     }
-                    ParseObject.unpinAllInBackground();
+                    ParseObject.unpinAllInBackground().waitForCompletion();
                     //Extra layer of assurance that everything will be unpinned that should be
-                    List<String> pinNames = Arrays.asList(Constants.getAllConstants(PinNames.class));
+                    List<String> pinNames = Arrays.asList(Constants.getAllConstants(Constants.PinNames.class));
                     for (String pinName : pinNames) {
                         Log.d("pinName: ", pinName);
-                        ParseObject.unpinAllInBackground(pinName);
-//                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+//                        ParseObject.unpinAllInBackground(pinName);
+                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
                     }
                     try {
                         int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
@@ -446,11 +428,11 @@ public class ParseObjectUtils {
 
         try {
             if(pin) {
-                AnsweredQuestionId aid1 = new AnsweredQuestionId(id1);
+                AnsweredQuestionIds aid1 = new AnsweredQuestionIds(id1);
                 ParseObjectUtils.addToSaveThenPinQueue(pinName, aid1);
 //                pin(pinName, aid1);
 
-                AnsweredQuestionId aid2 = new AnsweredQuestionId(id2);
+                AnsweredQuestionIds aid2 = new AnsweredQuestionIds(id2);
                 ParseObjectUtils.addToSaveThenPinQueue(pinName, aid2);
 //                pin(pinName, aid2);
 
@@ -482,7 +464,8 @@ public class ParseObjectUtils {
             classes.add(StudentSubjectDayStats.class);
             classes.add(StudentSubjectTridayStats.class);
             classes.add(StudentSubjectMonthStats.class);
-            classes.add(AnsweredQuestionId.class);
+            classes.add(AnsweredQuestionIds.class);
+            classes.add(Achievement.class);
             classes.add(PinnedObject.class);
 
             List<PinnedObject> pinnedObjects = ParseQuery.getQuery(PinnedObject.class)
@@ -507,9 +490,9 @@ public class ParseObjectUtils {
                 actualNumPinned += numPinned;
                 for (ParseObject obj : objects) {
                     Log.d("Obj data  ", "    " + obj.toString());
-                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
-                        Log.d("Obj data  ", "    ============ " + obj.getObjectId() + " not represented by PinnedObject");
-                    }
+//                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
+//                        Log.d("Obj data  ", "    ============ " + obj.getObjectId() + " not represented by PinnedObject");
+//                    }
                 }
             }
             Log.d("Actual Num Pinned", String.valueOf(actualNumPinned));

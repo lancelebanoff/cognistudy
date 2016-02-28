@@ -2,12 +2,17 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -36,6 +41,89 @@ public abstract class StudentTRollingStats extends ParseObject{
         put(SuperColumns.correctPastMonth, 0);
         put(SuperColumns.totalPastWeek, 0);
         put(SuperColumns.correctPastWeek, 0);
+        setACL(ACLUtils.getPublicReadPrivateWriteACL());
+    }
+
+    private static final List<Class<? extends StudentTRollingStats>> subclasses;
+    static {
+        List<Class<? extends StudentTRollingStats>> list = new ArrayList<>();
+        list.add(StudentCategoryRollingStats.class);
+        list.add(StudentSubjectRollingStats.class);
+        list.add(StudentTotalRollingStats.class);
+        subclasses = Collections.unmodifiableList(list);
+    }
+
+    public String getBaseUserId() { return getString(SuperColumns.baseUserId); }
+    public int getTotalAllTime() { return getInt(SuperColumns.totalAllTime); }
+    public int getCorrectAllTime() { return getInt(SuperColumns.correctAllTime); }
+    public int getTotalPastMonth() { return getInt(SuperColumns.totalPastMonth); }
+    public int getCorrectPastMonth() { return getInt(SuperColumns.correctPastMonth); }
+    public int getTotalPastWeek() { return getInt(SuperColumns.totalPastWeek); }
+    public int getCorrectPastWeek() { return getInt(SuperColumns.correctPastWeek); }
+
+    @SuppressWarnings("unchecked")
+    public static void setPublicAnalyticsInBackground(final boolean isPublic) {
+        for(Class clazz : subclasses) {
+            for(String category : Constants.getAllConstants(Constants.Category.class)) {
+                getCacheElseNetworkInBackground(clazz, category)
+                .continueWith(new Continuation<StudentTRollingStats, Object>() {
+                    @Override
+                    public Object then(Task<StudentTRollingStats> task) throws Exception {
+                        //TODO: Handle null result?
+                        StudentTRollingStats stats = task.getResult();
+                        stats.getACL().setPublicReadAccess(isPublic);
+                        if(!isPublic) {
+                            //TODO: Allow tutors read access
+                        }
+                        return null;
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     *
+     * @param questionId
+     * @param category
+     * @param correct
+     */
+    public static void incrementAllInBackground(String questionId, String category, boolean correct) {
+        for(Class clazz : subclasses) {
+            incrementSubclassInBackground(questionId, clazz, category, correct);
+        }
+    }
+
+    private static void incrementSubclassInBackground(final String questionId,
+                                  final Class<? extends StudentTRollingStats> clazz, final String category, final boolean correct) {
+
+        getCacheElseNetworkInBackground(clazz, category)
+        .continueWith(new Continuation<StudentTRollingStats, Object>() {
+            @Override
+            public Object then(Task<StudentTRollingStats> task) throws Exception {
+                //TODO: Handle null result?
+                StudentTRollingStats stats = task.getResult();
+                if(stats instanceof StudentCategoryRollingStats) {
+                    ((StudentCategoryRollingStats) stats).addAnsweredQuestionIdAndSaveEventually(questionId);
+                }
+                stats.doIncrementAndSaveEventually(correct);
+                return null;
+            }
+        });
+    }
+
+    private void doIncrementAndSaveEventually(boolean correct) {
+        String[] totalColumns = { SuperColumns.totalAllTime, SuperColumns.totalPastMonth, SuperColumns.totalPastWeek };
+        String[] correctColumns = { SuperColumns.correctAllTime, SuperColumns.correctPastMonth, SuperColumns.correctPastWeek };
+        for(String totalColumn : totalColumns) {
+            increment(totalColumn);
+        }
+        if(correct) {
+            for(String correctColumn : correctColumns) {
+                increment(correctColumn);
+            }
+        }
+        saveEventually();
     }
 
     private static <T extends StudentTRollingStats> ParseQuery<StudentTRollingStats> getQuery(Class<T> clazz) {
@@ -55,11 +143,11 @@ public abstract class StudentTRollingStats extends ParseObject{
             return query;
         }
         else if(clazz == StudentCategoryRollingStats.class) {
-            return query.whereEqualTo(StudentSubjectRollingStats.Columns.subject, category);
+            return query.whereEqualTo(StudentCategoryRollingStats.Columns.category, category);
         }
         else if(clazz == StudentSubjectRollingStats.class) {
             String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
-            return query.whereEqualTo(StudentCategoryRollingStats.Columns.category, subject);
+            return query.whereEqualTo(StudentSubjectRollingStats.Columns.subject, subject);
         }
         return null;
     }
@@ -68,9 +156,19 @@ public abstract class StudentTRollingStats extends ParseObject{
         return getStatsQuery(clazz, UserUtils.getCurrentUserId(), category);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends StudentTRollingStats> Task<T> getCurrentUserStatsInBackground(final Class<T> clazz, final String category) {
-        return (Task<T>) QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
+    public static Task<StudentTRollingStats> getCacheElseNetworkInBackground(final Class<? extends StudentTRollingStats> clazz, final String category) {
+        return QueryUtils.getFirstPinElseNetworkInBackground(Constants.PinNames.CurrentUser,
+                new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
+                    @Override
+                    public ParseQuery<StudentTRollingStats> buildQuery() {
+                        return getCurrentUserStatsQuery(clazz, category);
+                    }
+                });
+    }
+
+    public static StudentTRollingStats getCacheElseNetwork(final Class<? extends StudentTRollingStats> clazz, final String category) {
+        return QueryUtils.getFirstPinElseNetwork(Constants.PinNames.CurrentUser,
+                new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
             @Override
             public ParseQuery<StudentTRollingStats> buildQuery() {
                 return getCurrentUserStatsQuery(clazz, category);
@@ -78,31 +176,27 @@ public abstract class StudentTRollingStats extends ParseObject{
         });
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends StudentTRollingStats> T getCurrentUserStats(final Class<T> clazz, final String category) {
-        return (T) QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
-            @Override
-            public ParseQuery<StudentTRollingStats> buildQuery() {
-                return getCurrentUserStatsQuery(clazz, category);
-            }
-        });
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends StudentTRollingStats> Task<T> getOtherUserStatsInBackground(Class<T> clazz, final String baseUserID, final String category) {
-        return (Task<T>) getStatsQuery(clazz, baseUserID, category)
+    public static Task<StudentTRollingStats> getOtherUserStatsInBackground(Class<? extends StudentTRollingStats> clazz, final String baseUserID, final String category) {
+        return getStatsQuery(clazz, baseUserID, category)
                 .getFirstInBackground();
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends StudentTRollingStats> T getOtherUserStats(Class<T> clazz, final String baseUserID, final String category) {
+    public static StudentTRollingStats getOtherUserStats(Class<? extends StudentTRollingStats> clazz, final String baseUserID, final String category) {
         try {
-            return (T) getStatsQuery(clazz, baseUserID, category)
+            return getStatsQuery(clazz, baseUserID, category)
                     .getFirst();
         } catch (ParseException e) {
             e.printStackTrace();
             Log.e("getOtherUserStats", e.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "AllTime: " + getCorrectAllTime() + "/" + getTotalAllTime() + " | " +
+                "PastMonth: " + getCorrectPastMonth() + "/" + getTotalPastMonth() + " | " +
+                "PastWeek: " + getCorrectPastWeek() + "/" + getTotalPastWeek() + " | " +
+                "objectId: " + getObjectId();
     }
 }

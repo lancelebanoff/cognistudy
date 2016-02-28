@@ -25,6 +25,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 
@@ -211,13 +213,16 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     }
 
     private void createResponse(boolean isSelectedAnswerCorrect) {
+        //TODO: Pin related objects
         //TODO: Implement rating
         Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
         ParseObjectUtils.pinThenSaveEventually(getChallengeId(), response);
     }
 
     private void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
-
+        //TODO: wait for incrementAll to finish when necessary
+        StudentBlockStats.incrementAll(category, isSelectedAnswerCorrect);
+        StudentTRollingStats.incrementAllInBackground(mQuestion.getObjectId(), category, isSelectedAnswerCorrect);
     }
 
     private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {

@@ -2,13 +2,16 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import android.support.v4.content.res.TypedArrayUtils;
 import android.text.format.DateUtils;
+import android.util.Log;
 
+import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.FindCallback;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -48,9 +51,11 @@ public class PublicUserData extends ParseObject{
     }
 
     public PublicUserData(ParseUser user, Student student, String facebookId, String displayName, ParseFile profilePic, byte[] profilePicData) {
-        ParseACL publicDataACL = new ParseACL(user);
-        publicDataACL.setPublicReadAccess(true);
-        setACL(publicDataACL);
+//        //TODO: Remove this
+//        if(facebookId != null && facebookId.equals("1082622075081952")) {
+//            setObjectId("SJUOoOm3fi");
+//        }
+        setACL(ACLUtils.getPublicReadPrivateWriteACL());
         put(Columns.userType, Constants.UserType.STUDENT);
         put(Columns.baseUserId, user.getObjectId());
         put(Columns.student, student);

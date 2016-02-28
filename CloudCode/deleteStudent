@@ -4,5 +4,5 @@ curl -X POST \
 -H "X-Parse-Application-Id: iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY" \
 -H "X-Parse-REST-API-Key: MYbT53ujvguvjTy3O6Oqwh1HkJzdBYUgnrRWY0yd" \
 -H "Content-Type: application/json" \
--d '{"studentId":"'$1'"}' \
-https://api.parse.com/1/functions/deleteStudent
+-d '{"baseUserId":"'$1'"}' \
+https://api.parse.com/1/functions/deleteStudentV2
