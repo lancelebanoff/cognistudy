@@ -24,6 +24,7 @@ import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import bolts.Continuation;
@@ -48,6 +49,7 @@ public class NewChallengeActivity extends CogniActivity {
     private ArrayList<String> mSelectedSubjects;
     private ArrayList<String> mSelectedCategories;
     private String mSelectedOpponent;
+    private HashMap<CheckBox, String> mCategoryCheckboxToCategory;
 
     private final String DEFAULT_TEST = Constants.Test.BOTH;
     private final String DEFAULT_OPPONENT = Constants.OpponentType.COMPUTER;
@@ -68,6 +70,7 @@ public class NewChallengeActivity extends CogniActivity {
         mSelectedSubjects = new ArrayList<>();
         mSelectedCategories = new ArrayList<>();
         mSelectedOpponent = "";
+        mCategoryCheckboxToCategory = new HashMap<>();
 
         displayTests();
         displaySubjects();
@@ -126,22 +129,26 @@ public class NewChallengeActivity extends CogniActivity {
         llCategories.setOrientation(LinearLayout.VERTICAL);
         mSvCategories.addView(llCategories);
 
-        String[] categories = Constants.Category.getCategories();
-        for(String category : categories) {
-            View checkBoxView = View.inflate(this, R.layout.checkbox_category, null);
-            CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox);
-            if(mSelectedCategories.contains(category)) {
-                checkBox.setChecked(true);
-            }
-            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton cbCategory, boolean isChecked) {
-                    addOrRemoveSelectedCategory(cbCategory);
+        String[] subjects = Constants.Subject.getSubjects();
+        for(String subject : subjects) {
+            String[] categoriesInSubject = Constants.SubjectToCategory.get(subject);
+            for(String category : categoriesInSubject) {
+                View checkBoxView = View.inflate(this, R.layout.checkbox_category, null);
+                CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox);
+                mCategoryCheckboxToCategory.put(checkBox, category);
+                if(mSelectedCategories.contains(category)) {
+                    checkBox.setChecked(true);
                 }
-            });
-            checkBox.setText(category);
-            llCategories.addView(checkBoxView);
-            mCategoryCheckboxes.add(checkBox);
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton cbCategory, boolean isChecked) {
+                        addOrRemoveSelectedCategory(cbCategory);
+                    }
+                });
+                checkBox.setText(subject + ": " + category);
+                llCategories.addView(checkBoxView);
+                mCategoryCheckboxes.add(checkBox);
+            }
         }
     }
 
@@ -218,7 +225,7 @@ public class NewChallengeActivity extends CogniActivity {
         List<String> categoriesInSelectedTest = Arrays.asList(Constants.TestToCategory.get(mSelectedTest));
         for(CheckBox cbCategory : mCategoryCheckboxes) {
             cbCategory.setChecked(false);
-            if(categoriesInSelectedTest.contains(cbCategory.getText().toString())) {
+            if(categoriesInSelectedTest.contains(mCategoryCheckboxToCategory.get(cbCategory))) {
                 cbCategory.setChecked(true);
             }
         }
@@ -233,7 +240,7 @@ public class NewChallengeActivity extends CogniActivity {
             // Set subject's corresponding categories to be chosen
             mSelectedCategories.addAll(categoriesInSelectedSubject);
             for(CheckBox cbCategory : mCategoryCheckboxes) {
-                String category = cbCategory.getText().toString();
+                String category = mCategoryCheckboxToCategory.get(cbCategory);
                 if(categoriesInSelectedSubject.contains(category) && !cbCategory.isChecked()) {
                     cbCategory.setChecked(true);
                 }
@@ -245,7 +252,7 @@ public class NewChallengeActivity extends CogniActivity {
             // Set subject's corresponding categories to be unchosen
             mSelectedCategories.removeAll(categoriesInSelectedSubject);
             for(CheckBox cbCategory : mCategoryCheckboxes) {
-                String category = cbCategory.getText().toString();
+                String category = mCategoryCheckboxToCategory.get(cbCategory);
                 if(categoriesInSelectedSubject.contains(category) && cbCategory.isChecked()) {
                     cbCategory.setChecked(false);
                 }
@@ -274,7 +281,7 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     public void addOrRemoveSelectedCategory(CompoundButton cbCategory) {
-        String category = cbCategory.getText().toString();
+        String category = mCategoryCheckboxToCategory.get(cbCategory);
         if(cbCategory.isChecked()) {
             mSelectedCategories.add(category);
 

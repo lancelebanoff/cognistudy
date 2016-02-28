@@ -46,7 +46,7 @@
     <string-array name="date_ranges">
         <item>Past Week</item>
     </string-array>
-    <string name="choose_categories"><u>Advanced Settings</u></string>
+    <string name="choose_categories"><u>Choose Categories</u></string>
     <string name="title_dialog_choose_categories">Choose Categories</string>
     <string name="title_dialog_cancel_challenge">Cancel Challenge</string>
     <string name="message_dialog_cancel_challenge">Are you sure you want to cancel this challenge?</string>
