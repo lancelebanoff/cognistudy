@@ -12,8 +12,10 @@ import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
+import com.cognitutor.cognistudyapp.Activities.PracticeChallengeActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
+import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -23,6 +25,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,6 +37,7 @@ import java.util.List;
 public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
 
     private Activity mActivity;
+    private MainFragment mFragment;
 
     /*
     public PeopleQueryAdapter(Context context) {
@@ -48,7 +52,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         });
     }
     */
-    public ChallengeQueryAdapter(Context context, final List<Pair> keyValuePairs) {
+    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<Pair> keyValuePairs) {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 ParseQuery query = Challenge.getQuery();
@@ -60,10 +64,11 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
             }
         });
         mActivity = (Activity) context;
+        mFragment = fragment;
     }
 
     // Use this constructor for past challenges, which uses an "or" query
-    public ChallengeQueryAdapter(Context context, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
+    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 List<ParseQuery<Challenge>> queries = new ArrayList<>();
@@ -79,6 +84,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
             }
         });
         mActivity = (Activity) context;
+        mFragment = fragment;
     }
 
     @Override
@@ -98,52 +104,76 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         super.getItemView(object, view, parent);
 
         final Challenge challenge = (Challenge) object;
-        challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject object, ParseException e) {
-                final ChallengeUserData user1Data = (ChallengeUserData) object;
-                challenge.getUser2Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-                    @Override
-                    public void done(ParseObject object, ParseException e) {
-                        final ChallengeUserData user2Data = (ChallengeUserData) object;
+        if(challenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
+            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject object, ParseException e) {
+                    ChallengeUserData challengeUserData = (ChallengeUserData) object;
+                    setItemViewContentsForPractice(holder, challengeUserData);
 
-                        String user1BaseUserId = user1Data.getPublicUserData().getBaseUserId();
-                        String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
-                        ChallengeUserData currentChallengeUserData, opponentChallengeUserData;
-                        final int user1or2;
-                        if (user1BaseUserId.equals(currentUserBaseUserId)) {
-                            currentChallengeUserData = user1Data;
-                            opponentChallengeUserData = user2Data;
-                            user1or2 = 1;
-                        } else {
-                            currentChallengeUserData = user2Data;
-                            opponentChallengeUserData = user1Data;
-                            user1or2 = 2;
+                    finalView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            navigateToPracticeChallengeActivity(challenge.getObjectId(), 1);
                         }
-                        setItemViewContents(holder, currentChallengeUserData, opponentChallengeUserData);
+                    });
+                }
+            });
+        }
+        else {
+            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject object, ParseException e) {
+                    final ChallengeUserData user1Data = (ChallengeUserData) object;
+                    challenge.getUser2Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                        @Override
+                        public void done(ParseObject object, ParseException e) {
+                            final ChallengeUserData user2Data = (ChallengeUserData) object;
 
-                        finalView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                String userId = PublicUserData.getPublicUserData().getBaseUserId();
-                                if(!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId)) {
-                                    promptAcceptChallenge(challenge, user1or2);
-                                }
-                                else {
-                                    navigateToChallengeActivity(challenge.getObjectId(), user1or2);
-                                }
+                            String user1BaseUserId = user1Data.getPublicUserData().getBaseUserId();
+                            String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
+                            ChallengeUserData currentChallengeUserData, opponentChallengeUserData;
+                            final int user1or2;
+                            if (user1BaseUserId.equals(currentUserBaseUserId)) {
+                                currentChallengeUserData = user1Data;
+                                opponentChallengeUserData = user2Data;
+                                user1or2 = 1;
+                            } else {
+                                currentChallengeUserData = user2Data;
+                                opponentChallengeUserData = user1Data;
+                                user1or2 = 2;
                             }
-                        });
-                    }
-                });
-            }
-        });
+                            setItemViewContents(holder, currentChallengeUserData, opponentChallengeUserData);
+
+                            finalView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String userId = PublicUserData.getPublicUserData().getBaseUserId();
+                                    if (!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId)) {
+                                        promptAcceptChallenge(challenge, user1or2);
+                                    } else {
+                                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
 
         return finalView;
     }
 
     private void navigateToChallengeActivity(String challengeId, int user1or2) {
         Intent intent = new Intent(mActivity, ChallengeActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
+        mActivity.startActivity(intent);
+    }
+
+    private void navigateToPracticeChallengeActivity(String challengeId, int user1or2) {
+        Intent intent = new Intent(mActivity, PracticeChallengeActivity.class);
         intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
         intent.putExtra(Constants.IntentExtra.USER1OR2, user1or2);
         mActivity.startActivity(intent);
@@ -169,7 +199,12 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                         challenge.setHasEnded(true);
                         challenge.setEndDate(new Date());
                         challenge.setWinner(Constants.ChallengeAttribute.Winner.NO_WINNER);
-                        challenge.saveInBackground();
+                        challenge.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                mFragment.refresh();
+                            }
+                        });
                     }
                 })
                 .setPositiveButton(R.string.yes_dialog_accept_challenge, new DialogInterface.OnClickListener() {
@@ -200,6 +235,13 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
             holder.txtSubjects.setText("");
             holder.txtScore.setText("");
         }
+    }
+
+    private void setItemViewContentsForPractice(ViewHolder holder, ChallengeUserData challengeUserData) {
+        holder.imgProfile.setParseFile(challengeUserData.getPublicUserData().getProfilePic());
+        holder.imgProfile.loadInBackground();
+        holder.txtName.setText("Practice");
+        holder.setTxtSubjects(challengeUserData.getSubjects());
     }
 
     private static class ViewHolder {
