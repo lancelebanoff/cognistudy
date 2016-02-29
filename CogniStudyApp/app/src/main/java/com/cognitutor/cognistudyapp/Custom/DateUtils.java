@@ -122,7 +122,8 @@ public class DateUtils {
         if(blockType == BlockType.MONTH) {
             calendarField = Calendar.MONTH;
             amountToAdd = 1;
-            N = 12;
+//            N = 12;
+            N = 1;
         }
         else  {
             calendarField = Calendar.DAY_OF_YEAR;
@@ -143,10 +144,11 @@ public class DateUtils {
             }
             int numAnswered;
             boolean answeredMoreThan10Questions = didItHappen(rand, 50);
-            if(!answeredMoreThan10Questions)
-                numAnswered = rand.nextInt(10) + 1;
-            else
-                numAnswered = rand.nextInt(20) + 11;
+            numAnswered = 1;
+//            if(!answeredMoreThan10Questions)
+//                numAnswered = rand.nextInt(10) + 1;
+//            else
+//                numAnswered = rand.nextInt(20) + 11;
             Log.d(TAG + " numQues", "=== Answered " + numAnswered + " questions on " + blockNumsToString(blockNums));
             for(int i=0; i<numAnswered; i++) {
                 chanceCorrect = answerRandomQuestion(date, chanceCorrect, rand, TAG);

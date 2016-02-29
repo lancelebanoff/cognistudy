@@ -347,14 +347,38 @@ public class ParseObjectUtils {
                     if(task.isFaulted()) {
                         Log.e("deletePinnedObjects", task.getError().getMessage());
                     }
-                    ParseObject.unpinAllInBackground().waitForCompletion();
+//                    ParseObject.unpinAllInBackground().waitForCompletion();
+                    ParseObject.unpinAllInBackground()
+                            .continueWith(new Continuation<Void, Object>() {
+                                @Override
+                                public Object then(Task<Void> task) throws Exception {
+                                    if (task.isFaulted()) {
+                                        Log.e("unpinAll", task.getError().getMessage());
+                                    }
+                                    return null;
+                                }
+                            });
                     //Extra layer of assurance that everything will be unpinned that should be
+                    ParseObject.unpinAllInBackground(Constants.PinNames.CurrentUser).waitForCompletion();
+                    ParseObject.unpinAllInBackground(Constants.PinNames.BlockStats).waitForCompletion();
+                    logPinnedObjects(true);
                     List<String> pinNames = Arrays.asList(Constants.getAllConstants(Constants.PinNames.class));
                     for (String pinName : pinNames) {
                         Log.d("pinName: ", pinName);
 //                        ParseObject.unpinAllInBackground(pinName);
-                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+//                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+                        ParseObject.unpinAllInBackground(pinName)
+                                .continueWith(new Continuation<Void, Object>() {
+                                    @Override
+                                    public Object then(Task<Void> task) throws Exception {
+                                        if(task.isFaulted()) {
+                                            Log.e("unpinAll with pinName", task.getError().getMessage());
+                                        }
+                                        return null;
+                                    }
+                                }).waitForCompletion();
                     }
+                    ParseObjectUtils.logPinnedObjects(true);
                     try {
                         int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
                                 .fromLocalDatastore()
@@ -447,7 +471,7 @@ public class ParseObjectUtils {
         }
     }
 
-    public static void logPinnedObjects() {
+    public static void logPinnedObjects(boolean delete) {
 
         try {
             List<Class> classes = new ArrayList<Class>();
@@ -477,6 +501,16 @@ public class ParseObjectUtils {
                 pinnedObjectIds.add(pinnedObject.getPinObjectId());
             }
 
+
+            List<PublicUserData> puds = ParseQuery.getQuery(PublicUserData.class)
+                    .fromLocalDatastore()
+                    .find();
+            for (ParseObject obj : puds) {
+                if (delete) {
+                    obj.unpin();
+                }
+            }
+
             int actualNumPinned = 0;
             for (Class clazz : classes) {
                 List<ParseObject> objects = ParseQuery.getQuery(clazz.getSimpleName())
@@ -489,6 +523,9 @@ public class ParseObjectUtils {
                     continue;
                 actualNumPinned += numPinned;
                 for (ParseObject obj : objects) {
+                    if(delete) {
+                        obj.unpin();
+                    }
                     Log.d("Obj data  ", "    " + obj.toString());
 //                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
 //                        Log.d("Obj data  ", "    ============ " + obj.getObjectId() + " not represented by PinnedObject");

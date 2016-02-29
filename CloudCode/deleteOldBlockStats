@@ -1,0 +1,8 @@
+#!/bin/bash
+
+curl -X POST \
+-H "X-Parse-Application-Id: iT8NyJO0dChjLyfVsHUTM8UZQLSBBJLxd43AX9IY" \
+-H "X-Parse-Master-Key: 8p24267AaIIe4xUAH3DM0tCuiTv2pko2rreHBfHc" \
+-H "Content-Type: application/json;charset=utf-8" \
+-d '{}' \
+https://api.parse.com/1/jobs/deleteOldBlockStats

@@ -289,7 +289,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 navigateToRegistrationActivity();
                 break;
             case R.id.btnViewLocalDatastore:
-                ParseObjectUtils.logPinnedObjects();
+                ParseObjectUtils.logPinnedObjects(false);
         }
     }
 
