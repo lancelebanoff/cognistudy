@@ -1,16 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
-import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.parse.GetCallback;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseRelation;
-
-import bolts.Capture;
-import bolts.Continuation;
-import bolts.Task;
 
 /**
  * Created by Kevin on 2/13/2016.
@@ -23,6 +14,12 @@ public abstract class StudentCategoryBlockStats extends StudentBlockStats {
 
     public String getCategory() { return getString(Columns.category); }
 
+    /**
+     * Returns ParseQuery.getQuery(the class)
+     *                   .whereEqualTo(Columns.category, category);
+     * @param category
+     * @return
+     */
     protected ParseQuery<ParseObject> getClassQuery(String category) {
         return super.getClassQuery().whereEqualTo(Columns.category, category);
     }

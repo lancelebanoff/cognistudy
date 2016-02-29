@@ -5,7 +5,6 @@ import android.util.Log;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
-import com.parse.ParseObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -74,6 +73,10 @@ public class DateUtils {
 
     public static int getCurrentMonthBlockNum() {
         return getMonthBlockNum(new Date());
+    }
+
+    public static String getFormattedMonthDate(Date date) {
+        return getMonth(date) + "/" + getDayOfMonth(date);
     }
 
     private static int getDayOfYear(Date date) {

@@ -53,6 +53,24 @@ public class Constants {
         } catch (IllegalAccessException e) { e.printStackTrace(); return null; }
     }
 
+    public static class Analytics {
+        public static final String OVERALL = "Overall";
+
+        public static class BlockType {
+            public static final String ALL_TIME = "ALL_TIME";
+            public static final String MONTH = "MONTH";
+            public static final String WEEK = "WEEK";
+            public static final String DAY = "DAY";
+        }
+
+        public static HashMap<String, Integer> BlockTypeToNumSmallerBlocks = new HashMap<String, Integer>();
+        static {
+            BlockTypeToNumSmallerBlocks.put(BlockType.ALL_TIME, 12);
+            BlockTypeToNumSmallerBlocks.put(BlockType.MONTH, 10);
+            BlockTypeToNumSmallerBlocks.put(BlockType.WEEK, 7);
+        }
+    }
+
     public static class MenuItem {
         public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
         public static final String BOOKMARKS = "Bookmarks";

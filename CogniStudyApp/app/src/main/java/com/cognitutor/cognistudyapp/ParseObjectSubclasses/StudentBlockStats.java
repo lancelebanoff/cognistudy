@@ -9,6 +9,7 @@ import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,6 +50,10 @@ public abstract class StudentBlockStats extends ParseObject{
 
     protected ParseQuery<ParseObject> getClassQuery() {
         return new ParseQuery(getClass().getSimpleName());
+    }
+
+    public static ParseQuery queryWhereBlockNumEquals(ParseRelation relation, int blockNum) {
+        return relation.getQuery().whereEqualTo(SuperColumns.blockNum, blockNum);
     }
 
     private static List<StudentBlockStats> subclassesList;

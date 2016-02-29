@@ -8,6 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.DateUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
 import com.cognitutor.cognistudyapp.R;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
@@ -22,8 +29,17 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -42,12 +58,104 @@ public class AnalyticsFragment extends CogniFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        drawPieChart();
-        drawBarChart();
-        drawDoubleBarChart();
+        getAnalytics(Constants.Subject.MATH, Constants.Analytics.BlockType.ALL_TIME).continueWith(new Continuation<AnalyticsData, Void>() {
+            @Override
+            public Void then(Task<AnalyticsData> task) throws Exception {
+                AnalyticsData analyticsData = task.getResult();
+
+                drawPieChart(analyticsData);
+                drawBarChart(analyticsData);
+                drawDoubleBarChart();
+
+                return null;
+            }
+        });
     }
 
-    private void drawPieChart() {
+    private Task<AnalyticsData> getAnalytics(final String subject, String blockType) {
+        if (!subject.equals(Constants.Analytics.OVERALL)) {
+            switch (blockType) {
+                case Constants.Analytics.BlockType.ALL_TIME:
+                    Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
+                        @Override
+                        public AnalyticsData then(Task<Student> task) throws Exception {
+                            Student student = task.getResult();
+
+                            // Pie chart values
+                            List<StudentSubjectRollingStats> subjectRollingStatsList = student.getStudentSubjectRollingStats();
+                            ParseObject.fetchAllIfNeeded(subjectRollingStatsList);
+                            StudentSubjectRollingStats subjectRollingStats = findStatsObjectByLabel(subjectRollingStatsList, StudentSubjectRollingStats.Columns.subject, subject);
+                            String pieLabel = subject;
+                            int[] pieValues = new int[] { subjectRollingStats.getCorrectAllTime(), subjectRollingStats.getTotalAllTime() };
+
+                            // Bar chart values
+                            String[] barLabels = Constants.SubjectToCategory.get(subject);
+                            int[][] barValues = new int[barLabels.length][2];
+                            List<StudentCategoryRollingStats> categoryRollingStatsList = student.getStudentCategoryRollingStats();
+                            for (int i = 0; i < barLabels.length; i++) {
+                                String barLabel = barLabels[i];
+                                StudentCategoryRollingStats categoryRollingStats = findStatsObjectByLabel(
+                                        categoryRollingStatsList, StudentCategoryRollingStats.Columns.category, barLabel
+                                );
+                                barValues[i][0] = categoryRollingStats.getCorrectAllTime();
+                                barValues[i][1] = categoryRollingStats.getTotalAllTime();
+                            }
+
+                            // Double bar chart
+                            ParseRelation<StudentSubjectMonthStats> subjectMonthStatsRelation =
+                                    student.getStudentBlockStatsRelation(StudentSubjectMonthStats.class);
+                            int maxBlockNum = DateUtils.getCurrentMonthBlockNum();
+                            int minBlockNum = maxBlockNum - Constants.Analytics.BlockTypeToNumSmallerBlocks
+                                    .get(Constants.Analytics.BlockType.ALL_TIME);
+                            int numBlocks = maxBlockNum - minBlockNum + 1;
+
+                            // Double bar chart labels
+                            String[] doubleBarLabels = new String[numBlocks];
+                            Calendar calendarDate = Calendar.getInstance();
+                            calendarDate.set(Calendar.DAY_OF_MONTH, calendarDate.getActualMinimum(Calendar.DAY_OF_MONTH));
+                            for (int barIndex = numBlocks - 1; barIndex >= 0; barIndex--) {
+                                doubleBarLabels[barIndex] = DateUtils.getFormattedMonthDate(calendarDate.getTime());
+                                calendarDate.add(Calendar.MONTH, -1);
+                            }
+
+                            // Double bar chart values
+                            int[][] doubleBarValues = new int[numBlocks][2];
+                            for(int blockNum = minBlockNum, barIndex = 0; blockNum <= maxBlockNum; blockNum++, barIndex++) {
+                                ParseQuery query = StudentBlockStats.queryWhereBlockNumEquals(subjectMonthStatsRelation, blockNum);
+                                StudentSubjectMonthStats subjectMonthStats;
+                                try {
+                                    subjectMonthStats = (StudentSubjectMonthStats) query.getFirst();
+                                    doubleBarValues[barIndex][0] = subjectMonthStats.getCorrect();
+                                    doubleBarValues[barIndex][1] = subjectMonthStats.getTotal();
+                                } catch (ParseException e) {
+                                    doubleBarValues[barIndex][0] = 0;
+                                    doubleBarValues[barIndex][1] = 0;
+                                }
+                            }
+
+                            AnalyticsData analyticsData = new AnalyticsData(
+                                    pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
+                            );
+
+                            return analyticsData;
+                        }
+                    });
+                    return task;
+            }
+        }
+        return null;
+    }
+
+    private <T extends ParseObject> T findStatsObjectByLabel(List<T> statsList, String key, String value) {
+        for (T statsObject : statsList) {
+            if (statsObject.get(key).equals(value)) {
+                return statsObject;
+            }
+        }
+        return null;
+    }
+
+    private void drawPieChart(AnalyticsData analyticsData) {
         mPieChart = (PieChart) getView().findViewById(R.id.pieChart);
 
         mPieChart.setUsePercentValues(true);
@@ -56,7 +164,7 @@ public class AnalyticsFragment extends CogniFragment {
 
         mPieChart.setDragDecelerationFrictionCoef(0.95f);
 
-        mPieChart.setCenterText(generateCenterSpannableText());
+        mPieChart.setCenterText(generateCenterSpannableText(analyticsData));
 
         mPieChart.setDrawHoleEnabled(true);
         mPieChart.setHoleColorTransparent(true);
@@ -68,25 +176,26 @@ public class AnalyticsFragment extends CogniFragment {
         mPieChart.setTransparentCircleRadius(61f);
 
         mPieChart.setDrawCenterText(true);
+        mPieChart.setDrawSliceText(false);
 
         mPieChart.setRotationAngle(270);
-        mPieChart.setTouchEnabled(false);
+//        mPieChart.setTouchEnabled(false);
 
-        setPieChartData(2);
+        setPieChartData(analyticsData);
 
         mPieChart.animateY(1500, Easing.EasingOption.EaseInOutQuad);
         mPieChart.getLegend().setEnabled(false);
     }
 
-    private void setPieChartData(int count) {
+    private void setPieChartData(AnalyticsData analyticsData) {
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-        for (int i = 0; i < count; i++) {
-            yVals1.add(new Entry((float) (i+1), i));
+        for (int i = 0; i < analyticsData.pieCorrectAndTotalValues.length; i++) {
+            yVals1.add(new Entry((float) analyticsData.pieCorrectAndTotalValues[i], i));
         }
 
         ArrayList<String> xVals = new ArrayList<String>();
-        xVals.add("Incorrect");
-        xVals.add("Correct");
+        xVals.add("Incorrect" /* Incorrect */);
+        xVals.add("Correct" /* Correct */);
 
         PieDataSet dataSet = new PieDataSet(yVals1, "" /* title */);
 
@@ -107,14 +216,14 @@ public class AnalyticsFragment extends CogniFragment {
         mPieChart.invalidate();
     }
 
-    private SpannableString generateCenterSpannableText() {
+    private SpannableString generateCenterSpannableText(AnalyticsData analyticsData) {
 
-        SpannableString s = new SpannableString("Math");
+        SpannableString s = new SpannableString(analyticsData.pieLabel);
         s.setSpan(new RelativeSizeSpan(1.7f), 0, s.length(), 0);
         return s;
     }
 
-    private void drawBarChart() {
+    private void drawBarChart(AnalyticsData analyticsData) {
         mHorizBarChart = (HorizontalBarChart) getView().findViewById(R.id.horizontalBarChart);
         mHorizBarChart.setDrawBarShadow(false);
         mHorizBarChart.setDrawValueAboveBar(true);
@@ -141,26 +250,28 @@ public class AnalyticsFragment extends CogniFragment {
         yr.setDrawGridLines(false);
         yr.setEnabled(false);
 
-        setBarChartData();
+        setBarChartData(analyticsData);
         mHorizBarChart.animateY(1500);
     }
 
-    private void setBarChartData() {
+    private void setBarChartData(AnalyticsData analyticsData) {
 
-        ArrayList<BarEntry> yVals1 = new ArrayList<BarEntry>();
+        ArrayList<BarEntry> yVals = new ArrayList<BarEntry>();
         ArrayList<String> xVals = new ArrayList<String>();
 
-        xVals.add("Pre-Algebra");
-        xVals.add("Algebra");
-        xVals.add("Geometry");
-//        xVals.add("Trigonometry");
-//        xVals.add("Data Analysis");
-
-        for (int i = 0; i < 3; i++) {
-            yVals1.add(new BarEntry((float) ((i+1)*20), i));
+        // Category labels
+        for (String barLabel : analyticsData.barLabels) {
+            xVals.add(barLabel);
         }
 
-        BarDataSet set1 = new BarDataSet(yVals1, "DataSet 1");
+        // Category correct and incorrect values
+        for (int i = 0; i < analyticsData.barCorrectAndTotalValues.length; i++) {
+            int percentCorrect = (int) ((double) analyticsData.barCorrectAndTotalValues[i][0]
+                    / analyticsData.barCorrectAndTotalValues[i][1] * 100);
+            yVals.add(new BarEntry((float) percentCorrect, i));
+        }
+
+        BarDataSet set1 = new BarDataSet(yVals, "DataSet 1");
         set1.setColor(Color.rgb(150, 200, 255));
         ArrayList<BarDataSet> dataSets = new ArrayList<BarDataSet>();
         dataSets.add(set1);
@@ -242,5 +353,23 @@ public class AnalyticsFragment extends CogniFragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_analytics, container, false);
         return rootView;
+    }
+
+    private class AnalyticsData {
+        String pieLabel;
+        int[] pieCorrectAndTotalValues;
+        String[] barLabels;
+        int[][] barCorrectAndTotalValues;
+        String[] doubleBarLabels;
+        int[][] doubleBarCorrectAndTotalValues;
+
+        public AnalyticsData(String pieLabel, int[] pieCorrectAndTotalValues, String[] barLabels, int[][] barCorrectAndTotalValues, String[] doubleBarLabels, int[][] doubleBarCorrectAndTotalValues) {
+            this.pieLabel = pieLabel;
+            this.pieCorrectAndTotalValues = pieCorrectAndTotalValues;
+            this.barLabels = barLabels;
+            this.barCorrectAndTotalValues = barCorrectAndTotalValues;
+            this.doubleBarLabels = doubleBarLabels;
+            this.doubleBarCorrectAndTotalValues = doubleBarCorrectAndTotalValues;
+        }
     }
 }

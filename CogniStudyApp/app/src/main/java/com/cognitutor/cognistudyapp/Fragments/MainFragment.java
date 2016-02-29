@@ -92,17 +92,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         super.onResume();
 
         View rootView = getActivity().findViewById(R.id.viewpager);
-        createChallengeRequestListView(rootView);
-        createYourTurnListView(rootView);
-        createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
+        createAllListViews(rootView);
     }
 
     private void createAllListViews(View rootView) {
-        createChallengeRequestListView(rootView);
-        createYourTurnListView(rootView);
-        createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
+//        createChallengeRequestListView(rootView);
+//        createYourTurnListView(rootView);
+//        createTheirTurnListView(rootView);
+//        createPastChallengeListView(rootView);
     }
 
     private void createChallengeRequestListView(View rootView) {
