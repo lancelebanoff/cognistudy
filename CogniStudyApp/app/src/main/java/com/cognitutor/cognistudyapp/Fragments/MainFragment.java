@@ -1,9 +1,10 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,30 +19,19 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
-import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
-import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-
-import bolts.Continuation;
-import bolts.Task;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -60,6 +50,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     public static ArrayAdapter<ParseObject> answeredQuestionIdAdapter;
     private ListView answeredQuestionIdsListView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     public TextView txtChange;
 
@@ -90,22 +81,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         b = (Button) rootView.findViewById(R.id.btnViewLocalDatastore);
         b.setOnClickListener(this);
 
-        txtChange = (TextView) rootView.findViewById(R.id.txtChange);
-
-        createChallengeRequestListView(rootView);
-        createYourTurnListView(rootView);
-        createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
-
-        createAnsweredQuestionIdsListView(rootView);
+        createAllListViews(rootView);
+        setSwipeRefreshLayout(rootView);
 
         return rootView;
-    }
-
-    @Override
-    public void onDestroyView() {
-        txtChange = null;
-        super.onDestroyView();
     }
 
     @Override
@@ -119,18 +98,11 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         createPastChallengeListView(rootView);
     }
 
-    private void createAnsweredQuestionIdsListView(View rootView) {
-
-        answeredQuestionIdAdapter = new ArrayAdapter<>(rootView.getContext(),
-                R.layout.list_item_answered_question_id, R.id.txtAnsweredQuestion);
-        answeredQuestionIdsListView = (ListView) rootView.findViewById(R.id.listAnsweredQuestionIds);
-        answeredQuestionIdsListView.setAdapter(answeredQuestionIdAdapter);
-        answeredQuestionIdAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                setListViewHeightBasedOnChildren(answeredQuestionIdsListView);
-            }
-        });
+    private void createAllListViews(View rootView) {
+        createChallengeRequestListView(rootView);
+        createYourTurnListView(rootView);
+        createTheirTurnListView(rootView);
+        createPastChallengeListView(rootView);
     }
 
     private void createChallengeRequestListView(View rootView) {
@@ -140,7 +112,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
-        challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+        challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         challengeRequestListView = (ListView) rootView.findViewById(R.id.listChallengeRequests);
         challengeRequestListView.setFocusable(false);
@@ -167,7 +139,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
-        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
         yourTurnListView.setFocusable(false);
@@ -193,7 +165,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
                 PublicUserData.getPublicUserData().getBaseUserId()));
-        theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairs);
+        theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         theirTurnListView = (ListView) rootView.findViewById(R.id.listTheirTurnChallenges);
         theirTurnListView.setFocusable(false);
@@ -227,7 +199,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         List<List<Pair>> keyValuePairsList = new ArrayList<>();
         keyValuePairsList.add(keyValuePairs1);
         keyValuePairsList.add(keyValuePairs2);
-        pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), keyValuePairsList, true);
+        pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairsList, true);
 
         pastChallengeListView = (ListView) rootView.findViewById(R.id.listPastChallenges);
         pastChallengeListView.setFocusable(false);
@@ -253,6 +225,13 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             return;
         }
 
+        View parentCardView = (View) listView.getParent().getParent();
+        if(listAdapter.getCount() == 0) {
+            parentCardView.setVisibility(View.GONE);
+        } else {
+            parentCardView.setVisibility(View.VISIBLE);
+        }
+
         int totalHeight = 0;
         for (int i = 0; i < listAdapter.getCount(); i++) {
             View listItem = listAdapter.getView(i, null, listView);
@@ -265,19 +244,41 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         listView.setLayoutParams(params);
     }
 
+    private void setSwipeRefreshLayout(View rootView) {
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
+            }
+        });
+    }
+
+    public void refresh() {
+        final View rootView = getView();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                createAllListViews(rootView);
+                if(mSwipeRefreshLayout != null) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        }, 1000);
+    }
+
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                DateUtils.generateRandomStats(DateUtils.BlockType.MONTH);
-//                DateUtils.test(false);
-//                Intent intent = new Intent(getActivity(), QuestionActivity.class);
-//                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionIds
-//                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
-//                //eO4TCrdBdn
-//                //fF4lsHt2iW
-//                //zpyHpKMb5S
-//                startActivity(intent);
+                Intent intent = new Intent(getActivity(), QuestionActivity.class);
+                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
+                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
+                //eO4TCrdBdn
+                //fF4lsHt2iW
+                //zpyHpKMb5S
+                startActivity(intent);
                 break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
@@ -285,7 +286,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             case R.id.btnLogout:
                 try {
                     logout();
-                } catch (ParseException e) { handleParseError(e); return; }
+                } catch (ParseException e) { handleParseError(e);
+                    return; }
                 navigateToRegistrationActivity();
                 break;
             case R.id.btnViewLocalDatastore:
@@ -310,11 +312,5 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     @Override
     public void onReceiveHandler() {
-        if (txtChange.getText().equals("Test 1")) {
-            txtChange.setText("Test 2!!!");
-        }
-        else {
-            txtChange.setText("Test 1");
-        }
     }
 }

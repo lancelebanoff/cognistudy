@@ -9,13 +9,19 @@
         android:id="@+id/sliding_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabMode="scrollable" />
+        android:elevation="@dimen/tablayout_elevation"
+        app:tabMode="fixed"
+        android:background="@color/colorPrimary"
+        app:tabTextColor="@color/white"
+        app:tabSelectedTextColor="@color/white"
+        app:tabIndicatorColor="@color/colorPrimaryDark"/>
 
     <com.cognitutor.cognistudyapp.Custom.CogniViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="0px"
         android:layout_weight="1"
+        android:paddingTop="@dimen/tablayout_elevation"
         android:background="@android:color/white" />
 
 </LinearLayout>

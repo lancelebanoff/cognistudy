@@ -43,14 +43,14 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true" >
 
-            <Button
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Show Answer"
                 android:id="@+id/btnSubmit"
                 android:onClick="showAnswer" />
 
-            <Button
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Continue"

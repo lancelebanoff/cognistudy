@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
@@ -20,10 +21,9 @@ import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseUser;
 import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,7 @@ public class ChallengeActivity extends CogniActivity {
      */
     private Intent mIntent;
 
+    private Challenge mChallenge;
     private String mChallengeId;
     private int mCurrentUser1or2;
     private int mViewingUser1or2;
@@ -63,7 +64,9 @@ public class ChallengeActivity extends CogniActivity {
         mViewingUser1or2 = mCurrentUser1or2;
         mScoresHaveBeenLoaded = false;
 
+        mChallenge = Challenge.getChallenge(mChallengeId);
         initializeBoard(mViewingUser1or2);
+
         showOrHideYourTurnButton();
     }
 
@@ -103,34 +106,24 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void showSwitchViewButton() {
-        Button btnSwitch = (Button) findViewById(R.id.btnSwitchView);
+        ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
         btnSwitch.setVisibility(View.VISIBLE);
     }
 
     private void hideSwitchViewButton() {
-        Button btnSwitch = (Button) findViewById(R.id.btnSwitchView);
+        ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
         btnSwitch.setVisibility(View.INVISIBLE);
     }
 
     private void showOrHideYourTurnButton() {
-        String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-
-        Challenge.getChallenge(challengeId)
-                .onSuccess(new Continuation<Challenge, Void>() {
-                    @Override
-                    public Void then(Task<Challenge> task) throws Exception {
-                        Challenge challenge = task.getResult();
-                        String currentUserId = ParseUser.getCurrentUser().getObjectId();
-                        boolean isCurrentUsersTurn = challenge.getCurTurnUserId().equals(currentUserId);
-                        Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
-                        if (isCurrentUsersTurn && !challenge.getHasEnded()) {
-                            btnYourTurn.setVisibility(View.VISIBLE);
-                        } else {
-                            btnYourTurn.setVisibility(View.INVISIBLE);
-                        }
-                        return null;
-                    }
-                });
+        String currentUserId = ParseUser.getCurrentUser().getObjectId();
+        boolean isCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
+        Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
+        if (isCurrentUsersTurn && !mChallenge.getHasEnded()) {
+            btnYourTurn.setVisibility(View.VISIBLE);
+        } else {
+            btnYourTurn.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void initializeGridLayouts(final int viewingUser1or2) {
@@ -212,25 +205,16 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     public void onClick_btnYourTurn(View view) {
-        Challenge.getChallenge(mChallengeId)
-                .continueWith(new Continuation<Challenge, Void>() {
-                    @Override
-                    public Void then(Task<Challenge> task) throws Exception {
-                        Challenge challenge = task.getResult();
-                        int quesAnsThisTurn = challenge.getQuesAnsThisTurn();
-                        if (quesAnsThisTurn == Constants.Questions.NUM_QUESTIONS_PER_TURN) { // All questions have been answered
-                            navigateToBattleshipAttackActivity();
-                        } else {
-                            List<String> questionIds = challenge.getThisTurnQuestionIds(); // TODO:2 get the 3 chosen questions
-                            if (questionIds == null) {
-                                questionIds = chooseThreeQuestionIds(challenge); // TODO:2 choose 3 random questions
-                            }
-                            navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
-                        }
-
-                        return null;
-                    }
-                });
+        int quesAnsThisTurn = mChallenge.getQuesAnsThisTurn();
+        if (quesAnsThisTurn == Constants.Questions.NUM_QUESTIONS_PER_TURN) { // All questions have been answered
+            navigateToBattleshipAttackActivity();
+        } else {
+            List<String> questionIds = mChallenge.getThisTurnQuestionIds(); // TODO:2 get the 3 chosen questions
+            if (questionIds == null) {
+                questionIds = chooseThreeQuestionIds(mChallenge); // TODO:2 choose 3 random questions
+            }
+            navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
+        }
     }
 
     private List<String> chooseThreeQuestionIds(Challenge challenge) {

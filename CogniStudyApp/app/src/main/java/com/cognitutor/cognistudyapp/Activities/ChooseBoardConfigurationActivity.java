@@ -106,18 +106,32 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
             setChallengeActivated();
         }
         else {
+            setChallengeAccepted();
             navigateToChallengeActivity();
         }
         finish();
     }
 
     private void setChallengeActivated() {
-        Challenge.getChallenge(mChallengeId)
+        Challenge.getChallengeInBackground(mChallengeId)
                 .onSuccess(new Continuation<Challenge, Void>() {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         challenge.setActivated(true);
+                        challenge.saveInBackground();
+                        return null;
+                    }
+                });
+    }
+
+    private void setChallengeAccepted() {
+        Challenge.getChallengeInBackground(mChallengeId)
+                .onSuccess(new Continuation<Challenge, Void>() {
+                    @Override
+                    public Void then(Task<Challenge> task) throws Exception {
+                        Challenge challenge = task.getResult();
+                        challenge.setAccepted(true);
                         challenge.saveInBackground();
                         return null;
                     }

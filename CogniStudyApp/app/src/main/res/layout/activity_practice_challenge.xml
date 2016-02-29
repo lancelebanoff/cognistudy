@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".Activities.PracticeChallengeActivity"
+    android:orientation="vertical"
+    android:weightSum="3">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnYourTurn"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:weightSum="2">
+
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Answer Practice Questions"
+            android:id="@+id/btnYourTurn"
+            android:onClick="onClick_btnYourTurn"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_centerHorizontal="true"
+                android:weightSum="3">
+
+                <com.cognitutor.cognistudyapp.Custom.CogniImageButton
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/icon_resign"
+                    android:id="@+id/btnResign"
+                    android:onClick="onClick_btnResign"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    android:layout_weight="1"/>
+
+                <com.cognitutor.cognistudyapp.Custom.CogniImageButton
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/icon_question_history"
+                    android:id="@+id/btnQuestionHistory"
+                    android:onClick="navigateToQuestionHistoryActivity"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    android:layout_weight="1" />
+
+                <com.cognitutor.cognistudyapp.Custom.CogniImageButton
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/icon_challenge_analytics"
+                    android:id="@+id/btnChallengeAnalytics"
+                    android:onClick="navigateToChallengeAnalyticsActivity"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    android:layout_weight="1" />
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+</LinearLayout>

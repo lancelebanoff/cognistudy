@@ -24,7 +24,7 @@ public class ChallengeUtils {
 
         final Capture<Challenge> challengeCapture = new Capture<>(null);
 
-        Task<BattleshipBoardManager> task = Challenge.getChallenge(challengeId)
+        Task<BattleshipBoardManager> task = Challenge.getChallengeInBackground(challengeId)
                 .onSuccessTask(new Continuation<Challenge, Task<ChallengeUserData>>() {
                     @Override
                     public Task<ChallengeUserData> then(Task<Challenge> task) throws Exception {
@@ -49,7 +49,7 @@ public class ChallengeUtils {
             final Activity activity, String challengeId, final int currentUser1or2,
             final int viewingUser1or2, final boolean canBeAttacked) {
 
-        Task<BattleshipBoardManager> task = Challenge.getChallenge(challengeId)
+        Task<BattleshipBoardManager> task = Challenge.getChallengeInBackground(challengeId)
                 .onSuccess(new Continuation<Challenge, BattleshipBoardManager>() {
                     @Override
                     public BattleshipBoardManager then(Task<Challenge> task) throws Exception {

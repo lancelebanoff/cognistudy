@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
@@ -30,6 +33,7 @@ import com.parse.ParseException;
 import org.apache.commons.io.IOUtils;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import bolts.Continuation;
@@ -104,6 +108,21 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 //        );
     }
 
+    public void loadingFinished() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(0); // TODO:1 sleep so that user doesn't see mathview changing
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        avh.loadingFinished();
+                    }
+                });
+            }
+        }).start();
+    }
+
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
@@ -115,7 +134,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     private void loadChallenge() {
         String challengeId = getChallengeId();
-        Challenge.getChallenge(challengeId)
+        Challenge.getChallengeInBackground(challengeId)
                 .continueWith(new Continuation<Challenge, Void>() {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
@@ -137,6 +156,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         listView.addFooterView(footer, null, false);
 
         avh = new ActivityViewHolder();
+        avh.showLoading();
 //        avh.mvExplanation.setVisibility(View.GONE);
     }
 
@@ -215,7 +235,17 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                 if(isSelectedAnswerCorrect) {
                     mChallenge.incrementCorrectAnsThisTurn();
                 }
-                mChallenge.saveInBackground();
+                if(mChallenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE) &&
+                        mChallenge.getQuesAnsThisTurn() == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
+                    mQuesAnsThisTurn = 0;
+                    mChallenge.setQuesAnsThisTurn(0);
+                    chooseThreeQuestionIds();
+                }
+                try {
+                    mChallenge.save();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -228,6 +258,15 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                 });
             }
         }).start();
+    }
+
+    private List<String> chooseThreeQuestionIds() {
+        List<String> questionIds = new ArrayList<>();
+        questionIds.add("aSVEaMqEfB");
+        questionIds.add("fF4lsHt2iW");
+        questionIds.add("eO4TCrdBdn");
+        mChallenge.setThisTurnQuestionIds(questionIds);
+        return questionIds;
     }
 
     public void navigateToNextActivity(View view) {
@@ -279,6 +318,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     }
 
     private class ActivityViewHolder {
+        private RelativeLayout rlQuestionHeader;
+        private ProgressBar progressBar;
         private WebView wvPassage;
         private CogniMathView mvQuestion;
         private EditText txtModifyQuestion;
@@ -289,6 +330,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         private Button btnSubmit;
 
         private ActivityViewHolder() {
+            rlQuestionHeader = (RelativeLayout) findViewById(R.id.rlQuestionHeader);
+            progressBar = (ProgressBar) findViewById(R.id.progressBar);
             wvPassage = (WebView) findViewById(R.id.wvPassage);
             mvQuestion = (CogniMathView) findViewById(R.id.mvQuestion);
             txtModifyQuestion = (EditText) findViewById(R.id.txtModifyQuestion);
@@ -297,6 +340,18 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
+        }
+
+        private void showLoading() {
+            rlQuestionHeader.setVisibility(View.INVISIBLE);
+            listView.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        private void loadingFinished() {
+            rlQuestionHeader.setVisibility(View.VISIBLE);
+            listView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 

@@ -23,7 +23,7 @@
         android:layout_below="@+id/imgCogniTutorLogo"
         android:layout_centerHorizontal="true" />
 
-    <Button
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign in with email address"

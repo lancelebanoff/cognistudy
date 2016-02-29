@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -55,8 +56,17 @@ public class Challenge extends ParseObject {
         return ParseQuery.getQuery(Challenge.class);
     }
 
-    public static Task<Challenge> getChallenge(String objectId) {
+    public static Task<Challenge> getChallengeInBackground(String objectId) {
         return getQuery().whereEqualTo(Columns.objectId, objectId).getFirstInBackground();
+    }
+
+    public static Challenge getChallenge(String objectId) {
+        try {
+            return getQuery().whereEqualTo(Columns.objectId, objectId).getFirst();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public ChallengeUserData getChallengeUserData(int user1or2) {

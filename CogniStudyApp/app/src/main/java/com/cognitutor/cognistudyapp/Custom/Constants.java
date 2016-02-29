@@ -1,11 +1,20 @@
 package com.cognitutor.cognistudyapp.Custom;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
+
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.*;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -47,6 +56,21 @@ public class Constants {
         } catch (IllegalAccessException e) { e.printStackTrace(); return null; }
     }
 
+    public static class MenuItem {
+        public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
+        public static final String BOOKMARKS = "Bookmarks";
+        public static final String ACHIEVEMENTS = "Achievements";
+        public static final String SHOP = "Shop";
+        public static final String SETTINGS = "Settings";
+        public static final String HELP = "Help";
+        public static final String SIGN_OUT = "Sign Out";
+
+        public static class Attribute {
+            public static final String LABEL = "LABEL";
+            public static final String ICON = "ICON";
+        }
+    }
+
     public static class NotificationData {
         public static final String ACTIVITY = "ACTIVITY";
         public static class Activity {
@@ -62,6 +86,9 @@ public class Constants {
         public static final String StudentSubjectDayStats = StudentSubjectDayStats.class.getSimpleName();
         public static final String StudentSubjectTridayStats = StudentSubjectTridayStats.class.getSimpleName();
         public static final String StudentSubjectMonthStats = StudentSubjectMonthStats.class.getSimpleName();
+        public static final String StudentTotalDayStats = StudentTotalDayStats.class.getSimpleName();
+        public static final String StudentTotalTridayStats = StudentTotalTridayStats.class.getSimpleName();
+        public static final String StudentTotalMonthStats = StudentTotalMonthStats.class.getSimpleName();
     }
 
     public static class IntentExtra {
@@ -117,6 +144,10 @@ public class Constants {
         public static final String RANDOM = "Random";
         public static final String COMPUTER = "Computer";
         public static final String PRACTICE = "Practice";
+
+        public static String[] getOpponentTypes() {
+            return new String[] {FRIEND, RANDOM, COMPUTER, PRACTICE};
+        }
     }
 
     // <editor-fold desc="Tests, Subjects and Categories">
@@ -124,6 +155,10 @@ public class Constants {
         public static final String SAT = "SAT";
         public static final String ACT = "ACT";
         public static final String BOTH = "Both";
+
+        public static String[] getTests() {
+            return new String[] {SAT, ACT, BOTH} ;
+        }
     }
 
     public static class Subject {
@@ -131,22 +166,33 @@ public class Constants {
         public static final String MATH = "Math";
         public static final String ENGLISH = "English";
         public static final String SCIENCE = "Science";
+
+        public static String[] getSubjects() {
+            return new String[] {READING, MATH, ENGLISH, SCIENCE} ;
+        }
     }
 
     public static class Category {
-        public static final String PASSAGE_READING = "Passage Reading";
-        public static final String SENTENCE_COMPLETION = "Sentence Completion";
+        public static final String SOCIAL_STUDIES_SCIENCE = "Social Studies/Science";
+        public static final String ARTS_LITERATURE = "Arts/Literature";
         public static final String PRE_ALGEBRA = "Pre-Algebra";
         public static final String ALGEBRA = "Algebra";
         public static final String GEOMETRY = "Geometry";
         public static final String TRIGONOMETRY = "Trigonometry";
         public static final String DATA_ANALYSIS_STATISTICS_PROBABILITY = "Data Analysis, Statistics, Probability";
-        public static final String IDENTIFYING_SENTENCE_ERRORS = "Identifying Sentence Errors";
-        public static final String IMPROVING_SENTENCES = "Improving Sentences";
-        public static final String IMPROVING_PARAGRAPHS = "Improving Paragraphs";
+        public static final String USAGE_AND_MECHANICS = "Usage and Mechanics";
+        public static final String RHETORICAL_SKILLS = "Rhetorical Skills";
         public static final String DATA_REPRESENTATION = "Data Representation";
         public static final String RESEARCH_SUMMARIES = "Research Summaries";
         public static final String CONFLICTING_VIEWPOINTS = "Conflicting Viewpoints";
+
+        public static String[] getCategories() {
+            return new String[] {
+                    SOCIAL_STUDIES_SCIENCE, ARTS_LITERATURE, PRE_ALGEBRA, ALGEBRA, GEOMETRY, TRIGONOMETRY,
+                    DATA_ANALYSIS_STATISTICS_PROBABILITY, USAGE_AND_MECHANICS, RHETORICAL_SKILLS,
+                    DATA_REPRESENTATION, RESEARCH_SUMMARIES, CONFLICTING_VIEWPOINTS
+            } ;
+        }
     }
 
     public static final Map<String, String[]> TestToSubject;
@@ -164,38 +210,51 @@ public class Constants {
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
         map.put(Test.SAT, new String[] {
-                Category.PASSAGE_READING,
-                Category.SENTENCE_COMPLETION,
+                Category.SOCIAL_STUDIES_SCIENCE,
+                Category.ARTS_LITERATURE,
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
                 Category.DATA_ANALYSIS_STATISTICS_PROBABILITY,
-                Category.IDENTIFYING_SENTENCE_ERRORS,
-                Category.IMPROVING_SENTENCES,
-                Category.IMPROVING_PARAGRAPHS
+                Category.USAGE_AND_MECHANICS,
+                Category.RHETORICAL_SKILLS
         });
         map.put(Test.ACT, new String[] {
-                Category.PASSAGE_READING,
+                Category.SOCIAL_STUDIES_SCIENCE,
+                Category.ARTS_LITERATURE,
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
                 Category.TRIGONOMETRY,
-                Category.IMPROVING_SENTENCES,
-                Category.IMPROVING_PARAGRAPHS,
+                Category.USAGE_AND_MECHANICS,
+                Category.RHETORICAL_SKILLS,
                 Category.DATA_REPRESENTATION,
                 Category.RESEARCH_SUMMARIES,
                 Category.CONFLICTING_VIEWPOINTS
         });
-        map.put(Test.BOTH, getAllConstants(Category.class));
+        map.put(Test.BOTH, new String[] {
+                Category.SOCIAL_STUDIES_SCIENCE,
+                Category.ARTS_LITERATURE,
+                Category.PRE_ALGEBRA,
+                Category.ALGEBRA,
+                Category.GEOMETRY,
+                Category.DATA_ANALYSIS_STATISTICS_PROBABILITY,
+                Category.TRIGONOMETRY,
+                Category.USAGE_AND_MECHANICS,
+                Category.RHETORICAL_SKILLS,
+                Category.DATA_REPRESENTATION,
+                Category.RESEARCH_SUMMARIES,
+                Category.CONFLICTING_VIEWPOINTS
+        });
         TestToCategory = Collections.unmodifiableMap(map);
     }
 
     public static final Map<String, String[]> SubjectToCategory;
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
-        map.put(Subject.READING, new String[]{Category.PASSAGE_READING, Category.SENTENCE_COMPLETION});
+        map.put(Subject.READING, new String[]{Category.SOCIAL_STUDIES_SCIENCE, Category.ARTS_LITERATURE});
         map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.DATA_ANALYSIS_STATISTICS_PROBABILITY});
-        map.put(Subject.ENGLISH, new String[]{Category.IDENTIFYING_SENTENCE_ERRORS, Category.IMPROVING_SENTENCES, Category.IMPROVING_PARAGRAPHS});
+        map.put(Subject.ENGLISH, new String[]{Category.USAGE_AND_MECHANICS, Category.RHETORICAL_SKILLS});
         map.put(Subject.SCIENCE, new String[]{Category.DATA_REPRESENTATION, Category.RESEARCH_SUMMARIES, Category.CONFLICTING_VIEWPOINTS});
         SubjectToCategory = Collections.unmodifiableMap(map);
     }

@@ -70,9 +70,7 @@ public class AnalyticsFragment extends CogniFragment {
         mPieChart.setDrawCenterText(true);
 
         mPieChart.setRotationAngle(270);
-        // enable rotation of the chart by touch
-        mPieChart.setRotationEnabled(true);
-        mPieChart.setHighlightPerTapEnabled(true);
+        mPieChart.setTouchEnabled(false);
 
         setPieChartData(2);
 
@@ -123,6 +121,7 @@ public class AnalyticsFragment extends CogniFragment {
         mHorizBarChart.setDescription("");
         mHorizBarChart.setDrawGridBackground(false);
         mHorizBarChart.getLegend().setEnabled(false);
+        mHorizBarChart.setTouchEnabled(false);
 
         XAxis xl = mHorizBarChart.getXAxis();
         xl.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -178,6 +177,7 @@ public class AnalyticsFragment extends CogniFragment {
         mDoubleBarChart.setDescription("");
         mDoubleBarChart.setDrawGridBackground(false);
         mDoubleBarChart.getLegend().setEnabled(false);
+        mDoubleBarChart.setTouchEnabled(false);
 
         XAxis xl = mDoubleBarChart.getXAxis();
         xl.setPosition(XAxis.XAxisPosition.BOTTOM);

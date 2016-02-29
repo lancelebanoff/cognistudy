@@ -1,33 +1,37 @@
 package com.cognitutor.cognistudyapp.Custom;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import io.github.kexanie.library.R;
+import android.webkit.WebViewClient;
 
+import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.x5.template.Chunk;
 import com.x5.template.Theme;
 import com.x5.template.providers.AndroidTemplates;
 
-import org.apache.commons.io.IOUtils;
-
-import java.net.URI;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.github.kexanie.library.R;
+
 public class CogniMathView extends WebView {
+    private static AtomicInteger numRunning = new AtomicInteger(0);
+
+    private QuestionActivity mActivity;
     private String mText;
     private String mConfig;
     private int mEngine;
 
     public CogniMathView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mActivity = (QuestionActivity) context;
         getSettings().setJavaScriptEnabled(true);
         getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         setBackgroundColor(Color.TRANSPARENT);
@@ -80,6 +84,29 @@ public class CogniMathView extends WebView {
 
         //this.loadDataWithBaseURL(null, chunk.toString(), "text/html", "utf-8", "about:blank");
         this.loadDataWithBaseURL(null, styledHtml, "text/html", "utf-8", "about:blank");
+        final CogniMathView mathView = this;
+        numRunning.incrementAndGet();
+        this.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String urlNewString) {
+                numRunning.incrementAndGet();
+                mathView.loadUrl(urlNewString);
+                return true;
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (numRunning.decrementAndGet() == 0) { // just "running--;" if you add a timer.
+                    mActivity.loadingFinished();
+                }
+            }
+        });
     }
 
     public String getText() {

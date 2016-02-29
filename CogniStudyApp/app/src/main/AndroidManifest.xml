@@ -161,9 +161,16 @@
 
         <activity android:name=".Activities.CogniActivity" >
         </activity>
-        <activity android:name=".Activities.VerityEmailActivity" />
-        <activity android:name=".Activities.ChooseDisplayNameActivity" />
-        <activity android:name=".Activities.ChooseOpponentActivity" >
+        <activity android:name=".Activities.VerityEmailActivity"
+            android:label="@string/title_activity_verify_email" />
+        <activity android:name=".Activities.ChooseDisplayNameActivity"
+            android:label="@string/title_activity_choose_display_name" />
+        <activity android:name=".Activities.ChooseOpponentActivity"
+            android:label="@string/title_activity_choose_opponent" >
+        </activity>
+        <activity android:name=".Activities.PracticeChallengeActivity"
+            android:label="@string/title_activity_practice_challenge"
+            android:parentActivityName=".Activities.MainActivity" >
         </activity>
     </application>
 

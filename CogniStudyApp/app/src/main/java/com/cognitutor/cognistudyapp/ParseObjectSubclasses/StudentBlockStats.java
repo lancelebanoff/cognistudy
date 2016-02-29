@@ -62,6 +62,9 @@ public abstract class StudentBlockStats extends ParseObject{
         subclassesList.add(new StudentSubjectDayStats());
         subclassesList.add(new StudentSubjectTridayStats());
         subclassesList.add(new StudentSubjectMonthStats());
+        subclassesList.add(new StudentTotalDayStats());
+        subclassesList.add(new StudentTotalTridayStats());
+        subclassesList.add(new StudentTotalMonthStats());
         return subclassesList;
     }
 

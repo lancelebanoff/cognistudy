@@ -18,7 +18,10 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -482,6 +485,9 @@ public class ParseObjectUtils {
             classes.add(StudentSubjectDayStats.class);
             classes.add(StudentSubjectTridayStats.class);
             classes.add(StudentSubjectMonthStats.class);
+            classes.add(StudentTotalDayStats.class);
+            classes.add(StudentTotalTridayStats.class);
+            classes.add(StudentTotalMonthStats.class);
             classes.add(AnsweredQuestionIds.class);
             classes.add(Achievement.class);
             classes.add(PinnedObject.class);

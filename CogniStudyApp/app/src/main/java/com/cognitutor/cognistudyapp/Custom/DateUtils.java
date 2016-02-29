@@ -118,32 +118,40 @@ public class DateUtils {
 
         float chanceCorrect = 50;
         Calendar calendar = Calendar.getInstance(ny, Locale.US);
-        int N, calendarField, amountToAdd;
+        final int N, calendarField, amountToAdd, chancePlayed, chanceMoreThan10Ques;
         if(blockType == BlockType.MONTH) {
             calendarField = Calendar.MONTH;
             amountToAdd = 1;
 //            N = 12;
             N = 1;
+            chancePlayed = 100;
+            chanceMoreThan10Ques = 100;
         }
         else  {
             calendarField = Calendar.DAY_OF_YEAR;
             N = 10;
-            if(blockType == BlockType.TRIDAY)
+            if(blockType == BlockType.TRIDAY) {
+                chancePlayed = 90;
                 amountToAdd = 3;
-            else
+                chanceMoreThan10Ques = 95;
+            }
+            else { //blockType == BlockType.DAY
+                chancePlayed = 80;
                 amountToAdd = 1;
+                chanceMoreThan10Ques = 50;
+            }
         }
         for(int n = 0; n < N; n++) {
             Date date = calendar.getTime();
             int[] blockNums = getDayTridayMonthBlockNums(date);
-            boolean playedToday = didItHappen(rand, 80);
+            boolean playedToday = didItHappen(rand, chancePlayed);
             if(!playedToday) {
                 Log.d(TAG + " numQues", "=== Skipping " + blockNumsToString(blockNums));
                 calendar.add(calendarField, amountToAdd);
                 continue;
             }
             int numAnswered;
-            boolean answeredMoreThan10Questions = didItHappen(rand, 50);
+            boolean answeredMoreThan10Questions = didItHappen(rand, chanceMoreThan10Ques);
             numAnswered = 1;
 //            if(!answeredMoreThan10Questions)
 //                numAnswered = rand.nextInt(10) + 1;
