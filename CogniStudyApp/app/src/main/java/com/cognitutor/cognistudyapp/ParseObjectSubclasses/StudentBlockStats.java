@@ -137,17 +137,30 @@ public abstract class StudentBlockStats extends ParseObject{
             .continueWithTask(new Continuation<Student, Task<Boolean>>() {
                 @Override
                 public Task<Boolean> then(Task<Student> task) throws Exception {
-                    Student student = task.getResult();
+                    final Student student = task.getResult();
                     for (final StudentBlockStats instance : getSubclassInstances()) {
-                        getOrCreateAndIncrement(instance, category, student, correct).waitForCompletion();
-//                        tasks.add(getOrCreateAndIncrement(instance, category, student, correct));
+                        tasks.add(getOrCreateAndIncrement(instance, category, student, correct));
+                        //getOrCreateAndIncrement(instance, category, student, correct).waitForCompletion();
                     }
                     return Task.whenAll(tasks)
                             .continueWithTask(new Continuation<Void, Task<Boolean>>() {
                                 @Override
                                 public Task<Boolean> then(Task<Void> task) throws Exception {
                                     Log.d("time taken", String.valueOf(System.currentTimeMillis() - start));
-                                    return ParseObjectUtils.saveAllInBackground();
+                                    return student.saveEventually().continueWith(new Continuation<Void, Boolean>() {
+                                        @Override
+                                        public Boolean then(Task<Void> task) throws Exception {
+                                            if(task.isFaulted()) {
+                                                Log.e("student saveEventually", task.getError().getMessage());
+                                                return true;
+                                            }
+                                            else {
+                                                Log.d("student saveEventually", "Returned successfully");
+                                                return false;
+                                            }
+                                        }
+                                    });
+//                                    return ParseObjectUtils.saveAllInBackground();
                                 }
                             });
                 }
@@ -204,12 +217,7 @@ public abstract class StudentBlockStats extends ParseObject{
                             Log.d("created objectId", created.getObjectId());
                             Log.d("student objectId", student.getObjectId());
                             created.pinInBackground(Constants.PinNames.BlockStats);
-                            return addBlockStatsToRelationAndSaveEventually(student, created).continueWith(new Continuation<Void, Void>() {
-                                @Override
-                                public Void then(Task<Void> task) throws Exception {
-                                    return null;
-                                }
-                            });
+                            return addBlockStatsToRelationAndSaveEventually(student, created);
 //                            ParseObjectUtils.pinInBackground(Constants.PinNames.BlockStats, created);
 //                            return null;
                         }
@@ -235,19 +243,20 @@ public abstract class StudentBlockStats extends ParseObject{
         try {
             student.getStudentBlockStatsRelation(blockStats.getClass()).add(blockStats);
         } catch (Exception e) { e.printStackTrace(); Log.e("addblockStats", "Error adding to relation" + e.getMessage()); }
-        return student.saveInBackground()
-//        return student.saveEventually()
-                .continueWith(new Continuation<Void, Void>() {
-                    @Override
-                    public Void then(Task<Void> task) throws Exception {
-                        if (task.isFaulted()) {
-                            Log.e("SAVING STUDENT", "Error: " + task.getError().getMessage());
-                        } else {
-                            Log.d("SAVING STUDENT", "Fine");
-                        }
-                        return null;
-                    }
-                });
+        return CommonUtils.getCompletionTask(null);
+//        return student.saveInBackground()
+////        return student.saveEventually()
+//                .continueWith(new Continuation<Void, Void>() {
+//                    @Override
+//                    public Void then(Task<Void> task) throws Exception {
+//                        if (task.isFaulted()) {
+//                            Log.e("SAVING STUDENT", "Error: " + task.getError().getMessage());
+//                        } else {
+//                            Log.d("SAVING STUDENT", "Fine");
+//                        }
+//                        return null;
+//                    }
+//                });
     }
 
     private static <T extends StudentBlockStats> T createInstance(Class<T> clazz) {

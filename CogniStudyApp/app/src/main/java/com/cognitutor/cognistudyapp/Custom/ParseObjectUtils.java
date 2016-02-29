@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -36,7 +37,6 @@ import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
-import bolts.TaskCompletionSource;
 
 /**
  * Created by Kevin on 2/13/2016.
@@ -76,19 +76,13 @@ public class ParseObjectUtils {
                 public Task<Boolean> then(Task<Void> task) throws Exception {
                     if (task.isFaulted()) {
                         handleException(task.getError(), "utils saveAll error");
-                        return getCompletionTask(false);
+                        return CommonUtils.getCompletionTask(false);
                     }
                     if(clonedPinMap.isEmpty())
-                        return getCompletionTask(true);
+                        return CommonUtils.getCompletionTask(true);
                     return pinFromMap(clonedPinMap);
                 }
             });
-    }
-
-    private static <T> Task<T> getCompletionTask(T result) {
-        TaskCompletionSource<T> completionSource = new TaskCompletionSource<T>();
-        completionSource.setResult(result);
-        return completionSource.getTask();
     }
 
     private static Task<Boolean> pinFromMap(Map<String, HashSet<ParseObject>> map) {
@@ -99,10 +93,10 @@ public class ParseObjectUtils {
                 pinAllInBackground(pinName, list).waitForCompletion();
             } catch (Exception e) {
                 handleException(e, "utils saveAll pinning error");
-                return getCompletionTask(false);
+                return CommonUtils.getCompletionTask(false);
             }
         }
-        return getCompletionTask(true);
+        return CommonUtils.getCompletionTask(true);
     }
 
 //    private static Task<Boolean> pinFromMap(Map<String, HashSet<ParseObject>> map) {
@@ -317,7 +311,7 @@ public class ParseObjectUtils {
                         }
                         List<ParseObject> list = task.getResult();
                         if (list.size() == 0)
-                            return getCompletionTask(null);
+                            return CommonUtils.getCompletionTask(null);
                         return unpinAllInBackground(list);
                     }
                 });
@@ -371,7 +365,7 @@ public class ParseObjectUtils {
                                 .continueWith(new Continuation<Void, Object>() {
                                     @Override
                                     public Object then(Task<Void> task) throws Exception {
-                                        if(task.isFaulted()) {
+                                        if (task.isFaulted()) {
                                             Log.e("unpinAll with pinName", task.getError().getMessage());
                                         }
                                         return null;
