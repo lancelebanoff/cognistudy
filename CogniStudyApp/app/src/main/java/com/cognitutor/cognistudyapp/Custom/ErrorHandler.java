@@ -7,10 +7,32 @@ import android.widget.Toast;
 
 import com.parse.ParseException;
 
+import bolts.Continuation;
+import bolts.Task;
+
 /**
  * Created by Kevin on 1/7/2016.
  */
 public class ErrorHandler {
+
+    public static <T> void executeAndPrintTaskFault(Task<T> task, final String tag) {
+        task.continueWith(new Continuation<T, Object>() {
+            @Override
+            public Object then(Task<T> task) throws Exception {
+                printTaskFault(task, tag);
+                return null;
+            }
+        });
+    }
+
+    public static void printTaskFault(Task task, String tag) {
+        if(task.isFaulted()) {
+            Log.e(tag, task.getError().getMessage());
+        }
+        else {
+            Log.d(tag, "All good!");
+        }
+    }
 
     public static String determineAction(ParseException e) {
         switch (e.getCode()) {

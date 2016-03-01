@@ -159,7 +159,24 @@ public class ParseObjectUtils {
      */
     public static void pinThenSaveEventually(String pinName, ParseObject object) {
         object.pinInBackground(pinName);
-        object.saveEventually();
+        object.saveEventually()
+            .continueWith(new Continuation<Void, Object>() {
+                @Override
+                public Object then(Task<Void> task) throws Exception {
+                    if(task.isFaulted()) {
+                        Log.e("saveResponse", task.getError().getMessage());
+                    }
+                    else {
+                        Log.d("saveResponse", "Fine!");
+                    }
+                    return null;
+                }
+            });
+    }
+
+    public static Task<Void> pinThenSaveInBackground(String pinName, ParseObject object) {
+        object.pinInBackground(pinName);
+        return object.saveInBackground();
     }
     // </editor-fold>
 

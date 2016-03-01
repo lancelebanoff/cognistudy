@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.ACLUtils;
+import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -16,6 +17,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -102,6 +104,12 @@ public class PrivateStudentData extends ParseObject{
             e.printStackTrace();
         }
         return friendPublicUserIds;
+    }
+
+    public static void addResponse(Response response) {
+        PrivateStudentData privateStudentData = getPrivateStudentData();
+        privateStudentData.getRelation(Columns.responses).add(response);
+        privateStudentData.saveEventually();
     }
 
     @Override

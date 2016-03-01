@@ -28,4 +28,18 @@ public class Response extends ParseObject {
         put(Columns.selectedAnswer, selectedAnswer);
         put(Columns.rating, rating);
     }
+
+    public String getBaseUserId() { return getString(Columns.baseUserID); }
+    public boolean getCorrect() { return getBoolean(Columns.correct); }
+    public int getSelectedAnswer() { return getInt(Columns.selectedAnswer); }
+    public String getRating() { return getString(Columns.rating); }
+    public Question getQuestion() { return (Question) getParseObject(Columns.question); }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() +
+                " | questionId: " + getQuestion().getObjectId() +
+                " | correct: " + getCorrect() +
+                " | selected: " + getSelectedAnswer();
+    }
 }
