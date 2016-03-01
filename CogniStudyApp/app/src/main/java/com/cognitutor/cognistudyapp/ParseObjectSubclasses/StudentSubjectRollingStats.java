@@ -1,7 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
-import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseQuery;
 
 /**
@@ -29,15 +29,16 @@ public class StudentSubjectRollingStats extends StudentTRollingStats {
         saveInBackground();
     }
 
-    public static StudentSubjectRollingStats getStudentSubjectRollingStatsBySubject(final String subject, final String baseUserId) {
-        return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<StudentSubjectRollingStats>() {
-            @Override
-            public ParseQuery<StudentSubjectRollingStats> buildQuery() {
-                return ParseQuery.getQuery(StudentSubjectRollingStats.class)
+    public static StudentSubjectRollingStats findBySubjectFromCache(final String subject, final String baseUserId) {
+        ParseQuery<StudentSubjectRollingStats> query = ParseQuery.getQuery(StudentSubjectRollingStats.class)
                         .whereEqualTo(SuperColumns.baseUserId, baseUserId)
-                        .whereEqualTo(Columns.subject, subject);
-            }
-        });
+                        .whereEqualTo(Columns.subject, subject)
+                        .fromLocalDatastore();
+        try {
+            return query.getFirst();
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     @Override

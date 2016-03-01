@@ -5,7 +5,6 @@ import android.util.Log;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
-import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -52,19 +51,16 @@ public abstract class StudentBlockStats extends ParseObject{
         return new ParseQuery(getClass().getSimpleName());
     }
 
-    public static <T extends StudentBlockStats> ParseQuery<T> queryStudentBlockStatsByBlockNum(Class<T> clazz, String baseUserId, int blockNum) {
-        return ParseQuery.getQuery(clazz)
-                .whereEqualTo(SuperColumns.baseUserId, baseUserId)
-                .whereEqualTo(SuperColumns.blockNum, blockNum);
-    }
-
     public static <T extends StudentBlockStats> T getStudentBlockStatsByBlockNum(final Class<T> clazz, final String baseUserId, final int blockNum) {
-        return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<T>() {
-            @Override
-            public ParseQuery<T> buildQuery() {
-                return queryStudentBlockStatsByBlockNum(clazz, baseUserId, blockNum);
-            }
-        });
+        ParseQuery<T> query = ParseQuery.getQuery(clazz)
+                .whereEqualTo(SuperColumns.baseUserId, baseUserId)
+                .whereEqualTo(SuperColumns.blockNum, blockNum)
+                .fromLocalDatastore();
+        try {
+            return query.getFirst();
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     private static List<StudentBlockStats> subclassesList;

@@ -136,22 +136,15 @@ public class AnalyticsFragment extends CogniFragment {
 
     private Task<AnalyticsData> getAnalytics(final String subject, final String rollingDateRange) {
         if (!subject.equals(Constants.Analytics.OVERALL)) {
-            final long studentstart = System.currentTimeMillis();
             Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
                 @Override
                 public AnalyticsData then(Task<Student> task) throws Exception {
-                    long studentend = System.currentTimeMillis();
-                    Log.w("student", "" + (studentend - studentstart));
                     Student student = task.getResult();
                     String baseUserId = student.getBaseUserId();
 
                     // Pie chart values
-                    long subjectrollingstatsstart = System.currentTimeMillis();
-                    Log.w("student - subject", "" + (subjectrollingstatsstart - studentend));
                     StudentSubjectRollingStats subjectRollingStats =
-                            StudentSubjectRollingStats.getStudentSubjectRollingStatsBySubject(subject, baseUserId);
-                    long subjectrollingstatsend = System.currentTimeMillis();
-                    Log.w("subjectrollingstats", "" + (subjectrollingstatsend - subjectrollingstatsstart));
+                            StudentSubjectRollingStats.findBySubjectFromCache(subject, baseUserId);
                     String pieLabel = subject;
                     int[] pieValues = new int[]{
                             subjectRollingStats.getCorrectForRollingStatsType(rollingDateRange),
@@ -161,11 +154,7 @@ public class AnalyticsFragment extends CogniFragment {
                     // Bar chart values
                     String[] barLabels = Constants.SubjectToCategory.get(subject);
                     int[][] barValues = new int[barLabels.length][2];
-                    long categoryrollingstatsstart = System.currentTimeMillis();
-                    Log.w("subject - category", "" + (categoryrollingstatsstart - subjectrollingstatsend));
                     List<StudentCategoryRollingStats> categoryRollingStatsList = student.getStudentCategoryRollingStats();
-                    long categoryrollingstatsend = System.currentTimeMillis();
-                    Log.w("categoryrollingstats", "" + (categoryrollingstatsend - categoryrollingstatsstart));
                     for (int i = 0; i < barLabels.length; i++) {
                         String barLabel = barLabels[i];
                         StudentCategoryRollingStats categoryRollingStats = findStatsObjectByLabel(
@@ -182,8 +171,6 @@ public class AnalyticsFragment extends CogniFragment {
 
                     // Double bar chart labels
                     String[] doubleBarLabels = getDoubleBarLabels(blockType, numBlocks);
-                    long blocksstart = System.currentTimeMillis();
-                    Log.w("category - blocks", "" + (blocksstart - categoryrollingstatsend));
 
                     // Double bar chart values
                     int[][] doubleBarValues = new int[numBlocks][2];
@@ -198,8 +185,6 @@ public class AnalyticsFragment extends CogniFragment {
                             doubleBarValues[barIndex][1] = 0;
                         }
                     }
-                    long blocksend = System.currentTimeMillis();
-                    Log.w("blocks", "" + (blocksend - blocksstart));
 
                     AnalyticsData analyticsData = new AnalyticsData(
                             pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
