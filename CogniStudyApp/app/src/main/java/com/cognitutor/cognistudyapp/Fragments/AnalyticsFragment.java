@@ -61,11 +61,16 @@ public class AnalyticsFragment extends CogniFragment {
         getAnalytics(Constants.Subject.MATH, Constants.Analytics.BlockType.ALL_TIME).continueWith(new Continuation<AnalyticsData, Void>() {
             @Override
             public Void then(Task<AnalyticsData> task) throws Exception {
-                AnalyticsData analyticsData = task.getResult();
+                final AnalyticsData analyticsData = task.getResult();
 
-                drawPieChart(analyticsData);
-                drawBarChart(analyticsData);
-                drawDoubleBarChart();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        drawPieChart(analyticsData);
+                        drawBarChart(analyticsData);
+                        drawDoubleBarChart(analyticsData);
+                    }
+                });
 
                 return null;
             }
@@ -281,7 +286,7 @@ public class AnalyticsFragment extends CogniFragment {
         mHorizBarChart.setData(data);
     }
 
-    private void drawDoubleBarChart() {
+    private void drawDoubleBarChart(AnalyticsData analyticsData) {
         mDoubleBarChart = (BarChart) getView().findViewById(R.id.doubleBarChart);
         mDoubleBarChart.setDrawBarShadow(false);
         mDoubleBarChart.setDrawValueAboveBar(true);
@@ -307,32 +312,29 @@ public class AnalyticsFragment extends CogniFragment {
         yr.setDrawGridLines(false);
         yr.setEnabled(false);
 
-        setDoubleBarChartData();
+        setDoubleBarChartData(analyticsData);
         mDoubleBarChart.animateY(1500);
     }
 
-    private void setDoubleBarChartData() {
+    private void setDoubleBarChartData(AnalyticsData analyticsData) {
 
-        ArrayList<BarEntry> yVals1 = new ArrayList<BarEntry>();
+        ArrayList<BarEntry> yVals = new ArrayList<BarEntry>();
         ArrayList<String> xVals = new ArrayList<String>();
 
-        xVals.add("2/1");
-        xVals.add("2/2");
-        xVals.add("2/3");
-        xVals.add("2/4");
-        xVals.add("2/5");
-        xVals.add("2/6");
-        xVals.add("2/7");
+        for (String barLabel : analyticsData.doubleBarLabels) {
+            xVals.add(barLabel);
+        }
 
         ArrayList<BarDataSet> dataSets = new ArrayList<BarDataSet>();
 
-        for(int d = 0; d < 7; d++) {
-            float value1 = (d+1)*20;
-            float value2 = (d+1)*10;
-            yVals1.add(new BarEntry(new float[] {value1, value2}, d));
+        for (int i = 0; i < analyticsData.doubleBarCorrectAndTotalValues.length; i++) {
+            int[] barValues = analyticsData.doubleBarCorrectAndTotalValues[i];
+            int correct = barValues[0];
+            int incorrect = barValues[1] - barValues[0];
+            yVals.add(new BarEntry(new float[]{correct, incorrect}, i));
         }
 
-        BarDataSet set1 = new BarDataSet(yVals1, "Math");
+        BarDataSet set1 = new BarDataSet(yVals, "Data Set 1");
 
         ArrayList<Integer> colors = new ArrayList<Integer>();
         colors.add(Color.rgb(150, 220, 150));

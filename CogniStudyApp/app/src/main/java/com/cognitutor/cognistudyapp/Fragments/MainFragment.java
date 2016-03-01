@@ -96,10 +96,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     }
 
     private void createAllListViews(View rootView) {
-//        createChallengeRequestListView(rootView);
-//        createYourTurnListView(rootView);
-//        createTheirTurnListView(rootView);
-//        createPastChallengeListView(rootView);
+        createChallengeRequestListView(rootView);
+        createYourTurnListView(rootView);
+        createTheirTurnListView(rootView);
+        createPastChallengeListView(rootView);
     }
 
     private void createChallengeRequestListView(View rootView) {
