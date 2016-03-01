@@ -82,7 +82,7 @@ public abstract class StudentBlockStats extends ParseObject{
         ALL_AT_ONCE, SEVERAL, NONE
     }
 
-    public static Task<Boolean> incrementAll(final String category, final boolean correct) {
+    public static Task<Void> incrementAll(final String category, final boolean correct) {
 
         final List<? extends StudentBlockStats> subclassInstances = getSubclassInstances();
 
@@ -137,32 +137,20 @@ public abstract class StudentBlockStats extends ParseObject{
             start = System.currentTimeMillis();
             final List<Task<Void>> tasks = new ArrayList<>();
             return Student.getStudentInBackground()
-            .continueWithTask(new Continuation<Student, Task<Boolean>>() {
+            .continueWithTask(new Continuation<Student, Task<Void>>() {
                 @Override
-                public Task<Boolean> then(Task<Student> task) throws Exception {
+                public Task<Void> then(Task<Student> task) throws Exception {
                     final Student student = task.getResult();
                     for (final StudentBlockStats instance : getSubclassInstances()) {
                         tasks.add(getOrCreateAndIncrement(instance, category, student, correct));
                         //getOrCreateAndIncrement(instance, category, student, correct).waitForCompletion();
                     }
                     return Task.whenAll(tasks)
-                            .continueWithTask(new Continuation<Void, Task<Boolean>>() {
+                            .continueWithTask(new Continuation<Void, Task<Void>>() {
                                 @Override
-                                public Task<Boolean> then(Task<Void> task) throws Exception {
+                                public Task<Void> then(Task<Void> task) throws Exception {
                                     Log.d("time taken", String.valueOf(System.currentTimeMillis() - start));
-                                    return student.saveEventually().continueWith(new Continuation<Void, Boolean>() {
-                                        @Override
-                                        public Boolean then(Task<Void> task) throws Exception {
-                                            if(task.isFaulted()) {
-                                                Log.e("student saveEventually", task.getError().getMessage());
-                                                return true;
-                                            }
-                                            else {
-                                                Log.d("student saveEventually", "Returned successfully");
-                                                return false;
-                                            }
-                                        }
-                                    });
+                                    return student.saveEventually();
 //                                    return ParseObjectUtils.saveAllInBackground();
                                 }
                             });
@@ -200,7 +188,6 @@ public abstract class StudentBlockStats extends ParseObject{
             public Task<Void> then(Task<ParseObject> task) throws Exception {
                 StudentBlockStats blockStats = (task.getResult() == null) ? null : (StudentBlockStats) task.getResult();
                 return createIfNecessaryAndIncrement(blockStats, instance.getClass(), student, category, correct);
-//                return null;
             }
         });
     }
@@ -210,22 +197,16 @@ public abstract class StudentBlockStats extends ParseObject{
         if(existed == null) {
             final StudentBlockStats created = createInstance(clazz);
             created.initFields(category);
-//            ParseObjectUtils.unpinAllInBackground(deletePinQuery);
             created.increment(correct);
-//            created.pinInBackground(Constants.PinNames.BlockStats);
-            return created.saveInBackground()
-                    .continueWithTask(new Continuation<Void, Task<Void>>() {
-                        @Override
-                        public Task<Void> then(Task<Void> task) throws Exception {
-                            Log.d("created objectId", created.getObjectId());
-                            Log.d("student objectId", student.getObjectId());
-                            created.pinInBackground(Constants.PinNames.BlockStats);
-                            return addBlockStatsToRelationAndSaveEventually(student, created);
-//                            ParseObjectUtils.pinInBackground(Constants.PinNames.BlockStats, created);
-//                            return null;
-                        }
-                    });
-//            ParseObjectUtils.addToSaveThenPinQueue(Constants.PinNames.BlockStats, blockStats);
+            return created.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    created.pinInBackground(Constants.PinNames.BlockStats);
+                    addBlockStatsToRelation(student, created);
+                    return null;
+//                    ParseObjectUtils.pinInBackground(Constants.PinNames.BlockStats, created);
+                }
+            });
         }
         else {
             //Increment operations are performed atomically in Parse. When followed by saveInBackground(), the effect
@@ -242,24 +223,8 @@ public abstract class StudentBlockStats extends ParseObject{
         Log.i("total", Integer.toString(getInt(SuperColumns.total)));
     }
 
-    private static Task<Void> addBlockStatsToRelationAndSaveEventually(final Student student, final StudentBlockStats blockStats) {
-        try {
-            student.getStudentBlockStatsRelation(blockStats.getClass()).add(blockStats);
-        } catch (Exception e) { e.printStackTrace(); Log.e("addblockStats", "Error adding to relation" + e.getMessage()); }
-        return CommonUtils.getCompletionTask(null);
-//        return student.saveInBackground()
-////        return student.saveEventually()
-//                .continueWith(new Continuation<Void, Void>() {
-//                    @Override
-//                    public Void then(Task<Void> task) throws Exception {
-//                        if (task.isFaulted()) {
-//                            Log.e("SAVING STUDENT", "Error: " + task.getError().getMessage());
-//                        } else {
-//                            Log.d("SAVING STUDENT", "Fine");
-//                        }
-//                        return null;
-//                    }
-//                });
+    private static void addBlockStatsToRelation(final Student student, final StudentBlockStats blockStats) {
+        student.getStudentBlockStatsRelation(blockStats.getClass()).add(blockStats);
     }
 
     private static <T extends StudentBlockStats> T createInstance(Class<T> clazz) {
