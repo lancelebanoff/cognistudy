@@ -122,8 +122,7 @@ public class DateUtils {
         if(blockType == BlockType.MONTH) {
             calendarField = Calendar.MONTH;
             amountToAdd = 1;
-//            N = 12;
-            N = 1;
+            N = 13;
             chancePlayed = 100;
             chanceMoreThan10Ques = 100;
         }
@@ -152,11 +151,10 @@ public class DateUtils {
             }
             int numAnswered;
             boolean answeredMoreThan10Questions = didItHappen(rand, chanceMoreThan10Ques);
-            numAnswered = 1;
-//            if(!answeredMoreThan10Questions)
-//                numAnswered = rand.nextInt(10) + 1;
-//            else
-//                numAnswered = rand.nextInt(20) + 11;
+            if(!answeredMoreThan10Questions)
+                numAnswered = rand.nextInt(10) + 1;
+            else
+                numAnswered = rand.nextInt(20) + 11;
             Log.d(TAG + " numQues", "=== Answered " + numAnswered + " questions on " + blockNumsToString(blockNums));
             for(int i=0; i<numAnswered; i++) {
                 chanceCorrect = answerRandomQuestion(date, chanceCorrect, rand, TAG);
@@ -168,7 +166,8 @@ public class DateUtils {
     private static float answerRandomQuestion(Date date, float chanceCorrect, Random rand, String TAG) {
 
 //        float improvementFactor = (float) 1.002;
-        float improvementFactor = (float) 1.005;
+        float improvementFactor = (float) 1.003;
+//        float improvementFactor = (float) 1.005;
 //        float improvementFactor = (float) 1.05;
 
         int[] blockNums = getDayTridayMonthBlockNums(date);
