@@ -61,6 +61,30 @@ public abstract class StudentTRollingStats extends ParseObject{
     public int getTotalPastWeek() { return getInt(SuperColumns.totalPastWeek); }
     public int getCorrectPastWeek() { return getInt(SuperColumns.correctPastWeek); }
 
+    public int getCorrectForRollingStatsType(String rollingStatsType) {
+        switch (rollingStatsType) {
+            case Constants.Analytics.RollingStatsType.ALL_TIME:
+                return getCorrectAllTime();
+            case Constants.Analytics.RollingStatsType.PAST_MONTH:
+                return getCorrectPastMonth();
+            case Constants.Analytics.RollingStatsType.PAST_WEEK:
+                return getCorrectPastWeek();
+        }
+        return 0;
+    }
+
+    public int getTotalForRollingStatsType(String rollingStatsType) {
+        switch (rollingStatsType) {
+            case Constants.Analytics.RollingStatsType.ALL_TIME:
+                return getTotalAllTime();
+            case Constants.Analytics.RollingStatsType.PAST_MONTH:
+                return getTotalPastMonth();
+            case Constants.Analytics.RollingStatsType.PAST_WEEK:
+                return getTotalPastWeek();
+        }
+        return 0;
+    }
+
     @SuppressWarnings("unchecked")
     public static void setPublicAnalyticsInBackground(final boolean isPublic) {
         for(Class clazz : subclasses) {

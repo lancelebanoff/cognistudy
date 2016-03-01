@@ -137,7 +137,7 @@ public class DateUtils {
                 amountToAdd = 3;
                 chanceMoreThan10Ques = 95;
             }
-            else { //blockType == BlockType.DAY
+            else { //blockType == RollingStatsType.DAY
                 chancePlayed = 80;
                 amountToAdd = 1;
                 chanceMoreThan10Ques = 50;

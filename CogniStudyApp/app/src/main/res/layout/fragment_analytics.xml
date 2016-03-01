@@ -12,15 +12,15 @@
         android:layout_weight="5">
 
         <Spinner
+            android:id="@+id/spSubjects"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:entries="@array/subjects"
             android:spinnerMode="dropdown" />
 
         <Spinner
+            android:id="@+id/spDateRange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:entries="@array/date_ranges"
             android:spinnerMode="dropdown" />
 
     </LinearLayout>

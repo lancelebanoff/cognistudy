@@ -7,6 +7,9 @@ import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
@@ -34,8 +37,12 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import bolts.Continuation;
@@ -46,6 +53,8 @@ import bolts.Task;
  */
 public class AnalyticsFragment extends CogniFragment {
 
+    private Spinner mSpSubjects;
+    private Spinner mSpDateRange;
     private PieChart mPieChart;
     private HorizontalBarChart mHorizBarChart;
     private BarChart mDoubleBarChart;
@@ -58,7 +67,50 @@ public class AnalyticsFragment extends CogniFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getAnalytics(Constants.Subject.MATH, Constants.Analytics.BlockType.ALL_TIME).continueWith(new Continuation<AnalyticsData, Void>() {
+        initializeSpinners();
+        mPieChart = (PieChart) getView().findViewById(R.id.pieChart);
+        mHorizBarChart = (HorizontalBarChart) getView().findViewById(R.id.horizontalBarChart);
+        mDoubleBarChart = (BarChart) getView().findViewById(R.id.doubleBarChart);
+
+        displayAnalytics();
+    }
+
+    private void initializeSpinners() {
+        AdapterView.OnItemSelectedListener listener = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                displayAnalytics();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        };
+
+        mSpSubjects = (Spinner) getView().findViewById(R.id.spSubjects);
+        mSpDateRange = (Spinner) getView().findViewById(R.id.spDateRange);
+        mSpSubjects.setOnItemSelectedListener(listener);
+        mSpDateRange.setOnItemSelectedListener(listener);
+
+        String[] subjects = Constants.Subject.getSubjects();
+        ArrayAdapter<String> subjectsAdapter =
+                new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, subjects);
+        subjectsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpSubjects.setAdapter(subjectsAdapter);
+
+        String[] dateRanges = Constants.Analytics.RollingStatsType.getRollingStatsTypes();
+        ArrayAdapter<String> dateRangesAdapter =
+                new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, dateRanges);
+        dateRangesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpDateRange.setAdapter(dateRangesAdapter);
+    }
+
+    private void displayAnalytics() {
+        String subject = mSpSubjects.getSelectedItem().toString();
+        String rollingStatsType = mSpDateRange.getSelectedItem().toString();
+
+        getAnalytics(subject, rollingStatsType).continueWith(new Continuation<AnalyticsData, Void>() {
             @Override
             public Void then(Task<AnalyticsData> task) throws Exception {
                 final AnalyticsData analyticsData = task.getResult();
@@ -77,78 +129,112 @@ public class AnalyticsFragment extends CogniFragment {
         });
     }
 
-    private Task<AnalyticsData> getAnalytics(final String subject, String blockType) {
+    private Task<AnalyticsData> getAnalytics(final String subject, final String rollingStatsType) {
         if (!subject.equals(Constants.Analytics.OVERALL)) {
-            switch (blockType) {
-                case Constants.Analytics.BlockType.ALL_TIME:
-                    Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
-                        @Override
-                        public AnalyticsData then(Task<Student> task) throws Exception {
-                            Student student = task.getResult();
+            Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
+                @Override
+                public AnalyticsData then(Task<Student> task) throws Exception {
+                    Student student = task.getResult();
+                    String baseUserId = student.getBaseUserId();
 
-                            // Pie chart values
-                            List<StudentSubjectRollingStats> subjectRollingStatsList = student.getStudentSubjectRollingStats();
-                            ParseObject.fetchAllIfNeeded(subjectRollingStatsList);
-                            StudentSubjectRollingStats subjectRollingStats = findStatsObjectByLabel(subjectRollingStatsList, StudentSubjectRollingStats.Columns.subject, subject);
-                            String pieLabel = subject;
-                            int[] pieValues = new int[] { subjectRollingStats.getCorrectAllTime(), subjectRollingStats.getTotalAllTime() };
+                    // Pie chart values
+                    StudentSubjectRollingStats subjectRollingStats =
+                            StudentSubjectRollingStats.getStudentSubjectRollingStatsBySubject(subject, baseUserId);
+                    String pieLabel = subject;
+                    int[] pieValues = new int[] {
+                            subjectRollingStats.getCorrectForRollingStatsType(rollingStatsType),
+                            subjectRollingStats.getTotalForRollingStatsType(rollingStatsType)
+                    };
 
-                            // Bar chart values
-                            String[] barLabels = Constants.SubjectToCategory.get(subject);
-                            int[][] barValues = new int[barLabels.length][2];
-                            List<StudentCategoryRollingStats> categoryRollingStatsList = student.getStudentCategoryRollingStats();
-                            for (int i = 0; i < barLabels.length; i++) {
-                                String barLabel = barLabels[i];
-                                StudentCategoryRollingStats categoryRollingStats = findStatsObjectByLabel(
-                                        categoryRollingStatsList, StudentCategoryRollingStats.Columns.category, barLabel
-                                );
-                                barValues[i][0] = categoryRollingStats.getCorrectAllTime();
-                                barValues[i][1] = categoryRollingStats.getTotalAllTime();
-                            }
+                    // Bar chart values
+                    String[] barLabels = Constants.SubjectToCategory.get(subject);
+                    int[][] barValues = new int[barLabels.length][2];
+                    List<StudentCategoryRollingStats> categoryRollingStatsList = student.getStudentCategoryRollingStats();
+                    for (int i = 0; i < barLabels.length; i++) {
+                        String barLabel = barLabels[i];
+                        StudentCategoryRollingStats categoryRollingStats = findStatsObjectByLabel(
+                                categoryRollingStatsList, StudentCategoryRollingStats.Columns.category, barLabel);
+                        barValues[i][0] = categoryRollingStats.getCorrectAllTime();
+                        barValues[i][1] = categoryRollingStats.getTotalAllTime();
+                    }
 
-                            // Double bar chart
-                            ParseRelation<StudentSubjectMonthStats> subjectMonthStatsRelation =
-                                    student.getStudentBlockStatsRelation(StudentSubjectMonthStats.class);
-                            int maxBlockNum = DateUtils.getCurrentMonthBlockNum();
-                            int minBlockNum = maxBlockNum - Constants.Analytics.BlockTypeToNumSmallerBlocks
-                                    .get(Constants.Analytics.BlockType.ALL_TIME);
-                            int numBlocks = maxBlockNum - minBlockNum + 1;
+                    // Double bar chart
+                    ParseRelation<StudentSubjectMonthStats> subjectMonthStatsRelation =
+                            student.getStudentBlockStatsRelation(StudentSubjectMonthStats.class);
+                    String blockType = Constants.Analytics.RollingStatsTypeToBlockType.get(rollingStatsType);
+                    int numBlocks = Constants.Analytics.RollingStatsTypeToNumSmallerBlocks.get(rollingStatsType);
+                    int maxBlockNum = DateUtils.getCurrentMonthBlockNum();
+                    int minBlockNum = maxBlockNum - numBlocks + 1;
 
-                            // Double bar chart labels
-                            String[] doubleBarLabels = new String[numBlocks];
-                            Calendar calendarDate = Calendar.getInstance();
-                            calendarDate.set(Calendar.DAY_OF_MONTH, calendarDate.getActualMinimum(Calendar.DAY_OF_MONTH));
-                            for (int barIndex = numBlocks - 1; barIndex >= 0; barIndex--) {
-                                doubleBarLabels[barIndex] = DateUtils.getFormattedMonthDate(calendarDate.getTime());
-                                calendarDate.add(Calendar.MONTH, -1);
-                            }
+                    // Double bar chart labels
+                    String[] doubleBarLabels = getDoubleBarLabels(blockType, numBlocks);
 
-                            // Double bar chart values
-                            int[][] doubleBarValues = new int[numBlocks][2];
-                            for(int blockNum = minBlockNum, barIndex = 0; blockNum <= maxBlockNum; blockNum++, barIndex++) {
-                                ParseQuery query = StudentBlockStats.queryWhereBlockNumEquals(subjectMonthStatsRelation, blockNum);
-                                StudentSubjectMonthStats subjectMonthStats;
-                                try {
-                                    subjectMonthStats = (StudentSubjectMonthStats) query.getFirst();
-                                    doubleBarValues[barIndex][0] = subjectMonthStats.getCorrect();
-                                    doubleBarValues[barIndex][1] = subjectMonthStats.getTotal();
-                                } catch (ParseException e) {
-                                    doubleBarValues[barIndex][0] = 0;
-                                    doubleBarValues[barIndex][1] = 0;
-                                }
-                            }
-
-                            AnalyticsData analyticsData = new AnalyticsData(
-                                    pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
-                            );
-
-                            return analyticsData;
+                    // Double bar chart values
+                    int[][] doubleBarValues = new int[numBlocks][2];
+                    for (int blockNum = minBlockNum, barIndex = 0; blockNum <= maxBlockNum; blockNum++, barIndex++) {
+                        ParseQuery query = StudentBlockStats.queryWhereBlockNumEquals(subjectMonthStatsRelation, blockNum);
+                        StudentSubjectMonthStats subjectMonthStats;
+                        try {
+                            subjectMonthStats = (StudentSubjectMonthStats) query.getFirst();
+                            doubleBarValues[barIndex][0] = subjectMonthStats.getCorrect();
+                            doubleBarValues[barIndex][1] = subjectMonthStats.getTotal();
+                        } catch (ParseException e) {
+                            doubleBarValues[barIndex][0] = 0;
+                            doubleBarValues[barIndex][1] = 0;
                         }
-                    });
-                    return task;
-            }
+                    }
+
+                    AnalyticsData analyticsData = new AnalyticsData(
+                            pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
+                    );
+
+                    return analyticsData;
+                }
+            });
+            return task;
         }
         return null;
+    }
+
+    private String[] getDoubleBarLabels(String blockType, int numBlocks) {
+        String[] doubleBarLabels = new String[numBlocks];
+
+        Calendar calendarDate = Calendar.getInstance();
+        calendarDate.setTime(new Date());
+        calendarDate.set(Calendar.HOUR_OF_DAY, 0);
+        calendarDate.set(Calendar.MINUTE, 0);
+        calendarDate.set(Calendar.SECOND, 0);
+        calendarDate.set(Calendar.MILLISECOND, 0);
+
+        switch (blockType) {
+            case Constants.Analytics.BlockType.MONTH:
+                calendarDate.set(Calendar.DAY_OF_MONTH, calendarDate.getActualMinimum(Calendar.DAY_OF_MONTH));
+                for (int barIndex = numBlocks - 1; barIndex >= 0; barIndex--) {
+                    doubleBarLabels[barIndex] = DateUtils.getFormattedMonthDate(calendarDate.getTime());
+                    calendarDate.add(Calendar.MONTH, -1);
+                }
+                return doubleBarLabels;
+            case Constants.Analytics.BlockType.TRIDAY:
+                DateTime startDate = new DateTime(2016, 1, 1, 0, 0, 0);
+                DateTime today = new DateTime();
+                Days daysBetween = Days.daysBetween(startDate, today);
+                int numDaysBetween = daysBetween.getDays();
+                int numDaysAfterStartOfTriday = numDaysBetween % 3;
+                calendarDate.add(Calendar.DATE, -numDaysAfterStartOfTriday);
+                for (int barIndex = numBlocks - 1; barIndex >= 0; barIndex--) {
+                    doubleBarLabels[barIndex] = DateUtils.getFormattedMonthDate(calendarDate.getTime());
+                    calendarDate.add(Calendar.DATE, -3);
+                }
+                return doubleBarLabels;
+            case Constants.Analytics.BlockType.DAY:
+                for (int barIndex = numBlocks - 1; barIndex >= 0; barIndex--) {
+                    doubleBarLabels[barIndex] = DateUtils.getFormattedMonthDate(calendarDate.getTime());
+                    calendarDate.add(Calendar.DATE, -1);
+                }
+                return doubleBarLabels;
+        }
+
+        return doubleBarLabels;
     }
 
     private <T extends ParseObject> T findStatsObjectByLabel(List<T> statsList, String key, String value) {
@@ -161,8 +247,6 @@ public class AnalyticsFragment extends CogniFragment {
     }
 
     private void drawPieChart(AnalyticsData analyticsData) {
-        mPieChart = (PieChart) getView().findViewById(R.id.pieChart);
-
         mPieChart.setUsePercentValues(true);
         mPieChart.setDescription("");
         mPieChart.setExtraOffsets(5, 10, 5, 5);
@@ -229,7 +313,6 @@ public class AnalyticsFragment extends CogniFragment {
     }
 
     private void drawBarChart(AnalyticsData analyticsData) {
-        mHorizBarChart = (HorizontalBarChart) getView().findViewById(R.id.horizontalBarChart);
         mHorizBarChart.setDrawBarShadow(false);
         mHorizBarChart.setDrawValueAboveBar(true);
         mHorizBarChart.setDescription("");
@@ -287,7 +370,6 @@ public class AnalyticsFragment extends CogniFragment {
     }
 
     private void drawDoubleBarChart(AnalyticsData analyticsData) {
-        mDoubleBarChart = (BarChart) getView().findViewById(R.id.doubleBarChart);
         mDoubleBarChart.setDrawBarShadow(false);
         mDoubleBarChart.setDrawValueAboveBar(true);
         mDoubleBarChart.setDescription("");

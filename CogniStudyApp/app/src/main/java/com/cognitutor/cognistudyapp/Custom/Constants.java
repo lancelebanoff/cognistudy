@@ -56,18 +56,34 @@ public class Constants {
     public static class Analytics {
         public static final String OVERALL = "Overall";
 
+        public static class RollingStatsType {
+            public static final String ALL_TIME = "All Time";
+            public static final String PAST_MONTH = "Past Month";
+            public static final String PAST_WEEK = "Past Week";
+
+            public static String[] getRollingStatsTypes() {
+                return new String[]{ALL_TIME, PAST_MONTH, PAST_WEEK};
+            }
+        }
+
         public static class BlockType {
-            public static final String ALL_TIME = "ALL_TIME";
             public static final String MONTH = "MONTH";
-            public static final String WEEK = "WEEK";
+            public static final String TRIDAY = "TRIDAY";
             public static final String DAY = "DAY";
         }
 
-        public static HashMap<String, Integer> BlockTypeToNumSmallerBlocks = new HashMap<String, Integer>();
+        public static HashMap<String, String> RollingStatsTypeToBlockType = new HashMap<String, String>();
         static {
-            BlockTypeToNumSmallerBlocks.put(BlockType.ALL_TIME, 12);
-            BlockTypeToNumSmallerBlocks.put(BlockType.MONTH, 10);
-            BlockTypeToNumSmallerBlocks.put(BlockType.WEEK, 7);
+            RollingStatsTypeToBlockType.put(RollingStatsType.ALL_TIME, BlockType.MONTH);
+            RollingStatsTypeToBlockType.put(RollingStatsType.PAST_MONTH, BlockType.TRIDAY);
+            RollingStatsTypeToBlockType.put(RollingStatsType.PAST_WEEK, BlockType.DAY);
+        }
+
+        public static HashMap<String, Integer> RollingStatsTypeToNumSmallerBlocks = new HashMap<String, Integer>();
+        static {
+            RollingStatsTypeToNumSmallerBlocks.put(RollingStatsType.ALL_TIME, 12);
+            RollingStatsTypeToNumSmallerBlocks.put(RollingStatsType.PAST_MONTH, 10);
+            RollingStatsTypeToNumSmallerBlocks.put(RollingStatsType.PAST_WEEK, 7);
         }
     }
 
