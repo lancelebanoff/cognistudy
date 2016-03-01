@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,10 +33,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
-import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseRelation;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -99,7 +97,7 @@ public class AnalyticsFragment extends CogniFragment {
         subjectsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpSubjects.setAdapter(subjectsAdapter);
 
-        String[] dateRanges = Constants.Analytics.RollingStatsType.getRollingStatsTypes();
+        String[] dateRanges = Constants.Analytics.RollingDateRange.getRollingStatsTypes();
         ArrayAdapter<String> dateRangesAdapter =
                 new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, dateRanges);
         dateRangesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -110,17 +108,24 @@ public class AnalyticsFragment extends CogniFragment {
         String subject = mSpSubjects.getSelectedItem().toString();
         String rollingStatsType = mSpDateRange.getSelectedItem().toString();
 
+        final long getanalyticsstart = System.currentTimeMillis();
         getAnalytics(subject, rollingStatsType).continueWith(new Continuation<AnalyticsData, Void>() {
             @Override
             public Void then(Task<AnalyticsData> task) throws Exception {
                 final AnalyticsData analyticsData = task.getResult();
+                final long getanalyticsend = System.currentTimeMillis();
+                Log.w("getanalytics", "" + (getanalyticsend - getanalyticsstart));
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        long runonuithread = System.currentTimeMillis();
+                        Log.w("runonuithread", "" + (runonuithread - getanalyticsend));
                         drawPieChart(analyticsData);
                         drawBarChart(analyticsData);
                         drawDoubleBarChart(analyticsData);
+                        long chartsend = System.currentTimeMillis();
+                        Log.w("runonuithread", "" + (chartsend - runonuithread));
                     }
                 });
 
@@ -129,27 +134,38 @@ public class AnalyticsFragment extends CogniFragment {
         });
     }
 
-    private Task<AnalyticsData> getAnalytics(final String subject, final String rollingStatsType) {
+    private Task<AnalyticsData> getAnalytics(final String subject, final String rollingDateRange) {
         if (!subject.equals(Constants.Analytics.OVERALL)) {
+            final long studentstart = System.currentTimeMillis();
             Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
                 @Override
                 public AnalyticsData then(Task<Student> task) throws Exception {
+                    long studentend = System.currentTimeMillis();
+                    Log.w("student", "" + (studentend - studentstart));
                     Student student = task.getResult();
                     String baseUserId = student.getBaseUserId();
 
                     // Pie chart values
+                    long subjectrollingstatsstart = System.currentTimeMillis();
+                    Log.w("student - subject", "" + (subjectrollingstatsstart - studentend));
                     StudentSubjectRollingStats subjectRollingStats =
                             StudentSubjectRollingStats.getStudentSubjectRollingStatsBySubject(subject, baseUserId);
+                    long subjectrollingstatsend = System.currentTimeMillis();
+                    Log.w("subjectrollingstats", "" + (subjectrollingstatsend - subjectrollingstatsstart));
                     String pieLabel = subject;
-                    int[] pieValues = new int[] {
-                            subjectRollingStats.getCorrectForRollingStatsType(rollingStatsType),
-                            subjectRollingStats.getTotalForRollingStatsType(rollingStatsType)
+                    int[] pieValues = new int[]{
+                            subjectRollingStats.getCorrectForRollingStatsType(rollingDateRange),
+                            subjectRollingStats.getTotalForRollingStatsType(rollingDateRange)
                     };
 
                     // Bar chart values
                     String[] barLabels = Constants.SubjectToCategory.get(subject);
                     int[][] barValues = new int[barLabels.length][2];
+                    long categoryrollingstatsstart = System.currentTimeMillis();
+                    Log.w("subject - category", "" + (categoryrollingstatsstart - subjectrollingstatsend));
                     List<StudentCategoryRollingStats> categoryRollingStatsList = student.getStudentCategoryRollingStats();
+                    long categoryrollingstatsend = System.currentTimeMillis();
+                    Log.w("categoryrollingstats", "" + (categoryrollingstatsend - categoryrollingstatsstart));
                     for (int i = 0; i < barLabels.length; i++) {
                         String barLabel = barLabels[i];
                         StudentCategoryRollingStats categoryRollingStats = findStatsObjectByLabel(
@@ -159,30 +175,31 @@ public class AnalyticsFragment extends CogniFragment {
                     }
 
                     // Double bar chart
-                    ParseRelation<StudentSubjectMonthStats> subjectMonthStatsRelation =
-                            student.getStudentBlockStatsRelation(StudentSubjectMonthStats.class);
-                    String blockType = Constants.Analytics.RollingStatsTypeToBlockType.get(rollingStatsType);
-                    int numBlocks = Constants.Analytics.RollingStatsTypeToNumSmallerBlocks.get(rollingStatsType);
+                    String blockType = Constants.Analytics.RollingDateRangeToBlockType.get(rollingDateRange);
+                    int numBlocks = Constants.Analytics.RollingDateRangeToNumSmallerBlocks.get(rollingDateRange);
                     int maxBlockNum = DateUtils.getCurrentMonthBlockNum();
                     int minBlockNum = maxBlockNum - numBlocks + 1;
 
                     // Double bar chart labels
                     String[] doubleBarLabels = getDoubleBarLabels(blockType, numBlocks);
+                    long blocksstart = System.currentTimeMillis();
+                    Log.w("category - blocks", "" + (blocksstart - categoryrollingstatsend));
 
                     // Double bar chart values
                     int[][] doubleBarValues = new int[numBlocks][2];
                     for (int blockNum = minBlockNum, barIndex = 0; blockNum <= maxBlockNum; blockNum++, barIndex++) {
-                        ParseQuery query = StudentBlockStats.queryWhereBlockNumEquals(subjectMonthStatsRelation, blockNum);
-                        StudentSubjectMonthStats subjectMonthStats;
-                        try {
-                            subjectMonthStats = (StudentSubjectMonthStats) query.getFirst();
+                        StudentSubjectMonthStats subjectMonthStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
+                                StudentSubjectMonthStats.class, baseUserId, blockNum);
+                        if (subjectMonthStats != null) {
                             doubleBarValues[barIndex][0] = subjectMonthStats.getCorrect();
                             doubleBarValues[barIndex][1] = subjectMonthStats.getTotal();
-                        } catch (ParseException e) {
+                        } else {
                             doubleBarValues[barIndex][0] = 0;
                             doubleBarValues[barIndex][1] = 0;
                         }
                     }
+                    long blocksend = System.currentTimeMillis();
+                    Log.w("blocks", "" + (blocksend - blocksstart));
 
                     AnalyticsData analyticsData = new AnalyticsData(
                             pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues

@@ -56,7 +56,7 @@ public class Constants {
     public static class Analytics {
         public static final String OVERALL = "Overall";
 
-        public static class RollingStatsType {
+        public static class RollingDateRange {
             public static final String ALL_TIME = "All Time";
             public static final String PAST_MONTH = "Past Month";
             public static final String PAST_WEEK = "Past Week";
@@ -72,18 +72,18 @@ public class Constants {
             public static final String DAY = "DAY";
         }
 
-        public static HashMap<String, String> RollingStatsTypeToBlockType = new HashMap<String, String>();
+        public static HashMap<String, String> RollingDateRangeToBlockType = new HashMap<String, String>();
         static {
-            RollingStatsTypeToBlockType.put(RollingStatsType.ALL_TIME, BlockType.MONTH);
-            RollingStatsTypeToBlockType.put(RollingStatsType.PAST_MONTH, BlockType.TRIDAY);
-            RollingStatsTypeToBlockType.put(RollingStatsType.PAST_WEEK, BlockType.DAY);
+            RollingDateRangeToBlockType.put(RollingDateRange.ALL_TIME, BlockType.MONTH);
+            RollingDateRangeToBlockType.put(RollingDateRange.PAST_MONTH, BlockType.TRIDAY);
+            RollingDateRangeToBlockType.put(RollingDateRange.PAST_WEEK, BlockType.DAY);
         }
 
-        public static HashMap<String, Integer> RollingStatsTypeToNumSmallerBlocks = new HashMap<String, Integer>();
+        public static HashMap<String, Integer> RollingDateRangeToNumSmallerBlocks = new HashMap<String, Integer>();
         static {
-            RollingStatsTypeToNumSmallerBlocks.put(RollingStatsType.ALL_TIME, 12);
-            RollingStatsTypeToNumSmallerBlocks.put(RollingStatsType.PAST_MONTH, 10);
-            RollingStatsTypeToNumSmallerBlocks.put(RollingStatsType.PAST_WEEK, 7);
+            RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.ALL_TIME, 12);
+            RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.PAST_MONTH, 10);
+            RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.PAST_WEEK, 7);
         }
     }
 

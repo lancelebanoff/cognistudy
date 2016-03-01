@@ -63,11 +63,11 @@ public abstract class StudentTRollingStats extends ParseObject{
 
     public int getCorrectForRollingStatsType(String rollingStatsType) {
         switch (rollingStatsType) {
-            case Constants.Analytics.RollingStatsType.ALL_TIME:
+            case Constants.Analytics.RollingDateRange.ALL_TIME:
                 return getCorrectAllTime();
-            case Constants.Analytics.RollingStatsType.PAST_MONTH:
+            case Constants.Analytics.RollingDateRange.PAST_MONTH:
                 return getCorrectPastMonth();
-            case Constants.Analytics.RollingStatsType.PAST_WEEK:
+            case Constants.Analytics.RollingDateRange.PAST_WEEK:
                 return getCorrectPastWeek();
         }
         return 0;
@@ -75,11 +75,11 @@ public abstract class StudentTRollingStats extends ParseObject{
 
     public int getTotalForRollingStatsType(String rollingStatsType) {
         switch (rollingStatsType) {
-            case Constants.Analytics.RollingStatsType.ALL_TIME:
+            case Constants.Analytics.RollingDateRange.ALL_TIME:
                 return getTotalAllTime();
-            case Constants.Analytics.RollingStatsType.PAST_MONTH:
+            case Constants.Analytics.RollingDateRange.PAST_MONTH:
                 return getTotalPastMonth();
-            case Constants.Analytics.RollingStatsType.PAST_WEEK:
+            case Constants.Analytics.RollingDateRange.PAST_WEEK:
                 return getTotalPastWeek();
         }
         return 0;
