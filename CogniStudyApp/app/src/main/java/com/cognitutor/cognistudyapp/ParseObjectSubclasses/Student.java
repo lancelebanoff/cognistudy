@@ -41,6 +41,9 @@ public class Student extends ParseObject{
         public static final String studentSubjectDayStats = "studentSubjectDayStats";
         public static final String studentSubjectTridayStats = "studentSubjectTridayStats";
         public static final String studentSubjectMonthStats = "studentSubjectMonthStats";
+        public static final String studentTotalDayStats = "studentTotalDayStats";
+        public static final String studentTotalTridayStats = "studentTotalTridayStats";
+        public static final String studentTotalMonthStats = "studentTotalMonthStats";
     }
 
     public Student() {}

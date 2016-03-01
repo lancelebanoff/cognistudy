@@ -6,6 +6,9 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayS
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -83,6 +86,9 @@ public class Constants {
         public static final String StudentSubjectDayStats = StudentSubjectDayStats.class.getSimpleName();
         public static final String StudentSubjectTridayStats = StudentSubjectTridayStats.class.getSimpleName();
         public static final String StudentSubjectMonthStats = StudentSubjectMonthStats.class.getSimpleName();
+        public static final String StudentTotalDayStats = StudentTotalDayStats.class.getSimpleName();
+        public static final String StudentTotalTridayStats = StudentTotalTridayStats.class.getSimpleName();
+        public static final String StudentTotalMonthStats = StudentTotalMonthStats.class.getSimpleName();
     }
 
     public static class IntentExtra {

@@ -109,11 +109,13 @@ public class CogniActivity extends AppCompatActivity {
 
     public void logout() throws ParseException {
         UserUtils.setUserLoggedIn(false);
+//        ParseObjectUtils.logPinnedObjects(true);
+//        ParseObjectUtils.logPinnedObjects(false);
         ParseObjectUtils.unpinAllInBackground()
             .continueWith(new Continuation<Void, Void>() {
                 @Override
                 public Void then(Task<Void> task) throws Exception {
-                    ParseObjectUtils.logPinnedObjects();
+                    ParseObjectUtils.logPinnedObjects(false);
                     ParseUser.logOut();
                     return null;
                 }

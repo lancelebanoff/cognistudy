@@ -62,6 +62,9 @@ public abstract class StudentBlockStats extends ParseObject{
         subclassesList.add(new StudentSubjectDayStats());
         subclassesList.add(new StudentSubjectTridayStats());
         subclassesList.add(new StudentSubjectMonthStats());
+        subclassesList.add(new StudentTotalDayStats());
+        subclassesList.add(new StudentTotalTridayStats());
+        subclassesList.add(new StudentTotalMonthStats());
         return subclassesList;
     }
 
@@ -79,7 +82,7 @@ public abstract class StudentBlockStats extends ParseObject{
         ALL_AT_ONCE, SEVERAL, NONE
     }
 
-    public static Task<Boolean> incrementAll(final String category, final boolean correct) {
+    public static Task<Void> incrementAll(final String category, final boolean correct) {
 
         final List<? extends StudentBlockStats> subclassInstances = getSubclassInstances();
 
@@ -134,19 +137,21 @@ public abstract class StudentBlockStats extends ParseObject{
             start = System.currentTimeMillis();
             final List<Task<Void>> tasks = new ArrayList<>();
             return Student.getStudentInBackground()
-            .continueWithTask(new Continuation<Student, Task<Boolean>>() {
+            .continueWithTask(new Continuation<Student, Task<Void>>() {
                 @Override
-                public Task<Boolean> then(Task<Student> task) throws Exception {
-                    Student student = task.getResult();
+                public Task<Void> then(Task<Student> task) throws Exception {
+                    final Student student = task.getResult();
                     for (final StudentBlockStats instance : getSubclassInstances()) {
                         tasks.add(getOrCreateAndIncrement(instance, category, student, correct));
+                        //getOrCreateAndIncrement(instance, category, student, correct).waitForCompletion();
                     }
                     return Task.whenAll(tasks)
-                            .continueWithTask(new Continuation<Void, Task<Boolean>>() {
+                            .continueWithTask(new Continuation<Void, Task<Void>>() {
                                 @Override
-                                public Task<Boolean> then(Task<Void> task) throws Exception {
+                                public Task<Void> then(Task<Void> task) throws Exception {
                                     Log.d("time taken", String.valueOf(System.currentTimeMillis() - start));
-                                    return ParseObjectUtils.saveAllInBackground();
+                                    return student.saveEventually();
+//                                    return ParseObjectUtils.saveAllInBackground();
                                 }
                             });
                 }
@@ -178,12 +183,11 @@ public abstract class StudentBlockStats extends ParseObject{
         return instance.getCurrentBlockStats(category)
         .fromLocalDatastore()
         .getFirstInBackground()
-        .continueWith(new Continuation<ParseObject, Void>() {
+        .continueWithTask(new Continuation<ParseObject, Task<Void>>() {
             @Override
-            public Void then(Task<ParseObject> task) throws Exception {
+            public Task<Void> then(Task<ParseObject> task) throws Exception {
                 StudentBlockStats blockStats = (task.getResult() == null) ? null : (StudentBlockStats) task.getResult();
-                createIfNecessaryAndIncrement(blockStats, instance.getClass(), student, category, correct);
-                return null;
+                return createIfNecessaryAndIncrement(blockStats, instance.getClass(), student, category, correct);
             }
         });
     }
@@ -193,22 +197,16 @@ public abstract class StudentBlockStats extends ParseObject{
         if(existed == null) {
             final StudentBlockStats created = createInstance(clazz);
             created.initFields(category);
-//            ParseObjectUtils.unpinAllInBackground(deletePinQuery);
             created.increment(correct);
-            created.pinInBackground(Constants.PinNames.BlockStats);
-            return created.saveInBackground()
-                    .continueWith(new Continuation<Void, Void>() {
-                        @Override
-                        public Void then(Task<Void> task) throws Exception {
-                            Log.d("created objectId", created.getObjectId());
-                            Log.d("student objectId", student.getObjectId());
-                            addBlockStatsToRelationAndSaveEventually(student, created);
-        //                    created.pinInBackground(Constants.PinNames.BlockStats);
-        //                    ParseObjectUtils.pinInBackground(Constants.PinNames.BlockStats, created);
-                            return null;
-                        }
-                    });
-//            ParseObjectUtils.addToSaveThenPinQueue(Constants.PinNames.BlockStats, blockStats);
+            return created.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    created.pinInBackground(Constants.PinNames.BlockStats);
+                    addBlockStatsToRelation(student, created);
+                    return null;
+//                    ParseObjectUtils.pinInBackground(Constants.PinNames.BlockStats, created);
+                }
+            });
         }
         else {
             //Increment operations are performed atomically in Parse. When followed by saveInBackground(), the effect
@@ -225,10 +223,8 @@ public abstract class StudentBlockStats extends ParseObject{
         Log.i("total", Integer.toString(getInt(SuperColumns.total)));
     }
 
-    private static Task<Void> addBlockStatsToRelationAndSaveEventually(final Student student, final StudentBlockStats blockStats) {
+    private static void addBlockStatsToRelation(final Student student, final StudentBlockStats blockStats) {
         student.getStudentBlockStatsRelation(blockStats.getClass()).add(blockStats);
-//        return student.saveInBackground();
-        return student.saveEventually();
     }
 
     private static <T extends StudentBlockStats> T createInstance(Class<T> clazz) {

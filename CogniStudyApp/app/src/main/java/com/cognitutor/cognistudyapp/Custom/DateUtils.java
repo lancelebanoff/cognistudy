@@ -122,9 +122,9 @@ public class DateUtils {
         if(blockType == BlockType.MONTH) {
             calendarField = Calendar.MONTH;
             amountToAdd = 1;
+            N = 13;
             chancePlayed = 100;
             chanceMoreThan10Ques = 100;
-            N = 12;
         }
         else  {
             calendarField = Calendar.DAY_OF_YEAR;
@@ -166,7 +166,8 @@ public class DateUtils {
     private static float answerRandomQuestion(Date date, float chanceCorrect, Random rand, String TAG) {
 
 //        float improvementFactor = (float) 1.002;
-        float improvementFactor = (float) 1.005;
+        float improvementFactor = (float) 1.003;
+//        float improvementFactor = (float) 1.005;
 //        float improvementFactor = (float) 1.05;
 
         int[] blockNums = getDayTridayMonthBlockNums(date);
