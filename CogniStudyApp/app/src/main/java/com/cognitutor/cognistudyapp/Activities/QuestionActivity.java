@@ -22,6 +22,7 @@ import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
@@ -209,14 +210,25 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
         incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
 
-        incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
+        if(mChallenge != null)
+            incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
     }
 
     private void createResponse(boolean isSelectedAnswerCorrect) {
         //TODO: Pin related objects
         //TODO: Implement rating
-        Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
-        ParseObjectUtils.pinThenSaveEventually(getChallengeId(), response);
+        final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
+        String pinName = null;
+        if(mChallenge != null)
+            pinName = getChallengeId();
+        ParseObjectUtils.pinThenSaveInBackground(pinName, response)
+            .continueWith(new Continuation<Void, Object>() {
+                @Override
+                public Object then(Task<Void> task) throws Exception {
+                    PrivateStudentData.addResponse(response);
+                    return null;
+                }
+            });
     }
 
     private void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {

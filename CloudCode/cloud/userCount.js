@@ -1,3 +1,5 @@
+var common = require("cloud/common.js");
+
 Parse.Cloud.beforeSave("Student", function(request, response) {
     Parse.Cloud.useMasterKey();
     var student = request.object;
@@ -11,7 +13,7 @@ Parse.Cloud.beforeSave("Student", function(request, response) {
 Parse.Cloud.afterSave("Student", function(request) {
     Parse.Cloud.useMasterKey();
     var student = request.object;
-    var isNew = isNewObject(student);
+    var isNew = common.isNewObject(student);
     var randomEnabledChanged = student.get("randomEnabledChanged");
     if(!isNew && !randomEnabledChanged) {
         console.log("Nothing to be done");
@@ -55,12 +57,6 @@ Parse.Cloud.afterDelete("Student", function(request) {
             console.log("Error retrieving user count");
         });    
 });
-
-function isNewObject(object) {
-    var createdAt = object.get("createdAt");
-    var updatedAt = object.get("updatedAt");
-    return (createdAt.getTime() == updatedAt.getTime());
-}
 
 function getUserCount() {
     Parse.Cloud.useMasterKey();

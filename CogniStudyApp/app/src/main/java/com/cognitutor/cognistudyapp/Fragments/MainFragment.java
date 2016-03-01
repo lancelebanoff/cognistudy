@@ -273,9 +273,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         switch(view.getId()) {
             case R.id.btnQuestion:
                 Intent intent = new Intent(getActivity(), QuestionActivity.class);
-                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "aSVEaMqEfB"); //TODO: Replace with desired questionId
+                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "eO4TCrdBdn"); //TODO: Replace with desired questionId
                 intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
-                //eO4TCrdBdn
+                //aSVEaMqEfB
                 //fF4lsHt2iW
                 //zpyHpKMb5S
                 startActivity(intent);

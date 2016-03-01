@@ -1,20 +1,10 @@
-var m1 = require('cloud/deleteStudent.js');
-var m2 = require('cloud/doesEmailExist.js');
-var m3 = require('cloud/userCount.js');
-var m4 = require('cloud/deleteChallenge.js');
-var m5 = require('cloud/testPush.js');
-var m6 = require('cloud/deletePinnedObjects.js');
-var m7 = require('cloud/changeUserId.js');
-var m8 = require('cloud/deleteStudentV2.js');
-var m9 = require('cloud/incrementCatAndSubStats.js');
-
-function isNewObject(object) {
+exports.isNewObject = function(object) {
     var createdAt = object.get("createdAt");
     var updatedAt = object.get("updatedAt");
     return (createdAt.getTime() == updatedAt.getTime());
 }
 
-function deleteAllObjectsOn(className, key, value) {
+exports.deleteAllObjectsOn = function(className, key, value) {
 
 	Parse.Cloud.useMasterKey();
 
