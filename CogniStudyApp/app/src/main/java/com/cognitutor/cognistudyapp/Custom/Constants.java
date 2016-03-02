@@ -56,6 +56,13 @@ public class Constants {
         } catch (IllegalAccessException e) { e.printStackTrace(); return null; }
     }
 
+    public static class ParseObjectColumns {
+        public static final String objectId = "objectId";
+        public static final String ACL = "ACL";
+        public static final String createdAt = "createdAt";
+        public static final String updatedAt = "updatedAt";
+    }
+
     public static class MenuItem {
         public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
         public static final String BOOKMARKS = "Bookmarks";

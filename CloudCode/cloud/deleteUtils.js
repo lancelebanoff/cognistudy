@@ -1,3 +1,5 @@
+var common = require("cloud/common.js");
+
 function deleteAllObjectsFromClasses(classes, key, value) {
 
 	var bigPromise = new Parse.Promise();
@@ -10,16 +12,10 @@ function deleteAllObjectsFromClasses(classes, key, value) {
 		bigPromise.resolve("All objects deleted");
 	},
 	function(errors) {
-		logErrors(errors);
+		common.logErrors(errors);
 		bigPromise.reject("Error deleting objects");
 	});
 	return bigPromise;
-}
-
-function logErrors(errors) {
-	for(var e=0; e<errors.length; e++) {
-		console.log(errors[e]);
-	}
 }
 
 function deleteAllObjectsOn(className, key, value) {

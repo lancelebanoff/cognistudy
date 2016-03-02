@@ -4,6 +4,12 @@ exports.isNewObject = function(object) {
     return (createdAt.getTime() == updatedAt.getTime());
 }
 
+exports.logErrors = function(errors) {
+	for(var e=0; e<errors.length; e++) {
+		console.log(errors[e]);
+	}
+}
+
 exports.deleteAllObjectsOn = function(className, key, value) {
 
 	Parse.Cloud.useMasterKey();
@@ -37,4 +43,22 @@ exports.deleteAllObjectsOn = function(className, key, value) {
 		}
 	});
 	return promise;
+}
+
+exports.deleteAllObjectsFromClasses = function(classes, key, value) {
+
+	var bigPromise = new Parse.Promise();
+	var promises = [];
+	for(var i=0; i<classes.length; i++) {
+		promises.push(deleteAllObjectsOn(classes[i], key, value));
+	}
+
+	Parse.Promise.when(promises).then(function(results) {
+		bigPromise.resolve("All objects deleted");
+	},
+	function(errors) {
+		logErrors(errors);
+		bigPromise.reject("Error deleting objects");
+	});
+	return bigPromise;
 }

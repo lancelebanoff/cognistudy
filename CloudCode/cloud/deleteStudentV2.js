@@ -13,7 +13,7 @@ Parse.Cloud.define("deleteStudentV2", function(request, response) {
 	var promises = [];
 	promises.push(common.deleteAllObjectsOn("User", "objectId", baseUserId));
 	for(var i=0; i<classes.length; i++) {
-		promises.push(deleteAllObjectsOn(classes[i], "baseUserId", baseUserId));
+		promises.push(common.deleteAllObjectsOn(classes[i], "baseUserId", baseUserId));
 	}
 
 	Parse.Promise.when(promises).then(function(results) {
