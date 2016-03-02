@@ -10,6 +10,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
@@ -81,7 +82,7 @@ public class ParseObjectUtils {
                         handleException(task.getError(), "utils saveAll error");
                         return CommonUtils.getCompletionTask(false);
                     }
-                    if(clonedPinMap.isEmpty())
+                    if (clonedPinMap.isEmpty())
                         return CommonUtils.getCompletionTask(true);
                     return pinFromMap(clonedPinMap);
                 }
@@ -530,9 +531,12 @@ public class ParseObjectUtils {
 
             int actualNumPinned = 0;
             for (Class clazz : classes) {
-                List<ParseObject> objects = ParseQuery.getQuery(clazz.getSimpleName())
-                        .fromLocalDatastore()
-                        .find();
+                ParseQuery query = ParseQuery.getQuery(clazz.getSimpleName())
+                        .fromLocalDatastore();
+                if(StudentBlockStats.class.isAssignableFrom(clazz)) {
+                    query = query.orderByDescending(StudentBlockStats.SuperColumns.blockNum);
+                }
+                List<ParseObject> objects = query.find();
                 int numPinned = objects.size();
                 Log.d("Line Break", " ");
                 Log.d("Num Pinned", clazz.getSimpleName() + " = " + numPinned);

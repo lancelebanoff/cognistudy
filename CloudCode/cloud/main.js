@@ -7,3 +7,4 @@ var m6 = require('cloud/deletePinnedObjects.js');
 var m7 = require('cloud/changeUserId.js');
 var m8 = require('cloud/deleteStudentV2.js');
 var m9 = require('cloud/incrementCatAndSubStats.js');
+var m10 = require('cloud/deleteOldBlockStats.js');

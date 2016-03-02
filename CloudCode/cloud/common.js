@@ -11,6 +11,10 @@ exports.logErrors = function(errors) {
 }
 
 exports.deleteAllObjectsOn = function(className, key, value) {
+	return doDeleteAllObjectsOn(className, key, value);
+}
+
+function doDeleteAllObjectsOn(className, key, value) {
 
 	Parse.Cloud.useMasterKey();
 
@@ -50,7 +54,7 @@ exports.deleteAllObjectsFromClasses = function(classes, key, value) {
 	var bigPromise = new Parse.Promise();
 	var promises = [];
 	for(var i=0; i<classes.length; i++) {
-		promises.push(deleteAllObjectsOn(classes[i], key, value));
+		promises.push(doDeleteAllObjectsOn(classes[i], key, value));
 	}
 
 	Parse.Promise.when(promises).then(function(results) {
