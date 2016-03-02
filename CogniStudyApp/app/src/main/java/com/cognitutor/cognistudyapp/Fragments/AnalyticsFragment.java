@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,24 +107,17 @@ public class AnalyticsFragment extends CogniFragment {
         String subject = mSpSubjects.getSelectedItem().toString();
         String rollingStatsType = mSpDateRange.getSelectedItem().toString();
 
-        final long getanalyticsstart = System.currentTimeMillis();
         getAnalytics(subject, rollingStatsType).continueWith(new Continuation<AnalyticsData, Void>() {
             @Override
             public Void then(Task<AnalyticsData> task) throws Exception {
                 final AnalyticsData analyticsData = task.getResult();
-                final long getanalyticsend = System.currentTimeMillis();
-                Log.w("getanalytics", "" + (getanalyticsend - getanalyticsstart));
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        long runonuithread = System.currentTimeMillis();
-                        Log.w("runonuithread", "" + (runonuithread - getanalyticsend));
                         drawPieChart(analyticsData);
                         drawBarChart(analyticsData);
                         drawDoubleBarChart(analyticsData);
-                        long chartsend = System.currentTimeMillis();
-                        Log.w("runonuithread", "" + (chartsend - runonuithread));
                     }
                 });
 

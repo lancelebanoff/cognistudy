@@ -76,7 +76,7 @@ public class DateUtils {
     }
 
     public static String getFormattedMonthDate(Date date) {
-        return getMonth(date) + "/" + getDayOfMonth(date);
+        return monthFormatter.format(date) + "/" + dayInMonthFormatter.format(date);
     }
 
     private static int getDayOfYear(Date date) {
