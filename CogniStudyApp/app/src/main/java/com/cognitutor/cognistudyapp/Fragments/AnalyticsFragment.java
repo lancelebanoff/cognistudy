@@ -7,9 +7,7 @@ import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
@@ -33,6 +31,7 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.parse.ParseObject;
+import com.rey.material.widget.Spinner;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -73,22 +72,8 @@ public class AnalyticsFragment extends CogniFragment {
     }
 
     private void initializeSpinners() {
-        AdapterView.OnItemSelectedListener listener = new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                displayAnalytics();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        };
-
         mSpSubjects = (Spinner) getView().findViewById(R.id.spSubjects);
         mSpDateRange = (Spinner) getView().findViewById(R.id.spDateRange);
-        mSpSubjects.setOnItemSelectedListener(listener);
-        mSpDateRange.setOnItemSelectedListener(listener);
 
         String[] subjects = Constants.Subject.getSubjects();
         ArrayAdapter<String> subjectsAdapter =
@@ -101,11 +86,22 @@ public class AnalyticsFragment extends CogniFragment {
                 new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, dateRanges);
         dateRangesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpDateRange.setAdapter(dateRangesAdapter);
+
+        Spinner.OnItemSelectedListener listener = new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(Spinner parent, View view, int position, long id) {
+                displayAnalytics();
+            }
+        };
+        mSpSubjects.setOnItemSelectedListener(listener);
+        mSpSubjects.setAnimation(null);
+        mSpDateRange.setOnItemSelectedListener(listener);
+        mSpDateRange.setAnimation(null);
     }
 
     private void displayAnalytics() {
-        String subject = mSpSubjects.getSelectedItem().toString();
-        String rollingStatsType = mSpDateRange.getSelectedItem().toString();
+        String subject = mSpSubjects.getAdapter().getItem(mSpSubjects.getSelectedItemPosition()).toString();
+        String rollingStatsType = mSpDateRange.getAdapter().getItem(mSpDateRange.getSelectedItemPosition()).toString();
 
         getAnalytics(subject, rollingStatsType).continueWith(new Continuation<AnalyticsData, Void>() {
             @Override

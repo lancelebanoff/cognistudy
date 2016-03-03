@@ -1,6 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relativeLayout"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragments.AnalyticsFragment"
     android:orientation="vertical">
@@ -11,18 +13,20 @@
         android:orientation="horizontal"
         android:layout_weight="5">
 
-        <Spinner
+        <com.rey.material.widget.Spinner
             android:id="@+id/spSubjects"
+            style="@style/Material.Widget.Spinner"
+            android:paddingLeft="10dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dropdown" />
+            android:layout_height="wrap_content"/>
 
-        <Spinner
+        <com.rey.material.widget.Spinner
             android:id="@+id/spDateRange"
+            style="@style/Material.Widget.Spinner"
+            android:paddingLeft="10dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dropdown" />
-
+            android:layout_height="wrap_content"/>
+        
     </LinearLayout>
 
     <com.github.mikephil.charting.charts.PieChart
