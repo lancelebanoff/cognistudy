@@ -23,19 +23,17 @@ Parse.Cloud.job("deleteOldBlockStats", function(request, status) {
 				success: function(blockNumsAgain) {
 					day = blockNumsAgain.get(CURRENT_DAY);
 					triday = blockNumsAgain.get(CURRENT_TRIDAY);
-					// console.log("day = " + day.toString());
-					// console.log("triday = " + triday.toString());
-					var studentQuery = new Parse.Query("Student")
-												.equalTo(BASE_USER_ID, "vYbCbizBRC");
-					// studentQuery.find({
-					studentQuery.first({
+					var studentQuery = new Parse.Query("Student");
+												// .equalTo(BASE_USER_ID, "vYbCbizBRC");
+					studentQuery.find({
+					// studentQuery.first({
 						success: function(students) {
 							var promises = [];
-							// console.log("Num students = " + students.length);
-							// for(var i=0; i<students.length; i++) {
-							// 	promises.push(decrementStudentStats(students[i]), day, status);
-							// }
-							promises.push(decrementStudentStats(students, day, status));
+							console.log("Num students = " + students.length);
+							for(var i=0; i<students.length; i++) {
+								promises.push(decrementStudentStats(students[i], day, status));
+							}
+							// promises.push(decrementStudentStats(students, day, status));
 
 							Parse.Promise.when(promises).then(
 								function(results) {
@@ -108,14 +106,12 @@ function decrementRollingStats(student, subjectOrCat, weekOrMonth, day) {
 					var savePromises = [];
 					for(var i=0; i<dayStatsList.length; i++) {
 						var block = dayStatsList[i];
-						//TODO: Does block need to be fetched?
 						var cat = block.get(subjectOrCat);
 						var foundRollingStats = undefined;
 						for(var j=0; j<rollingStatsList.length; j++) {
 							var rollingStats = rollingStatsList[j];
 							if(rollingStatsList[j].get(subjectOrCat) == cat) {
 								foundRollingStats = rollingStatsList[j];
-								//TODO: Does rolling stats need to be fetched?
 								break;
 							}
 						}
