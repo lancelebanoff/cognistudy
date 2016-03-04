@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -39,7 +40,29 @@ public class UserUtils {
         return getPublicUserData().getStudent();
     }
 
-    public static void pinCurrentUser() throws ParseException {
+    public static Task<Void> pinCurrentUserWithCallback() throws ParseException {
+        PublicUserData publicUserData = PublicUserData.getQuery()
+                .whereEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
+                .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData)
+                .getFirst();
+//        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
+        publicUserData.pin(Constants.PinNames.CurrentUser);
+        final Student student = publicUserData.getStudent();
+        Task<Void> task = pinRollingStatsInBackground(student).onSuccessTask(new Continuation<Boolean, Task<Object>>() {
+            @Override
+            public Task<Object> then(Task<Boolean> task) throws Exception {
+                return StudentBlockStats.pinAllBlockStatsInBackground(student);
+            }
+        }).onSuccessTask(new Continuation<Object, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Object> task) throws Exception {
+                return null;
+            }
+        });
+        return task;
+    }
+
+    public static void pinCurrentUserInBackground() throws ParseException {
         PublicUserData publicUserData = PublicUserData.getQuery()
                 .whereEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
                 .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData)

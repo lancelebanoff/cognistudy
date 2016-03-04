@@ -30,6 +30,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.rey.material.widget.Spinner;
 
@@ -105,8 +106,11 @@ public class AnalyticsFragment extends CogniFragment {
 
         getAnalytics(subject, rollingStatsType).continueWith(new Continuation<AnalyticsData, Void>() {
             @Override
-            public Void then(Task<AnalyticsData> task) throws Exception {
+            public Void then(Task<AnalyticsData> task) {
                 final AnalyticsData analyticsData = task.getResult();
+                if (task.getError() != null) {
+                    task.getError().printStackTrace();
+                }
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -126,7 +130,7 @@ public class AnalyticsFragment extends CogniFragment {
         if (!subject.equals(Constants.Analytics.OVERALL)) {
             Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
                 @Override
-                public AnalyticsData then(Task<Student> task) throws Exception {
+                public AnalyticsData then(Task<Student> task) {
                     Student student = task.getResult();
                     String baseUserId = student.getBaseUserId();
 
@@ -229,6 +233,11 @@ public class AnalyticsFragment extends CogniFragment {
 
     private <T extends ParseObject> T findStatsObjectByLabel(List<T> statsList, String key, String value) {
         for (T statsObject : statsList) {
+            try {
+                statsObject.fetchFromLocalDatastore();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             if (statsObject.get(key).equals(value)) {
                 return statsObject;
             }

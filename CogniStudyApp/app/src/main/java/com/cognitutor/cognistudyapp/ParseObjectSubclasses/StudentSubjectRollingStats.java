@@ -34,9 +34,11 @@ public class StudentSubjectRollingStats extends StudentTRollingStats {
                         .whereEqualTo(SuperColumns.baseUserId, baseUserId)
                         .whereEqualTo(Columns.subject, subject)
                         .fromLocalDatastore();
+
         try {
             return query.getFirst();
         } catch (ParseException e) {
+            e.printStackTrace();
             return null;
         }
     }
