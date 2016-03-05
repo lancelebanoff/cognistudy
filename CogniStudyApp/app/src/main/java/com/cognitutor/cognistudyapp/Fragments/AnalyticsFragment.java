@@ -29,10 +29,13 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.rey.material.widget.Spinner;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -326,9 +329,16 @@ public class AnalyticsFragment extends CogniFragment {
         dataSet.setColors(colors);
 
         PieData data = new PieData(xVals, dataSet);
-        data.setValueFormatter(new PercentFormatter());
         data.setValueTextSize(11f);
         data.setValueTextColor(Color.WHITE);
+        data.setValueFormatter(new PercentFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                DecimalFormat decimalFormat = new DecimalFormat("#");
+                return decimalFormat.format(value) + "%";
+            }
+        });
+
         mPieChart.setData(data);
 
         // undo all highlights
@@ -397,6 +407,13 @@ public class AnalyticsFragment extends CogniFragment {
         dataSets.add(set1);
         BarData data = new BarData(xVals, dataSets);
         data.setValueTextSize(10f);
+        data.setValueFormatter(new PercentFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                DecimalFormat decimalFormat = new DecimalFormat("#");
+                return decimalFormat.format(value) + "%";
+            }
+        });
 
         mHorizBarChart.setData(data);
     }
@@ -455,11 +472,31 @@ public class AnalyticsFragment extends CogniFragment {
         colors.add(Color.rgb(255, 150, 150));
         set1.setColors(colors);
 
-        set1.setStackLabels(new String[] {"Correct", "Incorrect"});
+        set1.setStackLabels(new String[]{"Correct", "Incorrect"});
         dataSets.add(set1);
 
         BarData data = new BarData(xVals, dataSets);
         data.setValueTextSize(10f);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                DecimalFormat decimalFormat = new DecimalFormat("#");
+                if (entry instanceof BarEntry) {
+                    BarEntry barEntry = (BarEntry) entry;
+                    float[] vals = barEntry.getVals();
+                    if (vals != null) {
+                        // find out if we are on top of the stack
+                        if (vals[vals.length - 1] == value) {
+                            // return the "sum" across all stack values
+                            return decimalFormat.format(barEntry.getVal());
+                        } else {
+                            return ""; // return empty
+                        }
+                    }
+                }
+                return "";
+            }
+        });
 
         mDoubleBarChart.setData(data);
     }
