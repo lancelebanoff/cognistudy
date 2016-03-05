@@ -29,12 +29,29 @@
         
     </LinearLayout>
 
-    <com.github.mikephil.charting.charts.PieChart
+    <ViewSwitcher
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/pieChart"
-        android:layout_weight="4"
-        />
+        android:id="@+id/vsPieChart"
+        android:layout_weight="4">
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/pieChart"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtNoData"
+                android:text="No data available"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+    </ViewSwitcher>
 
     <com.github.mikephil.charting.charts.HorizontalBarChart
         android:layout_width="match_parent"
@@ -46,6 +63,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/rlDoubleBarChart"
         android:layout_weight="4">
 
         <TextView

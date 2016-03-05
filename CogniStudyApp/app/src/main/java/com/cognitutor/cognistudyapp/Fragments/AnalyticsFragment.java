@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
@@ -55,6 +57,8 @@ public class AnalyticsFragment extends CogniFragment {
     private PieChart mPieChart;
     private HorizontalBarChart mHorizBarChart;
     private BarChart mDoubleBarChart;
+    private ViewSwitcher mVsPieChart;
+    private RelativeLayout mRlDoubleBarChart;
 
     public static final AnalyticsFragment newInstance() {
         return new AnalyticsFragment();
@@ -68,8 +72,10 @@ public class AnalyticsFragment extends CogniFragment {
         mPieChart = (PieChart) getView().findViewById(R.id.pieChart);
         mHorizBarChart = (HorizontalBarChart) getView().findViewById(R.id.horizontalBarChart);
         mDoubleBarChart = (BarChart) getView().findViewById(R.id.doubleBarChart);
+        mVsPieChart = (ViewSwitcher) getView().findViewById(R.id.vsPieChart);
+        mRlDoubleBarChart = (RelativeLayout) getView().findViewById(R.id.rlDoubleBarChart);
 
-        displayAnalytics();
+        getAndDisplayAnalytics();
     }
 
     private void initializeSpinners() {
@@ -91,7 +97,7 @@ public class AnalyticsFragment extends CogniFragment {
         Spinner.OnItemSelectedListener listener = new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(Spinner parent, View view, int position, long id) {
-                displayAnalytics();
+                getAndDisplayAnalytics();
             }
         };
         mSpSubjects.setOnItemSelectedListener(listener);
@@ -100,7 +106,7 @@ public class AnalyticsFragment extends CogniFragment {
         mSpDateRange.setAnimation(null);
     }
 
-    private void displayAnalytics() {
+    private void getAndDisplayAnalytics() {
         String subject = mSpSubjects.getAdapter().getItem(mSpSubjects.getSelectedItemPosition()).toString();
         String rollingStatsType = mSpDateRange.getAdapter().getItem(mSpDateRange.getSelectedItemPosition()).toString();
 
@@ -115,15 +121,36 @@ public class AnalyticsFragment extends CogniFragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        drawPieChart(analyticsData);
-                        drawBarChart(analyticsData);
-                        drawDoubleBarChart(analyticsData);
+                        int totalAnswered = analyticsData.pieCorrectAndTotalValues[1];
+                        if (totalAnswered > 0) {
+                            displayAnalytics(analyticsData);
+                        } else {
+                            showNoAnalytics();
+                        }
                     }
                 });
 
                 return null;
             }
         });
+    }
+
+    private void displayAnalytics(final AnalyticsData analyticsData) {
+        drawPieChart(analyticsData);
+        drawBarChart(analyticsData);
+        drawDoubleBarChart(analyticsData);
+
+        mVsPieChart.setDisplayedChild(0);
+        mVsPieChart.setVisibility(View.VISIBLE);
+        mHorizBarChart.setVisibility(View.VISIBLE);
+        mRlDoubleBarChart.setVisibility(View.VISIBLE);
+    }
+
+    private void showNoAnalytics() {
+        mVsPieChart.setDisplayedChild(1);
+        mVsPieChart.setVisibility(View.VISIBLE);
+        mHorizBarChart.setVisibility(View.INVISIBLE);
+        mRlDoubleBarChart.setVisibility(View.INVISIBLE);
     }
 
     private Task<AnalyticsData> getAnalytics(final String subject, final String rollingDateRange) {

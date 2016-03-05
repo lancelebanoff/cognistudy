@@ -37,7 +37,7 @@ class AuthenticationActivity extends CogniActivity {
 
         if(dest == MainActivity.class) {
             try {
-                UserUtils.pinCurrentUserWithCallback().onSuccessTask(new Continuation<Void, Task<Void>>() {
+                UserUtils.pinCurrentUserWithCallback().continueWithTask(new Continuation<Void, Task<Void>>() {
                     @Override
                     public Task<Void> then(Task<Void> task) throws Exception {
                         doNavigate(dest, true);
@@ -49,6 +49,8 @@ class AuthenticationActivity extends CogniActivity {
                 ParseUser.logOut();
                 navigateToRegistrationActivity();
             }
+        } else {
+            doNavigate(dest, true);
         }
     }
 
