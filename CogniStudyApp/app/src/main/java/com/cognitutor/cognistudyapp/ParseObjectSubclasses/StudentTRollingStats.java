@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseException;
@@ -178,6 +179,28 @@ public abstract class StudentTRollingStats extends ParseObject{
 
     private static <T extends StudentTRollingStats> ParseQuery<StudentTRollingStats> getCurrentUserStatsQuery(Class<T> clazz, String category) {
         return getStatsQuery(clazz, UserUtils.getCurrentUserId(), category);
+    }
+
+    public static void updateAllCacheElseNetworkInBackground() {
+        for(String category : Constants.Category.getCategories()) {
+            updateCacheElseNetworkInBackground(StudentCategoryRollingStats.class, category);
+        }
+        for(String subject : Constants.Subject.getSubjects()) {
+            String category = Constants.SubjectToCategory.get(subject)[0];
+            updateCacheElseNetworkInBackground(StudentSubjectRollingStats.class, category);
+        }
+        updateCacheElseNetworkInBackground(StudentTotalRollingStats.class, null);
+    }
+
+    private static Task<StudentTRollingStats> updateCacheElseNetworkInBackground(final Class<? extends StudentTRollingStats> clazz, final String category) {
+        return QueryUtils.getFirstPinElseNetworkInBackground(Constants.PinNames.CurrentUser,
+                new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
+                    @Override
+                    public ParseQuery<StudentTRollingStats> buildQuery() {
+                        return getCurrentUserStatsQuery(clazz, category)
+                                .whereGreaterThanOrEqualTo(Constants.ParseObjectColumns.updatedAt, DateUtils.getMidnightOfToday());
+                    }
+                });
     }
 
     public static Task<StudentTRollingStats> getCacheElseNetworkInBackground(final Class<? extends StudentTRollingStats> clazz, final String category) {

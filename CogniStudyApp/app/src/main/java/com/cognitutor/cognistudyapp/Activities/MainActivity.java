@@ -19,6 +19,7 @@ import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.R;
 
 public class MainActivity extends AuthenticationActivity {
@@ -30,6 +31,9 @@ public class MainActivity extends AuthenticationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StudentTRollingStats.updateAllCacheElseNetworkInBackground();
+
         setContentView(R.layout.activity_main);
 
         // Sliding tabs

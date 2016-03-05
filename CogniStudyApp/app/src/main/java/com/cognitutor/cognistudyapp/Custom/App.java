@@ -27,7 +27,11 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -37,6 +41,7 @@ import com.facebook.ProfileTracker;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 
 /**
@@ -105,6 +110,9 @@ public class App extends Application {
         ParseObject.registerSubclass(StudentSubjectDayStats.class);
         ParseObject.registerSubclass(StudentSubjectTridayStats.class);
         ParseObject.registerSubclass(StudentSubjectMonthStats.class);
+        ParseObject.registerSubclass(StudentTotalDayStats.class);
+        ParseObject.registerSubclass(StudentTotalTridayStats.class);
+        ParseObject.registerSubclass(StudentTotalMonthStats.class);
         ParseObject.registerSubclass(PinnedObject.class);
     }
 }
@@ -138,6 +146,9 @@ class Foreground implements Application.ActivityLifecycleCallbacks {
 
     @Override
     public void onActivityResumed(Activity activity) {
+        if(ParseUser.getCurrentUser() != null) {
+            StudentTRollingStats.updateAllCacheElseNetworkInBackground();
+        }
         foreground = true;
     }
 

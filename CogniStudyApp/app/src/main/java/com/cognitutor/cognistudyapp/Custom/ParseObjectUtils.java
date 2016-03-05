@@ -4,11 +4,13 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
@@ -17,7 +19,10 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -36,7 +41,6 @@ import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
-import bolts.TaskCompletionSource;
 
 /**
  * Created by Kevin on 2/13/2016.
@@ -76,19 +80,13 @@ public class ParseObjectUtils {
                 public Task<Boolean> then(Task<Void> task) throws Exception {
                     if (task.isFaulted()) {
                         handleException(task.getError(), "utils saveAll error");
-                        return getCompletionTask(false);
+                        return CommonUtils.getCompletionTask(false);
                     }
-                    if(clonedPinMap.isEmpty())
-                        return getCompletionTask(true);
+                    if (clonedPinMap.isEmpty())
+                        return CommonUtils.getCompletionTask(true);
                     return pinFromMap(clonedPinMap);
                 }
             });
-    }
-
-    private static <T> Task<T> getCompletionTask(T result) {
-        TaskCompletionSource<T> completionSource = new TaskCompletionSource<T>();
-        completionSource.setResult(result);
-        return completionSource.getTask();
     }
 
     private static Task<Boolean> pinFromMap(Map<String, HashSet<ParseObject>> map) {
@@ -99,10 +97,10 @@ public class ParseObjectUtils {
                 pinAllInBackground(pinName, list).waitForCompletion();
             } catch (Exception e) {
                 handleException(e, "utils saveAll pinning error");
-                return getCompletionTask(false);
+                return CommonUtils.getCompletionTask(false);
             }
         }
-        return getCompletionTask(true);
+        return CommonUtils.getCompletionTask(true);
     }
 
 //    private static Task<Boolean> pinFromMap(Map<String, HashSet<ParseObject>> map) {
@@ -162,7 +160,24 @@ public class ParseObjectUtils {
      */
     public static void pinThenSaveEventually(String pinName, ParseObject object) {
         object.pinInBackground(pinName);
-        object.saveEventually();
+        object.saveEventually()
+            .continueWith(new Continuation<Void, Object>() {
+                @Override
+                public Object then(Task<Void> task) throws Exception {
+                    if(task.isFaulted()) {
+                        Log.e("saveResponse", task.getError().getMessage());
+                    }
+                    else {
+                        Log.d("saveResponse", "Fine!");
+                    }
+                    return null;
+                }
+            });
+    }
+
+    public static Task<Void> pinThenSaveInBackground(String pinName, ParseObject object) {
+        object.pinInBackground(pinName);
+        return object.saveInBackground();
     }
     // </editor-fold>
 
@@ -317,7 +332,7 @@ public class ParseObjectUtils {
                         }
                         List<ParseObject> list = task.getResult();
                         if (list.size() == 0)
-                            return getCompletionTask(null);
+                            return CommonUtils.getCompletionTask(null);
                         return unpinAllInBackground(list);
                     }
                 });
@@ -347,14 +362,38 @@ public class ParseObjectUtils {
                     if(task.isFaulted()) {
                         Log.e("deletePinnedObjects", task.getError().getMessage());
                     }
-                    ParseObject.unpinAllInBackground().waitForCompletion();
+//                    ParseObject.unpinAllInBackground().waitForCompletion();
+                    ParseObject.unpinAllInBackground()
+                            .continueWith(new Continuation<Void, Object>() {
+                                @Override
+                                public Object then(Task<Void> task) throws Exception {
+                                    if (task.isFaulted()) {
+                                        Log.e("unpinAll", task.getError().getMessage());
+                                    }
+                                    return null;
+                                }
+                            });
                     //Extra layer of assurance that everything will be unpinned that should be
+                    ParseObject.unpinAllInBackground(Constants.PinNames.CurrentUser).waitForCompletion();
+                    ParseObject.unpinAllInBackground(Constants.PinNames.BlockStats).waitForCompletion();
+                    logPinnedObjects(true);
                     List<String> pinNames = Arrays.asList(Constants.getAllConstants(Constants.PinNames.class));
                     for (String pinName : pinNames) {
                         Log.d("pinName: ", pinName);
 //                        ParseObject.unpinAllInBackground(pinName);
-                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+//                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+                        ParseObject.unpinAllInBackground(pinName)
+                                .continueWith(new Continuation<Void, Object>() {
+                                    @Override
+                                    public Object then(Task<Void> task) throws Exception {
+                                        if (task.isFaulted()) {
+                                            Log.e("unpinAll with pinName", task.getError().getMessage());
+                                        }
+                                        return null;
+                                    }
+                                }).waitForCompletion();
                     }
+                    ParseObjectUtils.logPinnedObjects(true);
                     try {
                         int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
                                 .fromLocalDatastore()
@@ -447,7 +486,7 @@ public class ParseObjectUtils {
         }
     }
 
-    public static void logPinnedObjects() {
+    public static void logPinnedObjects(boolean delete) {
 
         try {
             List<Class> classes = new ArrayList<Class>();
@@ -464,6 +503,9 @@ public class ParseObjectUtils {
             classes.add(StudentSubjectDayStats.class);
             classes.add(StudentSubjectTridayStats.class);
             classes.add(StudentSubjectMonthStats.class);
+            classes.add(StudentTotalDayStats.class);
+            classes.add(StudentTotalTridayStats.class);
+            classes.add(StudentTotalMonthStats.class);
             classes.add(AnsweredQuestionIds.class);
             classes.add(Achievement.class);
             classes.add(PinnedObject.class);
@@ -477,11 +519,24 @@ public class ParseObjectUtils {
                 pinnedObjectIds.add(pinnedObject.getPinObjectId());
             }
 
+
+            List<PublicUserData> puds = ParseQuery.getQuery(PublicUserData.class)
+                    .fromLocalDatastore()
+                    .find();
+            for (ParseObject obj : puds) {
+                if (delete) {
+                    obj.unpin();
+                }
+            }
+
             int actualNumPinned = 0;
             for (Class clazz : classes) {
-                List<ParseObject> objects = ParseQuery.getQuery(clazz.getSimpleName())
-                        .fromLocalDatastore()
-                        .find();
+                ParseQuery query = ParseQuery.getQuery(clazz.getSimpleName())
+                        .fromLocalDatastore();
+                if(StudentBlockStats.class.isAssignableFrom(clazz)) {
+                    query = query.orderByDescending(StudentBlockStats.SuperColumns.blockNum);
+                }
+                List<ParseObject> objects = query.find();
                 int numPinned = objects.size();
                 Log.d("Line Break", " ");
                 Log.d("Num Pinned", clazz.getSimpleName() + " = " + numPinned);
@@ -489,6 +544,9 @@ public class ParseObjectUtils {
                     continue;
                 actualNumPinned += numPinned;
                 for (ParseObject obj : objects) {
+                    if(delete) {
+                        obj.unpin();
+                    }
                     Log.d("Obj data  ", "    " + obj.toString());
 //                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
 //                        Log.d("Obj data  ", "    ============ " + obj.getObjectId() + " not represented by PinnedObject");

@@ -8,6 +8,9 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthSta
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -111,6 +114,13 @@ public class Constants {
         }
     }
 
+    public static class ParseObjectColumns {
+        public static final String objectId = "objectId";
+        public static final String ACL = "ACL";
+        public static final String createdAt = "createdAt";
+        public static final String updatedAt = "updatedAt";
+    }
+
     public static class MenuItem {
         public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
         public static final String BOOKMARKS = "Bookmarks";
@@ -141,6 +151,9 @@ public class Constants {
         public static final String StudentSubjectDayStats = StudentSubjectDayStats.class.getSimpleName();
         public static final String StudentSubjectTridayStats = StudentSubjectTridayStats.class.getSimpleName();
         public static final String StudentSubjectMonthStats = StudentSubjectMonthStats.class.getSimpleName();
+        public static final String StudentTotalDayStats = StudentTotalDayStats.class.getSimpleName();
+        public static final String StudentTotalTridayStats = StudentTotalTridayStats.class.getSimpleName();
+        public static final String StudentTotalMonthStats = StudentTotalMonthStats.class.getSimpleName();
     }
 
     public static class IntentExtra {

@@ -1,6 +1,5 @@
 Parse.Cloud.define("deleteStudent", function(request, response) {
 
-
 	Parse.Cloud.useMasterKey();
 	var id = request.params.userId;
 
