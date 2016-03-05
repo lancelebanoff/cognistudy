@@ -38,7 +38,6 @@ import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 
-import net.danlew.android.joda.JodaTimeAndroid;
 
 /**
  * Created by Kevin on 12/30/2015.
@@ -59,7 +58,6 @@ public class App extends Application {
         Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);
         ParseFacebookUtils.initialize(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
-        JodaTimeAndroid.init(this);
 
         Foreground.init(this);
         initFinished = true;

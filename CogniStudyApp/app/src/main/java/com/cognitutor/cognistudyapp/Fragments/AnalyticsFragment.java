@@ -14,7 +14,6 @@ import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
 import com.cognitutor.cognistudyapp.R;
 import com.github.mikephil.charting.animation.Easing;
@@ -33,9 +32,6 @@ import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.rey.material.widget.Spinner;
-
-import org.joda.time.DateTime;
-import org.joda.time.Days;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -127,67 +123,51 @@ public class AnalyticsFragment extends CogniFragment {
     }
 
     private Task<AnalyticsData> getAnalytics(final String subject, final String rollingDateRange) {
-        if (!subject.equals(Constants.Analytics.OVERALL)) {
-            Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
-                @Override
-                public AnalyticsData then(Task<Student> task) {
-                    Student student = task.getResult();
-                    String baseUserId = student.getBaseUserId();
+        Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
+            @Override
+            public AnalyticsData then(Task<Student> task) {
+                Student student = task.getResult();
+                String baseUserId = student.getBaseUserId();
 
-                    // Pie chart values
-                    StudentSubjectRollingStats subjectRollingStats =
-                            StudentSubjectRollingStats.findBySubjectFromCache(subject, baseUserId);
-                    String pieLabel = subject;
-                    int[] pieValues = new int[]{
-                            subjectRollingStats.getCorrectForRollingStatsType(rollingDateRange),
-                            subjectRollingStats.getTotalForRollingStatsType(rollingDateRange)
-                    };
+                // Pie chart values
+                StudentSubjectRollingStats subjectRollingStats =
+                        StudentSubjectRollingStats.findBySubjectFromCache(subject, baseUserId);
+                String pieLabel = subject;
+                int[] pieValues = new int[]{
+                        subjectRollingStats.getCorrectForRollingStatsType(rollingDateRange),
+                        subjectRollingStats.getTotalForRollingStatsType(rollingDateRange)
+                };
 
-                    // Bar chart values
-                    String[] barLabels = Constants.SubjectToCategory.get(subject);
-                    int[][] barValues = new int[barLabels.length][2];
-                    List<StudentCategoryRollingStats> categoryRollingStatsList = student.getStudentCategoryRollingStats();
-                    for (int i = 0; i < barLabels.length; i++) {
-                        String barLabel = barLabels[i];
-                        StudentCategoryRollingStats categoryRollingStats = findStatsObjectByLabel(
-                                categoryRollingStatsList, StudentCategoryRollingStats.Columns.category, barLabel);
-                        barValues[i][0] = categoryRollingStats.getCorrectAllTime();
-                        barValues[i][1] = categoryRollingStats.getTotalAllTime();
-                    }
-
-                    // Double bar chart
-                    String blockType = Constants.Analytics.RollingDateRangeToBlockType.get(rollingDateRange);
-                    int numBlocks = Constants.Analytics.RollingDateRangeToNumSmallerBlocks.get(rollingDateRange);
-                    int maxBlockNum = DateUtils.getCurrentMonthBlockNum();
-                    int minBlockNum = maxBlockNum - numBlocks + 1;
-
-                    // Double bar chart labels
-                    String[] doubleBarLabels = getDoubleBarLabels(blockType, numBlocks);
-
-                    // Double bar chart values
-                    int[][] doubleBarValues = new int[numBlocks][2];
-                    for (int blockNum = minBlockNum, barIndex = 0; blockNum <= maxBlockNum; blockNum++, barIndex++) {
-                        StudentSubjectMonthStats subjectMonthStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
-                                StudentSubjectMonthStats.class, baseUserId, blockNum);
-                        if (subjectMonthStats != null) {
-                            doubleBarValues[barIndex][0] = subjectMonthStats.getCorrect();
-                            doubleBarValues[barIndex][1] = subjectMonthStats.getTotal();
-                        } else {
-                            doubleBarValues[barIndex][0] = 0;
-                            doubleBarValues[barIndex][1] = 0;
-                        }
-                    }
-
-                    AnalyticsData analyticsData = new AnalyticsData(
-                            pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
-                    );
-
-                    return analyticsData;
+                // Bar chart values
+                String[] barLabels = Constants.SubjectToCategory.get(subject);
+                int[][] barValues = new int[barLabels.length][2];
+                List<StudentCategoryRollingStats> categoryRollingStatsList = student.getStudentCategoryRollingStats();
+                for (int i = 0; i < barLabels.length; i++) {
+                    String barLabel = barLabels[i];
+                    StudentCategoryRollingStats categoryRollingStats = findStatsObjectByLabel(
+                            categoryRollingStatsList, StudentCategoryRollingStats.Columns.category, barLabel);
+                    barValues[i][0] = categoryRollingStats.getCorrectAllTime();
+                    barValues[i][1] = categoryRollingStats.getTotalAllTime();
                 }
-            });
-            return task;
-        }
-        return null;
+
+                // Double bar chart
+                String blockType = Constants.Analytics.RollingDateRangeToBlockType.get(rollingDateRange);
+                int numBlocks = Constants.Analytics.RollingDateRangeToNumSmallerBlocks.get(rollingDateRange);
+
+                // Double bar chart labels
+                String[] doubleBarLabels = getDoubleBarLabels(blockType, numBlocks);
+
+                // Double bar chart values
+                int[][] doubleBarValues = getDoubleBarValues(blockType, numBlocks, baseUserId);
+
+                AnalyticsData analyticsData = new AnalyticsData(
+                        pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
+                );
+
+                return analyticsData;
+            }
+        });
+        return task;
     }
 
     private String[] getDoubleBarLabels(String blockType, int numBlocks) {
@@ -209,12 +189,6 @@ public class AnalyticsFragment extends CogniFragment {
                 }
                 return doubleBarLabels;
             case Constants.Analytics.BlockType.TRIDAY:
-                DateTime startDate = new DateTime(2016, 1, 1, 0, 0, 0);
-                DateTime today = new DateTime();
-                Days daysBetween = Days.daysBetween(startDate, today);
-                int numDaysBetween = daysBetween.getDays();
-                int numDaysAfterStartOfTriday = numDaysBetween % 3;
-                calendarDate.add(Calendar.DATE, -numDaysAfterStartOfTriday);
                 for (int barIndex = numBlocks - 1; barIndex >= 0; barIndex--) {
                     doubleBarLabels[barIndex] = DateUtils.getFormattedMonthDate(calendarDate.getTime());
                     calendarDate.add(Calendar.DATE, -3);
@@ -229,6 +203,65 @@ public class AnalyticsFragment extends CogniFragment {
         }
 
         return doubleBarLabels;
+    }
+
+    private int[][] getDoubleBarValues(String blockType, int numBlocks, String baseUserId) {
+        int[][] doubleBarValues = new int[numBlocks][2];
+        int maxBlockNum = 0, minBlockNum = 0;
+
+        switch (blockType) {
+            case Constants.Analytics.BlockType.MONTH:
+                maxBlockNum = DateUtils.getCurrentMonthBlockNum();
+                minBlockNum = maxBlockNum - numBlocks + 1;
+                break;
+            case Constants.Analytics.BlockType.TRIDAY:
+                maxBlockNum = DateUtils.getCurrentDayBlockNum();
+                minBlockNum = maxBlockNum - (numBlocks * 3) + 1;
+                break;
+            case Constants.Analytics.BlockType.DAY:
+                maxBlockNum = DateUtils.getCurrentDayBlockNum();
+                minBlockNum = maxBlockNum - numBlocks + 1;
+                break;
+        }
+
+        switch (blockType) {
+            case Constants.Analytics.BlockType.MONTH:
+            case Constants.Analytics.BlockType.DAY:
+                for (int blockNum = minBlockNum, barIndex = 0; blockNum <= maxBlockNum; blockNum++, barIndex++) {
+                    Class studentBlockStatsClass = Constants.Analytics.TestSectionTypeAndBlockTypeToStudentBlockStatsClass
+                            .get(Constants.Analytics.TestSectionType.SUBJECT, blockType);
+                    StudentBlockStats subjectBlockStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
+                            studentBlockStatsClass, baseUserId, blockNum);
+                    if (subjectBlockStats != null) {
+                        doubleBarValues[barIndex][0] = subjectBlockStats.getCorrect();
+                        doubleBarValues[barIndex][1] = subjectBlockStats.getTotal();
+                    } else {
+                        doubleBarValues[barIndex][0] = 0;
+                        doubleBarValues[barIndex][1] = 0;
+                    }
+                }
+                break;
+
+            case Constants.Analytics.BlockType.TRIDAY:
+                for (int blockNum = minBlockNum, barIndex = -1, dayInBar = 0; blockNum <= maxBlockNum; blockNum++, dayInBar++) {
+                    // Move on to next triday
+                    if(dayInBar % 3 == 0) {
+                        barIndex++;
+                        doubleBarValues[barIndex][0] = 0;
+                        doubleBarValues[barIndex][1] = 0;
+                    }
+                    // Add up the stats for each of the 3 days in the triday
+                    Class studentBlockStatsClass = Constants.Analytics.TestSectionTypeAndBlockTypeToStudentBlockStatsClass
+                            .get(Constants.Analytics.TestSectionType.SUBJECT, Constants.Analytics.BlockType.DAY);
+                    StudentBlockStats subjectBlockStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
+                            studentBlockStatsClass, baseUserId, blockNum);
+                    if (subjectBlockStats != null) {
+                        doubleBarValues[barIndex][0] += subjectBlockStats.getCorrect();
+                        doubleBarValues[barIndex][1] += subjectBlockStats.getTotal();
+                    }
+                }
+        }
+        return doubleBarValues;
     }
 
     private <T extends ParseObject> T findStatsObjectByLabel(List<T> statsList, String key, String value) {

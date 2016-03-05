@@ -28,13 +28,13 @@ public class DateUtils {
     static TimeZone ny = TimeZone.getTimeZone("America/New_York");
     static {
 
-        dayOfYearFormatter = new SimpleDateFormat("DDD", Locale.US);
+        dayOfYearFormatter = new SimpleDateFormat("D", Locale.US);
         dayOfYearFormatter.setTimeZone(ny);
 
-        dayInMonthFormatter = new SimpleDateFormat("DD", Locale.US);
+        dayInMonthFormatter = new SimpleDateFormat("d", Locale.US);
         dayInMonthFormatter.setTimeZone(ny);
 
-        monthFormatter = new SimpleDateFormat("MM", Locale.US);
+        monthFormatter = new SimpleDateFormat("M", Locale.US);
         monthFormatter.setTimeZone(ny);
 
         yearFormatter = new SimpleDateFormat("yyyy", Locale.US);

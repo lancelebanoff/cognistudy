@@ -6,6 +6,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayS
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -54,7 +56,12 @@ public class Constants {
     }
 
     public static class Analytics {
-        public static final String OVERALL = "Overall";
+
+        public static class TestSectionType {
+            public static final String OVERALL = "Overall";
+            public static final String SUBJECT = "Subject";
+            public static final String CATEGORY = "Category";
+        }
 
         public static class RollingDateRange {
             public static final String ALL_TIME = "All Time";
@@ -84,6 +91,16 @@ public class Constants {
             RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.ALL_TIME, 12);
             RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.PAST_MONTH, 10);
             RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.PAST_WEEK, 7);
+        }
+
+        public static Table<String, String, Class> TestSectionTypeAndBlockTypeToStudentBlockStatsClass = HashBasedTable.create();
+        static {
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.MONTH, StudentSubjectMonthStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.TRIDAY, StudentSubjectDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.DAY, StudentSubjectDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.CATEGORY, BlockType.MONTH, StudentCategoryMonthStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.CATEGORY, BlockType.TRIDAY, StudentCategoryDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.CATEGORY, BlockType.DAY, StudentCategoryDayStats.class);
         }
     }
 
