@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
@@ -164,7 +165,7 @@ public class AnalyticsFragment extends CogniFragment {
                 int[][] doubleBarValues = getDoubleBarValues(blockType, numBlocks, baseUserId);
 
                 AnalyticsData analyticsData = new AnalyticsData(
-                        pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
+                        rollingDateRange, pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
                 );
 
                 return analyticsData;
@@ -187,7 +188,7 @@ public class AnalyticsFragment extends CogniFragment {
             case Constants.Analytics.BlockType.MONTH:
                 calendarDate.set(Calendar.DAY_OF_MONTH, calendarDate.getActualMinimum(Calendar.DAY_OF_MONTH));
                 for (int barIndex = numBlocks - 1; barIndex >= 0; barIndex--) {
-                    doubleBarLabels[barIndex] = DateUtils.getFormattedMonthDate(calendarDate.getTime());
+                    doubleBarLabels[barIndex] = DateUtils.getFormattedMonthLetter(calendarDate.getTime());
                     calendarDate.add(Calendar.MONTH, -1);
                 }
                 return doubleBarLabels;
@@ -419,6 +420,10 @@ public class AnalyticsFragment extends CogniFragment {
     }
 
     private void drawDoubleBarChart(AnalyticsData analyticsData) {
+        TextView doubleBarTitle = (TextView) getActivity().findViewById(R.id.doubleBarTitle);
+        String title = Constants.Analytics.RollingDateRangeToDoubleBarTitle.get(analyticsData.rollingDateRange);
+        doubleBarTitle.setText(title);
+
         mDoubleBarChart.setDrawBarShadow(false);
         mDoubleBarChart.setDrawValueAboveBar(true);
         mDoubleBarChart.setDescription("");
@@ -428,7 +433,7 @@ public class AnalyticsFragment extends CogniFragment {
 
         XAxis xl = mDoubleBarChart.getXAxis();
         xl.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xl.setDrawAxisLine(false);
+        xl.setDrawAxisLine(true);
         xl.setDrawGridLines(false);
         xl.setGridLineWidth(0.3f);
 
@@ -509,6 +514,7 @@ public class AnalyticsFragment extends CogniFragment {
     }
 
     private class AnalyticsData {
+        String rollingDateRange;
         String pieLabel;
         int[] pieCorrectAndTotalValues;
         String[] barLabels;
@@ -516,7 +522,8 @@ public class AnalyticsFragment extends CogniFragment {
         String[] doubleBarLabels;
         int[][] doubleBarCorrectAndTotalValues;
 
-        public AnalyticsData(String pieLabel, int[] pieCorrectAndTotalValues, String[] barLabels, int[][] barCorrectAndTotalValues, String[] doubleBarLabels, int[][] doubleBarCorrectAndTotalValues) {
+        public AnalyticsData(String rollingDateRange, String pieLabel, int[] pieCorrectAndTotalValues, String[] barLabels, int[][] barCorrectAndTotalValues, String[] doubleBarLabels, int[][] doubleBarCorrectAndTotalValues) {
+            this.rollingDateRange = rollingDateRange;
             this.pieLabel = pieLabel;
             this.pieCorrectAndTotalValues = pieCorrectAndTotalValues;
             this.barLabels = barLabels;

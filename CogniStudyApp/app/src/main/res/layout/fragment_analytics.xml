@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:layout_weight="5">
+        android:layout_weight="6">
 
         <com.rey.material.widget.Spinner
             android:id="@+id/spSubjects"
@@ -33,20 +33,33 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/pieChart"
-        android:layout_weight="3"
+        android:layout_weight="4"
         />
 
     <com.github.mikephil.charting.charts.HorizontalBarChart
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/horizontalBarChart"
-        android:layout_weight="4"
+        android:layout_weight="5"
         />
 
-    <com.github.mikephil.charting.charts.BarChart
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/doubleBarChart"
-        android:layout_weight="4"
-        />
+        android:layout_weight="4">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/doubleBarTitle"
+            android:text=""
+            android:layout_centerHorizontal="true"/>
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/doubleBarChart"
+            android:layout_below="@+id/doubleBarTitle"
+            />
+    </RelativeLayout>
 </LinearLayout>

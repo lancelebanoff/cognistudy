@@ -93,6 +93,13 @@ public class Constants {
             RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.PAST_WEEK, 7);
         }
 
+        public static HashMap<String, String> RollingDateRangeToDoubleBarTitle = new HashMap<String, String>();
+        static {
+            RollingDateRangeToDoubleBarTitle.put(RollingDateRange.ALL_TIME, "Progress over the Past Year");
+            RollingDateRangeToDoubleBarTitle.put(RollingDateRange.PAST_MONTH, "Progress over the Past Month");
+            RollingDateRangeToDoubleBarTitle.put(RollingDateRange.PAST_WEEK, "Progress over the Past Week");
+        }
+
         public static Table<String, String, Class> TestSectionTypeAndBlockTypeToStudentBlockStatsClass = HashBasedTable.create();
         static {
             TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.MONTH, StudentSubjectMonthStats.class);

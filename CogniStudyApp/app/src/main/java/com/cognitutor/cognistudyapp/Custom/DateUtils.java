@@ -24,6 +24,7 @@ public class DateUtils {
     static SimpleDateFormat dayOfYearFormatter;
     static SimpleDateFormat dayInMonthFormatter;
     static SimpleDateFormat monthFormatter;
+    static SimpleDateFormat monthLetterFormatter;
     static SimpleDateFormat yearFormatter;
     static TimeZone ny = TimeZone.getTimeZone("America/New_York");
     static {
@@ -36,6 +37,9 @@ public class DateUtils {
 
         monthFormatter = new SimpleDateFormat("M", Locale.US);
         monthFormatter.setTimeZone(ny);
+
+        monthLetterFormatter = new SimpleDateFormat("MMM", Locale.US);
+        monthLetterFormatter.setTimeZone(ny);
 
         yearFormatter = new SimpleDateFormat("yyyy", Locale.US);
         yearFormatter.setTimeZone(ny);
@@ -77,6 +81,10 @@ public class DateUtils {
 
     public static String getFormattedMonthDate(Date date) {
         return monthFormatter.format(date) + "/" + dayInMonthFormatter.format(date);
+    }
+
+    public static String getFormattedMonthLetter(Date date) {
+        return monthLetterFormatter.format(date);
     }
 
     private static int getDayOfYear(Date date) {
