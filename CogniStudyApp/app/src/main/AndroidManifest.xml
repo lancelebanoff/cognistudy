@@ -184,7 +184,7 @@
         <activity android:name=".Activities.CogniActivity"
             android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".Activities.VerityEmailActivity"
+        <activity android:name=".Activities.VerifyEmailActivity"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_verify_email" />
         <activity android:name=".Activities.ChooseDisplayNameActivity"
