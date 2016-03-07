@@ -36,19 +36,23 @@
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".Activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.LoginActivity"
-            android:label="@string/title_activity_login" />
+            android:label="@string/title_activity_login"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.LoadingActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoDisplay" >
+            android:theme="@android:style/Theme.NoDisplay"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -58,82 +62,100 @@
         <activity
             android:name=".Activities.RegistrationActivity"
             android:label="@string/title_activity_registration"
-            android:parentActivityName=".Activities.RegistrationActivity" />
+            android:parentActivityName=".Activities.RegistrationActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.NewChallengeActivity"
             android:label="@string/title_activity_new_challenge"
-            android:parentActivityName=".Activities.MainActivity" />
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.ChooseBoardConfigurationActivity"
             android:label="@string/title_activity_choose_board_configuration"
-            android:parentActivityName=".Activities.NewChallengeActivity" />
+            android:parentActivityName=".Activities.NewChallengeActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.ChallengeActivity"
             android:label="@string/title_activity_challenge"
-            android:parentActivityName=".Activities.MainActivity" />
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.QuestionActivity"
             android:label="@string/title_activity_question"
-            android:parentActivityName=".Activities.ChallengeActivity" />
+            android:parentActivityName=".Activities.ChallengeActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.BattleshipAttackActivity"
             android:label="@string/title_activity_battleship_attack"
-            android:parentActivityName=".Activities.ChallengeActivity" />
+            android:parentActivityName=".Activities.ChallengeActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.QuestionHistoryActivity"
             android:label="@string/title_activity_question_history"
-            android:parentActivityName=".Activities.ChallengeActivity" />
+            android:parentActivityName=".Activities.ChallengeActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.PastQuestionActivity"
             android:label="@string/title_activity_past_question"
-            android:parentActivityName=".Activities.QuestionHistoryActivity" >
+            android:parentActivityName=".Activities.QuestionHistoryActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.ChallengeAnalyticsActivity"
             android:label="@string/title_activity_challenge_analytics"
-            android:parentActivityName=".Activities.ChallengeActivity" >
+            android:parentActivityName=".Activities.ChallengeActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.StudentProfileActivity"
             android:label="@string/title_activity_student_profile"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.ConversationActivity"
             android:label="@string/title_activity_conversation"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.SuggestedQuestionsActivity"
             android:label="@string/title_activity_suggested_questions"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.BookmarksActivity"
             android:label="@string/title_activity_bookmarks"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.AchievementsActivity"
             android:label="@string/title_activity_achievements"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.ShopActivity"
             android:label="@string/title_activity_shop"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Activities.HelpActivity"
             android:label="@string/title_activity_help"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".Activities.TutorProfileActivity" >
+        <activity android:name=".Activities.TutorProfileActivity"
+            android:screenOrientation="portrait" >
         </activity>
 
         <service android:name="com.parse.PushService" />
@@ -159,16 +181,21 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".Activities.CogniActivity" >
+        <activity android:name=".Activities.CogniActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity android:name=".Activities.VerityEmailActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_verify_email" />
         <activity android:name=".Activities.ChooseDisplayNameActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_choose_display_name" />
         <activity android:name=".Activities.ChooseOpponentActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_choose_opponent" >
         </activity>
         <activity android:name=".Activities.PracticeChallengeActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_practice_challenge"
             android:parentActivityName=".Activities.MainActivity" >
         </activity>
