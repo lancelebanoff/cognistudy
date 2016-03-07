@@ -105,6 +105,9 @@ public class Constants {
 
         public static Table<String, String, Class> TestSectionTypeAndBlockTypeToStudentBlockStatsClass = HashBasedTable.create();
         static {
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.OVERALL, BlockType.MONTH, StudentTotalMonthStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.OVERALL, BlockType.TRIDAY, StudentTotalDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.OVERALL, BlockType.DAY, StudentTotalDayStats.class);
             TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.MONTH, StudentSubjectMonthStats.class);
             TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.TRIDAY, StudentSubjectDayStats.class);
             TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.DAY, StudentSubjectDayStats.class);
@@ -227,6 +230,7 @@ public class Constants {
     }
 
     public static class Subject {
+        public static final String OVERALL = "Overall";
         public static final String READING = "Reading";
         public static final String MATH = "Math";
         public static final String ENGLISH = "English";
@@ -234,6 +238,10 @@ public class Constants {
 
         public static String[] getSubjects() {
             return new String[] {READING, MATH, ENGLISH, SCIENCE} ;
+        }
+
+        public static String[] getSubjectsPlusOverall() {
+            return new String[] {OVERALL, READING, MATH, ENGLISH, SCIENCE} ;
         }
     }
 
@@ -244,7 +252,8 @@ public class Constants {
         public static final String ALGEBRA = "Algebra";
         public static final String GEOMETRY = "Geometry";
         public static final String TRIGONOMETRY = "Trigonometry";
-        public static final String DATA_ANALYSIS_STATISTICS_PROBABILITY = "Data Analysis, Statistics, Probability";
+        public static final String NONLINEAR_FUNCTIONS = "Nonlinear Functions";
+        public static final String DATA_ANALYSIS = "Data Analysis";
         public static final String USAGE_AND_MECHANICS = "Usage and Mechanics";
         public static final String RHETORICAL_SKILLS = "Rhetorical Skills";
         public static final String DATA_REPRESENTATION = "Data Representation";
@@ -254,7 +263,7 @@ public class Constants {
         public static String[] getCategories() {
             return new String[] {
                     SOCIAL_STUDIES_SCIENCE, ARTS_LITERATURE, PRE_ALGEBRA, ALGEBRA, GEOMETRY, TRIGONOMETRY,
-                    DATA_ANALYSIS_STATISTICS_PROBABILITY, USAGE_AND_MECHANICS, RHETORICAL_SKILLS,
+                    NONLINEAR_FUNCTIONS, DATA_ANALYSIS, USAGE_AND_MECHANICS, RHETORICAL_SKILLS,
                     DATA_REPRESENTATION, RESEARCH_SUMMARIES, CONFLICTING_VIEWPOINTS
             } ;
         }
@@ -280,7 +289,8 @@ public class Constants {
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
-                Category.DATA_ANALYSIS_STATISTICS_PROBABILITY,
+                Category.NONLINEAR_FUNCTIONS,
+                Category.DATA_ANALYSIS,
                 Category.USAGE_AND_MECHANICS,
                 Category.RHETORICAL_SKILLS
         });
@@ -291,6 +301,7 @@ public class Constants {
                 Category.ALGEBRA,
                 Category.GEOMETRY,
                 Category.TRIGONOMETRY,
+                Category.NONLINEAR_FUNCTIONS,
                 Category.USAGE_AND_MECHANICS,
                 Category.RHETORICAL_SKILLS,
                 Category.DATA_REPRESENTATION,
@@ -303,8 +314,9 @@ public class Constants {
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
-                Category.DATA_ANALYSIS_STATISTICS_PROBABILITY,
                 Category.TRIGONOMETRY,
+                Category.NONLINEAR_FUNCTIONS,
+                Category.DATA_ANALYSIS,
                 Category.USAGE_AND_MECHANICS,
                 Category.RHETORICAL_SKILLS,
                 Category.DATA_REPRESENTATION,
@@ -318,7 +330,7 @@ public class Constants {
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
         map.put(Subject.READING, new String[]{Category.SOCIAL_STUDIES_SCIENCE, Category.ARTS_LITERATURE});
-        map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.DATA_ANALYSIS_STATISTICS_PROBABILITY});
+        map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.NONLINEAR_FUNCTIONS, Category.DATA_ANALYSIS});
         map.put(Subject.ENGLISH, new String[]{Category.USAGE_AND_MECHANICS, Category.RHETORICAL_SKILLS});
         map.put(Subject.SCIENCE, new String[]{Category.DATA_REPRESENTATION, Category.RESEARCH_SUMMARIES, Category.CONFLICTING_VIEWPOINTS});
         SubjectToCategory = Collections.unmodifiableMap(map);

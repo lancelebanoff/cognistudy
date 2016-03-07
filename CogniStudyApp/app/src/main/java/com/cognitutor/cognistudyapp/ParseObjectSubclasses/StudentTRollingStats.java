@@ -89,7 +89,7 @@ public abstract class StudentTRollingStats extends ParseObject{
     @SuppressWarnings("unchecked")
     public static void setPublicAnalyticsInBackground(final boolean isPublic) {
         for(Class clazz : subclasses) {
-            for(String category : Constants.getAllConstants(Constants.Category.class)) {
+            for(String category : Constants.Category.getCategories()) {
                 getCacheElseNetworkInBackground(clazz, category)
                 .continueWith(new Continuation<StudentTRollingStats, Object>() {
                     @Override

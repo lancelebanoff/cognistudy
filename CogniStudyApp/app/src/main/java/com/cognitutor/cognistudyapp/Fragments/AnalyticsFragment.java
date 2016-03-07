@@ -18,6 +18,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
 import com.cognitutor.cognistudyapp.R;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
@@ -82,7 +83,7 @@ public class AnalyticsFragment extends CogniFragment {
         mSpSubjects = (Spinner) getView().findViewById(R.id.spSubjects);
         mSpDateRange = (Spinner) getView().findViewById(R.id.spDateRange);
 
-        String[] subjects = Constants.Subject.getSubjects();
+        String[] subjects = Constants.Subject.getSubjectsPlusOverall();
         ArrayAdapter<String> subjectsAdapter =
                 new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, subjects);
         subjectsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -108,15 +109,23 @@ public class AnalyticsFragment extends CogniFragment {
 
     private void getAndDisplayAnalytics() {
         String subject = mSpSubjects.getAdapter().getItem(mSpSubjects.getSelectedItemPosition()).toString();
-        String rollingStatsType = mSpDateRange.getAdapter().getItem(mSpDateRange.getSelectedItemPosition()).toString();
+        String rollingDateRange = mSpDateRange.getAdapter().getItem(mSpDateRange.getSelectedItemPosition()).toString();
 
-        getAnalytics(subject, rollingStatsType).continueWith(new Continuation<AnalyticsData, Void>() {
+        Task<AnalyticsData> task;
+        if (subject.equals(Constants.Analytics.TestSectionType.OVERALL)) {
+            task = getAnalyticsForOverall(rollingDateRange);
+        } else {
+            task = getAnalyticsForSubject(subject, rollingDateRange);
+        }
+
+        task.continueWith(new Continuation<AnalyticsData, Void>() {
             @Override
-            public Void then(Task<AnalyticsData> task) {
-                final AnalyticsData analyticsData = task.getResult();
-                if (task.getError() != null) {
-                    task.getError().printStackTrace();
+            public Void then(Task<AnalyticsData> taskWithData) {
+                if (taskWithData.getError() != null) {
+                    taskWithData.getError().printStackTrace();
                 }
+
+                final AnalyticsData analyticsData = taskWithData.getResult();
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -153,7 +162,56 @@ public class AnalyticsFragment extends CogniFragment {
         mRlDoubleBarChart.setVisibility(View.INVISIBLE);
     }
 
-    private Task<AnalyticsData> getAnalytics(final String subject, final String rollingDateRange) {
+    private Task<AnalyticsData> getAnalyticsForOverall(final String rollingDateRange) {
+        Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
+            @Override
+            public AnalyticsData then(Task<Student> task) {
+                Student student = task.getResult();
+                String baseUserId = student.getBaseUserId();
+
+                // Pie chart values
+                StudentTotalRollingStats rollingStats =
+                        StudentTotalRollingStats.findByBaseUserIdFromCache(baseUserId);
+                String pieLabel = Constants.Analytics.TestSectionType.OVERALL;
+                int[] pieValues = new int[]{
+                        rollingStats.getCorrectForRollingStatsType(rollingDateRange),
+                        rollingStats.getTotalForRollingStatsType(rollingDateRange)
+                };
+
+                // Bar chart values
+                String[] barLabels = Constants.Subject.getSubjects();
+                int[][] barValues = new int[barLabels.length][2];
+                List<StudentSubjectRollingStats> subjectRollingStatsList = student.getStudentSubjectRollingStats();
+                for (int i = 0; i < barLabels.length; i++) {
+                    String barLabel = barLabels[i];
+                    StudentSubjectRollingStats subjectRollingStats = findStatsObjectByLabel(
+                            subjectRollingStatsList, StudentSubjectRollingStats.Columns.subject, barLabel);
+                    barValues[i][0] = subjectRollingStats.getCorrectAllTime();
+                    barValues[i][1] = subjectRollingStats.getTotalAllTime();
+                }
+
+                // Double bar chart
+                String blockType = Constants.Analytics.RollingDateRangeToBlockType.get(rollingDateRange);
+                int numBlocks = Constants.Analytics.RollingDateRangeToNumSmallerBlocks.get(rollingDateRange);
+
+                // Double bar chart labels
+                String[] doubleBarLabels = getDoubleBarLabels(blockType, numBlocks);
+
+                // Double bar chart values
+                int[][] doubleBarValues = getDoubleBarValues(Constants.Analytics.TestSectionType.OVERALL,
+                        blockType, numBlocks, baseUserId);
+
+                AnalyticsData analyticsData = new AnalyticsData(
+                        rollingDateRange, pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
+                );
+
+                return analyticsData;
+            }
+        });
+        return task;
+    }
+
+    private Task<AnalyticsData> getAnalyticsForSubject(final String subject, final String rollingDateRange) {
         Task<AnalyticsData> task = Student.getStudentInBackground().continueWith(new Continuation<Student, AnalyticsData>() {
             @Override
             public AnalyticsData then(Task<Student> task) {
@@ -189,7 +247,8 @@ public class AnalyticsFragment extends CogniFragment {
                 String[] doubleBarLabels = getDoubleBarLabels(blockType, numBlocks);
 
                 // Double bar chart values
-                int[][] doubleBarValues = getDoubleBarValues(blockType, numBlocks, baseUserId);
+                int[][] doubleBarValues = getDoubleBarValues(Constants.Analytics.TestSectionType.SUBJECT,
+                        blockType, numBlocks, baseUserId);
 
                 AnalyticsData analyticsData = new AnalyticsData(
                         rollingDateRange, pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
@@ -236,7 +295,7 @@ public class AnalyticsFragment extends CogniFragment {
         return doubleBarLabels;
     }
 
-    private int[][] getDoubleBarValues(String blockType, int numBlocks, String baseUserId) {
+    private int[][] getDoubleBarValues(String testSectionType, String blockType, int numBlocks, String baseUserId) {
         int[][] doubleBarValues = new int[numBlocks][2];
         int maxBlockNum = 0, minBlockNum = 0;
 
@@ -260,12 +319,12 @@ public class AnalyticsFragment extends CogniFragment {
             case Constants.Analytics.BlockType.DAY:
                 for (int blockNum = minBlockNum, barIndex = 0; blockNum <= maxBlockNum; blockNum++, barIndex++) {
                     Class studentBlockStatsClass = Constants.Analytics.TestSectionTypeAndBlockTypeToStudentBlockStatsClass
-                            .get(Constants.Analytics.TestSectionType.SUBJECT, blockType);
-                    StudentBlockStats subjectBlockStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
+                            .get(testSectionType, blockType);
+                    StudentBlockStats studentBlockStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
                             studentBlockStatsClass, baseUserId, blockNum);
-                    if (subjectBlockStats != null) {
-                        doubleBarValues[barIndex][0] = subjectBlockStats.getCorrect();
-                        doubleBarValues[barIndex][1] = subjectBlockStats.getTotal();
+                    if (studentBlockStats != null) {
+                        doubleBarValues[barIndex][0] = studentBlockStats.getCorrect();
+                        doubleBarValues[barIndex][1] = studentBlockStats.getTotal();
                     } else {
                         doubleBarValues[barIndex][0] = 0;
                         doubleBarValues[barIndex][1] = 0;
@@ -283,7 +342,7 @@ public class AnalyticsFragment extends CogniFragment {
                     }
                     // Add up the stats for each of the 3 days in the triday
                     Class studentBlockStatsClass = Constants.Analytics.TestSectionTypeAndBlockTypeToStudentBlockStatsClass
-                            .get(Constants.Analytics.TestSectionType.SUBJECT, Constants.Analytics.BlockType.DAY);
+                            .get(testSectionType, Constants.Analytics.BlockType.DAY);
                     StudentBlockStats subjectBlockStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
                             studentBlockStatsClass, baseUserId, blockNum);
                     if (subjectBlockStats != null) {

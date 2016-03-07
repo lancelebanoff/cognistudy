@@ -3,7 +3,6 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseRelation;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +28,7 @@ public abstract class StudentSubjectBlockStats extends StudentBlockStats{
     }
 
     public static String getSubjectFromCategory(String category) {
-        for(String subject : Constants.getAllConstants(Constants.Subject.class)) {
+        for(String subject : Constants.Subject.getSubjects()) {
             List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
             if(categoriesInSubject.contains(category)) {
                 return subject;
