@@ -1,16 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
-import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.parse.GetCallback;
 import com.parse.ParseClassName;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseRelation;
-
-import bolts.Task;
 
 /**
  * Created by Kevin on 1/18/2016.

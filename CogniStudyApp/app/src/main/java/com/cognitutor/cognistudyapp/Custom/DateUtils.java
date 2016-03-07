@@ -5,7 +5,6 @@ import android.util.Log;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
-import com.parse.ParseObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,18 +24,22 @@ public class DateUtils {
     static SimpleDateFormat dayOfYearFormatter;
     static SimpleDateFormat dayInMonthFormatter;
     static SimpleDateFormat monthFormatter;
+    static SimpleDateFormat monthLetterFormatter;
     static SimpleDateFormat yearFormatter;
     static TimeZone ny = TimeZone.getTimeZone("America/New_York");
     static {
 
-        dayOfYearFormatter = new SimpleDateFormat("DDD", Locale.US);
+        dayOfYearFormatter = new SimpleDateFormat("D", Locale.US);
         dayOfYearFormatter.setTimeZone(ny);
 
-        dayInMonthFormatter = new SimpleDateFormat("DD", Locale.US);
+        dayInMonthFormatter = new SimpleDateFormat("d", Locale.US);
         dayInMonthFormatter.setTimeZone(ny);
 
-        monthFormatter = new SimpleDateFormat("MM", Locale.US);
+        monthFormatter = new SimpleDateFormat("M", Locale.US);
         monthFormatter.setTimeZone(ny);
+
+        monthLetterFormatter = new SimpleDateFormat("MMM", Locale.US);
+        monthLetterFormatter.setTimeZone(ny);
 
         yearFormatter = new SimpleDateFormat("yyyy", Locale.US);
         yearFormatter.setTimeZone(ny);
@@ -74,6 +77,14 @@ public class DateUtils {
 
     public static int getCurrentMonthBlockNum() {
         return getMonthBlockNum(new Date());
+    }
+
+    public static String getFormattedMonthDate(Date date) {
+        return monthFormatter.format(date) + "/" + dayInMonthFormatter.format(date);
+    }
+
+    public static String getFormattedMonthLetter(Date date) {
+        return monthLetterFormatter.format(date);
     }
 
     private static int getDayOfYear(Date date) {
@@ -147,7 +158,7 @@ public class DateUtils {
                 amountToAdd = -3;
                 chanceMoreThan10Ques = 95;
             }
-            else { //blockType == BlockType.DAY
+            else { //blockType == RollingDateRange.DAY
                 chancePlayed = 80;
                 amountToAdd = -1;
                 chanceMoreThan10Ques = 50;

@@ -1,11 +1,8 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
-import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseQuery;
-
-import bolts.Task;
 
 /**
  * Created by Kevin on 1/18/2016.
@@ -30,6 +27,20 @@ public class StudentSubjectRollingStats extends StudentTRollingStats {
         super(baseUserId);
         put(Columns.subject, subject);
         saveInBackground();
+    }
+
+    public static StudentSubjectRollingStats findBySubjectFromCache(final String subject, final String baseUserId) {
+        ParseQuery<StudentSubjectRollingStats> query = ParseQuery.getQuery(StudentSubjectRollingStats.class)
+                        .whereEqualTo(SuperColumns.baseUserId, baseUserId)
+                        .whereEqualTo(Columns.subject, subject)
+                        .fromLocalDatastore();
+
+        try {
+            return query.getFirst();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

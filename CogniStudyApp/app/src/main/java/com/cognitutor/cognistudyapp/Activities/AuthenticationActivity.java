@@ -11,7 +11,6 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseACL;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseInstallation;
@@ -20,7 +19,6 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import bolts.Continuation;
@@ -33,18 +31,27 @@ class AuthenticationActivity extends CogniActivity {
 
     protected void navigateToNewDestination() {
 
-        Class dest = LoadingActivity.getDestination();
+        final Class dest = LoadingActivity.getDestination();
         if(dest == getClass())
             return;
 
         if(dest == MainActivity.class) {
             try {
-                UserUtils.pinCurrentUser();
-            } catch (ParseException e) { handleParseError(e); ParseUser.logOut(); navigateToRegistrationActivity(); return; }
-
+                UserUtils.pinCurrentUserWithCallback().continueWithTask(new Continuation<Void, Task<Void>>() {
+                    @Override
+                    public Task<Void> then(Task<Void> task) throws Exception {
+                        doNavigate(dest, true);
+                        return null;
+                    }
+                });
+            } catch (ParseException e) {
+                handleParseError(e);
+                ParseUser.logOut();
+                navigateToRegistrationActivity();
+            }
+        } else {
+            doNavigate(dest, true);
         }
-
-        doNavigate(dest, true);
     }
 
     private void doNavigate(Class dest, boolean finish) {
@@ -61,7 +68,7 @@ class AuthenticationActivity extends CogniActivity {
 
     public void doPinCurrentUser() {
         try {
-            UserUtils.pinCurrentUser();
+            UserUtils.pinCurrentUserInBackground();
         }
         catch (ParseException e) { handleParseError(e); return; }
     }

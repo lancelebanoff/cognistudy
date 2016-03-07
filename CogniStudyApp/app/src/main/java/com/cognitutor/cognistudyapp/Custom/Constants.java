@@ -6,6 +6,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryTridayS
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectTridayStats;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
@@ -54,6 +56,65 @@ public class Constants {
         try {
             return (String) fields[rand.nextInt(fields.length)].get(c);
         } catch (IllegalAccessException e) { e.printStackTrace(); return null; }
+    }
+
+    public static class Analytics {
+
+        public static class TestSectionType {
+            public static final String OVERALL = "Overall";
+            public static final String SUBJECT = "Subject";
+            public static final String CATEGORY = "Category";
+        }
+
+        public static class RollingDateRange {
+            public static final String ALL_TIME = "All Time";
+            public static final String PAST_MONTH = "Past Month";
+            public static final String PAST_WEEK = "Past Week";
+
+            public static String[] getRollingStatsTypes() {
+                return new String[]{ALL_TIME, PAST_MONTH, PAST_WEEK};
+            }
+        }
+
+        public static class BlockType {
+            public static final String MONTH = "MONTH";
+            public static final String TRIDAY = "TRIDAY";
+            public static final String DAY = "DAY";
+        }
+
+        public static HashMap<String, String> RollingDateRangeToBlockType = new HashMap<String, String>();
+        static {
+            RollingDateRangeToBlockType.put(RollingDateRange.ALL_TIME, BlockType.MONTH);
+            RollingDateRangeToBlockType.put(RollingDateRange.PAST_MONTH, BlockType.TRIDAY);
+            RollingDateRangeToBlockType.put(RollingDateRange.PAST_WEEK, BlockType.DAY);
+        }
+
+        public static HashMap<String, Integer> RollingDateRangeToNumSmallerBlocks = new HashMap<String, Integer>();
+        static {
+            RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.ALL_TIME, 12);
+            RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.PAST_MONTH, 10);
+            RollingDateRangeToNumSmallerBlocks.put(RollingDateRange.PAST_WEEK, 7);
+        }
+
+        public static HashMap<String, String> RollingDateRangeToDoubleBarTitle = new HashMap<String, String>();
+        static {
+            RollingDateRangeToDoubleBarTitle.put(RollingDateRange.ALL_TIME, "Progress over the Past Year");
+            RollingDateRangeToDoubleBarTitle.put(RollingDateRange.PAST_MONTH, "Progress over the Past Month");
+            RollingDateRangeToDoubleBarTitle.put(RollingDateRange.PAST_WEEK, "Progress over the Past Week");
+        }
+
+        public static Table<String, String, Class> TestSectionTypeAndBlockTypeToStudentBlockStatsClass = HashBasedTable.create();
+        static {
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.OVERALL, BlockType.MONTH, StudentTotalMonthStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.OVERALL, BlockType.TRIDAY, StudentTotalDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.OVERALL, BlockType.DAY, StudentTotalDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.MONTH, StudentSubjectMonthStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.TRIDAY, StudentSubjectDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.SUBJECT, BlockType.DAY, StudentSubjectDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.CATEGORY, BlockType.MONTH, StudentCategoryMonthStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.CATEGORY, BlockType.TRIDAY, StudentCategoryDayStats.class);
+            TestSectionTypeAndBlockTypeToStudentBlockStatsClass.put(TestSectionType.CATEGORY, BlockType.DAY, StudentCategoryDayStats.class);
+        }
     }
 
     public static class ParseObjectColumns {
@@ -169,6 +230,7 @@ public class Constants {
     }
 
     public static class Subject {
+        public static final String OVERALL = "Overall";
         public static final String READING = "Reading";
         public static final String MATH = "Math";
         public static final String ENGLISH = "English";
@@ -176,6 +238,10 @@ public class Constants {
 
         public static String[] getSubjects() {
             return new String[] {READING, MATH, ENGLISH, SCIENCE} ;
+        }
+
+        public static String[] getSubjectsPlusOverall() {
+            return new String[] {OVERALL, READING, MATH, ENGLISH, SCIENCE} ;
         }
     }
 
@@ -186,7 +252,8 @@ public class Constants {
         public static final String ALGEBRA = "Algebra";
         public static final String GEOMETRY = "Geometry";
         public static final String TRIGONOMETRY = "Trigonometry";
-        public static final String DATA_ANALYSIS_STATISTICS_PROBABILITY = "Data Analysis, Statistics, Probability";
+        public static final String NONLINEAR_FUNCTIONS = "Nonlinear Functions";
+        public static final String DATA_ANALYSIS = "Data Analysis";
         public static final String USAGE_AND_MECHANICS = "Usage and Mechanics";
         public static final String RHETORICAL_SKILLS = "Rhetorical Skills";
         public static final String DATA_REPRESENTATION = "Data Representation";
@@ -196,7 +263,7 @@ public class Constants {
         public static String[] getCategories() {
             return new String[] {
                     SOCIAL_STUDIES_SCIENCE, ARTS_LITERATURE, PRE_ALGEBRA, ALGEBRA, GEOMETRY, TRIGONOMETRY,
-                    DATA_ANALYSIS_STATISTICS_PROBABILITY, USAGE_AND_MECHANICS, RHETORICAL_SKILLS,
+                    NONLINEAR_FUNCTIONS, DATA_ANALYSIS, USAGE_AND_MECHANICS, RHETORICAL_SKILLS,
                     DATA_REPRESENTATION, RESEARCH_SUMMARIES, CONFLICTING_VIEWPOINTS
             } ;
         }
@@ -222,7 +289,8 @@ public class Constants {
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
-                Category.DATA_ANALYSIS_STATISTICS_PROBABILITY,
+                Category.NONLINEAR_FUNCTIONS,
+                Category.DATA_ANALYSIS,
                 Category.USAGE_AND_MECHANICS,
                 Category.RHETORICAL_SKILLS
         });
@@ -233,6 +301,7 @@ public class Constants {
                 Category.ALGEBRA,
                 Category.GEOMETRY,
                 Category.TRIGONOMETRY,
+                Category.NONLINEAR_FUNCTIONS,
                 Category.USAGE_AND_MECHANICS,
                 Category.RHETORICAL_SKILLS,
                 Category.DATA_REPRESENTATION,
@@ -245,8 +314,9 @@ public class Constants {
                 Category.PRE_ALGEBRA,
                 Category.ALGEBRA,
                 Category.GEOMETRY,
-                Category.DATA_ANALYSIS_STATISTICS_PROBABILITY,
                 Category.TRIGONOMETRY,
+                Category.NONLINEAR_FUNCTIONS,
+                Category.DATA_ANALYSIS,
                 Category.USAGE_AND_MECHANICS,
                 Category.RHETORICAL_SKILLS,
                 Category.DATA_REPRESENTATION,
@@ -260,7 +330,7 @@ public class Constants {
     static {
         Map<String, String[]> map = new HashMap<String, String[]>();
         map.put(Subject.READING, new String[]{Category.SOCIAL_STUDIES_SCIENCE, Category.ARTS_LITERATURE});
-        map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.DATA_ANALYSIS_STATISTICS_PROBABILITY});
+        map.put(Subject.MATH, new String[]{Category.PRE_ALGEBRA, Category.ALGEBRA, Category.GEOMETRY, Category.TRIGONOMETRY, Category.NONLINEAR_FUNCTIONS, Category.DATA_ANALYSIS});
         map.put(Subject.ENGLISH, new String[]{Category.USAGE_AND_MECHANICS, Category.RHETORICAL_SKILLS});
         map.put(Subject.SCIENCE, new String[]{Category.DATA_REPRESENTATION, Category.RESEARCH_SUMMARIES, Category.CONFLICTING_VIEWPOINTS});
         SubjectToCategory = Collections.unmodifiableMap(map);

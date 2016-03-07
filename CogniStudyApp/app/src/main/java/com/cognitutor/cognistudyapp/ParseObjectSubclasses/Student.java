@@ -4,9 +4,7 @@ import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.parse.ParseACL;
 import com.parse.ParseClassName;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -66,7 +64,7 @@ public class Student extends ParseObject{
 
     private void createStudentSubjectRollingStats(String baseUserId) {
         ArrayList<StudentSubjectRollingStats> array = new ArrayList<>();
-        for(String subject : Constants.getAllConstants(Constants.Subject.class)) {
+        for(String subject : Constants.Subject.getSubjects()) {
             array.add(new StudentSubjectRollingStats(baseUserId, subject));
         }
         put(Columns.studentSubjectRollingStats, array);
@@ -74,7 +72,7 @@ public class Student extends ParseObject{
 
     private void createStudentCategoryRollingStats(String baseUserId) {
         ArrayList<StudentCategoryRollingStats> array = new ArrayList<>();
-        for(String category : Constants.getAllConstants(Constants.Category.class)) {
+        for(String category : Constants.Category.getCategories()) {
             array.add(new StudentCategoryRollingStats(baseUserId, category));
         }
         put(Columns.studentCategoryRollingStats, array);

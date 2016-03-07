@@ -1,6 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relativeLayout"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragments.AnalyticsFragment"
     android:orientation="vertical">
@@ -9,40 +11,73 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:layout_weight="5">
+        android:layout_weight="6">
 
-        <Spinner
+        <com.rey.material.widget.Spinner
+            android:id="@+id/spSubjects"
+            style="@style/Material.Widget.Spinner"
+            android:paddingLeft="10dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:entries="@array/subjects"
-            android:spinnerMode="dropdown" />
+            android:layout_height="wrap_content"/>
 
-        <Spinner
+        <com.rey.material.widget.Spinner
+            android:id="@+id/spDateRange"
+            style="@style/Material.Widget.Spinner"
+            android:paddingLeft="10dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:entries="@array/date_ranges"
-            android:spinnerMode="dropdown" />
-
+            android:layout_height="wrap_content"/>
+        
     </LinearLayout>
 
-    <com.github.mikephil.charting.charts.PieChart
+    <ViewSwitcher
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/pieChart"
-        android:layout_weight="3"
-        />
+        android:id="@+id/vsPieChart"
+        android:layout_weight="4">
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/pieChart"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtNoData"
+                android:text="No data available"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+    </ViewSwitcher>
 
     <com.github.mikephil.charting.charts.HorizontalBarChart
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/horizontalBarChart"
-        android:layout_weight="4"
+        android:layout_weight="5"
         />
 
-    <com.github.mikephil.charting.charts.BarChart
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/doubleBarChart"
-        android:layout_weight="4"
-        />
+        android:id="@+id/rlDoubleBarChart"
+        android:layout_weight="4">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/doubleBarTitle"
+            android:text=""
+            android:layout_centerHorizontal="true"/>
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/doubleBarChart"
+            android:layout_below="@+id/doubleBarTitle"
+            />
+    </RelativeLayout>
 </LinearLayout>
