@@ -2,11 +2,10 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -26,7 +25,17 @@ public class VerityEmailActivity extends AuthenticationActivity {
             startActivity(intent);
         }
 
+        setButtonColors();
+
         checkEmailVerified(null);
+    }
+
+    private void setButtonColors() {
+        CogniButton btnContinue = (CogniButton) findViewById(R.id.btnContinue);
+        btnContinue.setColor(this, R.color.green);
+
+        CogniButton btnLogout = (CogniButton) findViewById(R.id.btnLogout);
+        btnLogout.setColor(this, R.color.red);
     }
 
     public void checkEmailVerified(View view) {
@@ -37,8 +46,10 @@ public class VerityEmailActivity extends AuthenticationActivity {
         catch (ParseException e) { handleParseError(e); return; }
 
         boolean isVerified = currentUser.getBoolean("emailVerified");
+        if (!isVerified && view != null) {
+            Toast.makeText(getApplicationContext(), "Email verified: " + isVerified, Toast.LENGTH_SHORT).show();
+        }
 
-        Toast.makeText(getApplicationContext(), "Email verified: " + isVerified, Toast.LENGTH_SHORT).show();
         if(isVerified)
             navigateToNewDestination(); //Should almost always go to ChooseDisplayNameActivity
     }

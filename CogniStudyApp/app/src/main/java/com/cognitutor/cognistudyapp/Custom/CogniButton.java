@@ -15,21 +15,21 @@ public class CogniButton extends Button {
 
     public CogniButton(Context context) {
         super(context);
-        setColor(context);
+        setColor(context,R.color.colorPrimaryLight);
     }
 
     public CogniButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setColor(context);
+        setColor(context, R.color.colorPrimaryLight);
     }
 
     public CogniButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        setColor(context);
+        setColor(context, R.color.colorPrimaryLight);
     }
 
-    private void setColor(Context context) {
-        getBackground().setColorFilter(ContextCompat.getColor(context, R.color.colorPrimaryLight), PorterDuff.Mode.MULTIPLY);
+    public void setColor(Context context, int color) {
+        getBackground().setColorFilter(ContextCompat.getColor(context, color), PorterDuff.Mode.MULTIPLY);
         setTextColor(ContextCompat.getColor(context, R.color.white));
     }
 }
