@@ -9,6 +9,7 @@ import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import bolts.Continuation;
@@ -24,6 +25,14 @@ public class LoadingActivity extends Activity {
     }
 
     public static Class getDestination() {
+
+        boolean logout = false;
+
+        if(logout && ParseUser.getCurrentUser() != null) {
+            ParseObjectUtils.unpinAllInBackground();
+            ParseUser.logOut();
+            return RegistrationActivity.class;
+        }
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null)

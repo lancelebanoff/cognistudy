@@ -34,7 +34,7 @@ Parse.Cloud.afterSave("Question", function(request) {
 						catStats.increment("count", 1);
 						subStats.increment("count", 1);
 					}
-					else if(isActiveChanged) {
+					// else if(isActiveChanged) {
 						var amount = 0;
 						if(question.get("isActive"))
 							amount = 1;
@@ -42,12 +42,44 @@ Parse.Cloud.afterSave("Question", function(request) {
 							amount = -1;
 						catStats.increment("numActive", amount);
 						subStats.increment("numActive", amount);
-					}
+					// }
 					question.set("isActiveChanged", false);
 					var promises = [];
 					promises.push(catStats.save());
 					promises.push(subStats.save());
 					promises.push(question.save());
+					Parse.Promise.when(promises).then(
+						function(success) {
+							return;
+						}, function(error) { console.log(error); }
+					);
+				}, error: function(error) { console.log(error); }
+			});
+		}, error: function(error) { console.log(error); }
+	});
+});
+
+Parse.Cloud.afterDelete("Question", function(request) {
+	Parse.Cloud.useMasterKey();
+	var question = request.object;
+	var catQuery = new Parse.Query("CategoryStats")
+							.equalTo("category", question.get("category"));
+	var subQuery = new Parse.Query("SubjectStats")
+							.equalTo("subject", question.get("subject"));
+	catQuery.first({
+		success: function(catStats) {
+			subQuery.first({
+				success: function(subStats) {
+
+					catStats.increment("count", -1);
+					subStats.increment("count", -1);
+					if(question.get("isActive")) {
+						catStats.increment("numActive", -1);
+						subStats.increment("numActive", -1);
+					}
+					var promises = [];
+					promises.push(catStats.save());
+					promises.push(subStats.save());
 					Parse.Promise.when(promises).then(
 						function(success) {
 							return;

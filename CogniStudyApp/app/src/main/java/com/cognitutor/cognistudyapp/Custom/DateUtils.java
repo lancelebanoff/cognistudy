@@ -2,10 +2,9 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
-import com.parse.ParseObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -185,7 +184,7 @@ public class DateUtils {
 
         int[] blockNums = getDayTridayMonthBlockNums(date);
         String category = Constants.getRandomConstant(Constants.Category.class);
-        String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
+        String subject = CommonUtils.getSubjectFromCategory(category);
         boolean correct = didItHappen(rand, chanceCorrect);
 
         String randomId = getRandomQuestionId();
@@ -243,7 +242,7 @@ public class DateUtils {
             int day = getRandomDayInMonth(month, year);
             String dateString = String.valueOf(year) + "." + String.format("%02d", month) + "." + String.format("%02d", day);
             String category = Constants.getRandomConstant(Constants.Category.class);
-            String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
+            String subject = CommonUtils.getSubjectFromCategory(category);
             boolean correct = rand.nextBoolean();
 
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy.MM.dd");

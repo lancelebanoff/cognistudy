@@ -2,22 +2,28 @@ var common = require('cloud/common.js');
 
 Parse.Cloud.define("chooseThreeQuestions", function(request, response) {
 
-	var studentId = request.params.studentId;
+	var challengeUserDataId = request.params.challengeUserDataId;
 	var challengeId = request.params.challengeId;
 	var categories = request.params.categories;
 
 	var query = new Parse.Query("ChallengeUserData")
 						.include("publicUserData.student.studentCategoryRollingStats.answeredQuestionIds")
-						.include("thisTurnQuestions"); //TODO: Create this class
 
 	query.get(challengeUserDataId, {
 		success: function(challengeUserData) {
 			var student = challengeUserData.get("publicUserData").get("student");
-			var thisTurnQuestions = challengeUserData.get("thisTurnQuestions");
 
+			console.log("Before validity check");
 			getAnsweredQuestionIdsIfValid(student, challengeId, categories).then(
 				function(answeredQuestionIds) {
 
+					console.log("Got to answeredQuestionIds");
+					var string = "answeredQuestionIds: ";
+					for(var i=0; i<answeredQuestionIds.length; i++) {
+						string = string.concat(answeredQuestionIds[i]);
+					}
+					console.log(string);
+					response.success("Intermediate finish");
 					getRandomQuestion(categories, answeredQuestionIds, false).then(
 						function(firstQuestion) {
 							if(firstQuestion.inBundle) {
@@ -27,7 +33,7 @@ Parse.Cloud.define("chooseThreeQuestions", function(request, response) {
 										if(questions.length < 3) {
 											response.error("Error: bundle did not contain 3 questions"); //TODO: Just grab another question here
 										}
-										thisTurnQuestions.set("questions", questions); //TODO: This field will have to be unset when the user answers the questions
+										challengeUserData.set("curTurnQuestions", questions);
 										response.success(questions);
 									}, error: function(error) { response.error(error); }
 								});
@@ -36,11 +42,15 @@ Parse.Cloud.define("chooseThreeQuestions", function(request, response) {
 								answeredQuestionIds.push(firstQuestion.id);
 								getRandomQuestion(categories, answeredQuestionIds, true).then(
 									function(secondQuestion) {
-
 										answeredQuestionIds.push(secondQuestion.id);
 										getRandomQuestion(categories, answeredQuestionIds, true).then(
 											function(thirdQuestion) {
-												//TODO: Continue here
+												var questions = [];
+												questions.push(firstQuestion);
+												questions.push(secondQuestion);
+												questions.push(thirdQuestion);
+												challengeUserData.set("curTurnQuestions", questions);
+												response.success(questions);
 											}, function(error) { response.error(error);
 										});
 									}, function(error) { response.error(error);
@@ -48,17 +58,18 @@ Parse.Cloud.define("chooseThreeQuestions", function(request, response) {
 							}
 						}, function(error) { response.error(error);
 					});
-				}, function(error) {
+				// }, function(error) { response.error(error);
+				}, function(error) { console.log("Error in validity check"); response.error(error);
 			});
 		}, error: function(error) { }
 	});
-}
+});
 
 function getRandomQuestion(categories, answeredQuestionIds, skipBundles) {
 
 	var promise = new Parse.Promise();
 
-	var countQuery = new Parse.Query("QuestionCount")
+	var countQuery = new Parse.Query("CategoryStats")
 						.containedIn("category", categories);
 
 	countQuery.find({ useMasterKey: true,
@@ -71,15 +82,16 @@ function getRandomQuestion(categories, answeredQuestionIds, skipBundles) {
 				total += countObject.get("numActive");
 			}
 			var numRemaining = total - numAnswered;
-			var skipNum = Math.floor(Math.random()*numRemaining);
+			var skipNum = Math.max(0, Math.floor(Math.random()*numRemaining));
 
 			var query = new Parse.Query("Question")
 							.equalTo("isActive", true)
 							.containedIn("category", categories)
-							.notContainedIn("objectId", answeredQuestionIds);
+							.notContainedIn("objectId", answeredQuestionIds)
 							.skip(skipNum)
 							.limit(1)
-							.include("bundle") //TODO: Fix this in database
+							.include("bundle")
+							.include("questionContents");
 			if(skipBundles) {
 				query = query.equalTo("inBundle", false);
 			}
@@ -96,42 +108,71 @@ function getRandomQuestion(categories, answeredQuestionIds, skipBundles) {
 
 function getAnsweredQuestionIdsIfValid(student, challengeId, categories) {
 
+	Parse.Cloud.useMasterKey();
+	
+	console.log("Inside getAQIIV");
 	var baseUserId = student.get("baseUserId");
-	isRequestValid(challengeId, baseUserId).then({
-		success: function(isValid) {
+	var promise = new Parse.Promise();
+	isRequestValid(challengeId, baseUserId).then(
+		function(isValid) {
 			if(!isValid) {
+				console.log("getAQIIV: Invalid request");
 				promise.reject("Not a valid request");
+				return;
 			}
 			var rollingStatsList = student.get("studentCategoryRollingStats");
-			var list = [];
+			var rollingStatsToFetch = [];
 			for(var i=0; i<rollingStatsList.length; i++) {
 				var rollingStats = rollingStatsList[i];
 				var cat = rollingStats.get("category");
 				for(var j=0; j<categories.length; j++) {
 					if(categories[j] == cat) {
-						var ansQuestionIdsObject = rollingStats.get("answeredQuestionIds");
-						var questionIds = ansQuestionIdsObject.get("questionIds");
-						list.push.apply(list, questionIds);
+						rollingStatsToFetch.push(rollingStats);
 						break;
 					}
 				}
 			}
-			promise.resolve(list);
-		}, error: function(error) { promise.reject(error); }
+			Parse.Object.fetchAll(rollingStatsToFetch, {
+				success: function(fetchedRollingStats) {
+					var ansQuestionsToFetch = [];
+					for(var i=0; i<fetchedRollingStats.length; i++) {
+						var rollingStats = fetchedRollingStats[i];
+						var ansQuestionIdsObject = rollingStats.get("answeredQuestionIds");
+						ansQuestionsToFetch.push(ansQuestionIdsObject);
+					}
+					Parse.Object.fetchAll(ansQuestionsToFetch, {
+						success: function(fetchedAnsQuesIds) {
+							var list = [];
+							for(var i=0; i<fetchedAnsQuesIds.length; i++) {
+								var ansQuestionIdsObject = fetchedAnsQuesIds[i];
+								var questionIds = ansQuestionIdsObject.get("questionIds");
+								console.log("Size of questionIds = " + questionIds.length);
+								list.push.apply(list, questionIds);
+							}
+							console.log("list size = " + list.length);
+							promise.resolve(list);
+						}, error: function(error) { promise.reject(error); }
+					});
+				}, error: function(error) { promise.reject(error); }
+			});
+		}, function(error) { promise.reject(error);
 	});
 	return promise;
 }
 
 function isRequestValid(challengeId, baseUserId) {
 	//TODO: Also check if the questions have already been chosen for this user
+	console.log("Inside isRequestValid");
 	var promise = new Parse.Promise();
 	var query = new Parse.Query("Challenge");
 	query.get(challengeId, {
 		success: function(challenge) {
 			if(challenge.get("curTurnUserId") == baseUserId) {
+				console.log("Valid request");
 				promise.resolve(true);
 			}
 			else {
+				console.log("Invalid request");
 				promise.resolve(false);
 			}
 

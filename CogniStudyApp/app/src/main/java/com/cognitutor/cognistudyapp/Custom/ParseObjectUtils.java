@@ -486,75 +486,91 @@ public class ParseObjectUtils {
         }
     }
 
-    public static void logPinnedObjects(boolean delete) {
+    public static void logPinnedObjects(final boolean delete) {
 
-        try {
-            List<Class> classes = new ArrayList<Class>();
-            classes.add(PublicUserData.class);
-            classes.add(Student.class);
-            classes.add(PrivateStudentData.class);
-            classes.add(StudentCategoryRollingStats.class);
-            classes.add(StudentSubjectRollingStats.class);
-            classes.add(StudentTotalRollingStats.class);
-            classes.add(Response.class);
-            classes.add(StudentCategoryDayStats.class);
-            classes.add(StudentCategoryTridayStats.class);
-            classes.add(StudentCategoryMonthStats.class);
-            classes.add(StudentSubjectDayStats.class);
-            classes.add(StudentSubjectTridayStats.class);
-            classes.add(StudentSubjectMonthStats.class);
-            classes.add(StudentTotalDayStats.class);
-            classes.add(StudentTotalTridayStats.class);
-            classes.add(StudentTotalMonthStats.class);
-            classes.add(AnsweredQuestionIds.class);
-            classes.add(Achievement.class);
-            classes.add(PinnedObject.class);
+        Task.callInBackground(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                List<Class> classes = new ArrayList<Class>();
+                classes.add(PublicUserData.class);
+                classes.add(Student.class);
+                classes.add(PrivateStudentData.class);
+                classes.add(StudentCategoryRollingStats.class);
+                classes.add(StudentSubjectRollingStats.class);
+                classes.add(StudentTotalRollingStats.class);
+                classes.add(Response.class);
+                classes.add(StudentCategoryDayStats.class);
+                classes.add(StudentCategoryTridayStats.class);
+                classes.add(StudentCategoryMonthStats.class);
+                classes.add(StudentSubjectDayStats.class);
+                classes.add(StudentSubjectTridayStats.class);
+                classes.add(StudentSubjectMonthStats.class);
+                classes.add(StudentTotalDayStats.class);
+                classes.add(StudentTotalTridayStats.class);
+                classes.add(StudentTotalMonthStats.class);
+                classes.add(AnsweredQuestionIds.class);
+                classes.add(Achievement.class);
+                classes.add(PinnedObject.class);
 
-            List<PinnedObject> pinnedObjects = ParseQuery.getQuery(PinnedObject.class)
-                    .fromLocalDatastore()
-                    .find();
-            Log.d("Num Pinned", PinnedObject.class.getSimpleName() + " = " + pinnedObjects.size());
-            List<String> pinnedObjectIds = new ArrayList<>();
-            for (PinnedObject pinnedObject : pinnedObjects) {
-                pinnedObjectIds.add(pinnedObject.getPinObjectId());
-            }
-
-
-            List<PublicUserData> puds = ParseQuery.getQuery(PublicUserData.class)
-                    .fromLocalDatastore()
-                    .find();
-            for (ParseObject obj : puds) {
-                if (delete) {
-                    obj.unpin();
-                }
-            }
-
-            int actualNumPinned = 0;
-            for (Class clazz : classes) {
-                ParseQuery query = ParseQuery.getQuery(clazz.getSimpleName())
-                        .fromLocalDatastore();
-                if(StudentBlockStats.class.isAssignableFrom(clazz)) {
-                    query = query.orderByDescending(StudentBlockStats.SuperColumns.blockNum);
-                }
-                List<ParseObject> objects = query.find();
-                int numPinned = objects.size();
-                Log.d("Line Break", " ");
-                Log.d("Num Pinned", clazz.getSimpleName() + " = " + numPinned);
-                if (clazz == PinnedObject.class)
-                    continue;
-                actualNumPinned += numPinned;
-                for (ParseObject obj : objects) {
-                    if(delete) {
-                        obj.unpin();
+                try {
+                    List<PinnedObject> pinnedObjects = ParseQuery.getQuery(PinnedObject.class)
+                            .fromLocalDatastore()
+                            .find();
+                    Log.d("Num Pinned", PinnedObject.class.getSimpleName() + " = " + pinnedObjects.size());
+                    List<String> pinnedObjectIds = new ArrayList<>();
+                    for (PinnedObject pinnedObject : pinnedObjects) {
+                        pinnedObjectIds.add(pinnedObject.getPinObjectId());
                     }
-                    Log.d("Obj data  ", "    " + obj.toString());
+                } catch (ParseException e) {}
+
+                List<PublicUserData> puds;
+                try {
+                    puds = ParseQuery.getQuery(PublicUserData.class)
+                            .fromLocalDatastore()
+                            .find();
+                } catch (ParseException e) { puds = new ArrayList<>(); }
+
+                try {
+                    for (ParseObject obj : puds) {
+                        if (delete) {
+                            obj.unpin();
+                        }
+                    }
+                } catch (ParseException e) { e.printStackTrace(); }
+
+                int actualNumPinned = 0;
+                for (Class clazz : classes) {
+                    ParseQuery query = ParseQuery.getQuery(clazz.getSimpleName())
+                            .fromLocalDatastore();
+                    if(StudentBlockStats.class.isAssignableFrom(clazz)) {
+                        query = query.orderByDescending(StudentBlockStats.SuperColumns.blockNum);
+                    }
+                    List<ParseObject> objects;
+                    try {
+                        objects = query.find();
+                    } catch (ParseException e) { objects = new ArrayList<>(); }
+                    int numPinned = objects.size();
+                    Log.d("Line Break", " ");
+                    Log.d("Num Pinned", clazz.getSimpleName() + " = " + numPinned);
+                    if (clazz == PinnedObject.class)
+                        continue;
+                    actualNumPinned += numPinned;
+                    for (ParseObject obj : objects) {
+                        try {
+                            if (delete) {
+                                obj.unpin();
+                            }
+                        } catch (ParseException e) { e.printStackTrace(); }
+                        Log.d("Obj data  ", "    " + obj.toString());
 //                    if (!pinnedObjectIds.contains(obj.getObjectId())) {
 //                        Log.d("Obj data  ", "    ============ " + obj.getObjectId() + " not represented by PinnedObject");
 //                    }
+                    }
                 }
+                Log.d("Actual Num Pinned", String.valueOf(actualNumPinned));
+                return null;
             }
-            Log.d("Actual Num Pinned", String.valueOf(actualNumPinned));
-        } catch (ParseException e) { e.printStackTrace(); }
+        });
     }
     // </editor-fold>
 }

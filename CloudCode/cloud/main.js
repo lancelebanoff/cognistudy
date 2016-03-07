@@ -9,3 +9,4 @@ var m8 = require('cloud/deleteStudentV2.js');
 var m9 = require('cloud/incrementCatAndSubStats.js');
 var m10 = require('cloud/deleteOldBlockStats.js');
 var m11 = require('cloud/questionCount.js');
+var m12 = require('cloud/chooseRandomQuestions.js');

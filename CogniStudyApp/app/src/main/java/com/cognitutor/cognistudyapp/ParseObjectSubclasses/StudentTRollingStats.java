@@ -147,7 +147,7 @@ public abstract class StudentTRollingStats extends ParseObject{
             return query.whereEqualTo(StudentCategoryRollingStats.Columns.category, category);
         }
         else if(clazz == StudentSubjectRollingStats.class) {
-            String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
+            String subject = CommonUtils.getSubjectFromCategory(category);
             return query.whereEqualTo(StudentSubjectRollingStats.Columns.subject, subject);
         }
         return null;

@@ -56,14 +56,19 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     public void navigateToMainActivity() {
+        try {
+            UserUtils.pinCurrentUser().waitForCompletion();
+        } catch (Exception e) { e.printStackTrace(); }
         doNavigate(MainActivity.class, true);
     }
 
-    public void doPinCurrentUser() {
-        try {
-            UserUtils.pinCurrentUser();
+    public void navigateToMainActivity(boolean pinCurrentUser) {
+        if(pinCurrentUser) {
+            try {
+                UserUtils.pinCurrentUser().waitForCompletion();
+            } catch (Exception e) { e.printStackTrace(); }
         }
-        catch (ParseException e) { handleParseError(e); return; }
+        doNavigate(MainActivity.class, true);
     }
 
     public void navigateToLoginActivity(View view) {
@@ -89,7 +94,8 @@ class AuthenticationActivity extends CogniActivity {
         final ParseInstallation installation = setUpInstallation(user.getObjectId());
 
         //TODO: This does not add a PinnedObject instance for current user since the user has not been saved to Parse yet
-        ParseObjectUtils.pinInBackground(Constants.PinNames.CurrentUser, publicUserData)
+//        ParseObjectUtils.pinInBackground(Constants.PinNames.CurrentUser, publicUserData)
+        ParseObjectUtils.pinInBackground(Constants.PinNames.CurrentUser, privateStudentData) //Only privateStudentData is needed for FB
             .continueWith(new Continuation<Void, Void>() {
                 @Override
                 public Void then(Task<Void> task) throws Exception {

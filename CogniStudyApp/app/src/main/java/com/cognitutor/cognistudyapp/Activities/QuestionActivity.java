@@ -97,8 +97,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 //        avh.mvQuestion.loadUrl("file:///android_asset/html/passage.html");
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
 
-        if(mQuestion.isBundle()) {
-            avh.wvPassage.loadData(buildPassageHtml(mQuestionContents.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
+        if(mQuestion.inBundle()) {
+            avh.wvPassage.loadData(buildPassageHtml(mQuestion.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
         }
 //        avh.wvPassage.loadData(
 //                "<html><body>" +

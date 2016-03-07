@@ -159,10 +159,10 @@ public abstract class StudentBlockStats extends ParseObject{
 //        }
     }
 
-    public static Task<Object> pinAllBlockStatsInBackground(final Student student) {
-        return Task.callInBackground(new Callable<Object>() {
+    public static Task<Void> pinAllBlockStatsInBackground(final Student student) {
+        return Task.callInBackground(new Callable<Void>() {
             @Override
-            public Object call() throws Exception {
+            public Void call() throws Exception {
                 final List<ParseObject> blockStatsToPin = new ArrayList<>();
                 for (final StudentBlockStats instance : getSubclassInstances()) {
                     try {
@@ -171,7 +171,8 @@ public abstract class StudentBlockStats extends ParseObject{
                     } catch (ParseException e) {
                     }
                 }
-                return ParseObject.pinAllInBackground(Constants.PinNames.BlockStats, blockStatsToPin);
+                ParseObject.pinAllInBackground(Constants.PinNames.BlockStats, blockStatsToPin).waitForCompletion();
+                return null;
 //                return ParseObjectUtils.pinAllInBackground(Constants.PinNames.BlockStats, blockStatsToPin);
             }
         });

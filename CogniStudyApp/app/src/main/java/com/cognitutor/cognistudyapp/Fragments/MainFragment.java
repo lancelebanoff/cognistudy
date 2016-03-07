@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Pair;
@@ -23,6 +24,7 @@ import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -33,6 +35,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -67,6 +72,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+//        ParseObjectUtils.logPinnedObjects(false);
+
         // TODO:2 Don't reload every time
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -133,31 +141,41 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void createYourTurnListView(View rootView) {
-        List<Pair> keyValuePairs = new ArrayList<>();
+    private void createYourTurnListView(final View rootView) {
+        final List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
-        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
-        yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
-        yourTurnListView.setFocusable(false);
-        yourTurnListView.setAdapter(yourTurnChallengeQueryAdapter);
-        yourTurnChallengeQueryAdapter.loadObjects();
-
-        yourTurnChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+        final MainFragment fragment = this;
+        PublicUserData.getPublicUserDataInBackground().continueWith(new Continuation<PublicUserData, Object>() {
             @Override
-            public void onLoading() {
+            public Object then(Task<PublicUserData> task) throws Exception {
+                PublicUserData pud = task.getResult();
+                keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, task.getResult().getBaseUserId()));
+                yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), fragment, keyValuePairs);
 
-            }
+                yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
+                yourTurnListView.setFocusable(false);
+                yourTurnListView.setAdapter(yourTurnChallengeQueryAdapter);
+                yourTurnChallengeQueryAdapter.loadObjects();
 
-            @Override
-            public void onLoaded(List<ParseObject> objects, Exception e) {
-                setListViewHeightBasedOnChildren(yourTurnListView);
+                yourTurnChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+                    @Override
+                    public void onLoading() {
+
+                    }
+
+                    @Override
+                    public void onLoaded(List<ParseObject> objects, Exception e) {
+                        setListViewHeightBasedOnChildren(yourTurnListView);
+                    }
+                });
+                return null;
             }
         });
+//        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
+//                PublicUserData.getPublicUserData().getBaseUserId()));
     }
 
     private void createTheirTurnListView(View rootView) {
@@ -273,7 +291,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                DateUtils.generateRandomStats(DateUtils.BlockType.DAY);
+                Question.generateRandomQuestions();
+//                DateUtils.generateRandomStats(DateUtils.BlockType.DAY);
 //                Intent intent = new Intent(getActivity(), QuestionActivity.class);
 //                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "eO4TCrdBdn"); //TODO: Replace with desired questionId
 //                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
