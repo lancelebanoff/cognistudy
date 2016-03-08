@@ -23,9 +23,9 @@ Parse.Cloud.define("chooseThreeQuestions", function(request, response) {
 						string = string.concat(answeredQuestionIds[i]);
 					}
 					console.log(string);
-					response.success("Intermediate finish");
 					getRandomQuestion(categories, answeredQuestionIds, false).then(
 						function(firstQuestion) {
+							response.success("Intermediate finish");
 							if(firstQuestion.inBundle) {
 								var bundle = firstQuestion.get("bundle");
 								bundle.fetchAllIfNeeded("questions", {
@@ -79,13 +79,21 @@ function getRandomQuestion(categories, answeredQuestionIds, skipBundles) {
 			var total = 0;
 			for(var i=0; i<counts.length; i++) {
 				countObject = counts[i];
+				console.log(countObject.get("category") + " numActive " + countObject.get("numActive"));
 				total += countObject.get("numActive");
 			}
+			console.log("Total = " + total);
 			var numRemaining = total - numAnswered;
+			console.log("numRemaining = " + numRemaining);
+			promise.resolve("Intermdiate finish");
+
+			//////////
+
 			var skipNum = Math.max(0, Math.floor(Math.random()*numRemaining));
 
 			var query = new Parse.Query("Question")
 							.equalTo("isActive", true)
+							.equalTo("test", true) //TODO: Remove later
 							.containedIn("category", categories)
 							.notContainedIn("objectId", answeredQuestionIds)
 							.skip(skipNum)
@@ -109,7 +117,7 @@ function getRandomQuestion(categories, answeredQuestionIds, skipBundles) {
 function getAnsweredQuestionIdsIfValid(student, challengeId, categories) {
 
 	Parse.Cloud.useMasterKey();
-	
+
 	console.log("Inside getAQIIV");
 	var baseUserId = student.get("baseUserId");
 	var promise = new Parse.Promise();
