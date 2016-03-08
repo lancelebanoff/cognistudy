@@ -17,7 +17,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
-import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
@@ -101,26 +100,29 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         super.onResume();
 
         View rootView = getActivity().findViewById(R.id.viewpager);
-        createChallengeRequestListView(rootView);
-        createYourTurnListView(rootView);
-        createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
+        createAllListViews(rootView);
     }
 
-    private void createAllListViews(View rootView) {
-        createChallengeRequestListView(rootView);
-        createYourTurnListView(rootView);
-        createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
+    private void createAllListViews(final View rootView) {
+        PublicUserData.getPublicUserDataInBackground().continueWith(new Continuation<PublicUserData, Void>() {
+            @Override
+            public Void then(Task<PublicUserData> task) throws Exception {
+                PublicUserData publicUserData = task.getResult();
+                createChallengeRequestListView(rootView, publicUserData);
+                createYourTurnListView(rootView, publicUserData);
+                createTheirTurnListView(rootView, publicUserData);
+                createPastChallengeListView(rootView, publicUserData);
+                return null;
+            }
+        });
     }
 
-    private void createChallengeRequestListView(View rootView) {
+    private void createChallengeRequestListView(View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         challengeRequestListView = (ListView) rootView.findViewById(R.id.listChallengeRequests);
@@ -141,11 +143,18 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void createYourTurnListView(final View rootView) {
+    private void createYourTurnListView(final View rootView, PublicUserData publicUserData) {
         final List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
+
+        yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
+        yourTurnListView.setFocusable(false);
+        yourTurnListView.setAdapter(yourTurnChallengeQueryAdapter);
+        yourTurnChallengeQueryAdapter.loadObjects();
 
         final MainFragment fragment = this;
         PublicUserData.getPublicUserDataInBackground().continueWith(new Continuation<PublicUserData, Object>() {
@@ -178,12 +187,11 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 //                PublicUserData.getPublicUserData().getBaseUserId()));
     }
 
-    private void createTheirTurnListView(View rootView) {
+    private void createTheirTurnListView(View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         theirTurnListView = (ListView) rootView.findViewById(R.id.listTheirTurnChallenges);
@@ -204,16 +212,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void createPastChallengeListView(View rootView) {
+    private void createPastChallengeListView(View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs1 = new ArrayList<>();
         keyValuePairs1.add(new Pair<>(Challenge.Columns.hasEnded, true));
-        keyValuePairs1.add(new Pair<>(Challenge.Columns.curTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs1.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
 
         List<Pair> keyValuePairs2 = new ArrayList<>();
         keyValuePairs2.add(new Pair<>(Challenge.Columns.hasEnded, true));
-        keyValuePairs2.add(new Pair<>(Challenge.Columns.otherTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs2.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
 
         List<List<Pair>> keyValuePairsList = new ArrayList<>();
         keyValuePairsList.add(keyValuePairs1);

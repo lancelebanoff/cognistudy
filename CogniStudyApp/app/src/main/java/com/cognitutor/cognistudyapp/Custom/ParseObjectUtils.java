@@ -75,18 +75,18 @@ public class ParseObjectUtils {
         final Map<String, HashSet<ParseObject>> clonedPinMap = (Map<String, HashSet<ParseObject>>) pinMap.clone();
         pinMap.clear();
         return ParseObject.saveAllInBackground(saveList)
-            .continueWithTask(new Continuation<Void, Task<Boolean>>() {
-                @Override
-                public Task<Boolean> then(Task<Void> task) throws Exception {
-                    if (task.isFaulted()) {
-                        handleException(task.getError(), "utils saveAll error");
-                        return CommonUtils.getCompletionTask(false);
+                .continueWithTask(new Continuation<Void, Task<Boolean>>() {
+                    @Override
+                    public Task<Boolean> then(Task<Void> task) throws Exception {
+                        if (task.isFaulted()) {
+                            handleException(task.getError(), "utils saveAll error");
+                            return CommonUtils.getCompletionTask(false);
+                        }
+                        if (clonedPinMap.isEmpty())
+                            return CommonUtils.getCompletionTask(true);
+                        return pinFromMap(clonedPinMap);
                     }
-                    if (clonedPinMap.isEmpty())
-                        return CommonUtils.getCompletionTask(true);
-                    return pinFromMap(clonedPinMap);
-                }
-            });
+                });
     }
 
     private static Task<Boolean> pinFromMap(Map<String, HashSet<ParseObject>> map) {
@@ -161,18 +161,18 @@ public class ParseObjectUtils {
     public static void pinThenSaveEventually(String pinName, ParseObject object) {
         object.pinInBackground(pinName);
         object.saveEventually()
-            .continueWith(new Continuation<Void, Object>() {
-                @Override
-                public Object then(Task<Void> task) throws Exception {
-                    if(task.isFaulted()) {
-                        Log.e("saveResponse", task.getError().getMessage());
+                .continueWith(new Continuation<Void, Object>() {
+                    @Override
+                    public Object then(Task<Void> task) throws Exception {
+                        if(task.isFaulted()) {
+                            Log.e("saveResponse", task.getError().getMessage());
+                        }
+                        else {
+                            Log.d("saveResponse", "Fine!");
+                        }
+                        return null;
                     }
-                    else {
-                        Log.d("saveResponse", "Fine!");
-                    }
-                    return null;
-                }
-            });
+                });
     }
 
     public static Task<Void> pinThenSaveInBackground(String pinName, ParseObject object) {
@@ -285,26 +285,26 @@ public class ParseObjectUtils {
             return PinnedObject.getQueryForUserOldestFirst(pinName)
                     .countInBackground()
                     .continueWithTask(new Continuation<Integer, Task<Void>>() {
-                @Override
-                public Task<Void> then(Task<Integer> task) throws Exception {
-                    int numPinned = task.getResult();
-                    int numToUnpin = numWaiting + numPinned - max;
-                    if (numToUnpin > 0) {
-                        return PinnedObject.getQueryForUserOldestFirst(pinName)
-                                .setLimit(numToUnpin)
-                                .findInBackground()
-                                .continueWithTask(new Continuation<List<PinnedObject>, Task<Void>>() {
-                                    @Override
-                                    public Task<Void> then(Task<List<PinnedObject>> task) throws Exception {
-                                        List<PinnedObject> listToUnpin = task.getResult();
-                                        PinnedObject.unpinAllObjectsAndDelete(listToUnpin);
-                                        return doNewPinAll(pinName, newObjectsToPin.subList(0, Math.min(max, newObjectsToPin.size())));
-                                    }
-                                });
-                    } else
-                        return CommonUtils.getCompletionTask(null);
-                }
-            });
+                        @Override
+                        public Task<Void> then(Task<Integer> task) throws Exception {
+                            int numPinned = task.getResult();
+                            int numToUnpin = numWaiting + numPinned - max;
+                            if (numToUnpin > 0) {
+                                return PinnedObject.getQueryForUserOldestFirst(pinName)
+                                        .setLimit(numToUnpin)
+                                        .findInBackground()
+                                        .continueWithTask(new Continuation<List<PinnedObject>, Task<Void>>() {
+                                            @Override
+                                            public Task<Void> then(Task<List<PinnedObject>> task) throws Exception {
+                                                List<PinnedObject> listToUnpin = task.getResult();
+                                                PinnedObject.unpinAllObjectsAndDelete(listToUnpin);
+                                                return doNewPinAll(pinName, newObjectsToPin.subList(0, Math.min(max, newObjectsToPin.size())));
+                                            }
+                                        });
+                            } else
+                                return CommonUtils.getCompletionTask(null);
+                        }
+                    });
 
         } catch (ParseException e) {
             e.printStackTrace();
@@ -334,12 +334,12 @@ public class ParseObjectUtils {
     //Don't bother removing the pin name because it might be in the process of being added back by another thread
     public static Task<Void> unpinAllInBackground(final String pinName) {
         return deletePinnedObjectsInBackground(pinName)
-            .continueWithTask(new Continuation<Void, Task<Void>>() {
-                @Override
-                public Task<Void> then(Task<Void> task) throws Exception {
-                    return ParseObject.unpinAllInBackground(pinName);
-                }
-            });
+                .continueWithTask(new Continuation<Void, Task<Void>>() {
+                    @Override
+                    public Task<Void> then(Task<Void> task) throws Exception {
+                        return ParseObject.unpinAllInBackground(pinName);
+                    }
+                });
     }
 
     public static Task<Void> unpinAllInBackground(ParseQuery<ParseObject> query) {
@@ -378,53 +378,53 @@ public class ParseObjectUtils {
 //            Log.d("unpinAllinBg", "PinnedObjects before unpinAll = " + numFromLocal);
 //        } catch (ParseException e) { e.printStackTrace(); }
         return ParseCloud.callFunctionInBackground("deletePinnedObjects", params)
-            .continueWith(new Continuation<Object, Void>() {
-                @Override
-                public Void then(Task<Object> task) throws Exception {
-                    if(task.isFaulted()) {
-                        Log.e("deletePinnedObjects", task.getError().getMessage());
-                    }
+                .continueWith(new Continuation<Object, Void>() {
+                    @Override
+                    public Void then(Task<Object> task) throws Exception {
+                        if(task.isFaulted()) {
+                            Log.e("deletePinnedObjects", task.getError().getMessage());
+                        }
 //                    ParseObject.unpinAllInBackground().waitForCompletion();
-                    ParseObject.unpinAllInBackground()
-                            .continueWith(new Continuation<Void, Object>() {
-                                @Override
-                                public Object then(Task<Void> task) throws Exception {
-                                    if (task.isFaulted()) {
-                                        Log.e("unpinAll", task.getError().getMessage());
-                                    }
-                                    return null;
-                                }
-                            });
-                    //Extra layer of assurance that everything will be unpinned that should be
-                    ParseObject.unpinAllInBackground(Constants.PinNames.CurrentUser).waitForCompletion();
-                    ParseObject.unpinAllInBackground(Constants.PinNames.BlockStats).waitForCompletion();
-//                    logPinnedObjects(true);
-                    List<String> pinNames = Arrays.asList(Constants.getAllConstants(Constants.PinNames.class));
-                    for (String pinName : pinNames) {
-                        Log.d("pinName: ", pinName);
-//                        ParseObject.unpinAllInBackground(pinName);
-//                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
-                        ParseObject.unpinAllInBackground(pinName)
+                        ParseObject.unpinAllInBackground()
                                 .continueWith(new Continuation<Void, Object>() {
                                     @Override
                                     public Object then(Task<Void> task) throws Exception {
                                         if (task.isFaulted()) {
-                                            Log.e("unpinAll with pinName", task.getError().getMessage());
+                                            Log.e("unpinAll", task.getError().getMessage());
                                         }
                                         return null;
                                     }
-                                }).waitForCompletion();
+                                });
+                        //Extra layer of assurance that everything will be unpinned that should be
+                        ParseObject.unpinAllInBackground(Constants.PinNames.CurrentUser).waitForCompletion();
+                        ParseObject.unpinAllInBackground(Constants.PinNames.BlockStats).waitForCompletion();
+//                    logPinnedObjects(true);
+                        List<String> pinNames = Arrays.asList(Constants.getAllConstants(Constants.PinNames.class));
+                        for (String pinName : pinNames) {
+                            Log.d("pinName: ", pinName);
+//                        ParseObject.unpinAllInBackground(pinName);
+//                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+                            ParseObject.unpinAllInBackground(pinName)
+                                    .continueWith(new Continuation<Void, Object>() {
+                                        @Override
+                                        public Object then(Task<Void> task) throws Exception {
+                                            if (task.isFaulted()) {
+                                                Log.e("unpinAll with pinName", task.getError().getMessage());
+                                            }
+                                            return null;
+                                        }
+                                    }).waitForCompletion();
+                        }
+                        ParseObjectUtils.logPinnedObjects(true);
+                        try {
+                            int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
+                                    .fromLocalDatastore()
+                                    .count();
+                            Log.d("unpinAllinBg", "PinnedObjects after unpinAll = " + numFromLocal);
+                        } catch (ParseException e) { e.printStackTrace(); }
+                        return null;
                     }
-                    ParseObjectUtils.logPinnedObjects(true);
-                    try {
-                        int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
-                                .fromLocalDatastore()
-                                .count();
-                        Log.d("unpinAllinBg", "PinnedObjects after unpinAll = " + numFromLocal);
-                    } catch (ParseException e) { e.printStackTrace(); }
-                    return null;
-                }
-            });
+                });
     }
 
     private static <T extends ParseObject> void addAllPinnedObjectsInBackground(String pinName, List<T> objects) {
@@ -447,23 +447,23 @@ public class ParseObjectUtils {
 
     public static <T extends ParseObject> Task<Void> deleteObjectsInBackground(ParseQuery<T> query) {
         return query.findInBackground()
-            .continueWithTask(new Continuation<List<T>, Task<Void>>() {
-                @Override
-                public Task<Void> then(Task<List<T>> task) throws Exception {
-                List<T> objects = task.getResult();
-                for(T obj : objects) {
-                    obj.deleteInBackground()
-                        .continueWith(new Continuation<Void, Object>() {
-                            @Override
-                            public Object then(Task<Void> task) throws Exception {
-                                if (task.isFaulted()) {
-                                    Log.e("DeleteObjectsInBackg", task.getError().getMessage());
-                                    //TODO: I once got an invalid session token error here. Create Cloud Code function for deleting PinnedObjects?
-                                }
-                                return null;
-                            }
-                        });
-                }
+                .continueWithTask(new Continuation<List<T>, Task<Void>>() {
+                    @Override
+                    public Task<Void> then(Task<List<T>> task) throws Exception {
+                        List<T> objects = task.getResult();
+                        for (T obj : objects) {
+                            obj.deleteInBackground()
+                                    .continueWith(new Continuation<Void, Object>() {
+                                        @Override
+                                        public Object then(Task<Void> task) throws Exception {
+                                            if (task.isFaulted()) {
+                                                Log.e("DeleteObjectsInBackg", task.getError().getMessage());
+                                                //TODO: I once got an invalid session token error here. Create Cloud Code function for deleting PinnedObjects?
+                                            }
+                                            return null;
+                                        }
+                                    });
+                        }
 //                ParseObject.deleteAllInBackground(task.getResult())
 //                    .continueWith(new Continuation<Void, Object>() {
 //                        @Override
@@ -474,9 +474,9 @@ public class ParseObjectUtils {
 //                            return null;
 //                        }
 //                    });
-                return null;
-                }
-            });
+                        return null;
+                    }
+                });
     }
 
     public static void testPins(boolean pin) {

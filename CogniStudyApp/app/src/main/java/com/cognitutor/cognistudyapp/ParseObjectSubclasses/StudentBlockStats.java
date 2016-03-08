@@ -51,6 +51,18 @@ public abstract class StudentBlockStats extends ParseObject{
         return new ParseQuery(getClass().getSimpleName());
     }
 
+    public static <T extends StudentBlockStats> T getStudentBlockStatsByBlockNum(final Class<T> clazz, final String baseUserId, final int blockNum) {
+        ParseQuery<T> query = ParseQuery.getQuery(clazz)
+                .whereEqualTo(SuperColumns.baseUserId, baseUserId)
+                .whereEqualTo(SuperColumns.blockNum, blockNum)
+                .fromLocalDatastore();
+        try {
+            return query.getFirst();
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
     private static List<StudentBlockStats> subclassesList;
     private static List<StudentBlockStats> getSubclassInstances() {
         if(subclassesList != null)

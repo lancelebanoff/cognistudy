@@ -15,7 +15,6 @@ import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
@@ -79,10 +78,6 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                 return null;
             }
         });
-//        try {
-//            cachedPublicUserDataList = getDefaultQuery().find();
-//        } catch (ParseException e) { e.printStackTrace(); cachedPublicUserDataList = null; }
-//        reset();
     }
 
     public synchronized void resetResultsToDefault() {
