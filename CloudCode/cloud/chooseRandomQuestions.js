@@ -75,17 +75,24 @@ function getRandomQuestion(categories, answeredQuestionIds, skipBundles) {
 	countQuery.find({ useMasterKey: true,
 		success: function(counts) {
 
-			var numAnswered = answeredQuestionIds.length;
-			var total = 0;
-			for(var i=0; i<counts.length; i++) {
-				countObject = counts[i];
-				console.log(countObject.get("category") + " numActive " + countObject.get("numActive"));
-				total += countObject.get("numActive");
-			}
-			console.log("Total = " + total);
-			var numRemaining = total - numAnswered;
-			console.log("numRemaining = " + numRemaining);
-			promise.resolve("Intermdiate finish");
+			Parse.Object.fetchAll(counts).then(
+
+				function(counts) {
+					var numAnswered = answeredQuestionIds.length;
+					var total = 0;
+					for(var i=0; i<counts.length; i++) {
+						countObject = counts[i];
+						console.log(countObject.get("category") + " numActive " + countObject.get("numActive"));
+						total += countObject.get("numActive");
+					}
+					console.log("Total = " + total);
+					var numRemaining = total - numAnswered;
+					console.log("numRemaining = " + numRemaining);
+					promise.resolve("Intermdiate finish");
+				}, function(error) { promise.reject(error); }
+			);
+
+			return;
 
 			//////////
 

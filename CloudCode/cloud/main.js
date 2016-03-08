@@ -11,3 +11,4 @@ var m10 = require('cloud/deleteOldBlockStats.js');
 var m11 = require('cloud/questionCount.js');
 var m12 = require('cloud/chooseRandomQuestions.js');
 var m13 = require('cloud/getCatAndSubStats.js');
+var m14 = require('cloud/deleteTestQuestions.js');
