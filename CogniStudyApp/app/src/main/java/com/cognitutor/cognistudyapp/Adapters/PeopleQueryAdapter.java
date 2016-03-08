@@ -15,7 +15,6 @@ import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
@@ -68,10 +67,17 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         mOnClickHandler = onClickHandler;
         mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mLock = new ReentrantLock();
-        try {
-            cachedPublicUserDataList = getDefaultQuery().find();
-        } catch (ParseException e) { e.printStackTrace(); cachedPublicUserDataList = null; }
-        reset();
+        getDefaultQuery().findInBackground().continueWith(new Continuation<List<PublicUserData>, Object>() {
+            @Override
+            public Object then(Task<List<PublicUserData>> task) throws Exception {
+                if (!task.isFaulted())
+                    cachedPublicUserDataList = task.getResult();
+                else
+                    cachedPublicUserDataList = null;
+                reset();
+                return null;
+            }
+        });
     }
 
     public synchronized void resetResultsToDefault() {
