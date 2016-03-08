@@ -1,13 +1,20 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
@@ -73,6 +80,7 @@ public class RegistrationActivity extends AuthenticationActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgress(true);
                 ParseFacebookUtils.logInWithReadPermissionsInBackground(activity,
                         permissions, new LogInCallback() {
                             @Override
@@ -80,9 +88,11 @@ public class RegistrationActivity extends AuthenticationActivity {
                                 if (e != null) {
                                     //TODO: handle error
                                     Log.d("onClick", "error");
+                                    showProgress(false);
                                     e.printStackTrace();
                                 } else if (user == null) {
                                     Log.d("Onclick", "User cancelled the Facebook login");
+                                    showProgress(false);
                                 } else if (user.isNew()) {
                                     Log.d("Onclick", "New user!");
                                     UserUtils.setUserLoggedIn(true);
@@ -282,5 +292,44 @@ public class RegistrationActivity extends AuthenticationActivity {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] image = stream.toByteArray();
         return new ParseFile("default_profile_pic.png", image);
+    }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        final RelativeLayout contentLayout = (RelativeLayout) findViewById(R.id.contentLayout);
+        final ProgressBar progressView = (ProgressBar) findViewById(R.id.login_progress);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            contentLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+            contentLayout.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    contentLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            contentLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
     }
 }
