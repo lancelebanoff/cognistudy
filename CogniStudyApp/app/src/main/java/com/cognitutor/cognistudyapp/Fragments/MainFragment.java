@@ -112,7 +112,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void createChallengeRequestListView(View rootView, PublicUserData publicUserData) {
+    private void createChallengeRequestListView(final View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
@@ -120,20 +120,25 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
-        challengeRequestListView = (ListView) rootView.findViewById(R.id.listChallengeRequests);
-        challengeRequestListView.setFocusable(false);
-        challengeRequestListView.setAdapter(challengeRequestQueryAdapter);
-        challengeRequestQueryAdapter.loadObjects();
-
-        challengeRequestQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
-            public void onLoading() {
+            public void run() {
+                challengeRequestListView = (ListView) rootView.findViewById(R.id.listChallengeRequests);
+                challengeRequestListView.setFocusable(false);
+                challengeRequestListView.setAdapter(challengeRequestQueryAdapter);
+                challengeRequestQueryAdapter.loadObjects();
 
-            }
+                challengeRequestQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+                    @Override
+                    public void onLoading() {
 
-            @Override
-            public void onLoaded(List<ParseObject> objects, Exception e) {
-                setListViewHeightBasedOnChildren(challengeRequestListView);
+                    }
+
+                    @Override
+                    public void onLoaded(List<ParseObject> objects, Exception e) {
+                        setListViewHeightBasedOnChildren(challengeRequestListView);
+                    }
+                });
             }
         });
     }
@@ -146,50 +151,61 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
-        yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
-        yourTurnListView.setFocusable(false);
-        yourTurnListView.setAdapter(yourTurnChallengeQueryAdapter);
-        yourTurnChallengeQueryAdapter.loadObjects();
-
-        yourTurnChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
-            public void onLoading() {
+            public void run() {
+                yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
+                yourTurnListView.setFocusable(false);
+                yourTurnListView.setAdapter(yourTurnChallengeQueryAdapter);
+                yourTurnChallengeQueryAdapter.loadObjects();
 
-            }
+                yourTurnChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+                    @Override
+                    public void onLoading() {
 
-            @Override
-            public void onLoaded(List<ParseObject> objects, Exception e) {
-                setListViewHeightBasedOnChildren(yourTurnListView);
+                    }
+
+                    @Override
+                    public void onLoaded(List<ParseObject> objects, Exception e) {
+                        setListViewHeightBasedOnChildren(yourTurnListView);
+                    }
+                });
             }
         });
     }
 
-    private void createTheirTurnListView(View rootView, PublicUserData publicUserData) {
+    private void createTheirTurnListView(final View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
         theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
-        theirTurnListView = (ListView) rootView.findViewById(R.id.listTheirTurnChallenges);
-        theirTurnListView.setFocusable(false);
-        theirTurnListView.setAdapter(theirTurnChallengeQueryAdapter);
-        theirTurnChallengeQueryAdapter.loadObjects();
 
-        theirTurnChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
-            public void onLoading() {
+            public void run() {
+                theirTurnListView = (ListView) rootView.findViewById(R.id.listTheirTurnChallenges);
+                theirTurnListView.setFocusable(false);
+                theirTurnListView.setAdapter(theirTurnChallengeQueryAdapter);
+                theirTurnChallengeQueryAdapter.loadObjects();
 
-            }
+                theirTurnChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+                    @Override
+                    public void onLoading() {
 
-            @Override
-            public void onLoaded(List<ParseObject> objects, Exception e) {
-                setListViewHeightBasedOnChildren(theirTurnListView);
+                    }
+
+                    @Override
+                    public void onLoaded(List<ParseObject> objects, Exception e) {
+                        setListViewHeightBasedOnChildren(theirTurnListView);
+                    }
+                });
             }
         });
     }
 
-    private void createPastChallengeListView(View rootView, PublicUserData publicUserData) {
+    private void createPastChallengeListView(final View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs1 = new ArrayList<>();
         keyValuePairs1.add(new Pair<>(Challenge.Columns.hasEnded, true));
         keyValuePairs1.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
@@ -203,19 +219,23 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairsList.add(keyValuePairs2);
         pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairsList, true);
 
-        pastChallengeListView = (ListView) rootView.findViewById(R.id.listPastChallenges);
-        pastChallengeListView.setFocusable(false);
-        pastChallengeListView.setAdapter(pastChallengeQueryAdapter);
-        pastChallengeQueryAdapter.loadObjects();
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                pastChallengeListView = (ListView) rootView.findViewById(R.id.listPastChallenges);
+                pastChallengeListView.setFocusable(false);
+                pastChallengeListView.setAdapter(pastChallengeQueryAdapter);
+                pastChallengeQueryAdapter.loadObjects();
 
-        pastChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
-            @Override
-            public void onLoading() {
-            }
+                pastChallengeQueryAdapter.addOnQueryLoadListener(new ParseQueryAdapter.OnQueryLoadListener<ParseObject>() {
+                    @Override
+                    public void onLoading() {
+                    }
 
-            @Override
-            public void onLoaded(List<ParseObject> objects, Exception e) {
-                setListViewHeightBasedOnChildren(pastChallengeListView);
+                    @Override
+                    public void onLoaded(List<ParseObject> objects, Exception e) {
+                        setListViewHeightBasedOnChildren(pastChallengeListView);
+                    }
+                });
             }
         });
     }
