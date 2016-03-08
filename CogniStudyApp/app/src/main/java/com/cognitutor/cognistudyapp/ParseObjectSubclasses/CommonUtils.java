@@ -19,7 +19,7 @@ public class CommonUtils {
     }
 
     public static String getSubjectFromCategory(String category) {
-        for(String subject : Constants.getAllConstants(Constants.Subject.class)) {
+        for(String subject : Constants.Subject.getSubjects()) {
             List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
             if(categoriesInSubject.contains(category)) {
                 return subject;

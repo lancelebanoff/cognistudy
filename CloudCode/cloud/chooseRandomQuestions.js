@@ -88,19 +88,16 @@ function getRandomQuestion(categories, answeredQuestionIds, skipBundles) {
 					console.log("Total = " + total);
 					var numRemaining = total - numAnswered;
 					console.log("numRemaining = " + numRemaining);
-					promise.resolve("Intermdiate finish");
 				}, function(error) { promise.reject(error); }
 			);
 
-			return;
-
-			//////////
-
 			var skipNum = Math.max(0, Math.floor(Math.random()*numRemaining));
+
+			console.log("skipNum = " + skipNum);
 
 			var query = new Parse.Query("Question")
 							.equalTo("isActive", true)
-							.equalTo("test", true) //TODO: Remove later
+							.equalTo("test", true) ////////////////////////////////////TODO: Remove later
 							.containedIn("category", categories)
 							.notContainedIn("objectId", answeredQuestionIds)
 							.skip(skipNum)
