@@ -168,7 +168,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
         theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         theirTurnListView = (ListView) rootView.findViewById(R.id.listTheirTurnChallenges);
@@ -196,7 +196,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
         List<Pair> keyValuePairs2 = new ArrayList<>();
         keyValuePairs2.add(new Pair<>(Challenge.Columns.hasEnded, true));
-        keyValuePairs2.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+        keyValuePairs2.add(new Pair<>(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
 
         List<List<Pair>> keyValuePairsList = new ArrayList<>();
         keyValuePairsList.add(keyValuePairs1);
