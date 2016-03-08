@@ -33,6 +33,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
+
 /**
  * Created by Lance on 12/27/2015.
  */
@@ -95,20 +98,26 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         createAllListViews(rootView);
     }
 
-    private void createAllListViews(View rootView) {
-        createChallengeRequestListView(rootView);
-        createYourTurnListView(rootView);
-        createTheirTurnListView(rootView);
-        createPastChallengeListView(rootView);
+    private void createAllListViews(final View rootView) {
+        PublicUserData.getPublicUserDataInBackground().continueWith(new Continuation<PublicUserData, Void>() {
+            @Override
+            public Void then(Task<PublicUserData> task) throws Exception {
+                PublicUserData publicUserData = task.getResult();
+                createChallengeRequestListView(rootView, publicUserData);
+                createYourTurnListView(rootView, publicUserData);
+                createTheirTurnListView(rootView, publicUserData);
+                createPastChallengeListView(rootView, publicUserData);
+                return null;
+            }
+        });
     }
 
-    private void createChallengeRequestListView(View rootView) {
+    private void createChallengeRequestListView(View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         challengeRequestListView = (ListView) rootView.findViewById(R.id.listChallengeRequests);
@@ -129,13 +138,12 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void createYourTurnListView(View rootView) {
-        List<Pair> keyValuePairs = new ArrayList<>();
+    private void createYourTurnListView(final View rootView, PublicUserData publicUserData) {
+        final List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         yourTurnListView = (ListView) rootView.findViewById(R.id.listYourTurnChallenges);
@@ -156,12 +164,11 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void createTheirTurnListView(View rootView) {
+    private void createTheirTurnListView(View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
 
         theirTurnListView = (ListView) rootView.findViewById(R.id.listTheirTurnChallenges);
@@ -182,16 +189,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void createPastChallengeListView(View rootView) {
+    private void createPastChallengeListView(View rootView, PublicUserData publicUserData) {
         List<Pair> keyValuePairs1 = new ArrayList<>();
         keyValuePairs1.add(new Pair<>(Challenge.Columns.hasEnded, true));
-        keyValuePairs1.add(new Pair<>(Challenge.Columns.curTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs1.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
 
         List<Pair> keyValuePairs2 = new ArrayList<>();
         keyValuePairs2.add(new Pair<>(Challenge.Columns.hasEnded, true));
-        keyValuePairs2.add(new Pair<>(Challenge.Columns.otherTurnUserId,
-                PublicUserData.getPublicUserData().getBaseUserId()));
+        keyValuePairs2.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
 
         List<List<Pair>> keyValuePairsList = new ArrayList<>();
         keyValuePairsList.add(keyValuePairs1);
