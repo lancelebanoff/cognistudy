@@ -234,10 +234,10 @@ public class ParseObjectUtils {
         return list;
     }
 
-    private static <T extends ParseObject> Task<Object> doPinAllWithMaxInBackground(final String pinName, final List<T> objects) {
+    private static <T extends ParseObject> Task<Void> doPinAllWithMaxInBackground(final String pinName, final List<T> objects) {
 
         if(pinName == null)
-            Log.e("doPinAllWithMaxInBackground", "pinName is null");
+            Log.e("doPinAllWithMaxInBg", "pinName is null");
 
         if(objects.size() == 0)
             return CommonUtils.getCompletionTask(null);
@@ -259,7 +259,7 @@ public class ParseObjectUtils {
                         newObjectsToPin.add(obj);
                         if(e.getCode() != ErrorHandler.ErrorCode.OBJECT_NOT_FOUND) {
                             e.printStackTrace();
-                            Log.e("doPinAllWithMaxInBackground inital", e.getMessage());
+                            Log.e("doPinAllWMaxInBg init", e.getMessage());
                         }
                     }
                     else {
@@ -284,27 +284,21 @@ public class ParseObjectUtils {
 
             return PinnedObject.getQueryForUserOldestFirst(pinName)
                     .countInBackground()
-                    .continueWithTask(new Continuation<Integer, Task<Object>>() {
+                    .continueWithTask(new Continuation<Integer, Task<Void>>() {
                 @Override
-                public Task<Object> then(Task<Integer> task) throws Exception {
+                public Task<Void> then(Task<Integer> task) throws Exception {
                     int numPinned = task.getResult();
                     int numToUnpin = numWaiting + numPinned - max;
                     if (numToUnpin > 0) {
                         return PinnedObject.getQueryForUserOldestFirst(pinName)
                                 .setLimit(numToUnpin)
                                 .findInBackground()
-                                .continueWithTask(new Continuation<List<PinnedObject>, Task<Object>>() {
+                                .continueWithTask(new Continuation<List<PinnedObject>, Task<Void>>() {
                                     @Override
-                                    public Task<Object> then(Task<List<PinnedObject>> task) throws Exception {
+                                    public Task<Void> then(Task<List<PinnedObject>> task) throws Exception {
                                         List<PinnedObject> listToUnpin = task.getResult();
                                         PinnedObject.unpinAllObjectsAndDelete(listToUnpin);
-                                        return doNewPinAll(pinName, newObjectsToPin.subList(0, Math.min(max, newObjectsToPin.size())))
-                                                .continueWith(new Continuation<Void, Object>() {
-                                                    @Override
-                                                    public Object then(Task<Void> task) throws Exception {
-                                                        return null;
-                                                    }
-                                                });
+                                        return doNewPinAll(pinName, newObjectsToPin.subList(0, Math.min(max, newObjectsToPin.size())));
                                     }
                                 });
                     } else
@@ -314,19 +308,21 @@ public class ParseObjectUtils {
 
         } catch (ParseException e) {
             e.printStackTrace();
-            Log.e("doPinAllWithMaxInBackground", e.getMessage());
+            Log.e("doPinAllWithMaxInBg", e.getMessage());
+            return CommonUtils.getCompletionTask(null);
         }
     }
 
     private static <T extends ParseObject> Task<Void> pinAllWithMaxInBackground(final String pinName, final List<T> objects) {
 
-        return Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                doPinAllWithMaxInBackground(pinName, objects);
-                return null;
-            }
-        });
+        return doPinAllWithMaxInBackground(pinName, objects);
+//        return Task.callInBackground(new Callable<Void>() {
+//            @Override
+//            public Void call() throws Exception {
+//                doPinAllWithMaxInBackground(pinName, objects);
+//                return null;
+//            }
+//        });
     }
 
     //Don't bother removing the pin name because it might be in the process of being added back by another thread

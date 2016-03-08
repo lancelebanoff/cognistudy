@@ -186,7 +186,7 @@ public class Constants {
         public static final String ALGEBRA = "Algebra";
         public static final String GEOMETRY = "Geometry";
         public static final String TRIGONOMETRY = "Trigonometry";
-        public static final String DATA_ANALYSIS_STATISTICS_PROBABILITY = "Data Analysis, Statistics, Probability";
+        public static final String DATA_ANALYSIS_STATISTICS_PROBABILITY = "Data Analysis";
         public static final String USAGE_AND_MECHANICS = "Usage and Mechanics";
         public static final String RHETORICAL_SKILLS = "Rhetorical Skills";
         public static final String DATA_REPRESENTATION = "Data Representation";

@@ -218,17 +218,26 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         //TODO: Pin related objects
         //TODO: Implement rating
         final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
-        String pinName = null;
-        if(mChallenge != null)
-            pinName = getChallengeId();
-        ParseObjectUtils.pinThenSaveInBackground(pinName, response)
-            .continueWith(new Continuation<Void, Object>() {
+        if(mChallenge != null) {
+            String pinName = getChallengeId();
+            ParseObjectUtils.pinThenSaveInBackground(pinName, response)
+                    .continueWith(new Continuation<Void, Object>() {
+                        @Override
+                        public Object then(Task<Void> task) throws Exception {
+                            PrivateStudentData.addResponse(response);
+                            return null;
+                        }
+                    });
+        }
+        else {
+            response.saveInBackground().continueWith(new Continuation<Void, Object>() {
                 @Override
                 public Object then(Task<Void> task) throws Exception {
                     PrivateStudentData.addResponse(response);
                     return null;
                 }
             });
+        }
     }
 
     private void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
