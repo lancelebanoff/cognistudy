@@ -59,7 +59,6 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
                                     e.printStackTrace();
                                     Log.e("ChooseDisplayName", "Error in AuthAct/saveObjects " + e.getMessage());
                                 }
-                                doPinCurrentUser();
                                 navigateToMainActivity();
                             }
                         });

@@ -16,8 +16,10 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
@@ -99,11 +101,15 @@ public class RegistrationActivity extends AuthenticationActivity {
                                     getUserDetailsFromFB();
                                 } else {
                                     UserUtils.setUserLoggedIn(true);
-                                    doPinCurrentUser();
+                                    try {
+                                        UserUtils.pinCurrentUser().waitForCompletion();
+                                    } catch (Exception e2) {
+                                        e2.printStackTrace();
+                                    }
                                     FacebookUtils.getFriendsInBackground().continueWith(new Continuation<Void, Void>() {
                                         @Override
                                         public Void then(Task<Void> task) throws Exception {
-                                            navigateToMainActivity();
+                                            navigateToMainActivity(false);
                                             return null;
                                         }
                                     });
@@ -217,11 +223,10 @@ public class RegistrationActivity extends AuthenticationActivity {
                 setUpStudentObjects(user, facebookId, displayName, profilePic, data, new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        if(e != null) {
+                        if (e != null) {
                             e.printStackTrace();
                             Log.e("RegistrationActSaveFB", "Error in AuthAct/saveObjects " + e.getMessage());
                         }
-                        doPinCurrentUser();
                         navigateToMainActivity();
                     }
                 });
@@ -274,7 +279,6 @@ public class RegistrationActivity extends AuthenticationActivity {
                                         e.printStackTrace();
                                         Log.e("RegistrationActLogin", "Error in AuthAct/saveObjects " + e.getMessage());
                                     }
-                                    doPinCurrentUser();
                                     navigateToMainActivity();
                                 }
                             });

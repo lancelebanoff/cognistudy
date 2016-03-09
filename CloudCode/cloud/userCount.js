@@ -35,7 +35,15 @@ Parse.Cloud.afterSave("Student", function(request) {
                     amount = 0;
                 userCount.increment("numStudentsRandom", amount);
             }
-            userCount.save();
+            student.set("randomEnabledChanged", false);
+            var promises = [];
+            promises.add(student.save());
+            promises.add(userCount.save());
+            Parse.Promise.when(promises).then(
+                function(success) {
+                    return;
+                }, function(error) { console.log(error); }
+            );
         },
         function(error) {
             console.log("Error retrieving user count");

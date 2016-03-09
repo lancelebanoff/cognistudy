@@ -16,7 +16,6 @@ import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import bolts.Continuation;
@@ -112,14 +111,18 @@ public class CogniActivity extends AppCompatActivity {
 //        ParseObjectUtils.logPinnedObjects(true);
 //        ParseObjectUtils.logPinnedObjects(false);
         ParseObjectUtils.unpinAllInBackground()
-            .continueWith(new Continuation<Void, Void>() {
+            .continueWith(new Continuation<Void, Task<Void>>() {
                 @Override
-                public Void then(Task<Void> task) throws Exception {
+                public Task<Void> then(Task<Void> task) throws Exception {
                     ParseObjectUtils.logPinnedObjects(false);
-                    ParseUser.logOut();
+                    return ParseUser.logOutInBackground();
+                }
+            }).continueWith(new Continuation<Task<Void>, Void>() {
+                @Override
+                public Void then(Task<Task<Void>> task) throws Exception {
                     return null;
                 }
-            });
+        });
     }
 
     // Check for Internet connectivity

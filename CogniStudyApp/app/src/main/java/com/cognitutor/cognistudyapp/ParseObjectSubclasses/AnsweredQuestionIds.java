@@ -19,7 +19,8 @@ public class AnsweredQuestionIds extends ParseObject{
     public static class Columns {
         public static final String baseUserId = "baseUserId";
         public static final String category = "category";
-        public static final String questionIds = "questionIds";
+        public static final String singleQuestionIds = "singleQuestionIds";
+        public static final String bundleQuestionIds = "bundleQuestionIds";
     }
 
     public AnsweredQuestionIds() {}
@@ -27,12 +28,18 @@ public class AnsweredQuestionIds extends ParseObject{
         setACL(ACLUtils.getPrivateReadACL());
         put(Columns.baseUserId, UserUtils.getCurrentUserId());
         put(Columns.category, category);
-        put(Columns.questionIds, new ArrayList<String>());
+        put(Columns.singleQuestionIds, new ArrayList<String>());
+        put(Columns.bundleQuestionIds, new ArrayList<String>());
        saveInBackground();
     }
 
-    public void addAnsweredQuestionIdAndSaveEventually(String questionId) {
-        addUnique(Columns.questionIds, questionId);
+    public void addSingleAnsweredQuestionIdAndSaveEventually(String questionId) {
+        addUnique(Columns.singleQuestionIds, questionId);
+        saveEventually();
+    }
+
+    public void addBundleAnsweredQuestionIdAndSaveEventually(String questionId) {
+        addUnique(Columns.bundleQuestionIds, questionId);
         saveEventually();
     }
 
@@ -43,9 +50,14 @@ public class AnsweredQuestionIds extends ParseObject{
         s += objectId == null ? "null" : objectId;
         String category = getString(Columns.category);
         s += " | category: " + (category == null ? "null" : category);
-        s += " | questionIds:";
-        List<String> questionIds = getList(Columns.questionIds);
-        for(String id : questionIds) {
+        s += " | singleQuestionIds:";
+        List<String> singleQuestionIds = getList(Columns.singleQuestionIds);
+        for(String id : singleQuestionIds) {
+            s += " " + id;
+        }
+        s += " | bundleQuestionIds:";
+        List<String> bundleQuestionIds = getList(Columns.bundleQuestionIds);
+        for(String id : bundleQuestionIds) {
             s += " " + id;
         }
         return s;

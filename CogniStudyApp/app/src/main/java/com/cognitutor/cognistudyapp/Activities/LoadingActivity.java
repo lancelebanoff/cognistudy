@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseUser;
+
 
 public class LoadingActivity extends Activity {
 
@@ -18,6 +20,14 @@ public class LoadingActivity extends Activity {
     }
 
     public static Class getDestination() {
+
+        boolean logout = false;
+
+        if(logout && ParseUser.getCurrentUser() != null) {
+            ParseObjectUtils.unpinAllInBackground();
+            ParseUser.logOut();
+            return RegistrationActivity.class;
+        }
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null)

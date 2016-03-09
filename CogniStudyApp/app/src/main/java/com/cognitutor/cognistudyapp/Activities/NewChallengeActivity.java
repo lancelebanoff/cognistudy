@@ -316,27 +316,34 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void saveNewChallenge() {
-        final PublicUserData user1PublicUserData = PublicUserData.getPublicUserData();
-        final ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, mSelectedSubjects,
-                mSelectedCategories);
-        user1Data.saveInBackground();
-
-        final String challengeType = getChallengeType();
-        final Challenge challenge = new Challenge(user1Data, challengeType);
-        challenge.saveInBackground(new SaveCallback() {
+        PublicUserData.getPublicUserDataInBackground().continueWithTask(new Continuation<PublicUserData, Task<Object>>() {
             @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    if (challengeType.equals(Constants.ChallengeType.PRACTICE)) {
-                        savePracticeChallenge(challenge, user1PublicUserData);
-                    } else if (mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
-                        navigateToChooseOpponentActivity(challenge.getObjectId(), 1);
-                    } else {
-                        navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
+            public Task<Object> then(Task<PublicUserData> task) throws Exception {
+                final PublicUserData user1PublicUserData = task.getResult();
+                final ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, mSelectedSubjects,
+                        mSelectedCategories);
+                user1Data.saveInBackground();
+
+                final String challengeType = getChallengeType();
+                final Challenge challenge = new Challenge(user1Data, challengeType);
+                return challenge.saveInBackground().continueWith(new Continuation<Void, Object>() {
+                    @Override
+                    public Object then(Task<Void> task) throws Exception {
+                        Exception e = task.getError();
+                        if (e == null) {
+                            if (challengeType.equals(Constants.ChallengeType.PRACTICE)) {
+                                savePracticeChallenge(challenge, user1PublicUserData);
+                            } else if (mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
+                                navigateToChooseOpponentActivity(challenge.getObjectId(), 1);
+                            } else {
+                                navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
+                            }
+                        } else {
+                            e.printStackTrace();
+                        }
+                        return null;
                     }
-                } else {
-                    e.printStackTrace();
-                }
+                });
             }
         });
     }

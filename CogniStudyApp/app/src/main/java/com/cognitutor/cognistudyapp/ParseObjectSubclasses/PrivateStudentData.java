@@ -3,8 +3,6 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.ACLUtils;
-import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
-import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -17,7 +15,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -36,7 +33,7 @@ public class PrivateStudentData extends ParseObject{
         public static final String blocked = "blocked";
         public static final String recentChallenges = "recentChallenges";
         public static final String requestsFromTutors = "requestsFromTutors";
-        public static final String suggestedQuestions = "suggestedQuestions";
+        public static final String assignedQuestions = "assignedQuestions";
         public static final String baseUserId = "baseUserId";
         public static final String responses = "responses";
     }
@@ -50,7 +47,7 @@ public class PrivateStudentData extends ParseObject{
         put(Columns.blocked, new ArrayList<ParseObject>());
         put(Columns.recentChallenges, new ArrayList<ParseObject>());
         put(Columns.requestsFromTutors, new ArrayList<ParseObject>());
-        put(Columns.suggestedQuestions, new ArrayList<ParseObject>());
+        put(Columns.assignedQuestions, new ArrayList<ParseObject>());
         put(Columns.baseUserId, user.getObjectId());
     }
 
