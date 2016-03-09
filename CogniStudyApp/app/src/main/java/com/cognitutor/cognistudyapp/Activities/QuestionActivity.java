@@ -243,7 +243,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
         //TODO: wait for incrementAll to finish when necessary
         StudentBlockStats.incrementAll(category, isSelectedAnswerCorrect);
-        StudentTRollingStats.incrementAllInBackground(mQuestion.getObjectId(), category, isSelectedAnswerCorrect);
+        StudentTRollingStats.incrementAllInBackground(mQuestion, category, isSelectedAnswerCorrect);
     }
 
     private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {

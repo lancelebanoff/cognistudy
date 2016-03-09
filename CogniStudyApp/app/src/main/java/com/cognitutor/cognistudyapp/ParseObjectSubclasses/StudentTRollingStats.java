@@ -109,17 +109,17 @@ public abstract class StudentTRollingStats extends ParseObject{
 
     /**
      *
-     * @param questionId
+     * @param question
      * @param category
      * @param correct
      */
-    public static void incrementAllInBackground(String questionId, String category, boolean correct) {
+    public static void incrementAllInBackground(Question question, String category, boolean correct) {
         for(Class clazz : subclasses) {
-            incrementSubclassInBackground(questionId, clazz, category, correct);
+            incrementSubclassInBackground(question, clazz, category, correct);
         }
     }
 
-    private static void incrementSubclassInBackground(final String questionId,
+    private static void incrementSubclassInBackground(final Question question,
                                   final Class<? extends StudentTRollingStats> clazz, final String category, final boolean correct) {
 
         getCacheElseNetworkInBackground(clazz, category)
@@ -129,7 +129,7 @@ public abstract class StudentTRollingStats extends ParseObject{
                 //TODO: Handle null result?
                 StudentTRollingStats stats = task.getResult();
                 if(stats instanceof StudentCategoryRollingStats) {
-                    ((StudentCategoryRollingStats) stats).addAnsweredQuestionIdAndSaveEventually(questionId);
+                    ((StudentCategoryRollingStats) stats).addAnsweredQuestionIdAndSaveEventually(question);
                 }
                 stats.doIncrementAndSaveEventually(correct);
                 return null;

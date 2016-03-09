@@ -41,6 +41,7 @@ Parse.Cloud.afterSave("Question", function(request) {
 						else
 							amount = -1;
 						catStats.increment("numActive", amount);
+						catStats.increment("numActiveNotInBundle", amount);
 						subStats.increment("numActive", amount);
 					// }
 					question.set("isActiveChanged", false);
@@ -75,6 +76,7 @@ Parse.Cloud.afterDelete("Question", function(request) {
 					subStats.increment("count", -1);
 					if(question.get("isActive")) {
 						catStats.increment("numActive", -1);
+						catStats.increment("numActiveNotInBundle", -1);
 						subStats.increment("numActive", -1);
 					}
 					var promises = [];
