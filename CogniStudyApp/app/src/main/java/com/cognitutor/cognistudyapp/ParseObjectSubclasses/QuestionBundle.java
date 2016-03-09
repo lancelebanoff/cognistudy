@@ -19,6 +19,9 @@ public class QuestionBundle extends ParseObject {
     }
 
     public QuestionBundle() {}
+    public QuestionBundle(String passageText) {
+        put(Columns.passageText, passageText);
+    }
     public QuestionBundle(String passageText, List<Question> questions) {
         put(Columns.passageText, passageText);
         put(Columns.questions, questions);

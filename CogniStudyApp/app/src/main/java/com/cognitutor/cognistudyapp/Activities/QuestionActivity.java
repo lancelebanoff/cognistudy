@@ -97,8 +97,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 //        avh.mvQuestion.loadUrl("file:///android_asset/html/passage.html");
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
 
-        if(mQuestion.isBundle()) {
-            avh.wvPassage.loadData(buildPassageHtml(mQuestionContents.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
+        if(mQuestion.inBundle()) {
+            avh.wvPassage.loadData(buildPassageHtml(mQuestion.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
         }
 //        avh.wvPassage.loadData(
 //                "<html><body>" +
@@ -218,23 +218,32 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         //TODO: Pin related objects
         //TODO: Implement rating
         final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
-        String pinName = null;
-        if(mChallenge != null)
-            pinName = getChallengeId();
-        ParseObjectUtils.pinThenSaveInBackground(pinName, response)
-            .continueWith(new Continuation<Void, Object>() {
+        if(mChallenge != null) {
+            String pinName = getChallengeId();
+            ParseObjectUtils.pinThenSaveInBackground(pinName, response)
+                    .continueWith(new Continuation<Void, Object>() {
+                        @Override
+                        public Object then(Task<Void> task) throws Exception {
+                            PrivateStudentData.addResponse(response);
+                            return null;
+                        }
+                    });
+        }
+        else {
+            response.saveInBackground().continueWith(new Continuation<Void, Object>() {
                 @Override
                 public Object then(Task<Void> task) throws Exception {
                     PrivateStudentData.addResponse(response);
                     return null;
                 }
             });
+        }
     }
 
     private void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
         //TODO: wait for incrementAll to finish when necessary
         StudentBlockStats.incrementAll(category, isSelectedAnswerCorrect);
-        StudentTRollingStats.incrementAllInBackground(mQuestion.getObjectId(), category, isSelectedAnswerCorrect);
+        StudentTRollingStats.incrementAllInBackground(mQuestion, category, isSelectedAnswerCorrect);
     }
 
     private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {

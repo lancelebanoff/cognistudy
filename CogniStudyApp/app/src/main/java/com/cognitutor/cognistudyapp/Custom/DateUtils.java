@@ -2,8 +2,9 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentSubjectBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 
 import java.text.ParseException;
@@ -136,6 +137,7 @@ public class DateUtils {
         return Calendar.getInstance(ny, Locale.US);
     }
 
+    /*
     public static void generateRandomStats(BlockType blockType) {
         final String TAG = "randomStats";
         Random rand = new Random();
@@ -196,7 +198,7 @@ public class DateUtils {
 
         int[] blockNums = getDayTridayMonthBlockNums(date);
         String category = Constants.getRandomConstant(Constants.Category.class);
-        String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
+        String subject = CommonUtils.getSubjectFromCategory(category);
         boolean correct = didItHappen(rand, chanceCorrect);
 
         String randomId = getRandomQuestionId();
@@ -214,6 +216,7 @@ public class DateUtils {
 
         return chanceCorrect * improvementFactor;
     }
+    */
 
     private static String blockNumsToString(int[] blockNums) {
         return "Day: " + blockNums[0] + " | Triday: " + blockNums[1] + " | Month: " + blockNums[2];
@@ -242,6 +245,7 @@ public class DateUtils {
         return true;
     }
 
+    /*
     public static void test(boolean randomDate) {
 
         Random rand = new Random();
@@ -254,7 +258,7 @@ public class DateUtils {
             int day = getRandomDayInMonth(month, year);
             String dateString = String.valueOf(year) + "." + String.format("%02d", month) + "." + String.format("%02d", day);
             String category = Constants.getRandomConstant(Constants.Category.class);
-            String subject = StudentSubjectBlockStats.getSubjectFromCategory(category);
+            String subject = CommonUtils.getSubjectFromCategory(category);
             boolean correct = rand.nextBoolean();
 
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy.MM.dd");
@@ -291,6 +295,7 @@ public class DateUtils {
             }
         }
     }
+    */
 
     private static int getRandomDayInMonth(int month, int year) {
         Random rand = new Random();

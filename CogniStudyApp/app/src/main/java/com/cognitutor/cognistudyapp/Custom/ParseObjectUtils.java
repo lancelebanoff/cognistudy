@@ -451,7 +451,7 @@ public class ParseObjectUtils {
                     @Override
                     public Task<Void> then(Task<List<T>> task) throws Exception {
                         List<T> objects = task.getResult();
-                        for(T obj : objects) {
+                        for (T obj : objects) {
                             obj.deleteInBackground()
                                     .continueWith(new Continuation<Void, Object>() {
                                         @Override
