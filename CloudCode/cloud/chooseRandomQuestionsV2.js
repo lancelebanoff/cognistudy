@@ -8,6 +8,10 @@ Parse.Cloud.define("chooseThreeQuestionsV2", function(request, response) {
 	var challengeId = request.params.challengeId;
 	var category = request.params.category;
 
+	var questionKeys = ["questionContents", "subject", "category"];
+	var questionContentsKeys = ["questionText", "image", "author", "answers", "correctAnswer", "explanation"];
+	var bundleKeys = ["bundle", "passageText", "image"];
+
 	var query = new Parse.Query("ChallengeUserData")
 						.include("publicUserData.student.studentCategoryRollingStats")
 
@@ -53,20 +57,29 @@ Parse.Cloud.define("chooseThreeQuestionsV2", function(request, response) {
 												console.log("Bundle id = " + bundle.id);
 												bundle.fetch({
 													success: function(bundle) {
-														var unfetchedQuestions = bundle.get("questions");
-														console.log("Size of bundle questions = " + unfetchedQuestions.length);
-														Parse.Object.fetchAllIfNeeded(unfetchedQuestions, {
-															success: function(questions) {
-																for(var i=0; i<questions.length; i++) {
-																	questionToString(questions[i], i);
-																}
-																if(questions.length < 3) {
-																	response.error("Error: bundle did not contain 3 questions"); //TODO: Just grab another question here
-																}
-																challengeUserData.set("curTurnQuestions", questions);
+														var questions = bundle.get("questions");
+														console.log("Size of bundle questions = " + questions.length);
+														var ids = [];
+														for(var i=0; i<questions.length; i++) {
+															questionToString(questions[i], i);
+															ids.push(questions[i].id);
+														}
+														if(questions.length < 3) {
+															response.error("Error: bundle did not contain 3 questions"); //TODO: Just grab another question here
+														}
+														var query = new Parse.Query("Question")
+																			.containedIn("objectId", ids)
+																			.select(questionKeys)  //The selects don't appear to be working
+																			.include("questionContents")
+																			.select(questionContentsKeys)
+																			.include("bundle")
+																			.select(bundleKeys);
+														query.find({
+															success: function(results) {
+																challengeUserData.set("curTurnQuestions", results);
 																challengeUserData.save();
-																response.success(questions);
-															}, error: function(error) { response.error(error); }
+																response.success(results);
+															}, error: function(error) { response.error(error); } //Error fetching questions
 														});
 													}, error: function(error) { response.error(error); }
 												});
@@ -83,16 +96,25 @@ Parse.Cloud.define("chooseThreeQuestionsV2", function(request, response) {
 														getRandomQuestion(category, copyOfSingleQuestionIds, true).then(
 															function(thirdQuestion) {
 																questionToString(thirdQuestion, 3);
-																var questions = [];
-																questions.push(firstQuestion);
-																questions.push(secondQuestion);
-																questions.push(thirdQuestion);
-																challengeUserData.set("curTurnQuestions", questions);
-																challengeUserData.save();
-																response.success(questions);
-															}, function(error) { response.error(error);
+																var ids = [];
+																ids.push(firstQuestion.id);
+																ids.push(secondQuestion.id);
+																ids.push(thirdQuestion.id);
+																var query = new Parse.Query("Question")
+																					.containedIn("objectId", ids)
+																					.select(questionKeys)
+																					.include("questionContents")
+																					.select(questionContentsKeys);
+																query.find({
+																	success: function(results) {
+																		challengeUserData.set("curTurnQuestions", results);
+																		challengeUserData.save();
+																		response.success(results);
+																	}, error: function(error) { response.error(error); } //Error fetching questions
+																});
+															}, function(error) { response.error(error); //Error getting third question
 														});
-													}, function(error) { response.error(error);
+													}, function(error) { response.error(error); //Error getting second question
 												});
 											}
 										}, function(error) { console.log("Error getting first question"); response.error(error); //Error getting first question
@@ -149,6 +171,10 @@ function getRandomQuestion(category, answeredQuestionIds, skipBundles) {
 					console.log("Total = " + total);
 					numRemaining = total - numAnswered;
 					console.log("numRemaining = " + numRemaining);
+					if(numRemaining < 1) {
+						promise.reject(JSON.stringify({code: 777, message: "Not enough available questions"}));
+						return;
+					}
 
 					var skipNum = Math.max(0, Math.floor(Math.random()*numRemaining));
 
@@ -161,8 +187,6 @@ function getRandomQuestion(category, answeredQuestionIds, skipBundles) {
 							.notContainedIn("objectId", answeredQuestionIds)
 							.skip(skipNum)
 							.limit(1)
-							.include("bundle")
-							.include("questionContents");
 
 							if(skipBundles) {
 								query = query.equalTo("inBundle", false);
