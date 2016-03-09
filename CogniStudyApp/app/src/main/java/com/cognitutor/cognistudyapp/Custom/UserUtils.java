@@ -74,7 +74,7 @@ public class UserUtils {
                 rollingStatsList.addAll(student.getStudentSubjectRollingStats());
                 rollingStatsList.add(student.getStudentTotalRollingStats());
                 for(StudentTRollingStats rollingStats : rollingStatsList) {
-                    rollingStats.fetchIfNeeded();
+                    rollingStats.fetchIfNeededInBackground().waitForCompletion();
                     if(!(rollingStats instanceof StudentCategoryRollingStats)) continue; //Unnecessary if order of the code does not change
                     AnsweredQuestionIds answeredQuestionIds = ((StudentCategoryRollingStats) rollingStats).getAnsweredQuestionIds();
                     answeredQuestionIdsList.add(answeredQuestionIds);
