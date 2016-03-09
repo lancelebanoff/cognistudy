@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 
@@ -136,6 +137,7 @@ public class DateUtils {
         return Calendar.getInstance(ny, Locale.US);
     }
 
+    /*
     public static void generateRandomStats(BlockType blockType) {
         final String TAG = "randomStats";
         Random rand = new Random();
@@ -214,6 +216,7 @@ public class DateUtils {
 
         return chanceCorrect * improvementFactor;
     }
+    */
 
     private static String blockNumsToString(int[] blockNums) {
         return "Day: " + blockNums[0] + " | Triday: " + blockNums[1] + " | Month: " + blockNums[2];
@@ -242,6 +245,7 @@ public class DateUtils {
         return true;
     }
 
+    /*
     public static void test(boolean randomDate) {
 
         Random rand = new Random();
@@ -291,6 +295,7 @@ public class DateUtils {
             }
         }
     }
+    */
 
     private static int getRandomDayInMonth(int month, int year) {
         Random rand = new Random();
