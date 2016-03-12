@@ -21,6 +21,7 @@ import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import bolts.Continuation;
@@ -118,6 +119,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
+                        challenge.setTimeLastPlayed(new Date());
                         challenge.setActivated(true);
                         challenge.saveInBackground();
                         return null;

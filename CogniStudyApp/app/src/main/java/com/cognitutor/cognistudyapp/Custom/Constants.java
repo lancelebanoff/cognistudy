@@ -181,6 +181,8 @@ public class Constants {
     }
 
     public static class ChallengeAttribute {
+        public static final int NUM_DAYS_PER_TURN = 3;
+
         public static class Winner {
             public static final String NO_WINNER = "NO_WINNER";
         }
