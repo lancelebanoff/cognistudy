@@ -282,6 +282,7 @@ public class BattleshipBoardManager {
     public void quitChallenge() {
         mChallenge.setHasEnded(true);
         mChallenge.setEndDate(new Date());
+        mChallenge.setTimeLastPlayed(new Date());
         mChallenge.setWinner(mOpponentUserData.getPublicUserData().getBaseUserId());
         mChallenge.saveInBackground();
         alertLostChallenge();
