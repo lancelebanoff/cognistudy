@@ -54,6 +54,13 @@
                 android:text="Choose Subjects"
                 android:id="@+id/txtChooseSubjects"
                 android:paddingTop="20dp" />
+
+            <LinearLayout
+                android:id="@+id/llSubjectsHolder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout

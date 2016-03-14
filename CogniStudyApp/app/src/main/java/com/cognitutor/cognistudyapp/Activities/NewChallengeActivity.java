@@ -105,18 +105,30 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void displaySubjects() {
-        LinearLayout llSubjects = (LinearLayout) findViewById(R.id.llSubjects);
         String[] subjectNames = Constants.Subject.getSubjects();
-        for(String subjectName : subjectNames) {
+
+        LinearLayout llSubjectsHolder = (LinearLayout) findViewById(R.id.llSubjectsHolder);
+        int numColumns = 2;
+
+        LinearLayout llSubjectRow = null;
+        for(int i = 0; i < subjectNames.length; i++) {
+            if (i % numColumns == 0) {
+                llSubjectRow = new LinearLayout(this);
+                llSubjectRow.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                llSubjectRow.setOrientation(LinearLayout.HORIZONTAL);
+                llSubjectsHolder.addView(llSubjectRow);
+            }
+
             CogniCheckBox checkBox = new CogniCheckBox(this);
-            checkBox.setText(subjectName);
+            checkBox.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            checkBox.setText(subjectNames[i]);
             checkBox.setOnClickListener(new CogniCheckBox.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     addOrRemoveSelectedSubject((CogniCheckBox) view);
                 }
             });
-            llSubjects.addView(checkBox);
+            llSubjectRow.addView(checkBox);
             mSubjectCheckboxes.add(checkBox);
 
             // TODO:2 Initialize chosen tests, subjects, and categories to whatever was chosen last time
