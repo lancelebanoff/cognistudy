@@ -3,25 +3,25 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
+import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -31,14 +31,12 @@ import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
@@ -152,6 +150,8 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
+        hideKeyboard();
+
         if (waiting) {
             return;
         }
@@ -203,7 +203,6 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
         ParseCloud.callFunctionInBackground("doesEmailExist", params, new FunctionCallback<Boolean>() {
                     @Override
                     public void done(Boolean emailExists, ParseException e) {
-                        setWaiting(false);
                         if (e == null) {
                             if (emailExists)
                                 loginUser(email, password);
@@ -216,6 +215,17 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
                     }
                 }
         );
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(this);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void handleError(Exception e, String tag) {
@@ -242,7 +252,6 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
         ParseUser.logInInBackground(email, password, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException e) {
-                setWaiting(false);
                 if (e != null) {
                     if(e.getCode() == ErrorHandler.ErrorCode.INVALID_LOGIN_PARAMS) {
                         mPasswordView.setError(getString(R.string.error_incorrect_password));

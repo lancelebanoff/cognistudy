@@ -7,13 +7,8 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.R;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 
-import bolts.Continuation;
-import bolts.Task;
 
 public class LoadingActivity extends Activity {
 
@@ -41,7 +36,7 @@ public class LoadingActivity extends Activity {
         if(currentUser.getUsername().equals(RegistrationActivity.autoGenUsername))
             return MainActivity.class;
         if (!currentUser.getBoolean("fbLinked") && !currentUser.getBoolean("emailVerified"))
-            return VerityEmailActivity.class;
+            return VerifyEmailActivity.class;
         if (!currentUser.getBoolean("displayNameSet"))
             return ChooseDisplayNameActivity.class;
         return MainActivity.class;

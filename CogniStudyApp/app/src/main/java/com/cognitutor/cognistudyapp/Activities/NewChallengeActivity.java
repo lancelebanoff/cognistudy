@@ -7,13 +7,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.ViewSwitcher;
 
+import com.cognitutor.cognistudyapp.Custom.CogniCheckBox;
+import com.cognitutor.cognistudyapp.Custom.CogniRadioButton;
+import com.cognitutor.cognistudyapp.Custom.CogniRadioGroup;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
@@ -24,7 +24,9 @@ import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import bolts.Continuation;
@@ -39,20 +41,20 @@ public class NewChallengeActivity extends CogniActivity {
      *      CHALLENGE_ID: string
      */
     private Intent mIntent;
-    private ArrayList<CheckBox> mSubjectCheckboxes;
+    private ArrayList<CogniCheckBox> mSubjectCheckboxes;
     private ArrayList<CheckBox> mCategoryCheckboxes;
     private ScrollView mSvCategories;
-    private RadioButton mRbDefaultTest;
-    private RadioButton mRbDefaultOpponent;
+    private CogniRadioButton mRbDefaultTest;
+    private CogniRadioButton mRbDefaultOpponent;
 
     private String mSelectedTest;
-    private ArrayList<String> mSelectedSubjects;
-    private ArrayList<String> mSelectedCategories;
+    private HashSet<String> mSelectedSubjects;
+    private HashSet<String> mSelectedCategories;
     private String mSelectedOpponent;
     private HashMap<CheckBox, String> mCategoryCheckboxToCategory;
 
     private final String DEFAULT_TEST = Constants.Test.BOTH;
-    private final String DEFAULT_OPPONENT = Constants.OpponentType.COMPUTER;
+    private final String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +69,8 @@ public class NewChallengeActivity extends CogniActivity {
         mRbDefaultOpponent = null;
 
         mSelectedTest = "";
-        mSelectedSubjects = new ArrayList<>();
-        mSelectedCategories = new ArrayList<>();
+        mSelectedSubjects = new HashSet<>();
+        mSelectedCategories = new HashSet<>();
         mSelectedOpponent = "";
         mCategoryCheckboxToCategory = new HashMap<>();
 
@@ -80,46 +82,59 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void displayTests() {
-        RadioGroup mRgTests = (RadioGroup) findViewById(R.id.rgTests);
-        mRgTests.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                changeSelectedTest((RadioButton) findViewById(checkedId));
-            }
-        });
+        LinearLayout llTestsHolder = (LinearLayout) findViewById(R.id.llTestsHolder);
+        CogniRadioGroup mRgTests = new CogniRadioGroup();
 
         String[] testNames = Constants.Test.getTests();
-        for(String testName : testNames) {
-            RadioButton radioButton = new RadioButton(this);
+        for (String testName : testNames) {
+            CogniRadioButton radioButton = new CogniRadioButton(this);
+            mRgTests.add(radioButton);
+            radioButton.setOnClickListener(new CogniRadioButton.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeSelectedTest((CogniRadioButton) v);
+                }
+            });
             radioButton.setText(testName);
-            mRgTests.addView(radioButton);
+            llTestsHolder.addView(radioButton);
+            radioButton.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
             // Initialize chosen test to Both
             // TODO:2 Initialize chosen tests, subjects, and categories to whatever was chosen last time
-            if(testName.equals(DEFAULT_TEST)) {
+            if (testName.equals(DEFAULT_TEST)) {
                 mRbDefaultTest = radioButton;
             }
         }
     }
 
     private void displaySubjects() {
-        LinearLayout llSubjects = (LinearLayout) findViewById(R.id.llSubjects);
         String[] subjectNames = Constants.Subject.getSubjects();
-        for(String subjectName : subjectNames) {
-            CheckBox checkBox = new CheckBox(this);
-            checkBox.setText(subjectName);
-            checkBox.setOnClickListener(new CheckBox.OnClickListener() {
+
+        LinearLayout llSubjectsHolder = (LinearLayout) findViewById(R.id.llSubjectsHolder);
+        int numColumns = 2;
+
+        LinearLayout llSubjectRow = null;
+        for(int i = 0; i < subjectNames.length; i++) {
+            if (i % numColumns == 0) {
+                llSubjectRow = new LinearLayout(this);
+                llSubjectRow.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                llSubjectRow.setOrientation(LinearLayout.HORIZONTAL);
+                llSubjectsHolder.addView(llSubjectRow);
+            }
+
+            CogniCheckBox checkBox = new CogniCheckBox(this);
+            checkBox.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            checkBox.setText(subjectNames[i]);
+            checkBox.setOnClickListener(new CogniCheckBox.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    addOrRemoveSelectedSubject((CheckBox) view);
+                    addOrRemoveSelectedSubject((CogniCheckBox) view);
                 }
             });
-            llSubjects.addView(checkBox);
+            llSubjectRow.addView(checkBox);
             mSubjectCheckboxes.add(checkBox);
 
-            // Initialize all subjects to be chosen
             // TODO:2 Initialize chosen tests, subjects, and categories to whatever was chosen last time
-            checkBox.performClick();
         }
     }
 
@@ -127,7 +142,7 @@ public class NewChallengeActivity extends CogniActivity {
         mSvCategories = new ScrollView(this);
         LinearLayout llCategories = new LinearLayout(this);
         llCategories.setOrientation(LinearLayout.VERTICAL);
-        llCategories.setPadding(0, 100, 0, 0);
+        llCategories.setPadding(0, 20, 0, 0);
         mSvCategories.addView(llCategories);
 
         String[] subjects = Constants.Subject.getSubjects();
@@ -140,10 +155,10 @@ public class NewChallengeActivity extends CogniActivity {
                 if(mSelectedCategories.contains(category)) {
                     checkBox.setChecked(true);
                 }
-                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                checkBox.setOnClickListener(new CheckBox.OnClickListener() {
                     @Override
-                    public void onCheckedChanged(CompoundButton cbCategory, boolean isChecked) {
-                        addOrRemoveSelectedCategory(cbCategory);
+                    public void onClick(View v) {
+                        addOrRemoveSelectedCategory((CheckBox) v);
                     }
                 });
                 checkBox.setText(subject + ": " + category);
@@ -160,21 +175,34 @@ public class NewChallengeActivity extends CogniActivity {
             ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
             viewSwitcher.showNext();
 
-            RadioGroup mRgOpponents = (RadioGroup) findViewById(R.id.rgOpponents);
-            mRgOpponents.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(RadioGroup group, int checkedId) {
-                    mSelectedOpponent = ((RadioButton)findViewById(checkedId)).getText().toString();
-                }
-            });
+            LinearLayout llOpponentsHolder = (LinearLayout) findViewById(R.id.llOpponentsHolder);
+            LinearLayout llOpponentRow = null;
+            CogniRadioGroup mRgOpponents = new CogniRadioGroup();
+            int numColumns = 2;
 
             String[] opponentTypes = Constants.OpponentType.getOpponentTypes();
-            for(String opponentType : opponentTypes) {
-                RadioButton radioButton = new RadioButton(this);
-                radioButton.setText(opponentType);
-                mRgOpponents.addView(radioButton);
+            for(int i = 0; i < opponentTypes.length; i++) {
+                if (i % numColumns == 0) {
+                    llOpponentRow = new LinearLayout(this);
+                    llOpponentRow.setOrientation(LinearLayout.HORIZONTAL);
+                    llOpponentRow.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    llOpponentsHolder.addView(llOpponentRow);
+                }
 
-                if(opponentType.equals(DEFAULT_OPPONENT)) {
+                String opponentType = opponentTypes[i];
+                CogniRadioButton radioButton = new CogniRadioButton(this);
+                radioButton.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                mRgOpponents.add(radioButton);
+                radioButton.setOnClickListener(new CogniRadioButton.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSelectedOpponent = ((CogniRadioButton) v).getText().toString();
+                    }
+                });
+                radioButton.setText(opponentType);
+                llOpponentRow.addView(radioButton);
+
+                if (opponentType.equals(DEFAULT_OPPONENT)) {
                     mRbDefaultOpponent = radioButton;
                 }
             }
@@ -216,14 +244,21 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     // Changing selected test resets all of the selected subjects and categories
-    public void changeSelectedTest(RadioButton rbTest) {
+    public void changeSelectedTest(CogniRadioButton rbTest) {
         mSelectedTest = rbTest.getText().toString();
         mSelectedSubjects.clear();
+        List<String> subjectsInSelectedTest = Arrays.asList(Constants.TestToSubject.get(mSelectedTest));
+        mSelectedSubjects.addAll(subjectsInSelectedTest);
         mSelectedCategories.clear();
-        for(CheckBox cbSubject : mSubjectCheckboxes) {
-            cbSubject.setChecked(false);
-        }
         List<String> categoriesInSelectedTest = Arrays.asList(Constants.TestToCategory.get(mSelectedTest));
+        mSelectedCategories.addAll(categoriesInSelectedTest);
+        for(CogniCheckBox cbSubject : mSubjectCheckboxes) {
+            cbSubject.setChecked(false);
+            String subject = cbSubject.getText().toString();
+            if (subjectsInSelectedTest.contains(subject)) {
+                cbSubject.setChecked(true);
+            }
+        }
         for(CheckBox cbCategory : mCategoryCheckboxes) {
             cbCategory.setChecked(false);
             if(categoriesInSelectedTest.contains(mCategoryCheckboxToCategory.get(cbCategory))) {
@@ -232,7 +267,7 @@ public class NewChallengeActivity extends CogniActivity {
         }
     }
 
-    public void addOrRemoveSelectedSubject(CheckBox cbSubject) {
+    public void addOrRemoveSelectedSubject(CogniCheckBox cbSubject) {
         String subject = cbSubject.getText().toString();
         List<String> categoriesInSelectedSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
         if(cbSubject.isChecked()) {
@@ -281,13 +316,13 @@ public class NewChallengeActivity extends CogniActivity {
                 }).show();
     }
 
-    public void addOrRemoveSelectedCategory(CompoundButton cbCategory) {
+    public void addOrRemoveSelectedCategory(CheckBox cbCategory) {
         String category = mCategoryCheckboxToCategory.get(cbCategory);
         if(cbCategory.isChecked()) {
             mSelectedCategories.add(category);
 
             // Set category's corresponding subject to be chosen
-            for(CheckBox cbSubject : mSubjectCheckboxes) {
+            for(CogniCheckBox cbSubject : mSubjectCheckboxes) {
                 String subject = cbSubject.getText().toString();
                 List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
                 if(categoriesInSubject.contains(category) && !mSelectedSubjects.contains(subject)) {
@@ -298,6 +333,16 @@ public class NewChallengeActivity extends CogniActivity {
         }
         else {
             mSelectedCategories.remove(category);
+
+            // If category's corresponding subject has no categories selected, then uncheck that subject
+            for(CogniCheckBox cbSubject : mSubjectCheckboxes) {
+                String subject = cbSubject.getText().toString();
+                List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
+                if(categoriesInSubject.contains(category) && Collections.disjoint(mSelectedCategories, categoriesInSubject)) {
+                    cbSubject.setChecked(false);
+                    mSelectedSubjects.remove(subject);
+                }
+            }
         }
     }
 
@@ -320,8 +365,8 @@ public class NewChallengeActivity extends CogniActivity {
             @Override
             public Task<Object> then(Task<PublicUserData> task) throws Exception {
                 final PublicUserData user1PublicUserData = task.getResult();
-                final ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, mSelectedSubjects,
-                        mSelectedCategories);
+                final ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData,
+                        new ArrayList<String>(mSelectedSubjects), new ArrayList<String>(mSelectedCategories));
                 user1Data.saveInBackground();
 
                 final String challengeType = getChallengeType();
@@ -369,8 +414,8 @@ public class NewChallengeActivity extends CogniActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
-                        user2Data.setSubjects(mSelectedSubjects);
-                        user2Data.setCategories(mSelectedCategories);
+                        user2Data.setSubjects(new ArrayList<String>(mSelectedSubjects));
+                        user2Data.setCategories(new ArrayList<String>(mSelectedCategories));
                         user2Data.saveInBackground();
 
                         navigateToChooseBoardConfigurationActivity(challengeId, 2);

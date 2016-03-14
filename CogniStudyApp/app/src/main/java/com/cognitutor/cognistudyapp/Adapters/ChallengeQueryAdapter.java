@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -28,6 +29,7 @@ import com.parse.ParseQueryAdapter;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -143,7 +145,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                                 opponentChallengeUserData = user1Data;
                                 user1or2 = 2;
                             }
-                            setItemViewContents(holder, currentChallengeUserData, opponentChallengeUserData);
+                            setItemViewContents(holder, challenge, currentChallengeUserData, opponentChallengeUserData);
 
                             finalView.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -197,6 +199,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                     public void onClick(DialogInterface dialog, int which) {
                         challenge.setAccepted(true);
                         challenge.setHasEnded(true);
+                        challenge.setTimeLastPlayed(new Date());
                         challenge.setEndDate(new Date());
                         challenge.setWinner(Constants.ChallengeAttribute.Winner.NO_WINNER);
                         challenge.saveInBackground(new SaveCallback() {
@@ -218,21 +221,20 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         ViewHolder holder = new ViewHolder();
         holder.txtName = (TextView) v.findViewById(R.id.txtName);
         holder.imgProfile = (RoundedImageView) v.findViewById(R.id.imgProfileRounded);
-        holder.txtSubjects = (TextView) v.findViewById(R.id.txtSubjects);
         holder.txtScore = (TextView) v.findViewById(R.id.txtScore);
+        holder.txtDaysLeft = (TextView) v.findViewById(R.id.txtDaysLeftToPlay);
         return holder;
     }
 
-    private void setItemViewContents(ViewHolder holder, ChallengeUserData currentUserData, ChallengeUserData opponentUserData) {
+    private void setItemViewContents(ViewHolder holder, Challenge challenge, ChallengeUserData currentUserData, ChallengeUserData opponentUserData) {
         holder.imgProfile.setParseFile(opponentUserData.getPublicUserData().getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtName.setText(opponentUserData.getPublicUserData().getDisplayName());
+        holder.setTxtDaysLeft(challenge.getTimeLastPlayed());
+
         if(currentUserData.getSubjects() != null) {
-            holder.setTxtSubjects(currentUserData.getSubjects());
             holder.txtScore.setText("" + currentUserData.getScore() + " - " + opponentUserData.getScore());
-        }
-        else {
-            holder.txtSubjects.setText("");
+        } else {
             holder.txtScore.setText("");
         }
     }
@@ -240,29 +242,64 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
     private void setItemViewContentsForPractice(ViewHolder holder, ChallengeUserData challengeUserData) {
         holder.imgProfile.setParseFile(challengeUserData.getPublicUserData().getProfilePic());
         holder.imgProfile.loadInBackground();
+        holder.txtDaysLeft.setVisibility(View.GONE);
+        holder.txtName.setGravity(Gravity.CENTER_VERTICAL);
         holder.txtName.setText("Practice");
-        holder.setTxtSubjects(challengeUserData.getSubjects());
+        holder.txtScore.setVisibility(View.GONE);
     }
 
     private static class ViewHolder {
         public TextView txtName;
         public RoundedImageView imgProfile;
-        public TextView txtSubjects;
         public TextView txtScore;
+        public TextView txtDaysLeft;
 
-        public void setTxtSubjects(List<String> selectedSubjects) {
-            String[] subjects = Constants.getAllConstants(Constants.Subject.class);
+        public void setTxtDaysLeft(Date timeLastPlayed) {
+            Calendar calendarEndDate = Calendar.getInstance();
+            calendarEndDate.setTime(timeLastPlayed);
+            calendarEndDate.add(Calendar.DATE, Constants.ChallengeAttribute.NUM_DAYS_PER_TURN);
+            Date endDate = calendarEndDate.getTime();
 
-            String output = "";
-            for(String subject : subjects) {
-                if(selectedSubjects.contains(subject)) {
-                    output += subject.substring(0, 1) + " ";
-                }
-                else {
-                    output += "  ";
-                }
+            Date currentDate = new Date();
+            Calendar calendarCurrentDate = Calendar.getInstance();
+            calendarEndDate.setTime(currentDate);
+
+            if(calendarCurrentDate.compareTo(calendarEndDate) < 1) { // If the end date hasn't come yet
+                String timeBetween = getTimeBetween(currentDate, endDate);
+                txtDaysLeft.setText(timeBetween + " left to play");
+            } else {
+                String timeBetween = getTimeBetween(endDate, currentDate);
+                txtDaysLeft.setText(timeBetween + " ago");
             }
-            txtSubjects.setText(output);
+        }
+
+        public String getTimeBetween(Date startDate, Date endDate) {
+            final long secondsInMilli = 1000;
+            final long minutesInMilli = secondsInMilli * 60;
+            final long hoursInMilli = minutesInMilli * 60;
+            final long daysInMilli = hoursInMilli * 24;
+
+            long milliseconds = endDate.getTime() - startDate.getTime();
+            long days = milliseconds / daysInMilli;
+            long hours = milliseconds / hoursInMilli;
+            long minutes = milliseconds / minutesInMilli;
+            long seconds = milliseconds / secondsInMilli;
+
+            if (days > 0) {
+                return days + " days";
+            }
+            else if (hours > 0) {
+                return hours + " hours";
+            }
+            else if (minutes > 0) {
+                return minutes + " minutes";
+            }
+            else if (seconds > 1) {
+                return seconds + " seconds";
+            }
+            else {
+                return "1 second";
+            }
         }
     }
 }

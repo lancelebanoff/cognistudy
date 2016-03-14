@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:layout_width="wrap_content" android:layout_height="wrap_content"
     android:paddingTop="5dp"
     android:paddingBottom="5dp" >
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <com.cognitutor.cognistudyapp.Custom.RoundedImageView
             android:id="@+id/imgProfileRounded"
@@ -30,14 +30,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Opponent"/>
+                android:text=""/>
 
             <TextView
                 android:id="@+id/txtDaysLeftToPlay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="2 days left to play"/>
+                android:text=""/>
         </LinearLayout>
 
         <LinearLayout
@@ -46,31 +46,16 @@
             android:layout_alignParentRight="true"
             android:orientation="vertical"
             android:layout_centerVertical="true"
-            android:paddingLeft="20dp">
-
-            <LinearLayout
-                android:id="@+id/llSubjects"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:paddingRight="20dp">
-
-                <TextView
-                    android:id="@+id/txtSubjects"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="R M E S"/>
-
-            </LinearLayout>
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
 
             <TextView
+                style="@style/Base.TextAppearance.AppCompat.Medium"
                 android:id="@+id/txtScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0 - 0"/>
+                android:text=""/>
         </LinearLayout>
 
     </RelativeLayout>

@@ -40,7 +40,7 @@
     <string name="title_activity_choose_display_name">Choose Display Name</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="facebook_app_id">929284720487933</string>
-    <string name="choose_categories"><u>Choose Categories</u></string>
+    <string name="choose_categories">Choose Categories</string>
     <string name="title_dialog_choose_categories">Choose Categories</string>
     <string name="title_dialog_cancel_challenge">Cancel Challenge</string>
     <string name="message_dialog_cancel_challenge">Are you sure you want to cancel this challenge?</string>

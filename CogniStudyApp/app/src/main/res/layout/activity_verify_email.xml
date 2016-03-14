@@ -7,51 +7,57 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".Activities.VerityEmailActivity">
+    tools:context=".Activities.VerifyEmailActivity">
 
-    <TextView
-        android:id="@+id/txtVerifyEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Please verify your email to continue"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+    <!-- Login progress -->
+    <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp" android:visibility="gone"
+        android:layout_centerInParent="true"/>
 
-    <com.cognitutor.cognistudyapp.Custom.CogniButton
-        android:id="@+id/btnContinue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="39dp"
-        android:text="Continue"
-        android:onClick="checkEmailVerified"
-        android:layout_below="@+id/txtVerifyEmail"
-        android:layout_centerHorizontal="true"
-        android:visibility="visible"
-        android:layout_gravity="center_horizontal" />
+    <RelativeLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <com.cognitutor.cognistudyapp.Custom.CogniButton
-        android:id="@+id/btnLogout"
-        android:layout_marginTop="37dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout"
-        android:onClick="logout"
-        android:layout_below="@+id/btnContinue"
-        android:layout_alignRight="@+id/btnContinue"
-        android:layout_alignEnd="@+id/btnContinue"
-        android:layout_gravity="center_horizontal" />
+        <TextView
+            android:id="@+id/txtVerifyEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="A confirmation email has been sent to you. Please verify your email address by clicking the link in the email."
+            android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal"
+            android:layout_alignParentTop="true" />
 
-    <com.cognitutor.cognistudyapp.Custom.CogniButton
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Resend confirmation email"
-        android:id="@+id/btnResendLink"
-        android:layout_centerVertical="true"
-        android:layout_alignLeft="@+id/btnLogout"
-        android:layout_alignStart="@+id/btnLogout"
-        android:onClick="resendConfirmationEmail"/>
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:id="@+id/btnContinue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="My Email is Verified"
+            android:layout_below="@+id/txtVerifyEmail"
+            android:layout_marginTop="20dp"
+            android:onClick="checkEmailVerified"
+            android:layout_centerHorizontal="true"
+            android:visibility="visible" />
 
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Resend confirmation email"
+            android:id="@+id/btnResendLink"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/btnContinue"
+            android:onClick="resendConfirmationEmail"/>
+
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:layout_centerHorizontal="true"
+            android:onClick="logout"
+            android:layout_below="@+id/btnResendLink" />
+
+    </RelativeLayout>
 
 </RelativeLayout>
