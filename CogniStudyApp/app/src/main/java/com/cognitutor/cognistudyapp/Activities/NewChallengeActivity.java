@@ -7,13 +7,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.ViewSwitcher;
 
+import com.cognitutor.cognistudyapp.Custom.CogniCheckBox;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
@@ -24,7 +24,9 @@ import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import bolts.Continuation;
@@ -39,15 +41,15 @@ public class NewChallengeActivity extends CogniActivity {
      *      CHALLENGE_ID: string
      */
     private Intent mIntent;
-    private ArrayList<CheckBox> mSubjectCheckboxes;
+    private ArrayList<CogniCheckBox> mSubjectCheckboxes;
     private ArrayList<CheckBox> mCategoryCheckboxes;
     private ScrollView mSvCategories;
     private RadioButton mRbDefaultTest;
     private RadioButton mRbDefaultOpponent;
 
     private String mSelectedTest;
-    private ArrayList<String> mSelectedSubjects;
-    private ArrayList<String> mSelectedCategories;
+    private HashSet<String> mSelectedSubjects;
+    private HashSet<String> mSelectedCategories;
     private String mSelectedOpponent;
     private HashMap<CheckBox, String> mCategoryCheckboxToCategory;
 
@@ -67,8 +69,8 @@ public class NewChallengeActivity extends CogniActivity {
         mRbDefaultOpponent = null;
 
         mSelectedTest = "";
-        mSelectedSubjects = new ArrayList<>();
-        mSelectedCategories = new ArrayList<>();
+        mSelectedSubjects = new HashSet<>();
+        mSelectedCategories = new HashSet<>();
         mSelectedOpponent = "";
         mCategoryCheckboxToCategory = new HashMap<>();
 
@@ -106,20 +108,18 @@ public class NewChallengeActivity extends CogniActivity {
         LinearLayout llSubjects = (LinearLayout) findViewById(R.id.llSubjects);
         String[] subjectNames = Constants.Subject.getSubjects();
         for(String subjectName : subjectNames) {
-            CheckBox checkBox = new CheckBox(this);
+            CogniCheckBox checkBox = new CogniCheckBox(this);
             checkBox.setText(subjectName);
-            checkBox.setOnClickListener(new CheckBox.OnClickListener() {
+            checkBox.setOnClickListener(new CogniCheckBox.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    addOrRemoveSelectedSubject((CheckBox) view);
+                    addOrRemoveSelectedSubject((CogniCheckBox) view);
                 }
             });
             llSubjects.addView(checkBox);
             mSubjectCheckboxes.add(checkBox);
 
-            // Initialize all subjects to be chosen
             // TODO:2 Initialize chosen tests, subjects, and categories to whatever was chosen last time
-            checkBox.performClick();
         }
     }
 
@@ -140,10 +140,10 @@ public class NewChallengeActivity extends CogniActivity {
                 if(mSelectedCategories.contains(category)) {
                     checkBox.setChecked(true);
                 }
-                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                checkBox.setOnClickListener(new CheckBox.OnClickListener() {
                     @Override
-                    public void onCheckedChanged(CompoundButton cbCategory, boolean isChecked) {
-                        addOrRemoveSelectedCategory(cbCategory);
+                    public void onClick(View v) {
+                        addOrRemoveSelectedCategory((CheckBox) v);
                     }
                 });
                 checkBox.setText(subject + ": " + category);
@@ -219,11 +219,18 @@ public class NewChallengeActivity extends CogniActivity {
     public void changeSelectedTest(RadioButton rbTest) {
         mSelectedTest = rbTest.getText().toString();
         mSelectedSubjects.clear();
+        List<String> subjectsInSelectedTest = Arrays.asList(Constants.TestToSubject.get(mSelectedTest));
+        mSelectedSubjects.addAll(subjectsInSelectedTest);
         mSelectedCategories.clear();
-        for(CheckBox cbSubject : mSubjectCheckboxes) {
-            cbSubject.setChecked(false);
-        }
         List<String> categoriesInSelectedTest = Arrays.asList(Constants.TestToCategory.get(mSelectedTest));
+        mSelectedCategories.addAll(categoriesInSelectedTest);
+        for(CogniCheckBox cbSubject : mSubjectCheckboxes) {
+            cbSubject.setChecked(false);
+            String subject = cbSubject.getText().toString();
+            if (subjectsInSelectedTest.contains(subject)) {
+                cbSubject.setChecked(true);
+            }
+        }
         for(CheckBox cbCategory : mCategoryCheckboxes) {
             cbCategory.setChecked(false);
             if(categoriesInSelectedTest.contains(mCategoryCheckboxToCategory.get(cbCategory))) {
@@ -232,7 +239,7 @@ public class NewChallengeActivity extends CogniActivity {
         }
     }
 
-    public void addOrRemoveSelectedSubject(CheckBox cbSubject) {
+    public void addOrRemoveSelectedSubject(CogniCheckBox cbSubject) {
         String subject = cbSubject.getText().toString();
         List<String> categoriesInSelectedSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
         if(cbSubject.isChecked()) {
@@ -281,13 +288,13 @@ public class NewChallengeActivity extends CogniActivity {
                 }).show();
     }
 
-    public void addOrRemoveSelectedCategory(CompoundButton cbCategory) {
+    public void addOrRemoveSelectedCategory(CheckBox cbCategory) {
         String category = mCategoryCheckboxToCategory.get(cbCategory);
         if(cbCategory.isChecked()) {
             mSelectedCategories.add(category);
 
             // Set category's corresponding subject to be chosen
-            for(CheckBox cbSubject : mSubjectCheckboxes) {
+            for(CogniCheckBox cbSubject : mSubjectCheckboxes) {
                 String subject = cbSubject.getText().toString();
                 List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
                 if(categoriesInSubject.contains(category) && !mSelectedSubjects.contains(subject)) {
@@ -298,6 +305,16 @@ public class NewChallengeActivity extends CogniActivity {
         }
         else {
             mSelectedCategories.remove(category);
+
+            // If category's corresponding subject has no categories selected, then uncheck that subject
+            for(CogniCheckBox cbSubject : mSubjectCheckboxes) {
+                String subject = cbSubject.getText().toString();
+                List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
+                if(categoriesInSubject.contains(category) && Collections.disjoint(mSelectedCategories, categoriesInSubject)) {
+                    cbSubject.setChecked(false);
+                    mSelectedSubjects.remove(subject);
+                }
+            }
         }
     }
 
@@ -320,8 +337,8 @@ public class NewChallengeActivity extends CogniActivity {
             @Override
             public Task<Object> then(Task<PublicUserData> task) throws Exception {
                 final PublicUserData user1PublicUserData = task.getResult();
-                final ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, mSelectedSubjects,
-                        mSelectedCategories);
+                final ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData,
+                        new ArrayList<String>(mSelectedSubjects), new ArrayList<String>(mSelectedCategories));
                 user1Data.saveInBackground();
 
                 final String challengeType = getChallengeType();
@@ -369,8 +386,8 @@ public class NewChallengeActivity extends CogniActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
-                        user2Data.setSubjects(mSelectedSubjects);
-                        user2Data.setCategories(mSelectedCategories);
+                        user2Data.setSubjects(new ArrayList<String>(mSelectedSubjects));
+                        user2Data.setCategories(new ArrayList<String>(mSelectedCategories));
                         user2Data.saveInBackground();
 
                         navigateToChooseBoardConfigurationActivity(challengeId, 2);
