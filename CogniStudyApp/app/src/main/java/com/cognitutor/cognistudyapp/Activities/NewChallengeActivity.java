@@ -142,7 +142,7 @@ public class NewChallengeActivity extends CogniActivity {
         mSvCategories = new ScrollView(this);
         LinearLayout llCategories = new LinearLayout(this);
         llCategories.setOrientation(LinearLayout.VERTICAL);
-        llCategories.setPadding(0, 100, 0, 0);
+        llCategories.setPadding(0, 20, 0, 0);
         mSvCategories.addView(llCategories);
 
         String[] subjects = Constants.Subject.getSubjects();
