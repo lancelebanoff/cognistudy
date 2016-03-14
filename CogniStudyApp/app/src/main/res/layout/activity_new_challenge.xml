@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:gravity="center"
-    android:orientation="vertical"
     tools:context=".Activities.NewChallengeActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/llTests"
-        android:layout_weight="1"
+        android:layout_alignParentTop="true"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -29,22 +27,15 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
         </LinearLayout>
-
-        <RadioGroup
-            android:id="@+id/rgTests"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-        </RadioGroup>
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llSubjectsAndCategories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_below="@id/llTests"
         android:gravity="center"
+        android:paddingTop="20dp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -52,15 +43,13 @@
             android:layout_height="wrap_content"
             android:id="@+id/llSubjects"
             android:gravity="center"
-            android:paddingTop="20dp"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Choose Subjects"
-                android:id="@+id/txtChooseSubjects"
-                android:paddingTop="20dp" />
+                android:id="@+id/txtChooseSubjects" />
 
             <LinearLayout
                 android:id="@+id/llSubjectsHolder"
@@ -88,25 +77,24 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llOpponent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/llOpponent"
-        android:layout_weight="1"
+        android:layout_below="@+id/llSubjectsAndCategories"
         android:gravity="center"
+        android:paddingTop="20dp"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Opponent"
-            android:id="@+id/txtChooseOpponent"
-            android:paddingTop="20dp" />
+            android:id="@+id/txtChooseOpponent" />
 
         <ViewSwitcher
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/viewSwitcher"
-            android:paddingTop="20dp" >
+            android:id="@+id/viewSwitcher" >
 
             <include layout="@layout/opponent_name_and_picture"
                 android:id="@+id/opponentNameAndPicture"
@@ -123,10 +111,10 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llPlayNow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/llPlayNow"
-        android:layout_weight="0.5"
+        android:layout_alignParentBottom="true"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -138,4 +126,4 @@
             android:onClick="onClick_btnPlayNow" />
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>
