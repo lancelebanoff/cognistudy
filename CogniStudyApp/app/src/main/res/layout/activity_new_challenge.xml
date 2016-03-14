@@ -23,6 +23,13 @@
             android:text="Choose Tests"
             android:id="@+id/txtChooseTests" />
 
+        <LinearLayout
+            android:id="@+id/llTestsHolder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+        </LinearLayout>
+
         <RadioGroup
             android:id="@+id/rgTests"
             android:layout_width="fill_parent"
@@ -96,7 +103,7 @@
             android:paddingTop="20dp" />
 
         <ViewSwitcher
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/viewSwitcher"
             android:paddingTop="20dp" >
@@ -106,13 +113,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <RadioGroup
-                android:id="@+id/rgOpponents"
+            <LinearLayout
+                android:id="@+id/llOpponentsHolder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-            </RadioGroup>
+                android:orientation="vertical">
+            </LinearLayout>
         </ViewSwitcher>
     </LinearLayout>
 
