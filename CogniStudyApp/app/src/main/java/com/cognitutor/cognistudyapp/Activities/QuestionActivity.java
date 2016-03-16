@@ -33,7 +33,6 @@ import com.parse.ParseException;
 
 import org.apache.commons.io.IOUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import bolts.Continuation;
@@ -55,6 +54,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
     private Challenge mChallenge = null;
+    private int mUser1or2;
     private int mQuesAnsThisTurn = -1;
 
     @Override
@@ -63,6 +63,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         setContentView(R.layout.activity_question);
         mIntent = getIntent();
 
+        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
         listView = (ListView) findViewById(R.id.listView);
         addComponents();
         avh.btnSetLatex.setOnClickListener(this);
@@ -265,34 +266,37 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                         mChallenge.getQuesAnsThisTurn() == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
                     mQuesAnsThisTurn = 0;
                     mChallenge.setQuesAnsThisTurn(0);
-                    chooseThreeQuestionIds();
+                    Question.chooseThreeQuestionIds(mChallenge, mUser1or2).onSuccess(new Continuation<List<String>, Void>() {
+                        @Override
+                        public Void then(Task<List<String>> task) throws Exception {
+                            saveChallengeAndShowButton();
+                            return null;
+                        }
+                    });
                 }
-                try {
-                    mChallenge.save();
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                else {
+                    saveChallengeAndShowButton();
                 }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Switch Submit button to Continue button
-                        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-                        viewSwitcher.setVisibility(View.VISIBLE);
-                        viewSwitcher.showNext();
-                    }
-                });
             }
         }).start();
     }
 
-    private List<String> chooseThreeQuestionIds() {
-        List<String> questionIds = new ArrayList<>();
-        questionIds.add("aSVEaMqEfB");
-        questionIds.add("fF4lsHt2iW");
-        questionIds.add("eO4TCrdBdn");
-        mChallenge.setThisTurnQuestionIds(questionIds);
-        return questionIds;
+    private void saveChallengeAndShowButton() {
+        try {
+            mChallenge.save();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Switch Submit button to Continue button
+                ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+                viewSwitcher.setVisibility(View.VISIBLE);
+                viewSwitcher.showNext();
+            }
+        });
     }
 
     public void navigateToNextActivity(View view) {
