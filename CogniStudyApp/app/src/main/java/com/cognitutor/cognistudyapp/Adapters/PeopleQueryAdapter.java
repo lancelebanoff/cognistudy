@@ -9,10 +9,12 @@ import android.widget.Filter;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseObject;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import bolts.Capture;
 import bolts.Continuation;
 import bolts.Task;
 
@@ -68,6 +71,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mLock = new ReentrantLock();
         getDefaultQuery().findInBackground().continueWith(new Continuation<List<PublicUserData>, Object>() {
+//        getImportantCachedPublicUserDatas().continueWith(new Continuation<List<PublicUserData>, Object>() {
             @Override
             public Object then(Task<List<PublicUserData>> task) throws Exception {
                 if (!task.isFaulted())
@@ -101,6 +105,34 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 //                .whereEqualTo(PublicUserData.Columns.fbLinked, true);
         //TODO: Add this?
         //.whereNotEqualTo(PublicUserData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId());
+    }
+
+    private static Task<ParseQuery<PublicUserData>> getImportantCachedPublicUserDataQuery() {
+
+        final List<ParseQuery<PublicUserData>> queries = new ArrayList<>();
+        queries.add(PublicUserData.getQuery().fromPin(Constants.PinNames.CurrentUser));
+
+        return Challenge.getQuery()
+                .fromLocalDatastore()
+                .findInBackground().continueWith(new Continuation<List<Challenge>, ParseQuery<PublicUserData>>() {
+                    @Override
+                    public ParseQuery<PublicUserData> then(Task<List<Challenge>> task) throws Exception {
+                        for (Challenge challenge : task.getResult()) {
+                            queries.add(PublicUserData.getQuery().fromPin("challenge" + challenge.getObjectId()));
+                        }
+                        return ParseQuery.or(queries);
+                    }
+                });
+    }
+
+    private static Task<List<PublicUserData>> getImportantCachedPublicUserDatas() {
+        return getImportantCachedPublicUserDataQuery()
+                .continueWithTask(new Continuation<ParseQuery<PublicUserData>, Task<List<PublicUserData>>>() {
+                    @Override
+                    public Task<List<PublicUserData>> then(Task<ParseQuery<PublicUserData>> task) throws Exception {
+                        return task.getResult().findInBackground();
+                    }
+                });
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -166,6 +198,12 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                                         .whereContains(PublicUserData.Columns.searchableDisplayName, q);
                             }
                 });
+            }
+        }).continueWith(new Continuation<List<PublicUserData>, Object>() {
+            @Override
+            public Object then(Task<List<PublicUserData>> task) throws Exception {
+                ParseObjectUtils.unpinAllInBackground(Constants.PinNames.PeopleSearch);
+                return null;
             }
         });
     }

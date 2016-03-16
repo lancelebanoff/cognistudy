@@ -248,69 +248,75 @@ public class ParseObjectUtils {
         //This section is probably only necessary for PinnedObject functionality. I believe that
         //ParseObject.pin() or pinAll() will still work if some of the objects are already pinned.
         //Without this section, a new PinnedObject will be created even if the object already exists in the cache.
+        List<Task<Object>> gets = new ArrayList<>();
         for (final T obj : objects) {
-            ParseQuery.getQuery((Class<T>) obj.getClass())
-                    .fromLocalDatastore()
-                    .getInBackground(obj.getObjectId()).continueWith(new Continuation<T, Object>() {
-                @Override
-                public Object then(Task<T> task) throws Exception {
-                    if(task.isFaulted()) {
-                        ParseException e = (ParseException) task.getError();
-                        newObjectsToPin.add(obj);
-                        if(e.getCode() != ErrorHandler.ErrorCode.OBJECT_NOT_FOUND) {
-                            e.printStackTrace();
-                            Log.e("doPinAllWMaxInBg init", e.getMessage());
+            gets.add(
+                    ParseQuery.getQuery((Class<T>) obj.getClass())
+                            .fromLocalDatastore()
+                            .getInBackground(obj.getObjectId()).continueWith(new Continuation<T, Object>() {
+                        @Override
+                        public Object then(Task<T> task) throws Exception {
+                            if (task.isFaulted()) {
+                                ParseException e = (ParseException) task.getError();
+                                newObjectsToPin.add(obj);
+                                if (e.getCode() != ErrorHandler.ErrorCode.OBJECT_NOT_FOUND) {
+                                    e.printStackTrace();
+                                    Log.e("doPinAllWMaxInBg init", e.getMessage());
+                                }
+                            } else {
+                                T fromLocal = task.getResult();
+                                objectsAlreadyPinned.add(fromLocal);
+                            }
+                            return null;
                         }
-                    }
-                    else {
-                        T fromLocal = task.getResult();
-                        objectsAlreadyPinned.add(fromLocal);
-                    }
-                    return null;
-                }
-            }); //TODO: What happens when obj.getObjectId is null?
+                    }) //TODO: What happens when obj.getObjectId is null?
+            );
         }
-
-        try {
+        return Task.whenAll(gets).continueWithTask(new Continuation<Void, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Void> task) throws Exception {
+                try {
 //            ParseObject.pinAll(objectsAlreadyPinned); //????????? Idk what I did here. I left out the pin name too.
 
-            final Integer max = (pinName == null) ? null : PinNamesToMaxPinned.get(pinName);
-            final int numWaiting = newObjectsToPin.size();
-            if (max == null) {
-                return doNewPinAll(pinName, newObjectsToPin);
+                    final Integer max = (pinName == null) ? null : PinNamesToMaxPinned.get(pinName);
+                    final int numWaiting = newObjectsToPin.size();
+                    if (max == null) {
+                        return doNewPinAll(pinName, newObjectsToPin);
+                    }
+
+                    Log.d("pinning with max", "pinName: " + pinName);
+
+                    return PinnedObject.getQueryForUserOldestFirst(pinName)
+                            .countInBackground()
+                            .continueWithTask(new Continuation<Integer, Task<Void>>() {
+                                @Override
+                                public Task<Void> then(Task<Integer> task) throws Exception {
+                                    int numPinned = task.getResult();
+                                    int numToUnpin = numWaiting + numPinned - max;
+                                    if (numToUnpin > 0) {
+                                        return PinnedObject.getQueryForUserOldestFirst(pinName)
+                                                .setLimit(numToUnpin)
+                                                .findInBackground()
+                                                .continueWithTask(new Continuation<List<PinnedObject>, Task<Void>>() {
+                                                    @Override
+                                                    public Task<Void> then(Task<List<PinnedObject>> task) throws Exception {
+                                                        List<PinnedObject> listToUnpin = task.getResult();
+                                                        PinnedObject.unpinAllObjectsAndDelete(listToUnpin);
+                                                        return doNewPinAll(pinName, newObjectsToPin.subList(0, Math.min(max, newObjectsToPin.size())));
+                                                    }
+                                                });
+                                    } else
+                                        return doNewPinAll(pinName, newObjectsToPin.subList(0, Math.min(max, newObjectsToPin.size())));
+                                }
+                            });
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    Log.e("doPinAllWithMaxInBg", e.getMessage());
+                    return CommonUtils.getCompletionTask(null);
+                }
             }
-
-            Log.d("pinning with max", "pinName: " + pinName);
-
-            return PinnedObject.getQueryForUserOldestFirst(pinName)
-                    .countInBackground()
-                    .continueWithTask(new Continuation<Integer, Task<Void>>() {
-                        @Override
-                        public Task<Void> then(Task<Integer> task) throws Exception {
-                            int numPinned = task.getResult();
-                            int numToUnpin = numWaiting + numPinned - max;
-                            if (numToUnpin > 0) {
-                                return PinnedObject.getQueryForUserOldestFirst(pinName)
-                                        .setLimit(numToUnpin)
-                                        .findInBackground()
-                                        .continueWithTask(new Continuation<List<PinnedObject>, Task<Void>>() {
-                                            @Override
-                                            public Task<Void> then(Task<List<PinnedObject>> task) throws Exception {
-                                                List<PinnedObject> listToUnpin = task.getResult();
-                                                PinnedObject.unpinAllObjectsAndDelete(listToUnpin);
-                                                return doNewPinAll(pinName, newObjectsToPin.subList(0, Math.min(max, newObjectsToPin.size())));
-                                            }
-                                        });
-                            } else
-                                return CommonUtils.getCompletionTask(null);
-                        }
-                    });
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Log.e("doPinAllWithMaxInBg", e.getMessage());
-            return CommonUtils.getCompletionTask(null);
-        }
+        });
     }
 
     private static <T extends ParseObject> Task<Void> pinAllWithMaxInBackground(final String pinName, final List<T> objects) {
