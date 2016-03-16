@@ -21,12 +21,21 @@ import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -209,21 +218,52 @@ public class ChallengeActivity extends CogniActivity {
         if (quesAnsThisTurn == Constants.Questions.NUM_QUESTIONS_PER_TURN) { // All questions have been answered
             navigateToBattleshipAttackActivity();
         } else {
-            List<String> questionIds = mChallenge.getThisTurnQuestionIds(); // TODO:2 get the 3 chosen questions
-            if (questionIds == null) {
-                questionIds = chooseThreeQuestionIds(mChallenge); // TODO:2 choose 3 random questions
+            List<String> questionIds = mChallenge.getThisTurnQuestionIds();
+            if (questionIds != null) {
+                navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
+            } else {
+                chooseThreeQuestionIds(mChallenge); // TODO:2 do this during onCreate?
             }
-            navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
         }
     }
 
-    private List<String> chooseThreeQuestionIds(Challenge challenge) {
-        List<String> questionIds = new ArrayList<>();
-        questionIds.add("aSVEaMqEfB");
-        questionIds.add("fF4lsHt2iW");
-        questionIds.add("eO4TCrdBdn");
-        challenge.setThisTurnQuestionIds(questionIds);
-        return questionIds;
+    private void chooseThreeQuestionIds(final Challenge challenge) {
+        challenge.getChallengeUserData(mCurrentUser1or2).fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, Void>() {
+            @Override
+            public Void then(Task<ParseObject> task) throws Exception {
+                ChallengeUserData challengeUserData = (ChallengeUserData) task.getResult();
+
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("challengeUserDataId", challengeUserData.getObjectId());
+                params.put("challengeId", challenge.getObjectId());
+
+                List<String> categories = challengeUserData.getCategories();
+                int randomIndex = new Random().nextInt(categories.size());
+                params.put("category", categories.get(randomIndex));
+
+                ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.CHOOSE_THREE_QUESTIONS, params, new FunctionCallback<List<Question>>() {
+                    @Override
+                    public void done(List<Question> questions, ParseException e) {
+                        if (e == null) {
+                            List<String> questionIds = new ArrayList<String>();
+                            for (Question question : questions) {
+                                questionIds.add(question.getObjectId());
+                            }
+                            challenge.setThisTurnQuestionIds(questionIds);
+                            try {
+                                challenge.save();
+                            } catch (ParseException e1) {
+                                e1.printStackTrace();
+                            }
+                            navigateToQuestionActivity(questionIds.get(0));
+                        } else {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                return null;
+            }
+        });
     }
 
     private void navigateToQuestionActivity(String questionId) {

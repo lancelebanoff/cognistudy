@@ -3,7 +3,6 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -24,6 +23,7 @@ import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
@@ -33,7 +33,6 @@ import com.parse.ParseException;
 
 import org.apache.commons.io.IOUtils;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +97,13 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
 
         if(mQuestion.inBundle()) {
-            avh.wvPassage.loadData(buildPassageHtml(mQuestion.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
+            QuestionBundle bundle = null;
+            try {
+                bundle = mQuestion.getQuestionBundle().fetchIfNeeded();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            avh.wvPassage.loadData(buildPassageHtml(bundle.getPassageText()), "text/html", "UTF-8");
         }
 //        avh.wvPassage.loadData(
 //                "<html><body>" +
@@ -379,12 +384,12 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private String buildPassageHtml(String body) {
 
         String html = null;
-        try { html = IOUtils.toString(new URI("file:///android_asset/html/passage.html")); }
-        catch (Exception e) {Log.e("IOUtils", "Error getting html from assets");}
+        try { html = IOUtils.toString(getAssets().open("html/passage.html")); }
+        catch (Exception e) {e.printStackTrace();}
 
         String css = null;
-        try { css = IOUtils.toString(new URI("file:///android_asset/css/question.css")); }
-        catch (Exception e) {Log.e("IOUtils", "Error getting css from assets");}
+        try { css = IOUtils.toString(getAssets().open("css/question.css")); }
+        catch (Exception e) {e.printStackTrace();}
         
         html = html.replace("$CSS$", css);
 
