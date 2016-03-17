@@ -233,6 +233,7 @@ public class Constants {
 
     public static class Subject {
         public static final String OVERALL = "Overall";
+        public static final String ALL = "All";
         public static final String READING = "Reading";
         public static final String MATH = "Math";
         public static final String ENGLISH = "English";
@@ -244,6 +245,10 @@ public class Constants {
 
         public static String[] getSubjectsPlusOverall() {
             return new String[] {OVERALL, READING, MATH, ENGLISH, SCIENCE} ;
+        }
+
+        public static String[] getSubjectsPlusAll() {
+            return new String[] {ALL, READING, MATH, ENGLISH, SCIENCE} ;
         }
     }
 
