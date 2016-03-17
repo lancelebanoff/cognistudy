@@ -118,7 +118,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                     @Override
                     public ParseQuery<PublicUserData> then(Task<List<Challenge>> task) throws Exception {
                         for (Challenge challenge : task.getResult()) {
-                            queries.add(PublicUserData.getQuery().fromPin("challenge" + challenge.getObjectId()));
+                            queries.add(PublicUserData.getQuery().fromPin(challenge.getObjectId()));
                         }
                         return ParseQuery.or(queries);
                     }
