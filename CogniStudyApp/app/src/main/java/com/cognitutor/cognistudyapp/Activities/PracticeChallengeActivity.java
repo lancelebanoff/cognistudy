@@ -49,6 +49,11 @@ public class PracticeChallengeActivity extends CogniActivity {
         mCurrentUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
 
         mChallenge = Challenge.getChallenge(mChallengeId);
+
+        if (mChallenge.getHasEnded()) {
+            CogniImageButton btnResign = (CogniImageButton) findViewById(R.id.btnResign);
+            btnResign.setVisibility(View.GONE);
+        }
     }
 
     @Override

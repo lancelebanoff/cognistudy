@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
+import com.cognitutor.cognistudyapp.Custom.CogniImageButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
@@ -67,14 +68,14 @@ public class ChallengeActivity extends CogniActivity {
         mChallenge = Challenge.getChallenge(mChallengeId);
         initializeBoard(mViewingUser1or2);
 
-        showOrHideYourTurnButton();
+        showOrHideButtons();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        showOrHideYourTurnButton();
+        showOrHideButtons();
     }
 
     private void initializeBoard(final int viewingUser1or2) {
@@ -115,7 +116,7 @@ public class ChallengeActivity extends CogniActivity {
         btnSwitch.setVisibility(View.INVISIBLE);
     }
 
-    private void showOrHideYourTurnButton() {
+    private void showOrHideButtons() {
         String currentUserId = ParseUser.getCurrentUser().getObjectId();
         boolean isCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
@@ -123,6 +124,11 @@ public class ChallengeActivity extends CogniActivity {
             btnYourTurn.setVisibility(View.VISIBLE);
         } else {
             btnYourTurn.setVisibility(View.INVISIBLE);
+        }
+
+        if (mChallenge.getHasEnded()) {
+            CogniImageButton btnResign = (CogniImageButton) findViewById(R.id.btnResign);
+            btnResign.setVisibility(View.INVISIBLE);
         }
     }
 
