@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
@@ -46,7 +47,7 @@ public class UserUtils {
         List<Task<Void>> tasks = new ArrayList<>();
         PublicUserData publicUserData = PublicUserData.getQuery()
                 .whereEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
-                .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData)
+                .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData + "." + PrivateStudentData.Columns.friends)
                 .getFirst();
 //        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
         tasks.add(publicUserData.pinInBackground(Constants.PinNames.CurrentUser));
