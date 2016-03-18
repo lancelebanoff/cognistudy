@@ -1,8 +1,16 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
+import android.app.ActionBar;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.R;
@@ -17,6 +25,7 @@ public class QuestionListFragment extends CogniFragment {
 
     private Spinner mSpSubjects;
     private Spinner mSpCategories;
+    private LinearLayout mSpinnerLayout;
     private ListType mListType;
 
     public enum ListType {
@@ -32,23 +41,29 @@ public class QuestionListFragment extends CogniFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mSpinnerLayout = (LinearLayout) getView().findViewById(R.id.spinnerLayout);
+        initializeSpinners();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_question_list, container, false);
     }
 
     private void initializeSpinners() {
+        initializeSubjectSpinner();
+        initializeCategorySpinner(null);
+    }
+
+    private void initializeSubjectSpinner() {
         mSpSubjects = (Spinner) getView().findViewById(R.id.spSubjectsQL);
-        mSpCategories = (Spinner) getView().findViewById(R.id.spCategoriesQL);
 
         String[] subjects = Constants.Subject.getSubjectsPlusAll();
         ArrayAdapter<String> subjectsAdapter =
                 new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, subjects);
         subjectsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpSubjects.setAdapter(subjectsAdapter);
-
-        String[] categories = {""};
-        ArrayAdapter<String> categoriesAdapter =
-                new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, categories);
-        categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpCategories.setAdapter(categoriesAdapter);
 
         Spinner.OnItemSelectedListener subjectListener = new Spinner.OnItemSelectedListener() {
             @Override
@@ -57,15 +72,46 @@ public class QuestionListFragment extends CogniFragment {
             }
         };
 
+        mSpSubjects.setOnItemSelectedListener(subjectListener);
+        mSpSubjects.setAnimation(null);
+    }
+
+    private void initializeCategorySpinner(String subject) {
+        if(mSpCategories != null) {
+            mSpinnerLayout.removeView(mSpCategories);
+        }
+
+        String[] categoriesPlusAll;
+        if(subject != null) {
+            String[] categories = Constants.SubjectToCategory.get(subject);
+            categoriesPlusAll = new String[categories.length + 1];
+            System.arraycopy(categories, 0, categoriesPlusAll, 1, categories.length);
+        } else {
+            categoriesPlusAll = new String[1];
+        }
+        categoriesPlusAll[0] = "All Categories";
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        mSpCategories = new Spinner(getContext());
+        mSpCategories.applyStyle(R.style.Material_Widget_Spinner);
+        ArrayAdapter<String> newCategoriesAdapter =
+                new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, categoriesPlusAll);
+        newCategoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpCategories.setAdapter(newCategoriesAdapter);
+
         Spinner.OnItemSelectedListener categoriesListener = new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(Spinner parent, View view, int position, long id) {
                 getAndDisplayCategory();
             }
         };
-        mSpSubjects.setOnItemSelectedListener(subjectListener);
-        mSpSubjects.setAnimation(null);
         mSpCategories.setOnItemSelectedListener(categoriesListener);
+
+        mSpinnerLayout.addView(mSpCategories, params);
+        mSpCategories.setSelection(0);
+        mSpCategories.performItemClick(mSpCategories.getChildAt(0), 0, 0);
+
         mSpCategories.setAnimation(null);
     }
 
@@ -106,13 +152,7 @@ public class QuestionListFragment extends CogniFragment {
     }
 
     private void setCategories(String subject) {
-        String[] categories = Constants.SubjectToCategory.get(subject);
-        String[] categoriesPlusAll = new String[categories.length + 1];
-        categoriesPlusAll[0] = "All";
-        System.arraycopy(categories, 0, categoriesPlusAll, 1, categories.length);
-        ArrayAdapter<String> newCategoriesAdapter =
-                new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, categoriesPlusAll);
-        mSpCategories.setAdapter(newCategoriesAdapter);
+        initializeCategorySpinner(subject);
     }
 
     private String getSelectedCategory() {

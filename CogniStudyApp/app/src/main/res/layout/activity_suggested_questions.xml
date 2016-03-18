@@ -8,12 +8,9 @@
     android:id="@+id/suggestedQuestionsLayout"
     tools:context=".Activities.SuggestedQuestionsActivity">
 
-    <com.cognitutor.cognistudyapp.Custom.CogniButton
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Suggested Question Fragment"
-        android:id="@+id/btnSuggestedQuestionFragment"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="navigateToQuestionActivity" />
+        android:layout_height="wrap_content" />
+
 </RelativeLayout>

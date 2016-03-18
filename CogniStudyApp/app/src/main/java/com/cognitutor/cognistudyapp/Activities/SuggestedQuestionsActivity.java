@@ -1,10 +1,10 @@
 package com.cognitutor.cognistudyapp.Activities;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -18,10 +18,10 @@ public class SuggestedQuestionsActivity extends CogniActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_suggested_questions);
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Fragment fragment = QuestionListFragment.newInstance(QuestionListFragment.ListType.SUGGESTED_QUESTIONS);
-        fragmentTransaction.add(R.id.suggestedQuestionsLayout, fragment).commit();
+        fragmentTransaction.add(R.id.fragmentContainer, fragment).commit();
     }
 
     public void navigateToQuestionActivity(View view) {

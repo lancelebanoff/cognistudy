@@ -1,7 +1,7 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
 import android.content.Intent;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 
 import com.cognitutor.cognistudyapp.Activities.CogniActivity;
 import com.cognitutor.cognistudyapp.Activities.RegistrationActivity;
