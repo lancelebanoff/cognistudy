@@ -15,11 +15,14 @@ import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.CogniImageButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.R;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class PracticeChallengeActivity extends CogniActivity {
 
@@ -94,20 +97,23 @@ public class PracticeChallengeActivity extends CogniActivity {
 
     public void onClick_btnYourTurn(View view) {
         int quesAnsThisTurn = mChallenge.getQuesAnsThisTurn();
-        List<String> questionIds = mChallenge.getThisTurnQuestionIds(); // TODO:2 get the 3 chosen questions
-        if (questionIds == null) {
-            questionIds = chooseThreeQuestionIds(mChallenge); // TODO:2 choose 3 random questions
+        List<String> questionIds = mChallenge.getThisTurnQuestionIds();
+        if (questionIds != null) {
+            navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
+        } else {
+            chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?
         }
-        navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
     }
 
-    private List<String> chooseThreeQuestionIds(Challenge challenge) {
-        List<String> questionIds = new ArrayList<>();
-        questionIds.add("aSVEaMqEfB");
-        questionIds.add("fF4lsHt2iW");
-        questionIds.add("eO4TCrdBdn");
-        challenge.setThisTurnQuestionIds(questionIds);
-        return questionIds;
+    private void chooseThreeQuestionIdsThenNavigate() {
+        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).onSuccess(new Continuation<List<String>, Void>() {
+            @Override
+            public Void then(Task<List<String>> task) throws Exception {
+                List<String> questionIds = task.getResult();
+                navigateToQuestionActivity(questionIds.get(0));
+                return null;
+            }
+        });
     }
 
     private void navigateToQuestionActivity(String questionId) {

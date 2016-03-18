@@ -514,6 +514,7 @@ public class Constants {
 
     public static class CloudCodeFunction {
         public static final String DELETE_CHALLENGE = "deleteChallenge";
+        public static final String CHOOSE_THREE_QUESTIONS = "chooseThreeQuestionsV2";
     }
 
     public static class PinNames {

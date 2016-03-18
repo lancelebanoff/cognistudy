@@ -24,6 +24,7 @@ public class SuggestedQuestion extends ParseObject {
     public Response getResponse() { return (Response) getParseObject(Columns.response); }
     public boolean isAnswered() { return getBoolean(Columns.answered); }
     public PublicUserData getTutor() { return (PublicUserData) getParseObject(Columns.tutor); }
+
     public String getTutorDisplayName() {
         try {
             getTutor().fetchFromLocalDatastore();

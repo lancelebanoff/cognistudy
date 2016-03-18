@@ -3,7 +3,6 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -24,6 +23,7 @@ import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
@@ -33,8 +33,6 @@ import com.parse.ParseException;
 
 import org.apache.commons.io.IOUtils;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import bolts.Continuation;
@@ -56,6 +54,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
     private Challenge mChallenge = null;
+    private int mUser1or2;
     private int mQuesAnsThisTurn = -1;
 
     @Override
@@ -64,6 +63,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         setContentView(R.layout.activity_question);
         mIntent = getIntent();
 
+        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
         listView = (ListView) findViewById(R.id.listView);
         addComponents();
         avh.btnSetLatex.setOnClickListener(this);
@@ -98,7 +98,13 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
 
         if(mQuestion.inBundle()) {
-            avh.wvPassage.loadData(buildPassageHtml(mQuestion.getQuestionBundle().getPassageText()), "text/html", "UTF-8");
+            QuestionBundle bundle = null;
+            try {
+                bundle = mQuestion.getQuestionBundle().fetchIfNeeded();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            avh.wvPassage.loadData(buildPassageHtml(bundle.getPassageText()), "text/html", "UTF-8");
         }
 //        avh.wvPassage.loadData(
 //                "<html><body>" +
@@ -260,34 +266,37 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                         mChallenge.getQuesAnsThisTurn() == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
                     mQuesAnsThisTurn = 0;
                     mChallenge.setQuesAnsThisTurn(0);
-                    chooseThreeQuestionIds();
+                    Question.chooseThreeQuestionIds(mChallenge, mUser1or2).onSuccess(new Continuation<List<String>, Void>() {
+                        @Override
+                        public Void then(Task<List<String>> task) throws Exception {
+                            saveChallengeAndShowButton();
+                            return null;
+                        }
+                    });
                 }
-                try {
-                    mChallenge.save();
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                else {
+                    saveChallengeAndShowButton();
                 }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Switch Submit button to Continue button
-                        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-                        viewSwitcher.setVisibility(View.VISIBLE);
-                        viewSwitcher.showNext();
-                    }
-                });
             }
         }).start();
     }
 
-    private List<String> chooseThreeQuestionIds() {
-        List<String> questionIds = new ArrayList<>();
-        questionIds.add("aSVEaMqEfB");
-        questionIds.add("fF4lsHt2iW");
-        questionIds.add("eO4TCrdBdn");
-        mChallenge.setThisTurnQuestionIds(questionIds);
-        return questionIds;
+    private void saveChallengeAndShowButton() {
+        try {
+            mChallenge.save();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Switch Submit button to Continue button
+                ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+                viewSwitcher.setVisibility(View.VISIBLE);
+                viewSwitcher.showNext();
+            }
+        });
     }
 
     public void navigateToNextActivity(View view) {
@@ -379,12 +388,12 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private String buildPassageHtml(String body) {
 
         String html = null;
-        try { html = IOUtils.toString(new URI("file:///android_asset/html/passage.html")); }
-        catch (Exception e) {Log.e("IOUtils", "Error getting html from assets");}
+        try { html = IOUtils.toString(getAssets().open("html/passage.html")); }
+        catch (Exception e) {e.printStackTrace();}
 
         String css = null;
-        try { css = IOUtils.toString(new URI("file:///android_asset/css/question.css")); }
-        catch (Exception e) {Log.e("IOUtils", "Error getting css from assets");}
+        try { css = IOUtils.toString(getAssets().open("css/question.css")); }
+        catch (Exception e) {e.printStackTrace();}
         
         html = html.replace("$CSS$", css);
 
