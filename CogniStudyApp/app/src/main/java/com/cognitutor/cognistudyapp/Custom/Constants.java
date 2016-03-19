@@ -124,6 +124,10 @@ public class Constants {
         public static final String updatedAt = "updatedAt";
     }
 
+    public static class Loading {
+        public static final int QUESTION_LOADING_TIME = 2000;
+    }
+
     public static class MenuItem {
         public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
         public static final String BOOKMARKS = "Bookmarks";

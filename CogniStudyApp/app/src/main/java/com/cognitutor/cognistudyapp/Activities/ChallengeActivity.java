@@ -14,6 +14,8 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
@@ -159,6 +161,11 @@ public class ChallengeActivity extends CogniActivity {
                 removeOnGlobalLayoutListener(mTargetsGridLayout, this);
             }
         });
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+        RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        rlContent.setVisibility(View.VISIBLE);
 
         mAnimationsGridLayout = (GridLayout) findViewById(R.id.animationsGridLayout);
         mBattleshipBoardManager.setAnimationsGridLayout(mAnimationsGridLayout);

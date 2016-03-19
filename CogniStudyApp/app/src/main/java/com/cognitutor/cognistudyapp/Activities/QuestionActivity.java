@@ -9,9 +9,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
@@ -77,7 +77,10 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
         try {
             mQuestion = Question.getQuestionWithContents(mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID));
-        } catch(ParseException e) { handleParseError(e); return; }
+        } catch(ParseException e) {
+            handleParseError(e);
+            return;
+        }
 
         mQuestionContents = mQuestion.getQuestionContents();
 
@@ -93,6 +96,10 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             }
         });
 
+        TextView txtSubject = (TextView) findViewById(R.id.txtSubject);
+        txtSubject.setText(mQuestion.getSubject());
+        TextView txtCategory = (TextView) findViewById(R.id.txtCategory);
+        txtCategory.setText(mQuestion.getCategory());
         avh.mvQuestion.setText(mQuestionContents.getQuestionText());
 //        avh.mvQuestion.loadUrl("file:///android_asset/html/passage.html");
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
@@ -119,7 +126,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SystemClock.sleep(0); // TODO:1 sleep so that user doesn't see mathview changing
+                SystemClock.sleep(Constants.Loading.QUESTION_LOADING_TIME);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -348,7 +355,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     }
 
     private class ActivityViewHolder {
-        private RelativeLayout rlQuestionHeader;
+        private LinearLayout rlQuestionHeader;
         private ProgressBar progressBar;
         private WebView wvPassage;
         private CogniMathView mvQuestion;
@@ -360,7 +367,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         private Button btnSubmit;
 
         private ActivityViewHolder() {
-            rlQuestionHeader = (RelativeLayout) findViewById(R.id.rlQuestionHeader);
+            rlQuestionHeader = (LinearLayout) findViewById(R.id.rlQuestionHeader);
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
             wvPassage = (WebView) findViewById(R.id.wvPassage);
             mvQuestion = (CogniMathView) findViewById(R.id.mvQuestion);
