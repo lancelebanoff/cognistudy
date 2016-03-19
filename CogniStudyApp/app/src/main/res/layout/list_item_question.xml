@@ -28,7 +28,7 @@
     <TextView
         android:layout_toRightOf="@id/txtDate"
         android:layout_below="@id/txtSubject"
-        android:id="@+id/txtStatus"
+        android:id="@+id/txtResponseStatus"
         android:text="Correct"
         android:layout_width="125dp"
         android:layout_height="wrap_content" />

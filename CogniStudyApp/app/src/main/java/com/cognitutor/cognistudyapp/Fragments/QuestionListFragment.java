@@ -12,11 +12,21 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.cognitutor.cognistudyapp.Adapters.QuestionListAdapter;
+import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseQuery;
 import com.rey.material.widget.Spinner;
 
 import java.util.Arrays;
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Kevin on 3/17/2016.
@@ -27,14 +37,30 @@ public class QuestionListFragment extends CogniFragment {
     private Spinner mSpCategories;
     private LinearLayout mSpinnerLayout;
     private ListType mListType;
+    private String mChallengeId;
+    private QuestionListAdapter mAdapter;
+    private CogniRecyclerView mQuestionList;
 
     public enum ListType {
         BOOKMARKS, SUGGESTED_QUESTIONS, CHALLENGE_QUESTIONS
     }
 
-    public static final QuestionListFragment newInstance(ListType type) {
+    public static final QuestionListFragment newBookmarksInstance() {
         QuestionListFragment questionListFragment = new QuestionListFragment();
-        questionListFragment.mListType = type;
+        questionListFragment.mListType = ListType.BOOKMARKS;
+        return questionListFragment;
+    }
+
+    public static final QuestionListFragment newSuggestedQuestionsInstance() {
+        QuestionListFragment questionListFragment = new QuestionListFragment();
+        questionListFragment.mListType = ListType.SUGGESTED_QUESTIONS;
+        return questionListFragment;
+    }
+
+    public static final QuestionListFragment newChallengeQuestionsIntance(String challengeId) {
+        QuestionListFragment questionListFragment = new QuestionListFragment();
+        questionListFragment.mListType = ListType.CHALLENGE_QUESTIONS;
+        questionListFragment.mChallengeId = challengeId;
         return questionListFragment;
     }
 
@@ -42,7 +68,10 @@ public class QuestionListFragment extends CogniFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mSpinnerLayout = (LinearLayout) getView().findViewById(R.id.spinnerLayout);
+        mQuestionList = (CogniRecyclerView) getView().findViewById(R.id.rvQuestionList);
         initializeSpinners();
+
+//        getAndDisplay(mSpSubjects.);
     }
 
     @Nullable
@@ -53,7 +82,7 @@ public class QuestionListFragment extends CogniFragment {
 
     private void initializeSpinners() {
         initializeSubjectSpinner();
-        initializeCategorySpinner(null);
+        initializeCategorySpinner(Constants.Subject.ALL_SUBJECTS);
     }
 
     private void initializeSubjectSpinner() {
@@ -82,12 +111,12 @@ public class QuestionListFragment extends CogniFragment {
         }
 
         String[] categoriesPlusAll;
-        if(subject != null) {
+        if(subject.equals(Constants.Subject.ALL_SUBJECTS)) {
+            categoriesPlusAll = new String[1];
+        } else {
             String[] categories = Constants.SubjectToCategory.get(subject);
             categoriesPlusAll = new String[categories.length + 1];
             System.arraycopy(categories, 0, categoriesPlusAll, 1, categories.length);
-        } else {
-            categoriesPlusAll = new String[1];
         }
         categoriesPlusAll[0] = "All Categories";
 
@@ -118,7 +147,7 @@ public class QuestionListFragment extends CogniFragment {
     private void getAndDisplaySubject() {
         String subject = getSelectedSubject();
         setCategories(subject);
-        getAndDisplay(subject, null);
+        getAndDisplay(subject, Constants.Category.ALL_CATEGORIES);
     }
 
     private void getAndDisplayCategory() {
@@ -140,7 +169,7 @@ public class QuestionListFragment extends CogniFragment {
     }
 
     private void getAndDisplayBookmarks(String subject, String category) {
-
+//        mAdapter = new QuestionListAdapter(getActivity(), ...);
     }
 
     private void getAndDisplaySuggestedQuestions(String subject, String category) {
@@ -149,6 +178,33 @@ public class QuestionListFragment extends CogniFragment {
 
     private void getAndDisplayChallengeQuestions(String subject, String category) {
 
+        ParseQuery<QuestionMetaObject> query = getChallengeQuestionsQuery(subject, category);
+        query.findInBackground()
+        .continueWith(new Continuation<List<QuestionMetaObject>, Object>() {
+            @Override
+            public Object then(Task<List<QuestionMetaObject>> task) throws Exception {
+                mAdapter.onDataLoaded(task.getResult());
+                return null;
+            }
+        });
+        mAdapter = new QuestionListAdapter(getActivity(), Response.getChallengeResponsesFromLocal(mChallengeId));
+    }
+
+    private ParseQuery<QuestionMetaObject> getChallengeQuestionsQuery(String subject, String category) {
+        ParseQuery<QuestionMetaObject> query = Response.getChallengeResponsesFromLocal(mChallengeId)
+                .include(Response.Columns.question);
+        getSubjectAndCategoryQuery(query, subject, category);
+        return query;
+    }
+
+    private ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(ParseQuery<QuestionMetaObject> query, String subject, String category) {
+        if(!subject.equals(Constants.Subject.ALL_SUBJECTS)) {
+            query.whereEqualTo(Question.Columns.subject, subject);
+        }
+        if(!category.equals(Constants.Category.ALL_CATEGORIES)) {
+            query.whereEqualTo(Question.Columns.category, category);
+        }
+        return query;
     }
 
     private void setCategories(String subject) {

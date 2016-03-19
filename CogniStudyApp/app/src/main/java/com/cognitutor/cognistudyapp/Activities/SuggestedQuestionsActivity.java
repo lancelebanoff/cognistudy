@@ -20,8 +20,8 @@ public class SuggestedQuestionsActivity extends CogniActivity {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        Fragment fragment = QuestionListFragment.newInstance(QuestionListFragment.ListType.SUGGESTED_QUESTIONS);
-        fragmentTransaction.add(R.id.fragmentContainer, fragment).commit();
+        Fragment fragment = QuestionListFragment.newSuggestedQuestionsInstance();
+        fragmentTransaction.add(R.id.fragmentSuggestedQuestionsContainer, fragment).commit();
     }
 
     public void navigateToQuestionActivity(View view) {

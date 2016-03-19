@@ -253,6 +253,7 @@ public class Constants {
     }
 
     public static class Category {
+        public static final String ALL_CATEGORIES = "All categories";
         public static final String SOCIAL_STUDIES_SCIENCE = "Social Studies/Science";
         public static final String ARTS_LITERATURE = "Arts/Literature";
         public static final String PRE_ALGEBRA = "Pre-Algebra";
@@ -432,6 +433,12 @@ public class Constants {
     public static class RotationType {
         public static final String VERTICAL = "VERTICAL";
         public static final String HORIZONTAL = "HORIZONTAL";
+    }
+
+    public static class ResponseStatusType {
+        public static final String UNANSWERED = "Unanswered";
+        public static final String CORRECT = "Correct";
+        public static final String INCORRECT = "INCORRECT";
     }
 
     public static class ReviewStatusType {
