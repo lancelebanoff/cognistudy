@@ -21,6 +21,7 @@ import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
@@ -30,6 +31,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 
 import org.apache.commons.io.IOUtils;
 
@@ -51,6 +53,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private ListView listView;
     private ActivityViewHolder avh;
     private Question mQuestion;
+    private Question mQuestionWithoutContents;
     private QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
     private Challenge mChallenge = null;
@@ -76,7 +79,9 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     public void loadQuestion() {
 
         try {
-            mQuestion = Question.getQuestionWithContents(mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID));
+            String questionId = mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID);
+            mQuestion = Question.getQuestionWithContents(questionId);
+            mQuestionWithoutContents = Question.getQuestionWithoutContents(questionId);
         } catch(ParseException e) { handleParseError(e); return; }
 
         mQuestionContents = mQuestion.getQuestionContents();
@@ -223,23 +228,29 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private void createResponse(boolean isSelectedAnswerCorrect) {
         //TODO: Pin related objects
         //TODO: Implement rating
-        final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
+        final Response response = new Response(mQuestionWithoutContents, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
         if(mChallenge != null) {
-            String pinName = getChallengeId();
-            ParseObjectUtils.pinThenSaveInBackground(pinName, response)
-                    .continueWith(new Continuation<Void, Object>() {
-                        @Override
-                        public Object then(Task<Void> task) throws Exception {
-                            PrivateStudentData.addResponse(response);
-                            return null;
-                        }
-                    });
+            final String pinName = getChallengeId();
+            response.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Object>>() {
+                @Override
+                public Task<Object> then(Task<ParseObject> task) throws Exception {
+                    return ParseObjectUtils.pinThenSaveInBackground(pinName, response)
+                            .continueWith(new Continuation<Void, Object>() {
+                                @Override
+                                public Object then(Task<Void> task) throws Exception {
+                                    PrivateStudentData.addResponseAndSaveEventually(response);
+                                    mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(response);
+                                    return null;
+                                }
+                            });
+                }
+            });
         }
         else {
             response.saveInBackground().continueWith(new Continuation<Void, Object>() {
                 @Override
                 public Object then(Task<Void> task) throws Exception {
-                    PrivateStudentData.addResponse(response);
+                    PrivateStudentData.addResponseAndSaveEventually(response);
                     return null;
                 }
             });

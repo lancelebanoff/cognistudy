@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseRelation;
 
 import java.util.List;
 
@@ -41,8 +42,8 @@ public class ChallengeUserData extends ParseObject {
             return publicUserData.fetchIfNeeded();
         } catch (ParseException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public void setPublicUserData(PublicUserData publicUserData) {
@@ -69,8 +70,8 @@ public class ChallengeUserData extends ParseObject {
         put(Columns.gameBoard, gameBoard);
     }
 
-    public List<ParseObject> getResponses() {
-        return getList(Columns.responses);
+    public ParseRelation<Response> getResponses() {
+        return getRelation(Columns.responses);
     }
 
     public void setResponses(List<ParseObject> responses) {
@@ -91,5 +92,10 @@ public class ChallengeUserData extends ParseObject {
 
     public void setCategories(List<String> categories) {
         put(Columns.categories, categories);
+    }
+
+    public void addResponseAndSaveEventually(Response response) {
+        getResponses().add(response);
+        saveEventually();
     }
 }

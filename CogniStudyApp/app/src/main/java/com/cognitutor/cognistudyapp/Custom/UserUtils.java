@@ -45,9 +45,11 @@ public class UserUtils {
     public static Task<Void> pinCurrentUser() throws ParseException {
 
         List<Task<Void>> tasks = new ArrayList<>();
+        String colPrivateStudentData = PublicUserData.Columns.student + "." + Student.Columns.privateStudentData;
         PublicUserData publicUserData = PublicUserData.getQuery()
                 .whereEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
-                .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData + "." + PrivateStudentData.Columns.friends)
+                .include(colPrivateStudentData + "." + PrivateStudentData.Columns.friends)
+                .include(colPrivateStudentData + "." + PrivateStudentData.Columns.assignedQuestions)
                 .getFirst();
 //        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
         tasks.add(publicUserData.pinInBackground(Constants.PinNames.CurrentUser));

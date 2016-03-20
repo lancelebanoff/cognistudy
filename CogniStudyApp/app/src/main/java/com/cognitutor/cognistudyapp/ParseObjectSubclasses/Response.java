@@ -62,13 +62,6 @@ public class Response extends QuestionMetaObject {
 
     public static ParseQuery<Response> getQuery() { return ParseQuery.getQuery(Response.class); }
 
-    public static ParseQuery<QuestionMetaObject> getMetaQuery() { return ParseQuery.getQuery(Response.class.getSimpleName()); }
-
-    public static ParseQuery<QuestionMetaObject> getChallengeResponsesFromLocal(String challengeId) {
-        return getMetaQuery()
-                .fromPin(challengeId);
-    }
-
     @Override
     public String toString() {
         return "objectId: " + getObjectId() +

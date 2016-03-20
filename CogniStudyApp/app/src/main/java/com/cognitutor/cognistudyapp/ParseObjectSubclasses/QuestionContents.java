@@ -43,4 +43,10 @@ public class QuestionContents extends ParseObject{
     public String getExplanation() { return getString(Columns.explanation); }
 
     public boolean isCorrect(int idx) { return idx == getCorrectIdx(); }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() +
+                " | questionText: " + getQuestionText().substring(0, 50);
+    }
 }

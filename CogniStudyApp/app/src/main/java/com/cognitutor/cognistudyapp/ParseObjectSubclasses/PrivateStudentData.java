@@ -103,7 +103,7 @@ public class PrivateStudentData extends ParseObject{
         return friendPublicUserIds;
     }
 
-    public static void addResponse(Response response) {
+    public static void addResponseAndSaveEventually(Response response) {
         PrivateStudentData privateStudentData = getPrivateStudentData();
         privateStudentData.getRelation(Columns.responses).add(response);
         privateStudentData.saveEventually();

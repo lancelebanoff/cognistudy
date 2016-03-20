@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -210,7 +211,7 @@ public class ChallengeActivity extends CogniActivity {
             navigateToBattleshipAttackActivity();
         } else {
             List<String> questionIds = mChallenge.getThisTurnQuestionIds();
-            if (questionIds != null) {
+            if (questionIds != null && questionIds.size() != 0) {
                 navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
             } else {
                 chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?
@@ -219,9 +220,14 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void chooseThreeQuestionIdsThenNavigate() {
-        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).onSuccess(new Continuation<List<String>, Void>() {
+        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).continueWith(new Continuation<List<String>, Void>() {
             @Override
             public Void then(Task<List<String>> task) throws Exception {
+                if(task.isFaulted()) {
+                    task.getError().printStackTrace();
+                    Log.e("chooseThreeQuestionIds", task.getError().getMessage());
+                    return null;
+                }
                 List<String> questionIds = task.getResult();
                 navigateToQuestionActivity(questionIds.get(0));
                 return null;
@@ -249,6 +255,7 @@ public class ChallengeActivity extends CogniActivity {
 
     public void navigateToQuestionHistoryActivity(View view) {
         Intent intent = new Intent(this, QuestionHistoryActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mChallengeId);
         startActivity(intent);
     }
 

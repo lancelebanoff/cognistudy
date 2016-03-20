@@ -15,13 +15,16 @@ import bolts.Task;
 
 public class QuestionHistoryActivity extends QuestionListActivity {
 
-    private String mChallengeId;
+//    private String mChallengeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        mChallengeId =
+        mAdapter = new QuestionListAdapter(this, QuestionMetaObject.getSubjectAndCategoryQuery(Response.class, getChallengeId(),
+                Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
+        mQuestionList.setAdapter(mAdapter);
+        getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
+//        mChallengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
     }
 
     private String getChallengeId() {
@@ -40,7 +43,6 @@ public class QuestionHistoryActivity extends QuestionListActivity {
                         return null;
                     }
                 });
-        mAdapter = new QuestionListAdapter(this, Response.getChallengeResponsesFromLocal(mChallengeId));
     }
 
     @Override
@@ -49,9 +51,6 @@ public class QuestionHistoryActivity extends QuestionListActivity {
     }
 
     private ParseQuery<QuestionMetaObject> getChallengeQuestionsQuery(String subject, String category) {
-        ParseQuery<QuestionMetaObject> query = Response.getChallengeResponsesFromLocal(mChallengeId)
-                .include(Response.Columns.question);
-        getSubjectAndCategoryQuery(query, subject, category);
-        return query;
+        return QuestionMetaObject.getSubjectAndCategoryQuery(Response.class, getChallengeId(), subject, category);
     }
 }

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
@@ -407,7 +408,20 @@ public class ParseObjectUtils {
                         ParseObject.unpinAllInBackground(Constants.PinNames.CurrentUser).waitForCompletion();
                         ParseObject.unpinAllInBackground(Constants.PinNames.BlockStats).waitForCompletion();
 //                    logPinnedObjects(true);
-                        List<String> pinNames = Arrays.asList(Constants.getAllConstants(Constants.PinNames.class));
+                        String[] constantPinNames = Constants.getAllConstants(Constants.PinNames.class);
+                        final List<String> pinNames = new ArrayList<String>();
+                        for(String constant : constantPinNames) {
+                            pinNames.add(constant);
+                        }
+                        Challenge.getQuery().fromLocalDatastore().findInBackground().continueWith(new Continuation<List<Challenge>, Object>() {
+                            @Override
+                            public Object then(Task<List<Challenge>> task) throws Exception {
+                                for(Challenge challenge : task.getResult()) {
+                                    pinNames.add(challenge.getObjectId());
+                                }
+                                return null;
+                            }
+                        }).waitForCompletion();
                         for (String pinName : pinNames) {
                             Log.d("pinName: ", pinName);
 //                        ParseObject.unpinAllInBackground(pinName);
@@ -525,21 +539,22 @@ public class ParseObjectUtils {
                 classes.add(PublicUserData.class);
                 classes.add(Student.class);
                 classes.add(PrivateStudentData.class);
-                classes.add(StudentCategoryRollingStats.class);
-                classes.add(StudentSubjectRollingStats.class);
-                classes.add(StudentTotalRollingStats.class);
+//                classes.add(StudentCategoryRollingStats.class);
+//                classes.add(StudentSubjectRollingStats.class);
+//                classes.add(StudentTotalRollingStats.class);
+                classes.add(Challenge.class);
                 classes.add(Response.class);
                 classes.add(Question.class);
                 classes.add(QuestionContents.class);
-                classes.add(StudentCategoryDayStats.class);
-                classes.add(StudentCategoryTridayStats.class);
-                classes.add(StudentCategoryMonthStats.class);
-                classes.add(StudentSubjectDayStats.class);
-                classes.add(StudentSubjectTridayStats.class);
-                classes.add(StudentSubjectMonthStats.class);
-                classes.add(StudentTotalDayStats.class);
-                classes.add(StudentTotalTridayStats.class);
-                classes.add(StudentTotalMonthStats.class);
+//                classes.add(StudentCategoryDayStats.class);
+//                classes.add(StudentCategoryTridayStats.class);
+//                classes.add(StudentCategoryMonthStats.class);
+//                classes.add(StudentSubjectDayStats.class);
+//                classes.add(StudentSubjectTridayStats.class);
+//                classes.add(StudentSubjectMonthStats.class);
+//                classes.add(StudentTotalDayStats.class);
+//                classes.add(StudentTotalTridayStats.class);
+//                classes.add(StudentTotalMonthStats.class);
                 classes.add(AnsweredQuestionIds.class);
                 classes.add(Achievement.class);
                 classes.add(PinnedObject.class);
@@ -601,6 +616,28 @@ public class ParseObjectUtils {
                 }
                 Log.d("Actual Num Pinned", String.valueOf(actualNumPinned));
                 return null;
+            }
+        }).continueWithTask(new Continuation<Object, Task<Object>>() {
+            @Override
+            public Task<Object> then(Task<Object> task) throws Exception {
+                final String challengeId = "K1ryIJT17U";
+                final String TAG = "fromPin " + challengeId;
+                return Response.getQuery()
+                        .fromPin(challengeId)
+                        .findInBackground()
+                        .continueWith(new Continuation<List<Response>, Object>() {
+                            @Override
+                            public Object then(Task<List<Response>> task) throws Exception {
+                                if (task.isFaulted()) {
+                                    Log.d(TAG, "No results found");
+                                } else {
+                                    for (Response resp : task.getResult()) {
+                                        Log.d(TAG, resp.toString());
+                                    }
+                                }
+                                return null;
+                            }
+                        });
             }
         });
     }

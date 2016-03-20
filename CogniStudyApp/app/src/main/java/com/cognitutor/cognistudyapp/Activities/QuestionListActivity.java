@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -14,8 +15,12 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.rey.material.widget.Spinner;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Kevin on 3/18/2016.
@@ -51,7 +56,9 @@ public abstract class QuestionListActivity extends CogniActivity {
         mIntent = getIntent();
         mSpinnerLayout = (LinearLayout) findViewById(R.id.spinnerLayout);
         mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
+        mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         initializeSpinners();
+//        getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
     }
 
     private void initializeSpinners() {
@@ -80,6 +87,7 @@ public abstract class QuestionListActivity extends CogniActivity {
     }
 
     private void initializeCategorySpinner(String subject) {
+
         if(mSpCategories != null) {
             mSpinnerLayout.removeView(mSpCategories);
         }
@@ -118,10 +126,14 @@ public abstract class QuestionListActivity extends CogniActivity {
         mSpCategories.setAnimation(null);
     }
 
-    private void getAndDisplaySubject() {
+//    private Lock lock = new ReentrantLock();
+
+    private synchronized void getAndDisplaySubject() {
+//        lock.lock();
         String subject = getSelectedSubject();
         setCategories(subject);
         getAndDisplay(subject, Constants.Category.ALL_CATEGORIES);
+//        lock.unlock();
     }
 
     private void getAndDisplayCategory() {
@@ -129,11 +141,18 @@ public abstract class QuestionListActivity extends CogniActivity {
     }
 
     protected ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(ParseQuery<QuestionMetaObject> query, String subject, String category) {
+        ParseQuery<Question> innerQuery = Question.getQuery();
+        boolean includeInnerQuery = false;
         if(!subject.equals(Constants.Subject.ALL_SUBJECTS)) {
-            query.whereEqualTo(Question.Columns.subject, subject);
+            innerQuery.whereEqualTo(Question.Columns.subject, subject);
+            includeInnerQuery = true;
         }
         if(!category.equals(Constants.Category.ALL_CATEGORIES)) {
-            query.whereEqualTo(Question.Columns.category, category);
+            innerQuery.whereEqualTo(Question.Columns.category, category);
+            includeInnerQuery = true;
+        }
+        if(includeInnerQuery) {
+            query.whereMatchesQuery("question", innerQuery);
         }
         return query;
     }

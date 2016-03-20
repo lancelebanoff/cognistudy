@@ -8,6 +8,8 @@ import com.parse.ParseQuery;
 import java.util.Date;
 import java.util.List;
 
+import bolts.Capture;
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -239,5 +241,58 @@ public class Challenge extends ParseObject {
 
     public void incrementCorrectAnsThisTurn() {
         put(Columns.correctAnsThisTurn, getCorrectAnsThisTurn() + 1);
+    }
+
+    public int getUser1Or2() {
+        final Capture<String> user1BaseUserId = new Capture<>();
+        final Capture<String> user2BaseUserId = new Capture<>();
+        try {
+            getChallengeUserDataBaseUserId(getUser1Data(), user1BaseUserId).waitForCompletion();
+            getChallengeUserDataBaseUserId(getUser2Data(), user2BaseUserId).waitForCompletion();
+        } catch (InterruptedException e) { e.printStackTrace(); }
+        String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
+        if (user1BaseUserId.get().equals(currentUserBaseUserId)) {
+            return 1;
+        } else if(user2BaseUserId.get().equals(currentUserBaseUserId)) {
+            return 2;
+        }
+        else {
+            return -1;
+        }
+    }
+
+    private Task<Object> getChallengeUserDataBaseUserId(ChallengeUserData challengeUserData, final Capture<String> baseUserId) {
+        return challengeUserData.fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, Object>() {
+            @Override
+            public Object then(Task<ParseObject> task) throws Exception {
+                ChallengeUserData fetched = (ChallengeUserData) task.getResult();
+                return fetched.getPublicUserData().fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, Object>() {
+                    @Override
+                    public Object then(Task<ParseObject> task) throws Exception {
+                        PublicUserData pud = (PublicUserData) task.getResult();
+                        baseUserId.set(pud.getBaseUserId());
+                        return null;
+                    }
+                });
+            }
+        });
+    }
+
+    public ChallengeUserData getCurUserChallengeUserData() {
+        switch (getUser1Or2()) {
+            case 1:
+                return getUser1Data();
+            case 2:
+                return getUser2Data();
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() +
+                " | curTurnUserId: " + getCurTurnUserId() +
+                " | otherTurnUserId: " + getOtherTurnUserId();
     }
 }
