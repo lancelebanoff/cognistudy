@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
 import pl.droidsonroids.gif.AnimationListener;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -284,7 +287,18 @@ public class BattleshipBoardManager {
         mChallenge.setEndDate(new Date());
         mChallenge.setTimeLastPlayed(new Date());
         mChallenge.setWinner(mOpponentUserData.getPublicUserData().getBaseUserId());
-        mChallenge.saveInBackground();
+        mChallenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                // Refresh Challenge list
+                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+                if (mActivity != null) {
+                    mActivity.sendBroadcast(refreshIntent);
+                }
+                return null;
+            }
+        });
         alertLostChallenge();
     }
 

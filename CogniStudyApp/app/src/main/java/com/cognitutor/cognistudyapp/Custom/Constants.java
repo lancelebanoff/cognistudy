@@ -166,6 +166,7 @@ public class Constants {
     public static class IntentExtra {
         public static final String FINISH_CHALLENGE_ACTIVITY = "FINISH_CHALLENGE_ACTIVITY";
         public static final String FINISH_NEW_CHALLENGE_ACTIVITY = "FINISH_NEW_CHALLENGE_ACTIVITY";
+        public static final String REFRESH_CHALLENGE_LIST = "REFRESH_CHALLENGE_LIST";
         public static final String CHALLENGE_ID = "CHALLENGE_ID";
         public static final String USER1OR2 = "USER1OR2";
 

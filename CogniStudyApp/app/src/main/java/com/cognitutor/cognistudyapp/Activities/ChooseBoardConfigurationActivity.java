@@ -12,6 +12,7 @@ import android.widget.GridLayout;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.R;
@@ -65,6 +66,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts();
+                                showButtons();
                             }
                         });
 
@@ -97,6 +99,13 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         });
     }
 
+    private void showButtons() {
+        CogniButton btnRandomize = (CogniButton) findViewById(R.id.btnRandomize);
+        btnRandomize.setVisibility(View.VISIBLE);
+        CogniButton btnStartChallenge = (CogniButton) findViewById(R.id.btnStartChallenge);
+        btnStartChallenge.setVisibility(View.VISIBLE);
+    }
+
     public void onClick_Randomize(View view) {
         mBattleshipBoardManager.placeShips();
     }
@@ -121,7 +130,16 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                         Challenge challenge = task.getResult();
                         challenge.setTimeLastPlayed(new Date());
                         challenge.setActivated(true);
-                        challenge.saveInBackground();
+                        challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                            @Override
+                            public Void then(Task<Void> task) throws Exception {
+                                // Refresh Challenge list
+                                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+                                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+                                sendBroadcast(refreshIntent);
+                                return null;
+                            }
+                        });
                         return null;
                     }
                 });
@@ -134,7 +152,16 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         challenge.setAccepted(true);
-                        challenge.saveInBackground();
+                        challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                            @Override
+                            public Void then(Task<Void> task) throws Exception {
+                                // Refresh Challenge list
+                                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+                                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+                                sendBroadcast(refreshIntent);
+                                return null;
+                            }
+                        });
                         return null;
                     }
                 });
