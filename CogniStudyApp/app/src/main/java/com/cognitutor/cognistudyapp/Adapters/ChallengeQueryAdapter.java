@@ -151,7 +151,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                                 @Override
                                 public void onClick(View v) {
                                     String userId = PublicUserData.getPublicUserData().getBaseUserId();
-                                    if (!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId)) {
+                                    if (!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId) && !challenge.getHasEnded()) {
                                         promptAcceptChallenge(challenge, user1or2);
                                     } else {
                                         navigateToChallengeActivity(challenge.getObjectId(), user1or2);
@@ -230,7 +230,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         holder.imgProfile.setParseFile(opponentUserData.getPublicUserData().getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtName.setText(opponentUserData.getPublicUserData().getDisplayName());
-        holder.setTxtDaysLeft(challenge.getTimeLastPlayed());
+        holder.setTxtDaysLeft(challenge);
 
         if(currentUserData.getSubjects() != null) {
             holder.txtScore.setText("" + currentUserData.getScore() + " - " + opponentUserData.getScore());
@@ -254,17 +254,21 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         public TextView txtScore;
         public TextView txtDaysLeft;
 
-        public void setTxtDaysLeft(Date timeLastPlayed) {
+        public void setTxtDaysLeft(Challenge challenge) {
             Calendar calendarEndDate = Calendar.getInstance();
-            calendarEndDate.setTime(timeLastPlayed);
-            calendarEndDate.add(Calendar.DATE, Constants.ChallengeAttribute.NUM_DAYS_PER_TURN);
+            if (challenge.getHasEnded()) {
+                calendarEndDate.setTime(challenge.getEndDate());
+            } else {
+                calendarEndDate.setTime(challenge.getTimeLastPlayed());
+                calendarEndDate.add(Calendar.DATE, Constants.ChallengeAttribute.NUM_DAYS_PER_TURN);
+            }
             Date endDate = calendarEndDate.getTime();
 
             Date currentDate = new Date();
             Calendar calendarCurrentDate = Calendar.getInstance();
-            calendarEndDate.setTime(currentDate);
+            calendarCurrentDate.setTime(currentDate);
 
-            if(calendarCurrentDate.compareTo(calendarEndDate) < 1) { // If the end date hasn't come yet
+            if(calendarCurrentDate.compareTo(calendarEndDate) < 0) { // If the end date hasn't come yet
                 String timeBetween = getTimeBetween(currentDate, endDate);
                 txtDaysLeft.setText(timeBetween + " left to play");
             } else {
@@ -285,19 +289,21 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
             long minutes = milliseconds / minutesInMilli;
             long seconds = milliseconds / secondsInMilli;
 
-            if (days > 0) {
+            if (days > 1) {
                 return days + " days";
-            }
-            else if (hours > 0) {
+            } else if (days == 1) {
+                return days + " day";
+            } else if (hours > 1) {
                 return hours + " hours";
-            }
-            else if (minutes > 0) {
+            } else if (hours == 1) {
+                return hours + " hour";
+            } else if (minutes > 1) {
                 return minutes + " minutes";
-            }
-            else if (seconds > 1) {
+            } else if (minutes == 1) {
+                return minutes + " minutes";
+            } else if (seconds > 1) {
                 return seconds + " seconds";
-            }
-            else {
+            } else {
                 return "1 second";
             }
         }

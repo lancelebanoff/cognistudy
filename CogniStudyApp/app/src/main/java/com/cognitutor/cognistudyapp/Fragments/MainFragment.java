@@ -28,12 +28,15 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import bolts.Continuation;
@@ -106,6 +109,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             @Override
             public Void then(Task<PublicUserData> task) throws Exception {
                 PublicUserData publicUserData = task.getResult();
+                endChallengesThatRanOutOfTime(publicUserData);
                 createChallengeRequestListView(rootView, publicUserData);
                 createYourTurnListView(rootView, publicUserData);
                 createTheirTurnListView(rootView, publicUserData);
@@ -113,6 +117,41 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 return null;
             }
         });
+    }
+
+    private void endChallengesThatRanOutOfTime(PublicUserData publicUserData) {
+        List<ParseQuery<Challenge>> queries = new ArrayList<ParseQuery<Challenge>>();
+        queries.add(Challenge.getQuery()
+                .whereEqualTo(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+        queries.add(Challenge.getQuery()
+                .whereEqualTo(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
+        List<Challenge> challenges = null;
+        try {
+            challenges = ParseQuery.or(queries).find();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        for (Challenge challenge : challenges) {
+            if(!challenge.getHasEnded()) {
+                Calendar calendarCurrentDate = Calendar.getInstance(); // Today
+                calendarCurrentDate.setTime(new Date());
+
+                Calendar calendarEndDate = Calendar.getInstance(); // 3 days past time last played
+                calendarEndDate.setTime(challenge.getTimeLastPlayed());
+                calendarEndDate.add(Calendar.DATE, Constants.ChallengeAttribute.NUM_DAYS_PER_TURN);
+
+                if (calendarCurrentDate.compareTo(calendarEndDate) == 1) {
+                    challenge.setHasEnded(true);
+                    challenge.setEndDate(new Date());
+                    try {
+                        challenge.save();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
     private void createChallengeRequestListView(final View rootView, PublicUserData publicUserData) {

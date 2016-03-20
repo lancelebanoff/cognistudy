@@ -152,6 +152,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         challenge.setAccepted(true);
+                        challenge.setTimeLastPlayed(new Date());
                         challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
                             @Override
                             public Void then(Task<Void> task) throws Exception {
