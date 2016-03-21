@@ -39,7 +39,13 @@ public class QuestionHistoryActivity extends QuestionListActivity {
                 .continueWith(new Continuation<List<QuestionMetaObject>, Object>() {
                     @Override
                     public Object then(Task<List<QuestionMetaObject>> task) throws Exception {
-                        mAdapter.onDataLoaded(task.getResult());
+                        final List<QuestionMetaObject> list = task.getResult();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.onDataLoaded(list);
+                            }
+                        });
                         return null;
                     }
                 });

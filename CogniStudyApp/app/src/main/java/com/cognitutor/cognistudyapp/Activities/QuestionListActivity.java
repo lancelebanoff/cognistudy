@@ -30,16 +30,9 @@ public abstract class QuestionListActivity extends CogniActivity {
 
     protected Spinner mSpSubjects;
     protected Spinner mSpCategories;
-    protected ViewFlipper mViewFlipper;
-    protected LinearLayout mSpinnerLayout;
-    protected ListType mListType;
     protected QuestionListAdapter mAdapter;
     protected CogniRecyclerView mQuestionList;
     protected Intent mIntent;
-
-    public enum ListType {
-        BOOKMARKS, SUGGESTED_QUESTIONS, CHALLENGE_QUESTIONS
-    }
 
     protected abstract void getAndDisplay(String subject, String category);
     protected abstract String getActivityName();
@@ -56,17 +49,15 @@ public abstract class QuestionListActivity extends CogniActivity {
         setContentView(R.layout.activity_question_list);
 
         mIntent = getIntent();
-        mViewFlipper = (ViewFlipper) findViewById(R.id.vfCategoriesSpinner);
-        mSpinnerLayout = (LinearLayout) findViewById(R.id.spinnerLayout);
         mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
         mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
         initializeSpinners();
-//        getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
     }
 
     private void initializeSpinners() {
         initializeSubjectSpinner();
-        initializeCategorySpinners();
+        initializeCategorySpinner();
     }
 
     private void initializeSubjectSpinner() {
@@ -74,7 +65,7 @@ public abstract class QuestionListActivity extends CogniActivity {
 
         String[] subjects = Constants.Subject.getSubjectsPlusAll();
         ArrayAdapter<String> subjectsAdapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, subjects);
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, subjects);
         subjectsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpSubjects.setAdapter(subjectsAdapter);
 
@@ -89,54 +80,35 @@ public abstract class QuestionListActivity extends CogniActivity {
         mSpSubjects.setAnimation(null);
     }
 
-    private void initializeCategorySpinners() {
+    private void initializeCategorySpinner() {
 
-        String[] subjectsPlusAll = Constants.Subject.getSubjectsPlusAll();
-        for(String subject : subjectsPlusAll) {
-            String[] categoriesPlusAll;
-            if (subject.equals(Constants.Subject.ALL_SUBJECTS)) {
-                categoriesPlusAll = new String[1];
-            } else {
-                String[] categories = Constants.SubjectToCategory.get(subject);
-                categoriesPlusAll = new String[categories.length + 1];
-                System.arraycopy(categories, 0, categoriesPlusAll, 1, categories.length);
+        Spinner.OnItemSelectedListener categoriesListener = new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(Spinner parent, View view, int position, long id) {
+                getAndDisplayCategory();
             }
-            categoriesPlusAll[0] = "All Categories";
+        };
+        mSpCategories.setOnItemSelectedListener(categoriesListener);
+        mSpCategories.setAnimation(null);
 
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-            Spinner catSpinner = new Spinner(this);
-            catSpinner.applyStyle(R.style.Material_Widget_Spinner);
-            ArrayAdapter<String> categoriesAdapter =
-                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoriesPlusAll);
-            categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            catSpinner.setAdapter(categoriesAdapter);
-
-            Spinner.OnItemSelectedListener categoriesListener = new Spinner.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(Spinner parent, View view, int position, long id) {
-                    getAndDisplayCategory();
-                }
-            };
-            catSpinner.setOnItemSelectedListener(categoriesListener);
-
-            mViewFlipper.addView(catSpinner, params);
-        }
         setCategoriesSpinner(Constants.Subject.ALL_SUBJECTS);
     }
 
     private void setCategoriesSpinner(String subject) {
-        String[] subjectsPlusAll = Constants.Subject.getSubjectsPlusAll();
-        int i;
-        for(i=0; i<subjectsPlusAll.length; i++) {
-            if(subject.equals(subjectsPlusAll[i]))
-                break;
+
+        String[] categoriesPlusAll;
+        if (subject.equals(Constants.Subject.ALL_SUBJECTS)) {
+            categoriesPlusAll = new String[1];
+        } else {
+            String[] categories = Constants.SubjectToCategory.get(subject);
+            categoriesPlusAll = new String[categories.length + 1];
+            System.arraycopy(categories, 0, categoriesPlusAll, 1, categories.length);
         }
-        mViewFlipper.setDisplayedChild(i);
-        mSpCategories = (Spinner) mViewFlipper.getChildAt(i);
-        mSpCategories.setSelection(0);
-        mSpCategories.performItemClick(mSpCategories.getChildAt(0), 0, 0);
-        mSpCategories.setAnimation(null);
+        categoriesPlusAll[0] = "All Categories";
+        ArrayAdapter<String> categoriesAdapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoriesPlusAll);
+        categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpCategories.setAdapter(categoriesAdapter);
     }
 
     private void getAndDisplaySubject() {
