@@ -16,8 +16,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
@@ -60,10 +60,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private ListView pastChallengeListView;
 
     public static ArrayAdapter<ParseObject> answeredQuestionIdAdapter;
-    private ListView answeredQuestionIdsListView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-
-    public TextView txtChange;
+    private BroadcastReceiver mBroadcastReceiver;
 
     public static final MainFragment newInstance() {
         return new MainFragment();
@@ -116,6 +114,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 createYourTurnListView(rootView, publicUserData);
                 createTheirTurnListView(rootView, publicUserData);
                 createPastChallengeListView(rootView, publicUserData);
+                ((MainActivity) getActivity()).challengesFinishedLoading = true;
                 return null;
             }
         });
@@ -392,7 +391,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     // Refreshes challenge list when other activity finishes
     private void initializeBroadcastReceiver() {
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context arg0, Intent intent) {
                 if (intent.getExtras().containsKey(Constants.IntentExtra.REFRESH_CHALLENGE_LIST)) {
@@ -401,6 +400,12 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             }
         };
         IntentFilter filter = new IntentFilter(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
-        getActivity().registerReceiver(broadcastReceiver, filter);
+        getActivity().registerReceiver(mBroadcastReceiver, filter);
+    }
+
+    @Override
+    public void onDestroyView() {
+        getActivity().unregisterReceiver(mBroadcastReceiver);
+        super.onDestroyView();
     }
 }

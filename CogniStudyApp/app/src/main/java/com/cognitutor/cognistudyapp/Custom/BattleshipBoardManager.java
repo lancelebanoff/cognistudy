@@ -63,6 +63,7 @@ public class BattleshipBoardManager {
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
         mViewedChallengeUserData = challengeUserData;
+        mTargetImageViews = new ImageView[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
     }
 
     // Used for existing challenge
@@ -143,7 +144,6 @@ public class BattleshipBoardManager {
                 layoutParams.rowSpec = GridLayout.spec(row);
                 imgSpace.setLayoutParams(layoutParams);
                 mTargetsGridLayout.addView(imgSpace);
-                mTargetImageViews[row][col] = imgSpace;
             }
         }
     }
@@ -394,7 +394,7 @@ public class BattleshipBoardManager {
         mChallenge.setOtherTurnUserId(curTurnUserId);
         mChallenge.setQuesAnsThisTurn(0);
         mChallenge.setCorrectAnsThisTurn(0);
-        mChallenge.setThisTurnQuestionIds(null);
+        mChallenge.setThisTurnQuestionIds(new ArrayList<String>());
         mChallenge.incrementNumTurns();
         mChallenge.setTimeLastPlayed(new Date());
         mChallenge.saveInBackground();

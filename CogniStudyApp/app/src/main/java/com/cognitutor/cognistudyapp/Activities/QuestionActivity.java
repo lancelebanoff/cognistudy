@@ -126,7 +126,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SystemClock.sleep(Constants.Loading.QUESTION_LOADING_TIME);
+                SystemClock.sleep(Constants.Loading.QUESTION_LOADING_TIME); // Wait extra time for MathView to load
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

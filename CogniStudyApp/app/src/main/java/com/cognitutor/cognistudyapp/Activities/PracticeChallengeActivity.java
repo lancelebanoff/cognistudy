@@ -103,7 +103,7 @@ public class PracticeChallengeActivity extends CogniActivity {
     public void onClick_btnYourTurn(View view) {
         int quesAnsThisTurn = mChallenge.getQuesAnsThisTurn();
         List<String> questionIds = mChallenge.getThisTurnQuestionIds();
-        if (questionIds != null) {
+        if (questionIds != null && questionIds.size() > 0) {
             navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
         } else {
             chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?

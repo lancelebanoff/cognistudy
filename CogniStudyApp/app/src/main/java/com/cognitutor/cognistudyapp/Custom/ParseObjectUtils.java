@@ -421,7 +421,7 @@ public class ParseObjectUtils {
                                         }
                                     }).waitForCompletion();
                         }
-                        ParseObjectUtils.logPinnedObjects(true);
+//                        ParseObjectUtils.logPinnedObjects(true);
                         try {
                             int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
                                     .fromLocalDatastore()
