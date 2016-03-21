@@ -55,9 +55,8 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_people, null);
-        ViewHolder holder = new ViewHolder(view);
-        return holder;
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_question, null);
+        return new ViewHolder(view);
     }
 
     @Override

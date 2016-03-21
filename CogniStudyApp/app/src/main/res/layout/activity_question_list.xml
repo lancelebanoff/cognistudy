@@ -5,12 +5,14 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     android:id="@+id/suggestedQuestionsLayout"
     tools:context=".Activities.QuestionListActivity">
 
     <LinearLayout
+        android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_weight="6"
         android:id="@+id/spinnerLayout">
@@ -22,15 +24,20 @@
             android:paddingRight="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+
+        <ViewFlipper
+            android:id="@+id/vfCategoriesSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <com.cognitutor.cognistudyapp.Custom.CogniRecyclerView
         android:id="@+id/rvQuestionList"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_below="@id/spinnerLayout"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true" >
     </com.cognitutor.cognistudyapp.Custom.CogniRecyclerView>
 
 </RelativeLayout>

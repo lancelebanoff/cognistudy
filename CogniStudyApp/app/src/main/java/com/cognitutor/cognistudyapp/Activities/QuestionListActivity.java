@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ViewFlipper;
 
 import com.cognitutor.cognistudyapp.Adapters.QuestionListAdapter;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
@@ -29,6 +30,7 @@ public abstract class QuestionListActivity extends CogniActivity {
 
     protected Spinner mSpSubjects;
     protected Spinner mSpCategories;
+    protected ViewFlipper mViewFlipper;
     protected LinearLayout mSpinnerLayout;
     protected ListType mListType;
     protected QuestionListAdapter mAdapter;
@@ -54,6 +56,7 @@ public abstract class QuestionListActivity extends CogniActivity {
         setContentView(R.layout.activity_question_list);
 
         mIntent = getIntent();
+        mViewFlipper = (ViewFlipper) findViewById(R.id.vfCategoriesSpinner);
         mSpinnerLayout = (LinearLayout) findViewById(R.id.spinnerLayout);
         mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
         mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -63,7 +66,7 @@ public abstract class QuestionListActivity extends CogniActivity {
 
     private void initializeSpinners() {
         initializeSubjectSpinner();
-        initializeCategorySpinner(Constants.Subject.ALL_SUBJECTS);
+        initializeCategorySpinners();
     }
 
     private void initializeSubjectSpinner() {
@@ -86,54 +89,60 @@ public abstract class QuestionListActivity extends CogniActivity {
         mSpSubjects.setAnimation(null);
     }
 
-    private void initializeCategorySpinner(String subject) {
+    private void initializeCategorySpinners() {
 
-        if(mSpCategories != null) {
-            mSpinnerLayout.removeView(mSpCategories);
-        }
-
-        String[] categoriesPlusAll;
-        if(subject.equals(Constants.Subject.ALL_SUBJECTS)) {
-            categoriesPlusAll = new String[1];
-        } else {
-            String[] categories = Constants.SubjectToCategory.get(subject);
-            categoriesPlusAll = new String[categories.length + 1];
-            System.arraycopy(categories, 0, categoriesPlusAll, 1, categories.length);
-        }
-        categoriesPlusAll[0] = "All Categories";
-
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        mSpCategories = new Spinner(this);
-        mSpCategories.applyStyle(R.style.Material_Widget_Spinner);
-        ArrayAdapter<String> newCategoriesAdapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categoriesPlusAll);
-        newCategoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpCategories.setAdapter(newCategoriesAdapter);
-
-        Spinner.OnItemSelectedListener categoriesListener = new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(Spinner parent, View view, int position, long id) {
-                getAndDisplayCategory();
+        String[] subjectsPlusAll = Constants.Subject.getSubjectsPlusAll();
+        for(String subject : subjectsPlusAll) {
+            String[] categoriesPlusAll;
+            if (subject.equals(Constants.Subject.ALL_SUBJECTS)) {
+                categoriesPlusAll = new String[1];
+            } else {
+                String[] categories = Constants.SubjectToCategory.get(subject);
+                categoriesPlusAll = new String[categories.length + 1];
+                System.arraycopy(categories, 0, categoriesPlusAll, 1, categories.length);
             }
-        };
-        mSpCategories.setOnItemSelectedListener(categoriesListener);
+            categoriesPlusAll[0] = "All Categories";
 
-        mSpinnerLayout.addView(mSpCategories, params);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+            Spinner catSpinner = new Spinner(this);
+            catSpinner.applyStyle(R.style.Material_Widget_Spinner);
+            ArrayAdapter<String> categoriesAdapter =
+                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoriesPlusAll);
+            categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            catSpinner.setAdapter(categoriesAdapter);
+
+            Spinner.OnItemSelectedListener categoriesListener = new Spinner.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(Spinner parent, View view, int position, long id) {
+                    getAndDisplayCategory();
+                }
+            };
+            catSpinner.setOnItemSelectedListener(categoriesListener);
+
+            mViewFlipper.addView(catSpinner, params);
+        }
+        setCategoriesSpinner(Constants.Subject.ALL_SUBJECTS);
+    }
+
+    private void setCategoriesSpinner(String subject) {
+        String[] subjectsPlusAll = Constants.Subject.getSubjectsPlusAll();
+        int i;
+        for(i=0; i<subjectsPlusAll.length; i++) {
+            if(subject.equals(subjectsPlusAll[i]))
+                break;
+        }
+        mViewFlipper.setDisplayedChild(i);
+        mSpCategories = (Spinner) mViewFlipper.getChildAt(i);
         mSpCategories.setSelection(0);
         mSpCategories.performItemClick(mSpCategories.getChildAt(0), 0, 0);
-
         mSpCategories.setAnimation(null);
     }
 
-//    private Lock lock = new ReentrantLock();
-
-    private synchronized void getAndDisplaySubject() {
-//        lock.lock();
+    private void getAndDisplaySubject() {
         String subject = getSelectedSubject();
-        setCategories(subject);
+        setCategoriesSpinner(subject);
         getAndDisplay(subject, Constants.Category.ALL_CATEGORIES);
-//        lock.unlock();
     }
 
     private void getAndDisplayCategory() {
@@ -155,10 +164,6 @@ public abstract class QuestionListActivity extends CogniActivity {
             query.whereMatchesQuery("question", innerQuery);
         }
         return query;
-    }
-
-    private void setCategories(String subject) {
-        initializeCategorySpinner(subject);
     }
 
     private String getSelectedCategory() {
