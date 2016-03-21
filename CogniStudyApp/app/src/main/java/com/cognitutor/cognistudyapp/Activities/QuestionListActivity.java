@@ -104,11 +104,12 @@ public abstract class QuestionListActivity extends CogniActivity {
             categoriesPlusAll = new String[categories.length + 1];
             System.arraycopy(categories, 0, categoriesPlusAll, 1, categories.length);
         }
-        categoriesPlusAll[0] = "All Categories";
+        categoriesPlusAll[0] = Constants.Category.ALL_CATEGORIES;
         ArrayAdapter<String> categoriesAdapter =
                 new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoriesPlusAll);
         categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpCategories.setAdapter(categoriesAdapter);
+        mSpCategories.applyStyle(R.style.Material_Widget_Spinner);
     }
 
     private void getAndDisplaySubject() {

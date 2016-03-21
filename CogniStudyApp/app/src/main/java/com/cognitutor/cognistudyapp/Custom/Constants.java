@@ -254,7 +254,7 @@ public class Constants {
     }
 
     public static class Category {
-        public static final String ALL_CATEGORIES = "All categories";
+        public static final String ALL_CATEGORIES = "All Categories";
         public static final String SOCIAL_STUDIES_SCIENCE = "Social Studies/Science";
         public static final String ARTS_LITERATURE = "Arts/Literature";
         public static final String PRE_ALGEBRA = "Pre-Algebra";
