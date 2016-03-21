@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -82,7 +83,7 @@ public class ChallengeActivity extends CogniActivity {
 
     private void initializeBoard(final int viewingUser1or2) {
 
-        hideSwitchViewButton();
+        showLoading();
 
         ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, mCurrentUser1or2, viewingUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
@@ -94,7 +95,7 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
-                                showSwitchViewButton();
+                                showLoadingDone();
                                 if (!mScoresHaveBeenLoaded) {
                                     showScores();
                                     showProfilePictures();
@@ -108,14 +109,24 @@ public class ChallengeActivity extends CogniActivity {
                 });
     }
 
-    private void showSwitchViewButton() {
+    private void showLoadingDone() {
         ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
         btnSwitch.setVisibility(View.VISIBLE);
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBarSmall);
+        progressBar.setVisibility(View.GONE);
+        RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlGridLayoutHolder);
+        rlContent.setVisibility(View.VISIBLE);
     }
 
-    private void hideSwitchViewButton() {
+    private void showLoading() {
         ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
         btnSwitch.setVisibility(View.INVISIBLE);
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBarSmall);
+        progressBar.setVisibility(View.VISIBLE);
+        RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlGridLayoutHolder);
+        rlContent.setVisibility(View.INVISIBLE);
     }
 
     private void showOrHideButtons() {
@@ -183,7 +194,8 @@ public class ChallengeActivity extends CogniActivity {
     private void showScores() {
         TextView txtScore = (TextView) findViewById(R.id.txtScore);
         int[] scores = mBattleshipBoardManager.getScores();
-        txtScore.setText(scores[0] + " - " + scores[1]);
+        txtScore.setText("  " + scores[0] + " - " + scores[1] + "  ");
+        txtScore.setGravity(Gravity.CENTER_VERTICAL);
     }
 
     private void showProfilePictures() {

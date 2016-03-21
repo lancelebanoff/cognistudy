@@ -7,7 +7,6 @@
         android:id="@+id/imgProfileRounded1"
         android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"
         android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
-        android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:layout_toLeftOf="@+id/txtScore"
@@ -20,13 +19,13 @@
         android:id="@+id/txtScore"
         android:text="@string/blank_score"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_toLeftOf="@+id/imgProfileRounded2" />
+        android:layout_toLeftOf="@+id/imgProfileRounded2"
+        android:layout_centerVertical="true"/>
 
     <com.cognitutor.cognistudyapp.Custom.RoundedImageView
         android:id="@+id/imgProfileRounded2"
         android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"
         android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
-        android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:layout_alignParentTop="true"

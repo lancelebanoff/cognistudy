@@ -46,6 +46,7 @@
     <string name="message_dialog_cancel_challenge">Are you sure you want to cancel this challenge?</string>
     <string name="yes_dialog_cancel_challenge">Yes</string>
     <string name="no_dialog_cancel_challenge">No</string>
+    <string name="title_dialog_accept_challenge">Challenge Request</string>
     <string name="message_dialog_accept_challenge">Do you accept this challenge?</string>
     <string name="yes_dialog_accept_challenge">Accept</string>
     <string name="no_dialog_accept_challenge">Reject</string>

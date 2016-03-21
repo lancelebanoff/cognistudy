@@ -191,7 +191,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
     private void promptAcceptChallenge(final Challenge challenge, final int user1or2) {
 
         new AlertDialog.Builder(mActivity)
-                .setTitle(R.string.title_dialog_cancel_challenge)
+                .setTitle(R.string.title_dialog_accept_challenge)
                 .setMessage(R.string.message_dialog_accept_challenge)
                 .setNeutralButton(R.string.cancel_dialog_accept_challenge, null)
                 .setNegativeButton(R.string.no_dialog_accept_challenge, new DialogInterface.OnClickListener() {

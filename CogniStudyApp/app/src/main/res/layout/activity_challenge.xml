@@ -86,29 +86,39 @@
             android:adjustViewBounds="true"
             android:scaleType="centerInside" />
 
-        <GridLayout
-            android:id="@+id/shipsGridLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/headerChallengeScore"
-            android:layout_above="@+id/btnYourTurn" />
+        <ProgressBar
+            android:id="@+id/progressBarSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"/>
 
-        <GridLayout
-            android:id="@+id/targetsGridLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <RelativeLayout
+            android:id="@+id/rlGridLayoutHolder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/headerChallengeScore"
-            android:layout_above="@+id/btnYourTurn" />
+            android:layout_above="@+id/btnYourTurn">
 
-        <GridLayout
-            android:id="@+id/animationsGridLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/headerChallengeScore"
-            android:layout_above="@+id/btnYourTurn" />
+            <GridLayout
+                android:id="@+id/shipsGridLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true" />
+
+            <GridLayout
+                android:id="@+id/targetsGridLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true" />
+
+            <GridLayout
+                android:id="@+id/animationsGridLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
 
         <include layout="@layout/header_challenge_score"
             android:id="@+id/headerChallengeScore"
