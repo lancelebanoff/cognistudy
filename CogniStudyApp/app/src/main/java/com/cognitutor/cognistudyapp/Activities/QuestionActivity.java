@@ -20,8 +20,10 @@ import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
@@ -32,6 +34,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import org.apache.commons.io.IOUtils;
 
@@ -57,6 +60,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
     private QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
     private Challenge mChallenge = null;
+    private Response mResponse = null;
     private int mUser1or2;
     private int mQuesAnsThisTurn = -1;
 
@@ -71,12 +75,20 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         addComponents();
         avh.btnSetLatex.setOnClickListener(this);
         ClickableListItem.setQuestionAnswered(false);
-        loadQuestion();
+        try {
+            loadResponse().waitForCompletion(); //If this is a past question
+        } catch (InterruptedException e) { e.printStackTrace(); }
 
+        loadQuestion();
         loadChallenge();
     }
 
     public void loadQuestion() {
+
+        int selectedAnswer = -1;
+        if(mResponse != null) {
+            selectedAnswer = mResponse.getSelectedAnswer();
+        }
 
         try {
             String questionId = mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID);
@@ -87,7 +99,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         mQuestionContents = mQuestion.getQuestionContents();
 
         List<String> answers = mQuestionContents.getAnswers();
-        answerAdapter = new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER); //TODO: Choose letter or roman
+        answerAdapter = new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER, selectedAnswer); //TODO: Choose letter or roman
         listView.setAdapter(answerAdapter);
 
         avh.mvQuestion.setWebViewClient(new WebViewClient() {
@@ -111,13 +123,17 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             }
             avh.wvPassage.loadData(buildPassageHtml(bundle.getPassageText()), "text/html", "UTF-8");
         }
-//        avh.wvPassage.loadData(
-//                "<html><body>" +
-//                        "You scored <u>192</u> points." +
-//                        "</body></html>",
-//                "text/html",
-//                "UTF-8"
-//        );
+
+        if(mResponse != null) {
+            showAnswer(isSelectedAnswerCorrect());
+        }
+    }
+
+    private void applyResponseToQuestion() {
+        if(mResponse != null) {
+            answerAdapter.selectAnswer(mResponse.getSelectedAnswer());
+            showAnswer(isSelectedAnswerCorrect());
+        }
     }
 
     public void loadingFinished() {
@@ -142,6 +158,26 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                 setLatex();
                 break;
         }
+    }
+
+    private Task<Object> loadResponse() {
+        final String responseId = getResponseId();
+        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<Response>() {
+            @Override
+            public ParseQuery<Response> buildQuery() {
+                return Response.getQuery().whereEqualTo("objectId", responseId);
+            }
+        }).continueWith(new Continuation<Response, Object>() {
+            @Override
+            public Object then(Task<Response> task) throws Exception {
+                mResponse = task.getResult();
+                return null;
+            }
+        });
+    }
+
+    private String getResponseId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.RESPONSE_ID);
     }
 
     private void loadChallenge() {
@@ -201,9 +237,20 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         return mQuestionContents.getCorrectIdx();
     }
 
-    public void showAnswer(View view) {
+    public void showAnswerAndIncrementAnalytics(View view) {
 
         boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
+        showAnswer(isSelectedAnswerCorrect);
+
+        //Response and analytics
+        createResponse(isSelectedAnswerCorrect);
+        incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
+        if(mChallenge != null)
+            incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
+    }
+
+    private void showAnswer(boolean isSelectedAnswerCorrect) {
+
         if(isSelectedAnswerCorrect) {
             avh.txtCorrectIncorrect.setText("Correct!");
         }
@@ -216,13 +263,6 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.setVisibility(View.INVISIBLE);
-
-        createResponse(isSelectedAnswerCorrect);
-
-        incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
-
-        if(mChallenge != null)
-            incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
     }
 
     private void createResponse(boolean isSelectedAnswerCorrect) {
@@ -321,12 +361,15 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
                     navigateToNextQuestionActivity(questionId);
                 }
                 break;
-            case Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
+            default:
                 navigateToParentActivity();
                 break;
-            case Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY:
-                navigateToParentActivity();
-                break;
+//            case Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
+//                navigateToParentActivity();
+//                break;
+//            case Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY:
+//                navigateToParentActivity();
+//                break;
         }
     }
 
