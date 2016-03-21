@@ -26,6 +26,7 @@ import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -37,6 +38,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import bolts.Continuation;
@@ -148,6 +150,16 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                         challenge.save();
                     } catch (ParseException e) {
                         e.printStackTrace();
+                    }
+                    // Delete unaccepted challenges
+                    if (!challenge.getAccepted()) {
+                        final HashMap<String, Object> params = new HashMap<>();
+                        params.put(Challenge.Columns.objectId, challenge.getObjectId());
+                        try {
+                            ParseCloud.callFunction(Constants.CloudCodeFunction.DELETE_CHALLENGE, params);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

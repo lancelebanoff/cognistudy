@@ -15,6 +15,7 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -152,7 +153,7 @@ public class ChallengeActivity extends CogniActivity {
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(viewingUser1or2 == mCurrentUser1or2) {
+                if(viewingUser1or2 == mCurrentUser1or2 || mChallenge.getHasEnded()) {
                     mBattleshipBoardManager.drawShips();
                 }
                 else {
@@ -203,7 +204,14 @@ public class ChallengeActivity extends CogniActivity {
         RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfileRounded1);
         RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfileRounded2);
         img1.setParseFile(parseFiles[0]);
-        img1.loadInBackground();
+        img1.loadInBackground().continueWith(new Continuation<byte[], Void>() {
+            @Override
+            public Void then(Task<byte[]> task) throws Exception {
+                ImageView imgHalo1 = (ImageView) findViewById(R.id.imgProfilePicHalo1);
+                imgHalo1.setVisibility(View.VISIBLE);
+                return null;
+            }
+        });
         img2.setParseFile(parseFiles[1]);
         img2.loadInBackground();
     }
@@ -213,6 +221,16 @@ public class ChallengeActivity extends CogniActivity {
 
         mViewingUser1or2 = mViewingUser1or2 == 1 ? 2 : 1;
         initializeBoard(mViewingUser1or2);
+
+        ImageView imgHalo1 = (ImageView) findViewById(R.id.imgProfilePicHalo1);
+        ImageView imgHalo2 = (ImageView) findViewById(R.id.imgProfilePicHalo2);
+        if (mViewingUser1or2 == mCurrentUser1or2) {
+            imgHalo1.setVisibility(View.VISIBLE);
+            imgHalo2.setVisibility(View.INVISIBLE);
+        } else {
+            imgHalo1.setVisibility(View.INVISIBLE);
+            imgHalo2.setVisibility(View.VISIBLE);
+        }
     }
 
     public void onClick_btnResign(View view) {
