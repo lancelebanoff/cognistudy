@@ -48,7 +48,7 @@
 
                 <com.cognitutor.cognistudyapp.Custom.CogniImageButton
                     style="?android:attr/buttonStyleSmall"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:src="@drawable/icon_resign"
                     android:id="@+id/btnResign"
@@ -59,7 +59,7 @@
 
                 <com.cognitutor.cognistudyapp.Custom.CogniImageButton
                     style="?android:attr/buttonStyleSmall"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:src="@drawable/icon_question_history"
                     android:id="@+id/btnQuestionHistory"
@@ -70,7 +70,7 @@
 
                 <com.cognitutor.cognistudyapp.Custom.CogniImageButton
                     style="?android:attr/buttonStyleSmall"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:src="@drawable/icon_challenge_analytics"
                     android:id="@+id/btnChallengeAnalytics"

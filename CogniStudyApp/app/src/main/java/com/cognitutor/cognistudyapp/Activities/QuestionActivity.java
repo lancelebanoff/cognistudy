@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -208,9 +209,11 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
         if(isSelectedAnswerCorrect) {
             avh.txtCorrectIncorrect.setText("Correct!");
+            avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.green));
         }
         else {
             avh.txtCorrectIncorrect.setText("Incorrect!");
+            avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.red));
         }
         avh.vgPostAnswer.setVisibility(View.VISIBLE);
         ClickableListItem.setQuestionAnswered(true);
