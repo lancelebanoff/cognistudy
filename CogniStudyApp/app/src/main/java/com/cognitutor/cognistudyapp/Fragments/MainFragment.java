@@ -16,6 +16,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.ChallengeQuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
@@ -319,7 +320,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnQuestion:
-                Intent intent = new Intent(getActivity(), QuestionActivity.class);
+                Intent intent = new Intent(getActivity(), ChallengeQuestionActivity.class); //TODO: Change???
                 intent.putExtra(Constants.IntentExtra.QUESTION_ID, "eO4TCrdBdn"); //TODO: Replace with desired questionId
                 intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
                 //aSVEaMqEfB

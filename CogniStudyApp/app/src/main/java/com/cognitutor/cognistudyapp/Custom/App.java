@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
@@ -89,6 +90,7 @@ public class App extends Application {
 
     private void registerSubclasses() {
         ParseObject.registerSubclass(Achievement.class);
+        ParseObject.registerSubclass(Bookmark.class);
         ParseObject.registerSubclass(PrivateStudentData.class);
         ParseObject.registerSubclass(PublicUserData.class);
         ParseObject.registerSubclass(Student.class);

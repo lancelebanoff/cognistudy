@@ -16,7 +16,7 @@ import com.cognitutor.cognistudyapp.Activities.BookmarksActivity;
 import com.cognitutor.cognistudyapp.Activities.HelpActivity;
 import com.cognitutor.cognistudyapp.Activities.SettingsActivity;
 import com.cognitutor.cognistudyapp.Activities.ShopActivity;
-import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsActivity;
+import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
@@ -95,7 +95,7 @@ public class MenuFragment extends CogniFragment {
     private void onClick(String label) {
         switch(label) {
             case Constants.MenuItem.SUGGESTED_QUESTIONS:
-                navigateToActivity(SuggestedQuestionsActivity.class);
+                navigateToActivity(SuggestedQuestionsListActivity.class);
                 break;
             case Constants.MenuItem.BOOKMARKS:
                 navigateToActivity(BookmarksActivity.class);

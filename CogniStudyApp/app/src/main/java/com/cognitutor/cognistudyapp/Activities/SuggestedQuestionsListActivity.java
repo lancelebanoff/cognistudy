@@ -2,7 +2,7 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 
-public class SuggestedQuestionsActivity extends QuestionListActivity {
+public class SuggestedQuestionsListActivity extends QuestionListActivity {
 
     @Override
     protected void getAndDisplay(String subject, String category) {

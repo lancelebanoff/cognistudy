@@ -28,6 +28,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
@@ -44,7 +45,7 @@ import bolts.Continuation;
 import bolts.Task;
 import io.github.kexanie.library.MathView;
 
-public class QuestionActivity extends CogniActivity implements View.OnClickListener {
+public abstract class QuestionActivity extends CogniActivity implements View.OnClickListener {
 
     /**
      * Extras:
@@ -52,17 +53,16 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
      *      CHALLENGE_ID: String
      *      USER1OR2: int
      */
-    private Intent mIntent;
+    protected Intent mIntent;
     private ListView listView;
     private ActivityViewHolder avh;
-    private Question mQuestion;
-    private Question mQuestionWithoutContents;
-    private QuestionContents mQuestionContents;
+    protected Question mQuestion;
+    protected Question mQuestionWithoutContents;
+    protected QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
-    private Challenge mChallenge = null;
     private Response mResponse = null;
-    private int mUser1or2;
-    private int mQuesAnsThisTurn = -1;
+
+//    protected abstract void addComponents();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,17 +70,15 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         setContentView(R.layout.activity_question);
         mIntent = getIntent();
 
-        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
         listView = (ListView) findViewById(R.id.listView);
         addComponents();
         avh.btnSetLatex.setOnClickListener(this);
         ClickableListItem.setQuestionAnswered(false);
+        //TODO: Move this
         try {
             loadResponse().waitForCompletion(); //If this is a past question
         } catch (InterruptedException e) { e.printStackTrace(); }
-
         loadQuestion();
-        loadChallenge();
     }
 
     public void loadQuestion() {
@@ -162,6 +160,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     private Task<Object> loadResponse() {
         final String responseId = getResponseId();
+        if(responseId == null)
+            return CommonUtils.getCompletionTask(null);
         return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<Response>() {
             @Override
             public ParseQuery<Response> buildQuery() {
@@ -178,23 +178,6 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 
     private String getResponseId() {
         return mIntent.getStringExtra(Constants.IntentExtra.RESPONSE_ID);
-    }
-
-    private void loadChallenge() {
-        String challengeId = getChallengeId();
-        Challenge.getChallengeInBackground(challengeId)
-                .continueWith(new Continuation<Challenge, Void>() {
-                    @Override
-                    public Void then(Task<Challenge> task) throws Exception {
-                        mChallenge = task.getResult();
-
-                        return null;
-                    }
-                });
-    }
-
-    private String getChallengeId() {
-        return mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
     }
 
     private void addComponents() {
@@ -225,11 +208,11 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         );
     }
 
-    private boolean isSelectedAnswerCorrect() {
+    protected boolean isSelectedAnswerCorrect() {
         return getSelectedAnswer() == getCorrectAnswer();
     }
 
-    private int getSelectedAnswer() {
+    protected int getSelectedAnswer() {
         return answerAdapter.getSelectedAnswer();
     }
 
@@ -237,19 +220,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         return mQuestionContents.getCorrectIdx();
     }
 
-    public void showAnswerAndIncrementAnalytics(View view) {
-
-        boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
-        showAnswer(isSelectedAnswerCorrect);
-
-        //Response and analytics
-        createResponse(isSelectedAnswerCorrect);
-        incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
-        if(mChallenge != null)
-            incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
-    }
-
-    private void showAnswer(boolean isSelectedAnswerCorrect) {
+    protected void showAnswer(boolean isSelectedAnswerCorrect) {
 
         if(isSelectedAnswerCorrect) {
             avh.txtCorrectIncorrect.setText("Correct!");
@@ -265,135 +236,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         viewSwitcher.setVisibility(View.INVISIBLE);
     }
 
-    private void createResponse(boolean isSelectedAnswerCorrect) {
-        //TODO: Pin related objects
-        //TODO: Implement rating
-        final Response response = new Response(mQuestionWithoutContents, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
-        if(mChallenge != null) {
-            final String pinName = getChallengeId();
-            response.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Object>>() {
-                @Override
-                public Task<Object> then(Task<ParseObject> task) throws Exception {
-                    return ParseObjectUtils.pinThenSaveInBackground(pinName, response)
-                            .continueWith(new Continuation<Void, Object>() {
-                                @Override
-                                public Object then(Task<Void> task) throws Exception {
-                                    PrivateStudentData.addResponseAndSaveEventually(response);
-                                    mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(response);
-                                    return null;
-                                }
-                            });
-                }
-            });
-        }
-        else {
-            response.saveInBackground().continueWith(new Continuation<Void, Object>() {
-                @Override
-                public Object then(Task<Void> task) throws Exception {
-                    PrivateStudentData.addResponseAndSaveEventually(response);
-                    return null;
-                }
-            });
-        }
-    }
-
-    private void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
-        //TODO: wait for incrementAll to finish when necessary
-        StudentBlockStats.incrementAll(category, isSelectedAnswerCorrect);
-        StudentTRollingStats.incrementAllInBackground(mQuestion, category, isSelectedAnswerCorrect);
-    }
-
-    private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(mChallenge == null) {} // Wait until challenge is loaded
-
-                mQuesAnsThisTurn = mChallenge.incrementAndGetQuesAnsThisTurn();
-                if(isSelectedAnswerCorrect) {
-                    mChallenge.incrementCorrectAnsThisTurn();
-                }
-                if(mChallenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE) &&
-                        mChallenge.getQuesAnsThisTurn() == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
-                    mQuesAnsThisTurn = 0;
-                    mChallenge.setQuesAnsThisTurn(0);
-                    Question.chooseThreeQuestionIds(mChallenge, mUser1or2).onSuccess(new Continuation<List<String>, Void>() {
-                        @Override
-                        public Void then(Task<List<String>> task) throws Exception {
-                            saveChallengeAndShowButton();
-                            return null;
-                        }
-                    });
-                }
-                else {
-                    saveChallengeAndShowButton();
-                }
-            }
-        }).start();
-    }
-
-    private void saveChallengeAndShowButton() {
-        try {
-            mChallenge.save();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Switch Submit button to Continue button
-                ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-                viewSwitcher.setVisibility(View.VISIBLE);
-                viewSwitcher.showNext();
-            }
-        });
-    }
-
-    public void navigateToNextActivity(View view) {
-        String parentActivity = mIntent.getStringExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY);
-        switch(parentActivity) {
-            case Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY:
-                if(mQuesAnsThisTurn == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
-                    navigateToBattleshipAttackActivity();
-                } else {
-                    String questionId = mChallenge.getThisTurnQuestionIds().get(mQuesAnsThisTurn);
-                    navigateToNextQuestionActivity(questionId);
-                }
-                break;
-            default:
-                navigateToParentActivity();
-                break;
-//            case Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
-//                navigateToParentActivity();
-//                break;
-//            case Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY:
-//                navigateToParentActivity();
-//                break;
-        }
-    }
-
-    private void navigateToParentActivity() {
-        finish();
-    }
-
-    private void navigateToNextQuestionActivity(String questionId) {
-        Intent intent = new Intent(this, QuestionActivity.class);
-        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
-        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
-//        fF4lsHt2iW
-//        eO4TCrdBdn
-        startActivity(intent);
-        finish();
-    }
-
-    private void navigateToBattleshipAttackActivity() {
-        Intent intent = new Intent(this, BattleshipAttackActivity.class);
-        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        startActivity(intent);
+    protected void navigateToParentActivity() {
         finish();
     }
 

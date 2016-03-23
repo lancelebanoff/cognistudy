@@ -38,7 +38,7 @@ public abstract class QuestionListActivity extends CogniActivity {
     protected abstract String getActivityName();
 
     public void navigateToQuestionActivity(View view) {
-        Intent intent = new Intent(this, QuestionActivity.class);
+        Intent intent = new Intent(this, ChallengeQuestionActivity.class); //TODO: Change depending on type of question
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, getActivityName());
         startActivity(intent);
     }

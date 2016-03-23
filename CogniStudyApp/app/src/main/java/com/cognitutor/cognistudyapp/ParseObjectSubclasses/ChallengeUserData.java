@@ -7,6 +7,8 @@ import com.parse.ParseRelation;
 
 import java.util.List;
 
+import bolts.Task;
+
 /**
  * Created by Lance on 1/9/2016.
  */
@@ -94,8 +96,8 @@ public class ChallengeUserData extends ParseObject {
         put(Columns.categories, categories);
     }
 
-    public void addResponseAndSaveEventually(Response response) {
+    public Task<Void> addResponseAndSaveEventually(Response response) {
         getResponses().add(response);
-        saveEventually();
+        return saveEventually();
     }
 }

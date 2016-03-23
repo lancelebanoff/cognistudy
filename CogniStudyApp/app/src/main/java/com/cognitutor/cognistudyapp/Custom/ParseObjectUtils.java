@@ -179,7 +179,12 @@ public class ParseObjectUtils {
     }
 
     public static Task<Void> pinThenSaveInBackground(String pinName, ParseObject object) {
-        object.pinInBackground(pinName);
+        if(pinName != null) {
+            object.pinInBackground(pinName);
+        }
+        else {
+            object.pinInBackground();
+        }
         return object.saveInBackground();
     }
     // </editor-fold>
