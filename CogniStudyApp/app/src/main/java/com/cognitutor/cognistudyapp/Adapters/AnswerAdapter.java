@@ -31,24 +31,29 @@ public class AnswerAdapter extends BaseAdapter {
     private List<RadioButton> radioButtonList;
     private int selectedIdx;
 
-    public AnswerAdapter(Activity context, List<String> answers, String labelType) {
+    public AnswerAdapter(Activity context, List<String> answers, String labelType, int selectedIdx) {
         this.quesActivity = (QuestionActivity) context;
         this.answers = answers;
         answerLabelType = labelType;
         radioButtonList = new ArrayList<RadioButton>();
+        this.selectedIdx = selectedIdx; // -1 if no selection has been made
     }
 
     public String getAnswerLabelType() { return answerLabelType; }
     public void selectAnswer(int position) {
 
         quesActivity.setBtnSubmitEnabled(true);
-        for(RadioButton button : radioButtonList)
+        for(RadioButton button : radioButtonList) {
             button.setChecked(button.getId() == position);
+        }
         selectedIdx = position;
     }
     public void addRadioButton(RadioButton rb) {
         radioButtonList.add(rb);
+        if(radioButtonList.size() - 1 == selectedIdx)
+            rb.setChecked(true);
     }
+
     public int getSelectedAnswer() {
         return selectedIdx;
     }

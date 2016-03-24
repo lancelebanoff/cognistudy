@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,18 +19,21 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
+import com.cognitutor.cognistudyapp.Activities.ChallengeQuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
+import com.parse.ParseRelation;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -183,10 +187,31 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     @Override
                     public void onLoaded(List<ParseObject> objects, Exception e) {
                         setListViewHeightBasedOnChildren(challengeRequestListView);
+                        pinChallengesWithObjectIdInBackground(objects);
                     }
                 });
             }
         });
+    }
+
+    //TODO: Remove later when cacheThenNetwork works
+    private void pinChallengesWithObjectIdInBackground(List<ParseObject> objects) {
+        for(ParseObject obj : objects) {
+            Challenge challenge = (Challenge) obj;
+            final String challengeId = challenge.getObjectId();
+            ParseRelation<Response> responseRelation = challenge.getCurUserChallengeUserData().getResponses();
+            responseRelation.getQuery()
+                .include(Response.Columns.question)
+                .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
+                @Override
+                public Object then(Task<List<Response>> task) throws Exception {
+                    Log.d("pinning challenge " + challengeId, task.getResult().size() + " questions in relation");
+                    ParseObject.pinAllInBackground(challengeId, task.getResult());
+                    return null;
+                }
+            });
+            challenge.pinInBackground(challengeId);
+        }
     }
 
     private void createYourTurnListView(final View rootView, PublicUserData publicUserData) {
@@ -214,6 +239,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     @Override
                     public void onLoaded(List<ParseObject> objects, Exception e) {
                         setListViewHeightBasedOnChildren(yourTurnListView);
+                        pinChallengesWithObjectIdInBackground(objects);
                     }
                 });
             }
@@ -245,6 +271,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     @Override
                     public void onLoaded(List<ParseObject> objects, Exception e) {
                         setListViewHeightBasedOnChildren(theirTurnListView);
+                        pinChallengesWithObjectIdInBackground(objects);
                     }
                 });
             }
@@ -280,6 +307,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     @Override
                     public void onLoaded(List<ParseObject> objects, Exception e) {
                         setListViewHeightBasedOnChildren(pastChallengeListView);
+                        pinChallengesWithObjectIdInBackground(objects);
                     }
                 });
             }

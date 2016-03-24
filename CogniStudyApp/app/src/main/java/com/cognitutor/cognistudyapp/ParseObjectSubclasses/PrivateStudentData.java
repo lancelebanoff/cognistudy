@@ -7,6 +7,7 @@ import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -14,7 +15,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -34,6 +37,7 @@ public class PrivateStudentData extends ParseObject{
         public static final String recentChallenges = "recentChallenges";
         public static final String requestsFromTutors = "requestsFromTutors";
         public static final String assignedQuestions = "assignedQuestions";
+        public static final String bookmarks = "bookmarks";
         public static final String baseUserId = "baseUserId";
         public static final String responses = "responses";
     }
@@ -52,6 +56,10 @@ public class PrivateStudentData extends ParseObject{
     }
 
     public String getBaseUserId() { return getString(Columns.baseUserId); }
+    public ParseRelation<Bookmark> getBookmarks() {
+        return getRelation(Columns.bookmarks);
+    }
+    public ParseRelation<SuggestedQuestion> getAssignedQuestions() { return getRelation(Columns.assignedQuestions); }
 
     public static ParseQuery<PrivateStudentData> getQuery() {
         return ParseQuery.getQuery(PrivateStudentData.class);
@@ -63,7 +71,9 @@ public class PrivateStudentData extends ParseObject{
 
     private static PrivateStudentData getPrivateStudentData(String baseUserId) {
 
-        try { return getLocalDataQuery(baseUserId).getFirst(); }
+        try {
+            return getLocalDataQuery(baseUserId).getFirst();
+        }
         catch (ParseException e) {
             Log.e("PrivateStudentData", "PrivateStudentData not in local datastore");
             e.printStackTrace();
@@ -103,10 +113,24 @@ public class PrivateStudentData extends ParseObject{
         return friendPublicUserIds;
     }
 
-    public static void addResponse(Response response) {
+    public static void addResponseAndSaveEventually(Response response) {
         PrivateStudentData privateStudentData = getPrivateStudentData();
         privateStudentData.getRelation(Columns.responses).add(response);
         privateStudentData.saveEventually();
+    }
+
+    public static Task<Object> addBookmarkAndSaveEventually(Bookmark bookmark) {
+        PrivateStudentData privateStudentData = getPrivateStudentData();
+        privateStudentData.getBookmarks().add(bookmark);
+        return privateStudentData.saveEventually().continueWith(new Continuation<Void, Object>() {
+            @Override
+            public Object then(Task<Void> task) throws Exception {
+                if(task.isFaulted()) {
+                    task.getError().printStackTrace();
+                }
+                return null;
+            }
+        });
     }
 
     @Override

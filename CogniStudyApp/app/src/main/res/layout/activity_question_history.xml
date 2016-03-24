@@ -7,13 +7,9 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".Activities.QuestionHistoryActivity">
 
-    <com.cognitutor.cognistudyapp.Custom.CogniButton
+    <FrameLayout
+        android:id="@+id/fragmentQuestionHistoryContainer"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bookmark Fragment"
-        android:id="@+id/btnBookmarkFragment"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="navigateToPastQuestionActivity" />
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>

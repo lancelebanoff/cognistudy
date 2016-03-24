@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -256,7 +257,7 @@ public class ChallengeActivity extends CogniActivity {
         } else {
             List<String> questionIds = mChallenge.getThisTurnQuestionIds();
             if (questionIds != null && questionIds.size() > 0) {
-                navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
+                navigateToChallengeQuestionActivity(questionIds.get(quesAnsThisTurn));
             } else {
                 chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?
             }
@@ -264,18 +265,23 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void chooseThreeQuestionIdsThenNavigate() {
-        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).onSuccess(new Continuation<List<String>, Void>() {
+        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).continueWith(new Continuation<List<String>, Void>() {
             @Override
             public Void then(Task<List<String>> task) throws Exception {
+                if(task.isFaulted()) {
+                    task.getError().printStackTrace();
+                    Log.e("chooseThreeQuestionIds", task.getError().getMessage());
+                    return null;
+                }
                 List<String> questionIds = task.getResult();
-                navigateToQuestionActivity(questionIds.get(0));
+                navigateToChallengeQuestionActivity(questionIds.get(0));
                 return null;
             }
         });
     }
 
-    private void navigateToQuestionActivity(String questionId) {
-        Intent intent = new Intent(this, QuestionActivity.class);
+    private void navigateToChallengeQuestionActivity(String questionId) {
+        Intent intent = new Intent(this, ChallengeQuestionActivity.class);
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
         intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
         intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
@@ -294,6 +300,7 @@ public class ChallengeActivity extends CogniActivity {
 
     public void navigateToQuestionHistoryActivity(View view) {
         Intent intent = new Intent(this, QuestionHistoryActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mChallengeId);
         startActivity(intent);
     }
 
