@@ -1,32 +1,29 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.cognitutor.cognistudyapp.Adapters.QuestionListAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
-import com.parse.ParseQuery;
+import com.cognitutor.cognistudyapp.R;
 
-import java.util.List;
-
-import bolts.Continuation;
-import bolts.Task;
-
-public class QuestionHistoryActivity extends QuestionListActivity {
+public class BookmarksListActivity extends QuestionListActivity {
 
     @Override
     protected Class<? extends QuestionMetaObject> getTargetMetaClass() {
-        return Response.class;
+        return Bookmark.class;
     }
 
     @Override
     protected Class<? extends QuestionActivity> getTargetQuestionActivityClass() {
-        return PastQuestionActivity.class;
+        return BookmarkedQuestionActivity.class;
     }
 
     @Override
     protected String getActivityName() {
-        return Constants.IntentExtra.ParentActivity.QUESTION_HISTORY_ACTIVITY;
+        return Constants.IntentExtra.ParentActivity.BOOKMARKS_LIST_ACTIVITY;
     }
 }

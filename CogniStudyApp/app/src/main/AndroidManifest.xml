@@ -101,6 +101,12 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".Activities.BookmarkedQuestionActivity"
+            android:label="@string/title_activity_past_question"
+            android:parentActivityName=".Activities.BookmarksListActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".Activities.ChallengeAnalyticsActivity"
             android:label="@string/title_activity_challenge_analytics"
             android:parentActivityName=".Activities.ChallengeActivity"
@@ -125,7 +131,7 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".Activities.BookmarksActivity"
+            android:name=".Activities.BookmarksListActivity"
             android:label="@string/title_activity_bookmarks"
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" >

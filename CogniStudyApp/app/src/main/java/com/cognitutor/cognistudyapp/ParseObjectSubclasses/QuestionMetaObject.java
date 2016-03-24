@@ -21,30 +21,46 @@ public abstract class QuestionMetaObject extends ParseObject{
 
     public static ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(Class<? extends QuestionMetaObject> clazz,
                                                                             String challengeId, String subject, String category) {
-        ParseQuery<QuestionMetaObject> query = getMetaQuery(clazz)
-                .fromPin(challengeId);
+        ParseQuery<QuestionMetaObject> query = getMetaQuery(clazz);
 
-        //TODO: Implement Bookmarks
-        if(clazz == Response.class || clazz == SuggestedQuestion.class) {
-            if(clazz == Response.class) {
-                query.include(Response.Columns.question);
+        if(challengeId != null) {
+            query.fromPin(challengeId);
+        }
+        else {
+            query.fromLocalDatastore();
+        }
+
+        ParseQuery<Question> questionQuery = Question.getQuery();
+        boolean includeQuestionQuery = false;
+        if(!subject.equals(Constants.Subject.ALL_SUBJECTS)) {
+            questionQuery.whereEqualTo(Question.Columns.subject, subject);
+            includeQuestionQuery = true;
+        }
+        if(!category.equals(Constants.Category.ALL_CATEGORIES)) {
+            questionQuery.whereEqualTo(Question.Columns.category, category);
+            includeQuestionQuery = true;
+        }
+
+        ParseQuery<Response> responseQuery = Response.getQuery();
+        boolean includeResponseQuery = false;
+        if(clazz == Response.class) {
+            query.include(Response.Columns.question);
+        }
+        else if(clazz == Bookmark.class) {
+            query.include(Bookmark.Columns.response + "." + Response.Columns.question);
+            includeResponseQuery = true;
+            responseQuery.whereMatchesQuery(Response.Columns.question, questionQuery);
+        }
+        else {
+            query.include(SuggestedQuestion.Columns.question);
+        }
+
+        if(includeQuestionQuery) {
+            if(includeResponseQuery) {
+                query.whereMatchesQuery("response", responseQuery);
             }
             else {
-                query.include(SuggestedQuestion.Columns.question);
-            }
-            ParseQuery<Question> innerQuery = Question.getQuery();
-
-            boolean includeInnerQuery = false;
-            if(!subject.equals(Constants.Subject.ALL_SUBJECTS)) {
-                innerQuery.whereEqualTo(Question.Columns.subject, subject);
-                includeInnerQuery = true;
-            }
-            if(!category.equals(Constants.Category.ALL_CATEGORIES)) {
-                innerQuery.whereEqualTo(Question.Columns.category, category);
-                includeInnerQuery = true;
-            }
-            if(includeInnerQuery) {
-                query.whereMatchesQuery("question", innerQuery);
+                query.whereMatchesQuery("question", questionQuery);
             }
         }
         return query;
@@ -53,5 +69,4 @@ public abstract class QuestionMetaObject extends ParseObject{
     private static ParseQuery<QuestionMetaObject> getMetaQuery(Class<? extends QuestionMetaObject> clazz) {
         return ParseQuery.getQuery(clazz.getSimpleName());
     }
-
 }

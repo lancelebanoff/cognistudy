@@ -12,7 +12,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.cognitutor.cognistudyapp.Activities.AchievementsActivity;
-import com.cognitutor.cognistudyapp.Activities.BookmarksActivity;
+import com.cognitutor.cognistudyapp.Activities.BookmarksListActivity;
 import com.cognitutor.cognistudyapp.Activities.HelpActivity;
 import com.cognitutor.cognistudyapp.Activities.SettingsActivity;
 import com.cognitutor.cognistudyapp.Activities.ShopActivity;
@@ -98,7 +98,7 @@ public class MenuFragment extends CogniFragment {
                 navigateToActivity(SuggestedQuestionsListActivity.class);
                 break;
             case Constants.MenuItem.BOOKMARKS:
-                navigateToActivity(BookmarksActivity.class);
+                navigateToActivity(BookmarksListActivity.class);
                 break;
             case Constants.MenuItem.ACHIEVEMENTS:
                 navigateToActivity(AchievementsActivity.class);

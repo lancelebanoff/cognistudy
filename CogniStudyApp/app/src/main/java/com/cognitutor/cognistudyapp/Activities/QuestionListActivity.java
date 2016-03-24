@@ -20,8 +20,12 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.rey.material.widget.Spinner;
 
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Kevin on 3/18/2016.
@@ -34,7 +38,8 @@ public abstract class QuestionListActivity extends CogniActivity {
     protected CogniRecyclerView mQuestionList;
     protected Intent mIntent;
 
-    protected abstract void getAndDisplay(String subject, String category);
+    protected abstract Class<? extends QuestionMetaObject> getTargetMetaClass();
+    protected abstract Class<? extends QuestionActivity> getTargetQuestionActivityClass();
     protected abstract String getActivityName();
 
     public void navigateToQuestionActivity(View view) {
@@ -53,6 +58,36 @@ public abstract class QuestionListActivity extends CogniActivity {
         mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
         initializeSpinners();
+
+        mAdapter = new QuestionListAdapter(this, getTargetQuestionActivityClass(),
+                QuestionMetaObject.getSubjectAndCategoryQuery(getTargetMetaClass(), getChallengeId(),
+                Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
+        mQuestionList.setAdapter(mAdapter);
+        getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
+    }
+
+    protected void getAndDisplay(String subject, String category) {
+
+        ParseQuery<QuestionMetaObject> query = QuestionMetaObject.getSubjectAndCategoryQuery(
+                getTargetMetaClass(), getChallengeId(), subject, category);
+        query.findInBackground()
+                .continueWith(new Continuation<List<QuestionMetaObject>, Object>() {
+                    @Override
+                    public Object then(Task<List<QuestionMetaObject>> task) throws Exception {
+                        final List<QuestionMetaObject> list = task.getResult();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.onDataLoaded(list);
+                            }
+                        });
+                        return null;
+                    }
+                });
+    }
+
+    private String getChallengeId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
     }
 
     private void initializeSpinners() {

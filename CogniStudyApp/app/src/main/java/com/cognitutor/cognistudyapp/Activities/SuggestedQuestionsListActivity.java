@@ -1,12 +1,19 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 
 public class SuggestedQuestionsListActivity extends QuestionListActivity {
 
     @Override
-    protected void getAndDisplay(String subject, String category) {
-        //TODO: Implement
+    protected Class<? extends QuestionMetaObject> getTargetMetaClass() {
+        return SuggestedQuestion.class;
+    }
+
+    @Override
+    protected Class<? extends QuestionActivity> getTargetQuestionActivityClass() {
+        return SuggestedQuestionActivity.class;
     }
 
     @Override

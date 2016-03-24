@@ -175,7 +175,7 @@ public class Constants {
             public static final String SUGGESTED_QUESTIONS_ACTIVITY = "SUGGESTED_QUESTIONS_ACTIVITY";
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String QUESTION_HISTORY_ACTIVITY = "QUESTION_HISTORY_ACTIVITY";
-            public static final String BOOKMARKS_ACTIVITY = "BOOKMARKS_ACTIVITY";
+            public static final String BOOKMARKS_LIST_ACTIVITY = "BOOKMARKS_LIST_ACTIVITY";
         }
     }
 

@@ -7,5 +7,4 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
  */
 public class BookmarkedQuestionActivity extends QuestionActivity {
 
-    private Bookmark mBookmark;
 }

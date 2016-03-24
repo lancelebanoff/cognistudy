@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.ChallengeQuestionActivity;
+import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionHistoryActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -22,12 +23,15 @@ import com.parse.ParseQueryAdapter;
  */
 public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject, QuestionListAdapter.ViewHolder> {
 
-    public QuestionListAdapter(Activity activity, final ParseQuery query) {
+    private Class<? extends QuestionActivity> mTargetQuestionActivityClass;
+
+    public QuestionListAdapter(Activity activity, Class<? extends QuestionActivity> targetQuestionActivityClass, final ParseQuery query) {
         super(activity, new ParseQueryAdapter.QueryFactory<QuestionMetaObject>() {
             public ParseQuery<QuestionMetaObject> create() {
                 return query;
             }
         }, true); //TODO: Try true for hasStableIds
+        mTargetQuestionActivityClass = targetQuestionActivityClass;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -75,7 +79,7 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
     }
 
     private void navigateToQuestionActivity(String questionId, String responseId) {
-        Intent intent = new Intent(mActivity, ChallengeQuestionActivity.class); //TODO: Change based on type of questin
+        Intent intent = new Intent(mActivity, mTargetQuestionActivityClass); //TODO: Change based on type of question
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, getParentActivityConstant());
         intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
         intent.putExtra(Constants.IntentExtra.RESPONSE_ID, responseId);
@@ -88,7 +92,7 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
         else if(mActivity instanceof SuggestedQuestionsListActivity)
             return Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY;
         else {
-            return Constants.IntentExtra.ParentActivity.BOOKMARKS_ACTIVITY;
+            return Constants.IntentExtra.ParentActivity.BOOKMARKS_LIST_ACTIVITY;
         }
     }
 }
