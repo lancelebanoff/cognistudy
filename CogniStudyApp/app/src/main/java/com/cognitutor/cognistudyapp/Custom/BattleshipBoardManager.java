@@ -293,8 +293,18 @@ public class BattleshipBoardManager {
     }
 
     public void clearImages() {
-        mTargetsGridLayout.removeAllViews();
-        mShipsGridLayout.removeAllViews();
+        if (mTargetsGridLayout != null) {
+            mTargetsGridLayout.removeAllViews();
+        }
+        if (mShipsGridLayout != null) {
+            mShipsGridLayout.removeAllViews();
+        }
+        if (mAnimationsGridLayout != null) {
+            mAnimationsGridLayout.removeAllViews();
+        }
+        if (mGifPositions != null) {
+            mGifPositions.clear();
+        }
     }
 
     public void quitChallenge() {
@@ -574,6 +584,8 @@ public class BattleshipBoardManager {
         gifDrawable.addAnimationListener(new AnimationListener() {
             @Override
             public void onAnimationCompleted(int loopNumber) {
+                if (mGifPositions == null || mGifPositions.isEmpty()) return;
+
                 int row = mGifPositions.get(mPencilGifIndex)[0];
                 int col = mGifPositions.get(mPencilGifIndex)[1];
                 ImageView imgTarget = mTargetImageViews[row][col];

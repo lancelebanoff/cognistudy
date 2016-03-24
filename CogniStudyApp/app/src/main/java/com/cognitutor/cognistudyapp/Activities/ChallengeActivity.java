@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -61,6 +62,7 @@ public class ChallengeActivity extends CogniActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
+        hideActionBar();
         mIntent = getIntent();
         initializeBroadcastReceiver();
 
@@ -298,6 +300,13 @@ public class ChallengeActivity extends CogniActivity {
     public void navigateToChallengeAnalyticsActivity(View view) {
         Intent intent = new Intent(this, ChallengeAnalyticsActivity.class);
         startActivity(intent);
+    }
+
+    private void hideActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

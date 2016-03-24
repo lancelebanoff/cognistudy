@@ -129,10 +129,12 @@
                 android:orientation="vertical">
 
                 <com.cognitutor.cognistudyapp.Custom.CogniButton
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Next"
                     android:id="@+id/btnPlayNow"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
                     android:onClick="onClick_btnPlayNow"/>
             </LinearLayout>
 

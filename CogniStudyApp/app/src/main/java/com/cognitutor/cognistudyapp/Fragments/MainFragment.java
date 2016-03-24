@@ -19,7 +19,6 @@ import android.widget.ListView;
 
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
-import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
@@ -78,13 +77,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         // TODO:2 Don't reload every time
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        Button b = (Button) rootView.findViewById(R.id.btnQuestion);
-        b.setOnClickListener(this);
-
-        b = (Button) rootView.findViewById(R.id.btnStartChallenge);
-        b.setOnClickListener(this);
-
-        b = (Button) rootView.findViewById(R.id.btnLogout);
+        Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);
         b.setOnClickListener(this);
 
         b = (Button) rootView.findViewById(R.id.btnViewLocalDatastore);
@@ -346,24 +339,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.btnQuestion:
-                Intent intent = new Intent(getActivity(), QuestionActivity.class);
-                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "eO4TCrdBdn"); //TODO: Replace with desired questionId
-                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
-                //aSVEaMqEfB
-                //fF4lsHt2iW
-                //zpyHpKMb5S
-                startActivity(intent);
-                break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
-                break;
-            case R.id.btnLogout:
-                try {
-                    logout();
-                } catch (ParseException e) { handleParseError(e);
-                    return; }
-                navigateToRegistrationActivity();
                 break;
             case R.id.btnViewLocalDatastore:
                 ParseObjectUtils.logPinnedObjects(false);

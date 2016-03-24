@@ -1,131 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_height="match_parent"
     tools:context=".Activities.ChallengeActivity">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"/>
-
-    <RelativeLayout
-        android:id="@+id/rlContent"
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible">
+        android:src="@drawable/background_desk"
+        android:scaleType="centerCrop"/>
 
-        <com.cognitutor.cognistudyapp.Custom.CogniImageButton
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/icon_resign"
-            android:id="@+id/btnResign"
-            android:onClick="onClick_btnResign"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignTop="@+id/btnYourTurn"
-            android:adjustViewBounds="true"
-            android:scaleType="centerInside" />
-
-        <com.cognitutor.cognistudyapp.Custom.CogniButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Your turn!"
-            android:id="@+id/btnYourTurn"
-            android:onClick="onClick_btnYourTurn"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:visibility="invisible"/>
-
-        <com.cognitutor.cognistudyapp.Custom.CogniImageButton
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/icon_question_history"
-            android:id="@+id/btnQuestionHistory"
-            android:onClick="navigateToQuestionHistoryActivity"
-            android:layout_alignParentBottom="true"
-            android:layout_toLeftOf="@+id/btnChallengeAnalytics"
-            android:layout_toStartOf="@+id/btnChallengeAnalytics"
-            android:layout_alignTop="@+id/btnYourTurn"
-            android:adjustViewBounds="true"
-            android:scaleType="centerInside" />
-
-        <com.cognitutor.cognistudyapp.Custom.CogniImageButton
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/icon_challenge_analytics"
-            android:id="@+id/btnChallengeAnalytics"
-            android:onClick="navigateToChallengeAnalyticsActivity"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/btnYourTurn"
-            android:adjustViewBounds="true"
-            android:scaleType="centerInside" />
-
-        <com.cognitutor.cognistudyapp.Custom.CogniImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/icon_switch"
-            android:id="@+id/btnSwitchView"
-            android:onClick="onClick_btnSwitchView"
-            android:visibility="invisible"
-            android:layout_alignBottom="@+id/headerChallengeScore"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:adjustViewBounds="true"
-            android:scaleType="centerInside" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
 
         <ProgressBar
-            android:id="@+id/progressBarSmall"
+            android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:indeterminate="true"/>
 
         <RelativeLayout
-            android:id="@+id/rlGridLayoutHolder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/headerChallengeScore"
-            android:layout_above="@+id/btnYourTurn">
+            android:id="@+id/rlContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible">
 
-            <GridLayout
-                android:id="@+id/shipsGridLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerHorizontal="true" />
+            <com.cognitutor.cognistudyapp.Custom.CogniImageButton
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_resign"
+                android:id="@+id/btnResign"
+                android:onClick="onClick_btnResign"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignTop="@+id/btnYourTurn"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside" />
 
-            <GridLayout
-                android:id="@+id/targetsGridLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerHorizontal="true" />
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your turn!"
+                android:id="@+id/btnYourTurn"
+                android:onClick="onClick_btnYourTurn"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:visibility="invisible"/>
 
-            <GridLayout
-                android:id="@+id/animationsGridLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerHorizontal="true" />
+            <com.cognitutor.cognistudyapp.Custom.CogniImageButton
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_question_history"
+                android:id="@+id/btnQuestionHistory"
+                android:onClick="navigateToQuestionHistoryActivity"
+                android:layout_alignParentBottom="true"
+                android:layout_toLeftOf="@+id/btnChallengeAnalytics"
+                android:layout_toStartOf="@+id/btnChallengeAnalytics"
+                android:layout_alignTop="@+id/btnYourTurn"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside" />
+
+            <com.cognitutor.cognistudyapp.Custom.CogniImageButton
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_challenge_analytics"
+                android:id="@+id/btnChallengeAnalytics"
+                android:onClick="navigateToChallengeAnalyticsActivity"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/btnYourTurn"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside" />
+
+            <com.cognitutor.cognistudyapp.Custom.CogniImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_switch"
+                android:id="@+id/btnSwitchView"
+                android:onClick="onClick_btnSwitchView"
+                android:visibility="invisible"
+                android:layout_alignBottom="@+id/headerChallengeScore"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside" />
+
+            <ProgressBar
+                android:id="@+id/progressBarSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminate="true"/>
+
+            <RelativeLayout
+                android:id="@+id/rlGridLayoutHolder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/headerChallengeScore"
+                android:layout_above="@+id/btnYourTurn">
+
+                <ImageView
+                    android:id="@+id/imgBoardBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/background_paper"
+                    android:layout_centerHorizontal="true"/>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
+
+                    <GridLayout
+                        android:id="@+id/shipsGridLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerHorizontal="true" />
+
+                    <GridLayout
+                        android:id="@+id/targetsGridLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerHorizontal="true" />
+
+                    <GridLayout
+                        android:id="@+id/animationsGridLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerHorizontal="true" />
+                </RelativeLayout>
+            </RelativeLayout>
+
+            <include layout="@layout/header_challenge_score"
+                android:id="@+id/headerChallengeScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"/>
+
         </RelativeLayout>
-
-        <include layout="@layout/header_challenge_score"
-            android:id="@+id/headerChallengeScore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"/>
-
     </RelativeLayout>
 
-</RelativeLayout>
+</FrameLayout>

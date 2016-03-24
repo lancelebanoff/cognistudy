@@ -1,61 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".Activities.ChooseBoardConfigurationActivity">
 
-    <com.cognitutor.cognistudyapp.Custom.CogniButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Randomize"
-        android:id="@+id/btnRandomize"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:visibility="invisible"
-        android:onClick="onClick_Randomize" />
-
-    <com.cognitutor.cognistudyapp.Custom.CogniButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start Challenge"
-        android:id="@+id/btnStartChallenge"
-        android:layout_alignTop="@+id/btnRandomize"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:visibility="invisible"
-        android:onClick="onClick_btnStartChallenge" />
-
-    <GridLayout
-        android:id="@+id/shipsGridLayout"
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_above="@+id/btnRandomize"></GridLayout>
+        android:src="@drawable/background_desk"
+        android:scaleType="centerCrop"/>
 
-    <GridLayout
-        android:id="@+id/targetsGridLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_above="@+id/btnRandomize"></GridLayout>
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
 
-    <GridLayout
-        android:id="@+id/animationsGridLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_above="@+id/btnRandomize"></GridLayout>
-</RelativeLayout>
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Randomize"
+            android:id="@+id/btnRandomize"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:visibility="invisible"
+            android:onClick="onClick_Randomize" />
+
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Challenge"
+            android:id="@+id/btnStartChallenge"
+            android:layout_alignTop="@+id/btnRandomize"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:visibility="invisible"
+            android:onClick="onClick_btnStartChallenge" />
+
+        <RelativeLayout
+            android:id="@+id/rlGridLayoutHolder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@+id/btnRandomize">
+
+            <ImageView
+                android:id="@+id/imgBoardBackground"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/background_paper"
+                android:layout_centerHorizontal="true"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp">
+
+                <GridLayout
+                    android:id="@+id/shipsGridLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"></GridLayout>
+
+                <GridLayout
+                    android:id="@+id/targetsGridLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"></GridLayout>
+
+                <GridLayout
+                    android:id="@+id/animationsGridLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"></GridLayout>
+
+            </RelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+</FrameLayout>
