@@ -63,6 +63,11 @@ public abstract class QuestionListActivity extends CogniActivity {
                 QuestionMetaObject.getSubjectAndCategoryQuery(getTargetMetaClass(), getChallengeId(),
                 Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
         mQuestionList.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
     }
 
