@@ -18,6 +18,7 @@ import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
+import com.cognitutor.cognistudyapp.Custom.CogniCheckBox;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
@@ -159,16 +160,6 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             case R.id.btnSetLatex:
                 setLatex();
                 break;
-            case R.id.vsBookmark:
-                ViewSwitcher viewSwitcher = avh.vsBookmark;
-                if(viewSwitcher.getCurrentView().getId() == R.id.ivDoBookmark) {
-                    doBookmark();
-                }
-                else {
-                    undoBookmark();
-                }
-                avh.vsBookmark.showNext();
-                break;
         }
     }
 
@@ -197,7 +188,22 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
 
     private void setOnClickListeners() {
         avh.btnSetLatex.setOnClickListener(this);
-        avh.vsBookmark.setOnClickListener(this);
+        avh.cbBookmark.setOnClickListener(getCbBookmarkOnClickListener());
+    }
+
+    private View.OnClickListener getCbBookmarkOnClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CogniCheckBox cbBookmark = avh.cbBookmark;
+                if(cbBookmark.isChecked()) {
+                    doBookmark();
+                }
+                else {
+                    undoBookmark();
+                }
+            }
+        };
     }
 
     private Task<Object> loadResponseAndBookmark() {
@@ -239,16 +245,11 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     }
 
     private void setBookmarkComponents() {
-        ViewSwitcher viewSwitcher = avh.vsBookmark;
-        if(mBookmark != null) {
-            if(viewSwitcher.getCurrentView().getId() == R.id.ivDoBookmark) {
-                viewSwitcher.showNext();
-            }
-        }
-        else {
-            if(viewSwitcher.getCurrentView().getId() == R.id.ivUndoBookmark) {
-                viewSwitcher.showNext();
-            }
+        CogniCheckBox cbBookmark = avh.cbBookmark;
+        boolean isBookmarked = mBookmark != null;
+        boolean isChecked = cbBookmark.isChecked();
+        if((isBookmarked && !isChecked) || (!isBookmarked && isChecked)) {
+            cbBookmark.setChecked(!isChecked);
         }
     }
 
@@ -323,7 +324,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         private ViewGroup vgPostAnswer;
         private TextView txtCorrectIncorrect;
         private Button btnSubmit;
-        private ViewSwitcher vsBookmark;
+        private CogniCheckBox cbBookmark;
 
         private ActivityViewHolder() {
             rlQuestionHeader = (LinearLayout) findViewById(R.id.rlQuestionHeader);
@@ -336,7 +337,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
-            vsBookmark = (ViewSwitcher) findViewById(R.id.vsBookmark);
+            cbBookmark = (CogniCheckBox) findViewById(R.id.cbBookmark);
         }
 
         private void showLoading() {
