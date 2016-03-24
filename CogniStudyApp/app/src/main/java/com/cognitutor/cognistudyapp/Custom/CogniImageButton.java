@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.ImageButton;
@@ -30,7 +31,12 @@ public class CogniImageButton extends ImageButton {
     }
 
     private void setColor(Context context) {
-        getBackground().setColorFilter(ContextCompat.getColor(context, R.color.colorPrimaryLight), PorterDuff.Mode.MULTIPLY);
+        int currentApiVersion = Build.VERSION.SDK_INT;
+        if (currentApiVersion >= Build.VERSION_CODES.LOLLIPOP) {
+            getBackground().setColorFilter(ContextCompat.getColor(context, R.color.colorPrimaryLight), PorterDuff.Mode.MULTIPLY);
+        } else {
+            getBackground().setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+        }
     }
 
     private void setWidth() {

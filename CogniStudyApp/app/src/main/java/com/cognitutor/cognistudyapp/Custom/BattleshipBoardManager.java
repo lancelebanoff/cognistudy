@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
 import pl.droidsonroids.gif.AnimationListener;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -49,6 +52,9 @@ public class BattleshipBoardManager {
     private boolean mCanBeAttacked;
     private int mNumShotsRemaining;
     private TextView mTxtNumShotsRemaining;
+    private ImageView[][] mTargetImageViews;
+    private ArrayList<int[]> mGifPositions;
+    private int mPencilGifIndex;
 
     // Used for new challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
@@ -57,6 +63,7 @@ public class BattleshipBoardManager {
         mCanBeAttacked = canBeAttacked;
         mChallenge = challenge;
         mViewedChallengeUserData = challengeUserData;
+        mTargetImageViews = new ImageView[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
     }
 
     // Used for existing challenge
@@ -72,6 +79,7 @@ public class BattleshipBoardManager {
         mOpponentUserData = opponentUserData;
         mGameBoard = gameBoard;
         mShips = (ArrayList<Ship>) ships;
+        mTargetImageViews = new ImageView[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
         retrieveShipDrawableDatas();
         retrieveBoardPositionStatus();
     }
@@ -144,11 +152,16 @@ public class BattleshipBoardManager {
         if(mBoardPositionStatus == null) {
             return;
         }
+        List<List<Boolean>> isLastMove = mGameBoard.getIsLastMove();
         for(int row = 0; row < mTargetsGridLayout.getRowCount(); row++) {
             for(int col = 0; col < mTargetsGridLayout.getColumnCount(); col++) {
                 // Draw target
                 ImageView imgSpace = new ImageView(mActivity);
-                setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
+                if (isLastMove.get(row).get(col) && !mCanBeAttacked) {
+                    setTargetImageResource(imgSpace, Constants.GameBoardPositionStatus.UNKNOWN);
+                } else {
+                    setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
+                }
                 GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
                 layoutParams.height = mTargetsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS;
                 layoutParams.width = mTargetsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS;
@@ -156,6 +169,7 @@ public class BattleshipBoardManager {
                 layoutParams.rowSpec = GridLayout.spec(row);
                 imgSpace.setLayoutParams(layoutParams);
                 mTargetsGridLayout.addView(imgSpace);
+                mTargetImageViews[row][col] = imgSpace;
 
                 // Set what happens when target is clicked
                 if(mCanBeAttacked) {
@@ -211,12 +225,16 @@ public class BattleshipBoardManager {
         }
         if(mGameBoard.getShouldDisplayLastMove()) {
             List<List<Boolean>> isLastMove = mGameBoard.getIsLastMove();
+            mGifPositions = new ArrayList<>();
             for(int i = 0; i < isLastMove.size(); i++) {
                 for(int j = 0; j < isLastMove.get(i).size(); j++) {
                     if(isLastMove.get(i).get(j)) {
-                        drawGif(i, j, 1, 1, R.drawable.target_default_attacked);
+                        mGifPositions.add(new int[]{i, j});
                     }
                 }
+            }
+            if (!mGifPositions.isEmpty()) {
+                drawGif(mGifPositions.get(0)[0], mGifPositions.get(0)[1], 5, 5, R.drawable.animation_pencil_fill_in);
             }
         }
     }
@@ -275,8 +293,18 @@ public class BattleshipBoardManager {
     }
 
     public void clearImages() {
-        mTargetsGridLayout.removeAllViews();
-        mShipsGridLayout.removeAllViews();
+        if (mTargetsGridLayout != null) {
+            mTargetsGridLayout.removeAllViews();
+        }
+        if (mShipsGridLayout != null) {
+            mShipsGridLayout.removeAllViews();
+        }
+        if (mAnimationsGridLayout != null) {
+            mAnimationsGridLayout.removeAllViews();
+        }
+        if (mGifPositions != null) {
+            mGifPositions.clear();
+        }
     }
 
     public void quitChallenge() {
@@ -284,7 +312,18 @@ public class BattleshipBoardManager {
         mChallenge.setEndDate(new Date());
         mChallenge.setTimeLastPlayed(new Date());
         mChallenge.setWinner(mOpponentUserData.getPublicUserData().getBaseUserId());
-        mChallenge.saveInBackground();
+        mChallenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                // Refresh Challenge list
+                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+                if (mActivity != null) {
+                    mActivity.sendBroadcast(refreshIntent);
+                }
+                return null;
+            }
+        });
         alertLostChallenge();
     }
 
@@ -530,12 +569,12 @@ public class BattleshipBoardManager {
         }
     }
 
-    private void drawGif(int row, int col, int height, int width, int gifDrawableId) {
+    private void drawGif(int row, int col, final int height, final int width, final int gifDrawableId) {
         final GifImageView gifImageView = new GifImageView(mActivity);
         gifImageView.setImageResource(gifDrawableId);
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
-        layoutParams.rowSpec = GridLayout.spec(row, height);
-        layoutParams.columnSpec = GridLayout.spec(col, width);
+        layoutParams.rowSpec = GridLayout.spec(row, 1);
+        layoutParams.columnSpec = GridLayout.spec(col, 1);
         layoutParams.height = mAnimationsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * height;
         layoutParams.width = mAnimationsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * width;
         gifImageView.setLayoutParams(layoutParams);
@@ -545,7 +584,20 @@ public class BattleshipBoardManager {
         gifDrawable.addAnimationListener(new AnimationListener() {
             @Override
             public void onAnimationCompleted(int loopNumber) {
+                if (mGifPositions == null || mGifPositions.isEmpty()) return;
+
+                int row = mGifPositions.get(mPencilGifIndex)[0];
+                int col = mGifPositions.get(mPencilGifIndex)[1];
+                ImageView imgTarget = mTargetImageViews[row][col];
+                setTargetImageResource(imgTarget, mBoardPositionStatus.get(row).get(col)); // Change target image
+
                 gifImageView.setVisibility(View.GONE);
+                mPencilGifIndex++;
+                if (mPencilGifIndex < mGifPositions.size()) {
+                    row = mGifPositions.get(mPencilGifIndex)[0];
+                    col = mGifPositions.get(mPencilGifIndex)[1];
+                    drawGif(row, col, height, width, gifDrawableId); // Draw next gif
+                }
             }
         });
     }

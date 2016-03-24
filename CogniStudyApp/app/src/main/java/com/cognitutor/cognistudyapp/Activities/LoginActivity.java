@@ -183,6 +183,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
             cancel = true;
         }
         if (cancel) {
+            setWaiting(false);
             focusView.requestFocus();
             return;
         }
@@ -254,6 +255,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
             public void done(ParseUser user, ParseException e) {
                 if (e != null) {
                     if(e.getCode() == ErrorHandler.ErrorCode.INVALID_LOGIN_PARAMS) {
+                        setWaiting(false);
                         mPasswordView.setError(getString(R.string.error_incorrect_password));
                         mPasswordView.requestFocus();
                     }

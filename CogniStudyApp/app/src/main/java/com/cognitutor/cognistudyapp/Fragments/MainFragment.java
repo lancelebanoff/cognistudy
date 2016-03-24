@@ -1,6 +1,9 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
@@ -13,25 +16,28 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
-import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import bolts.Continuation;
@@ -53,10 +59,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private ListView pastChallengeListView;
 
     public static ArrayAdapter<ParseObject> answeredQuestionIdAdapter;
-    private ListView answeredQuestionIdsListView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-
-    public TextView txtChange;
+    private BroadcastReceiver mBroadcastReceiver;
 
     public static final MainFragment newInstance() {
         return new MainFragment();
@@ -73,13 +77,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         // TODO:2 Don't reload every time
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        Button b = (Button) rootView.findViewById(R.id.btnQuestion);
-        b.setOnClickListener(this);
-
-        b = (Button) rootView.findViewById(R.id.btnStartChallenge);
-        b.setOnClickListener(this);
-
-        b = (Button) rootView.findViewById(R.id.btnLogout);
+        Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);
         b.setOnClickListener(this);
 
         b = (Button) rootView.findViewById(R.id.btnViewLocalDatastore);
@@ -87,6 +85,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
         createAllListViews(rootView);
         setSwipeRefreshLayout(rootView);
+        initializeBroadcastReceiver();
 
         return rootView;
     }
@@ -95,8 +94,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onResume() {
         super.onResume();
 
-        View rootView = getActivity().findViewById(R.id.viewpager);
-        createAllListViews(rootView);
+//        createAllListViews(getView());
     }
 
     private void createAllListViews(final View rootView) {
@@ -104,13 +102,60 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             @Override
             public Void then(Task<PublicUserData> task) throws Exception {
                 PublicUserData publicUserData = task.getResult();
+                endChallengesThatRanOutOfTime(publicUserData);
                 createChallengeRequestListView(rootView, publicUserData);
                 createYourTurnListView(rootView, publicUserData);
                 createTheirTurnListView(rootView, publicUserData);
                 createPastChallengeListView(rootView, publicUserData);
+                ((MainActivity) getActivity()).challengesFinishedLoading = true;
                 return null;
             }
         });
+    }
+
+    private void endChallengesThatRanOutOfTime(PublicUserData publicUserData) {
+        List<ParseQuery<Challenge>> queries = new ArrayList<ParseQuery<Challenge>>();
+        queries.add(Challenge.getQuery()
+                .whereEqualTo(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+        queries.add(Challenge.getQuery()
+                .whereEqualTo(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
+        List<Challenge> challenges = null;
+        try {
+            challenges = ParseQuery.or(queries).find();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        for (Challenge challenge : challenges) {
+            if(!challenge.getHasEnded()) {
+                Calendar calendarCurrentDate = Calendar.getInstance(); // Today
+                calendarCurrentDate.setTime(new Date());
+
+                Calendar calendarEndDate = Calendar.getInstance(); // 3 days past time last played
+                calendarEndDate.setTime(challenge.getTimeLastPlayed());
+                calendarEndDate.add(Calendar.DATE, Constants.ChallengeAttribute.NUM_DAYS_PER_TURN);
+
+                if (calendarCurrentDate.compareTo(calendarEndDate) == 1) {
+                    challenge.setHasEnded(true);
+                    challenge.setEndDate(new Date());
+                    try {
+                        challenge.save();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    // Delete unaccepted challenges
+                    if (!challenge.getAccepted()) {
+                        final HashMap<String, Object> params = new HashMap<>();
+                        params.put(Challenge.Columns.objectId, challenge.getObjectId());
+                        try {
+                            ParseCloud.callFunction(Constants.CloudCodeFunction.DELETE_CHALLENGE, params);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void createChallengeRequestListView(final View rootView, PublicUserData publicUserData) {
@@ -294,24 +339,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.btnQuestion:
-                Intent intent = new Intent(getActivity(), QuestionActivity.class);
-                intent.putExtra(Constants.IntentExtra.QUESTION_ID, "eO4TCrdBdn"); //TODO: Replace with desired questionId
-                intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
-                //aSVEaMqEfB
-                //fF4lsHt2iW
-                //zpyHpKMb5S
-                startActivity(intent);
-                break;
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
-                break;
-            case R.id.btnLogout:
-                try {
-                    logout();
-                } catch (ParseException e) { handleParseError(e);
-                    return; }
-                navigateToRegistrationActivity();
                 break;
             case R.id.btnViewLocalDatastore:
                 ParseObjectUtils.logPinnedObjects(false);
@@ -335,5 +364,25 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     @Override
     public void onReceiveHandler() {
+    }
+
+    // Refreshes challenge list when other activity finishes
+    private void initializeBroadcastReceiver() {
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, Intent intent) {
+                if (intent.getExtras().containsKey(Constants.IntentExtra.REFRESH_CHALLENGE_LIST)) {
+                    createAllListViews(getView());
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+        getActivity().registerReceiver(mBroadcastReceiver, filter);
+    }
+
+    @Override
+    public void onDestroyView() {
+        getActivity().unregisterReceiver(mBroadcastReceiver);
+        super.onDestroyView();
     }
 }

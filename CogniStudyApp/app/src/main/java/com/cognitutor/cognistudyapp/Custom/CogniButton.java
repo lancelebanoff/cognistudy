@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.Button;
@@ -15,17 +16,26 @@ public class CogniButton extends Button {
 
     public CogniButton(Context context) {
         super(context);
-        setColor(context,R.color.colorPrimaryLight);
+        setColor(context);
     }
 
     public CogniButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setColor(context, R.color.colorPrimaryLight);
+        setColor(context);
     }
 
     public CogniButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        setColor(context, R.color.colorPrimaryLight);
+        setColor(context);
+    }
+
+    private void setColor(Context context) {
+        int currentApiVersion = Build.VERSION.SDK_INT;
+        if (currentApiVersion >= Build.VERSION_CODES.LOLLIPOP) {
+            setColor(context, R.color.colorPrimaryLight);
+        } else {
+            setColor(context, R.color.colorPrimary);
+        }
     }
 
     public void setColor(Context context, int color) {

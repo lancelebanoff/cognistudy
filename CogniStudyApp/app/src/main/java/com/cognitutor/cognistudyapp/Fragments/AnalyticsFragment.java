@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
@@ -76,7 +77,26 @@ public class AnalyticsFragment extends CogniFragment {
         mVsPieChart = (ViewSwitcher) getView().findViewById(R.id.vsPieChart);
         mRlDoubleBarChart = (RelativeLayout) getView().findViewById(R.id.rlDoubleBarChart);
 
-        getAndDisplayAnalytics();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Wait until challenges are done loading
+                while (!((MainActivity) getActivity()).challengesFinishedLoading) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getAndDisplayAnalytics();
+                    }
+                });
+            }
+        }).start();
     }
 
     private void initializeSpinners() {
