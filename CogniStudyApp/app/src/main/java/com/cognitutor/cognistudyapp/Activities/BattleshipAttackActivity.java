@@ -126,6 +126,12 @@ public class BattleshipAttackActivity extends CogniActivity {
 
     public void onClick_btnDone(View view) {
         mBattleshipBoardManager.saveGameBoard();
+
+        // Refresh Challenge list
+        Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+        refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+        sendBroadcast(refreshIntent);
+
         finish();
     }
 

@@ -3,16 +3,39 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/white"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/imgProfileRounded1"
+        android:layout_alignParentRight="true"
+        />
+
     <com.cognitutor.cognistudyapp.Custom.RoundedImageView
         android:id="@+id/imgProfileRounded1"
         android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"
         android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:layout_toLeftOf="@+id/txtScore"
         android:layout_alignParentTop="true"
         android:src="@drawable/default_profile_pic" />
+
+    <ImageView
+        android:id="@+id/imgProfilePicHalo1"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_toLeftOf="@+id/txtScore"
+        android:layout_alignParentTop="true"
+        android:visibility="invisible"
+        android:src="@drawable/profile_pic_halo" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,17 +43,28 @@
         android:id="@+id/txtScore"
         android:text="@string/blank_score"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_toLeftOf="@+id/imgProfileRounded2" />
+        android:layout_toLeftOf="@+id/imgProfileRounded2"
+        android:layout_centerVertical="true"/>
 
     <com.cognitutor.cognistudyapp.Custom.RoundedImageView
         android:id="@+id/imgProfileRounded2"
         android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"
         android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:src="@drawable/default_profile_pic" />
+
+    <ImageView
+        android:id="@+id/imgProfilePicHalo2"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:visibility="gone"
+        android:src="@drawable/profile_pic_halo" />
 
 </RelativeLayout>

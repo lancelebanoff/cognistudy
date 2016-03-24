@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
@@ -49,11 +49,15 @@ public class PracticeChallengeActivity extends CogniActivity {
         mCurrentUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
 
         mChallenge = Challenge.getChallenge(mChallengeId);
+
+        showOrHideButtons();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        showOrHideButtons();
     }
 
     @Override
@@ -62,17 +66,26 @@ public class PracticeChallengeActivity extends CogniActivity {
         setButtonSizes();
     }
 
+    private void showOrHideButtons() {
+        if (mChallenge.getHasEnded()) {
+            CogniImageButton btnResign = (CogniImageButton) findViewById(R.id.btnResign);
+            btnResign.setVisibility(View.INVISIBLE);
+            CogniButton btnYourTurn = (CogniButton) findViewById(R.id.btnYourTurn);
+            btnYourTurn.setVisibility(View.INVISIBLE);
+        }
+    }
+
     private void setButtonSizes() {
+        CogniButton btnYourTurn = (CogniButton) findViewById(R.id.btnYourTurn);
         CogniImageButton btnResign = (CogniImageButton) findViewById(R.id.btnResign);
         CogniImageButton btnQuestionHistory = (CogniImageButton) findViewById(R.id.btnQuestionHistory);
         CogniImageButton btnChallengeAnalytics = (CogniImageButton) findViewById(R.id.btnChallengeAnalytics);
+        int buttonWidth = btnResign.getWidth();
 
-        CogniButton btnYourTurn = (CogniButton) findViewById(R.id.btnYourTurn);
-        int buttonHeight = btnYourTurn.getHeight();
-
-        btnResign.setLayoutParams(new LinearLayout.LayoutParams(buttonHeight, buttonHeight));
-        btnQuestionHistory.setLayoutParams(new LinearLayout.LayoutParams(buttonHeight, buttonHeight));
-        btnChallengeAnalytics.setLayoutParams(new LinearLayout.LayoutParams(buttonHeight, buttonHeight));
+        btnYourTurn.setLayoutParams(new LinearLayout.LayoutParams(btnYourTurn.getWidth(), buttonWidth));
+        btnResign.setLayoutParams(new LinearLayout.LayoutParams(buttonWidth, buttonWidth));
+        btnQuestionHistory.setLayoutParams(new LinearLayout.LayoutParams(buttonWidth, buttonWidth));
+        btnChallengeAnalytics.setLayoutParams(new LinearLayout.LayoutParams(buttonWidth, buttonWidth));
     }
 
     public void onClick_btnResign(View view) {
@@ -83,22 +96,33 @@ public class PracticeChallengeActivity extends CogniActivity {
                 .setPositiveButton(R.string.yes_dialog_cancel_challenge, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         quitChallenge();
-                        Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
-                        btnYourTurn.setVisibility(View.INVISIBLE);
+                        finish();
                     }
                 }).create().show();
     }
 
     private void quitChallenge() {
+        final Activity activity = this;
         mChallenge.setHasEnded(true);
         mChallenge.setEndDate(new Date());
-        mChallenge.saveInBackground();
+        mChallenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                // Refresh Challenge list
+                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+                if (activity != null) {
+                    activity.sendBroadcast(refreshIntent);
+                }
+                return null;
+            }
+        });
     }
 
     public void onClick_btnYourTurn(View view) {
         int quesAnsThisTurn = mChallenge.getQuesAnsThisTurn();
         List<String> questionIds = mChallenge.getThisTurnQuestionIds();
-        if (questionIds != null) {
+        if (questionIds != null && questionIds.size() > 0) {
             navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
         } else {
             chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?

@@ -181,6 +181,7 @@ public abstract class StudentBlockStats extends ParseObject{
                         List<ParseObject> found = instance.getRelationQuery(student).find();
                         blockStatsToPin.addAll(found);
                     } catch (ParseException e) {
+                        e.printStackTrace();
                     }
                 }
                 ParseObject.pinAllInBackground(Constants.PinNames.BlockStats, blockStatsToPin).waitForCompletion();

@@ -24,6 +24,8 @@ import com.cognitutor.cognistudyapp.R;
 
 public class MainActivity extends AuthenticationActivity {
 
+    public boolean challengesFinishedLoading = false;
+
     private final String TAG = "MainActivity";
     private Activity mActivity = this;
     private CogniViewPager mViewPager;

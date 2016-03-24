@@ -3,7 +3,6 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
@@ -50,11 +49,24 @@ public class UserUtils {
                 .include(PublicUserData.Columns.student + "." + Student.Columns.privateStudentData + "." + PrivateStudentData.Columns.friends)
                 .getFirst();
 //        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
-        tasks.add(publicUserData.pinInBackground(Constants.PinNames.CurrentUser));
-        Student student = publicUserData.getStudent();
-        tasks.add(pinRollingStatsInBackground(student));
-        tasks.add(StudentBlockStats.pinAllBlockStatsInBackground(student));
-        return Task.whenAll(tasks);
+        final Student student = publicUserData.getStudent();
+        return publicUserData.pinInBackground(Constants.PinNames.CurrentUser).continueWithTask(new Continuation<Void, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Void> task) {
+                if (task.getError() != null) {
+                    task.getError().printStackTrace();
+                }
+                return pinRollingStatsInBackground(student);
+            }
+        }).continueWithTask(new Continuation<Void, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Void> task) throws Exception {
+                if (task.getError() != null) {
+                    task.getError().printStackTrace();
+                }
+                return StudentBlockStats.pinAllBlockStatsInBackground(student);
+            }
+        });
     }
 
     private static Task<Void> pinRollingStatsInBackground(final Student student) {

@@ -9,15 +9,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
+import com.cognitutor.cognistudyapp.Custom.CogniImageButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
@@ -56,6 +62,7 @@ public class ChallengeActivity extends CogniActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
+        hideActionBar();
         mIntent = getIntent();
         initializeBroadcastReceiver();
 
@@ -67,19 +74,19 @@ public class ChallengeActivity extends CogniActivity {
         mChallenge = Challenge.getChallenge(mChallengeId);
         initializeBoard(mViewingUser1or2);
 
-        showOrHideYourTurnButton();
+        showOrHideButtons();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        showOrHideYourTurnButton();
+        showOrHideButtons();
     }
 
     private void initializeBoard(final int viewingUser1or2) {
 
-        hideSwitchViewButton();
+        showLoading();
 
         ChallengeUtils.initializeBattleshipBoardManager(this, mChallengeId, mCurrentUser1or2, viewingUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
@@ -91,7 +98,7 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
-                                showSwitchViewButton();
+                                showLoadingDone();
                                 if (!mScoresHaveBeenLoaded) {
                                     showScores();
                                     showProfilePictures();
@@ -105,17 +112,27 @@ public class ChallengeActivity extends CogniActivity {
                 });
     }
 
-    private void showSwitchViewButton() {
+    private void showLoadingDone() {
         ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
         btnSwitch.setVisibility(View.VISIBLE);
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBarSmall);
+        progressBar.setVisibility(View.GONE);
+        RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlGridLayoutHolder);
+        rlContent.setVisibility(View.VISIBLE);
     }
 
-    private void hideSwitchViewButton() {
+    private void showLoading() {
         ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
         btnSwitch.setVisibility(View.INVISIBLE);
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBarSmall);
+        progressBar.setVisibility(View.VISIBLE);
+        RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlGridLayoutHolder);
+        rlContent.setVisibility(View.INVISIBLE);
     }
 
-    private void showOrHideYourTurnButton() {
+    private void showOrHideButtons() {
         String currentUserId = ParseUser.getCurrentUser().getObjectId();
         boolean isCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
@@ -123,6 +140,11 @@ public class ChallengeActivity extends CogniActivity {
             btnYourTurn.setVisibility(View.VISIBLE);
         } else {
             btnYourTurn.setVisibility(View.INVISIBLE);
+        }
+
+        if (mChallenge.getHasEnded()) {
+            CogniImageButton btnResign = (CogniImageButton) findViewById(R.id.btnResign);
+            btnResign.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -133,7 +155,7 @@ public class ChallengeActivity extends CogniActivity {
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(viewingUser1or2 == mCurrentUser1or2) {
+                if(viewingUser1or2 == mCurrentUser1or2 || mChallenge.getHasEnded()) {
                     mBattleshipBoardManager.drawShips();
                 }
                 else {
@@ -154,6 +176,11 @@ public class ChallengeActivity extends CogniActivity {
             }
         });
 
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+        RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        rlContent.setVisibility(View.VISIBLE);
+
         mAnimationsGridLayout = (GridLayout) findViewById(R.id.animationsGridLayout);
         mBattleshipBoardManager.setAnimationsGridLayout(mAnimationsGridLayout);
         observer = mAnimationsGridLayout.getViewTreeObserver();
@@ -170,7 +197,8 @@ public class ChallengeActivity extends CogniActivity {
     private void showScores() {
         TextView txtScore = (TextView) findViewById(R.id.txtScore);
         int[] scores = mBattleshipBoardManager.getScores();
-        txtScore.setText(scores[0] + " - " + scores[1]);
+        txtScore.setText("  " + scores[0] + " - " + scores[1] + "  ");
+        txtScore.setGravity(Gravity.CENTER_VERTICAL);
     }
 
     private void showProfilePictures() {
@@ -178,7 +206,14 @@ public class ChallengeActivity extends CogniActivity {
         RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfileRounded1);
         RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfileRounded2);
         img1.setParseFile(parseFiles[0]);
-        img1.loadInBackground();
+        img1.loadInBackground().continueWith(new Continuation<byte[], Void>() {
+            @Override
+            public Void then(Task<byte[]> task) throws Exception {
+                ImageView imgHalo1 = (ImageView) findViewById(R.id.imgProfilePicHalo1);
+                imgHalo1.setVisibility(View.VISIBLE);
+                return null;
+            }
+        });
         img2.setParseFile(parseFiles[1]);
         img2.loadInBackground();
     }
@@ -188,6 +223,16 @@ public class ChallengeActivity extends CogniActivity {
 
         mViewingUser1or2 = mViewingUser1or2 == 1 ? 2 : 1;
         initializeBoard(mViewingUser1or2);
+
+        ImageView imgHalo1 = (ImageView) findViewById(R.id.imgProfilePicHalo1);
+        ImageView imgHalo2 = (ImageView) findViewById(R.id.imgProfilePicHalo2);
+        if (mViewingUser1or2 == mCurrentUser1or2) {
+            imgHalo1.setVisibility(View.VISIBLE);
+            imgHalo2.setVisibility(View.INVISIBLE);
+        } else {
+            imgHalo1.setVisibility(View.INVISIBLE);
+            imgHalo2.setVisibility(View.VISIBLE);
+        }
     }
 
     public void onClick_btnResign(View view) {
@@ -210,7 +255,7 @@ public class ChallengeActivity extends CogniActivity {
             navigateToBattleshipAttackActivity();
         } else {
             List<String> questionIds = mChallenge.getThisTurnQuestionIds();
-            if (questionIds != null) {
+            if (questionIds != null && questionIds.size() > 0) {
                 navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
             } else {
                 chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?
@@ -255,6 +300,13 @@ public class ChallengeActivity extends CogniActivity {
     public void navigateToChallengeAnalyticsActivity(View view) {
         Intent intent = new Intent(this, ChallengeAnalyticsActivity.class);
         startActivity(intent);
+    }
+
+    private void hideActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
