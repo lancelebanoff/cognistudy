@@ -37,9 +37,9 @@ class AuthenticationActivity extends CogniActivity {
 
         if(dest == MainActivity.class) {
             try {
-                UserUtils.pinCurrentUser().continueWithTask(new Continuation<Void, Task<Void>>() {
+                UserUtils.pinCurrentUser().continueWithTask(new Continuation<Object, Task<Void>>() {
                     @Override
-                    public Task<Void> then(Task<Void> task) throws Exception {
+                    public Task<Void> then(Task<Object> task) throws Exception {
                         doNavigate(dest, true);
                         return null;
                     }

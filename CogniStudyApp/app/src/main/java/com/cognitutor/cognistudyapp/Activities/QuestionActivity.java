@@ -21,8 +21,7 @@ import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
@@ -30,8 +29,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -61,6 +59,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     protected QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
     private Response mResponse = null;
+    private Bookmark mBookmark = null;
 
 //    protected abstract void addComponents();
 
@@ -72,13 +71,18 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
 
         listView = (ListView) findViewById(R.id.listView);
         addComponents();
-        avh.btnSetLatex.setOnClickListener(this);
+        setOnClickListeners();
         ClickableListItem.setQuestionAnswered(false);
         //TODO: Move this
         try {
-            loadResponse().waitForCompletion(); //If this is a past question
+            loadResponseAndBookmark().waitForCompletion(); //If this is a past question, mResponse will be loaded
         } catch (InterruptedException e) { e.printStackTrace(); }
         loadQuestion();
+        setBookmarkComponents();
+    }
+
+    public String getQuestionId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID);
     }
 
     public void loadQuestion() {
@@ -89,7 +93,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         }
 
         try {
-            String questionId = mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID);
+            String questionId = getQuestionId();
             mQuestion = Question.getQuestionWithContents(questionId);
             mQuestionWithoutContents = Question.getQuestionWithoutContents(questionId);
         } catch(ParseException e) { handleParseError(e); return; }
@@ -125,13 +129,8 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         if(mResponse != null) {
             showAnswer(isSelectedAnswerCorrect());
         }
-    }
 
-    private void applyResponseToQuestion() {
-        if(mResponse != null) {
-            answerAdapter.selectAnswer(mResponse.getSelectedAnswer());
-            showAnswer(isSelectedAnswerCorrect());
-        }
+//        SuggestedQuestion.createSuggestedQuestion(mQuestion); //TODO: DELETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
     public void loadingFinished() {
@@ -155,10 +154,48 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             case R.id.btnSetLatex:
                 setLatex();
                 break;
+            case R.id.vsBookmark:
+                ViewSwitcher viewSwitcher = avh.vsBookmark;
+                if(viewSwitcher.getCurrentView().getId() == R.id.ivDoBookmark) {
+                    doBookmark();
+                }
+                else {
+                    undoBookmark();
+                }
+                avh.vsBookmark.showNext();
+                break;
         }
     }
 
-    private Task<Object> loadResponse() {
+    private Task<Bookmark> doBookmark() {
+        final Bookmark bookmark = new Bookmark(mResponse);
+        return bookmark.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Bookmark>>() {
+            @Override
+            public Task<Bookmark> then(Task<ParseObject> task) throws Exception {
+                return ParseObjectUtils.saveThenPinWithObjectIdInBackground(bookmark)
+                        .continueWith(new Continuation<Void, Bookmark>() {
+                            @Override
+                            public Bookmark then(Task<Void> task) throws Exception {
+                                PrivateStudentData.addBookmarkAndSaveEventually(bookmark).waitForCompletion();
+                                mBookmark = bookmark;
+                                return bookmark;
+                            }
+                        });
+            }
+        });
+    }
+
+    private Task<Void> undoBookmark() {
+        ParseObject.unpinAllInBackground(mBookmark.getObjectId());
+        return mBookmark.deleteEventually();
+    }
+
+    private void setOnClickListeners() {
+        avh.btnSetLatex.setOnClickListener(this);
+        avh.vsBookmark.setOnClickListener(this);
+    }
+
+    private Task<Object> loadResponseAndBookmark() {
         final String responseId = getResponseId();
         if(responseId == null)
             return CommonUtils.getCompletionTask(null);
@@ -171,13 +208,43 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             @Override
             public Object then(Task<Response> task) throws Exception {
                 mResponse = task.getResult();
-                return null;
+                if (mResponse != null) {
+                    return loadBookmark();
+                } else {
+                    return null;
+                }
             }
         });
     }
 
     private String getResponseId() {
         return mIntent.getStringExtra(Constants.IntentExtra.RESPONSE_ID);
+    }
+
+    private Task<Object> loadBookmark() {
+        return Bookmark.getQueryWithResponseId(getResponseId())
+            .getFirstInBackground()
+            .continueWith(new Continuation<Bookmark, Object>() {
+                @Override
+                public Object then(Task<Bookmark> task) throws Exception {
+                    mBookmark = task.getResult();
+                    return null;
+                }
+            });
+    }
+
+    private void setBookmarkComponents() {
+        ViewSwitcher viewSwitcher = avh.vsBookmark;
+        if(mBookmark != null) {
+            if(viewSwitcher.getCurrentView().getId() == R.id.ivDoBookmark) {
+                viewSwitcher.showNext();
+            }
+        }
+        else {
+            if(viewSwitcher.getCurrentView().getId() == R.id.ivUndoBookmark) {
+                viewSwitcher.showNext();
+            }
+        }
     }
 
     private void addComponents() {
@@ -200,12 +267,6 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     private void setLatex() {
         String text = avh.txtModifyQuestion.getText().toString();
 //        avh.mvQuestion.setText(text);
-    }
-
-    public static void createNewQuestion() {
-
-        Question question = new Question(
-        );
     }
 
     protected boolean isSelectedAnswerCorrect() {
@@ -255,6 +316,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         private ViewGroup vgPostAnswer;
         private TextView txtCorrectIncorrect;
         private Button btnSubmit;
+        private ViewSwitcher vsBookmark;
 
         private ActivityViewHolder() {
             rlQuestionHeader = (RelativeLayout) findViewById(R.id.rlQuestionHeader);
@@ -267,6 +329,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
+            vsBookmark = (ViewSwitcher) findViewById(R.id.vsBookmark);
         }
 
         private void showLoading() {

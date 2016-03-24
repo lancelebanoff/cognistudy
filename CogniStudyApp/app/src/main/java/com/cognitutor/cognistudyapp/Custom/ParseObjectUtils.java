@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
@@ -26,6 +27,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -147,6 +149,16 @@ public class ParseObjectUtils {
                     @Override
                     public Task<Void> then(Task<Void> task) throws Exception {
                         return pinInBackground(pinName, object);
+                    }
+                });
+    }
+
+    public static Task<Void> saveThenPinWithObjectIdInBackground(final ParseObject object) {
+        return object.saveInBackground()
+                .continueWithTask(new Continuation<Void, Task<Void>>() {
+                    @Override
+                    public Task<Void> then(Task<Void> task) throws Exception {
+                        return pinInBackground(object.getObjectId(), object);
                     }
                 });
     }
@@ -418,15 +430,31 @@ public class ParseObjectUtils {
                         for(String constant : constantPinNames) {
                             pinNames.add(constant);
                         }
-                        Challenge.getQuery().fromLocalDatastore().findInBackground().continueWith(new Continuation<List<Challenge>, Object>() {
-                            @Override
-                            public Object then(Task<List<Challenge>> task) throws Exception {
-                                for(Challenge challenge : task.getResult()) {
-                                    pinNames.add(challenge.getObjectId());
+
+                        List<Class<? extends ParseObject>> classesToUnpinWithObjectId = new ArrayList<>();
+                        classesToUnpinWithObjectId.add(Challenge.class);
+                        classesToUnpinWithObjectId.add(Bookmark.class);
+                        classesToUnpinWithObjectId.add(SuggestedQuestion.class);
+                        for(Class clazz : classesToUnpinWithObjectId) {
+                            ParseQuery.getQuery(clazz).fromLocalDatastore().findInBackground().continueWith(new Continuation<List<ParseObject>, Object>() {
+                                @Override
+                                public Object then(Task<List<ParseObject>> task) throws Exception {
+                                    for(ParseObject obj : task.getResult()) {
+                                        pinNames.add(obj.getObjectId());
+                                    }
+                                    return null;
                                 }
-                                return null;
-                            }
-                        }).waitForCompletion();
+                            }).waitForCompletion();
+                        }
+//                        Challenge.getQuery().fromLocalDatastore().findInBackground().continueWith(new Continuation<List<Challenge>, Object>() {
+//                            @Override
+//                            public Object then(Task<List<Challenge>> task) throws Exception {
+//                                for(Challenge challenge : task.getResult()) {
+//                                    pinNames.add(challenge.getObjectId());
+//                                }
+//                                return null;
+//                            }
+//                        }).waitForCompletion();
                         for (String pinName : pinNames) {
                             Log.d("pinName: ", pinName);
 //                        ParseObject.unpinAllInBackground(pinName);
@@ -549,6 +577,8 @@ public class ParseObjectUtils {
 //                classes.add(StudentTotalRollingStats.class);
                 classes.add(Challenge.class);
                 classes.add(Response.class);
+                classes.add(SuggestedQuestion.class);
+                classes.add(Bookmark.class);
                 classes.add(Question.class);
                 classes.add(QuestionContents.class);
 //                classes.add(StudentCategoryDayStats.class);
@@ -592,15 +622,23 @@ public class ParseObjectUtils {
 
                 int actualNumPinned = 0;
                 for (Class clazz : classes) {
-                    ParseQuery query = ParseQuery.getQuery(clazz.getSimpleName())
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery(clazz.getSimpleName())
                             .fromLocalDatastore();
                     if(StudentBlockStats.class.isAssignableFrom(clazz)) {
                         query = query.orderByDescending(StudentBlockStats.SuperColumns.blockNum);
                     }
-                    List<ParseObject> objects;
+                    final List<ParseObject> objects = new ArrayList<>();
                     try {
-                        objects = query.find();
-                    } catch (ParseException e) { objects = new ArrayList<>(); }
+                        query.findInBackground().continueWith(new Continuation<List<ParseObject>, Void>() {
+                            @Override
+                            public Void then(Task<List<ParseObject>> task) throws Exception {
+                                objects.addAll(task.getResult());
+                                return null;
+                            }
+                        }).waitForCompletion();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     int numPinned = objects.size();
                     Log.d("Line Break", " ");
                     Log.d("Num Pinned", clazz.getSimpleName() + " = " + numPinned);

@@ -1,7 +1,9 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 /**
  * Created by Kevin on 3/23/2016.
@@ -17,8 +19,14 @@ public class Bookmark extends QuestionMetaObject {
 
     public Bookmark() {}
 
+    public Bookmark(Response response) {
+        put(Columns.response, response);
+        put(Columns.baseUserId, UserUtils.getCurrentUserId());
+    }
+
     public Response getResponse() { return (Response) getParseObject(Columns.response); }
     public Question getQuestion() { return ((Response) getParseObject(Columns.response)).getQuestion(); }
+    public static ParseQuery<Bookmark> getQuery() { return ParseQuery.getQuery(Bookmark.class); }
 
     @Override
     public String getSubject() {
@@ -43,5 +51,13 @@ public class Bookmark extends QuestionMetaObject {
     @Override
     public String getResponseId() {
         return getResponse().getObjectId();
+    }
+
+    public static ParseQuery<Bookmark> getQueryWithResponseId(String responseId) {
+        ParseQuery<Response> innerQuery = Response.getQuery().whereEqualTo("objectId", responseId);
+        return Bookmark.getQuery()
+                .fromLocalDatastore()
+                .include(Bookmark.Columns.response)
+                .whereMatchesQuery(Bookmark.Columns.response, innerQuery);
     }
 }

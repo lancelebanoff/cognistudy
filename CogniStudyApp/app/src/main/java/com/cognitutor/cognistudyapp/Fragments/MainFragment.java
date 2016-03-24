@@ -154,7 +154,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             Challenge challenge = (Challenge) obj;
             final String challengeId = challenge.getObjectId();
             ParseRelation<Response> responseRelation = challenge.getCurUserChallengeUserData().getResponses();
-            responseRelation.getQuery().findInBackground().continueWith(new Continuation<List<Response>, Object>() {
+            responseRelation.getQuery()
+                .include(Response.Columns.question)
+                .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
                 @Override
                 public Object then(Task<List<Response>> task) throws Exception {
                     Log.d("pinning challenge " + challengeId, task.getResult().size() + " questions in relation");

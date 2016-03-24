@@ -1,8 +1,13 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import android.util.Log;
+
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Kevin on 3/17/2016.
@@ -52,6 +57,34 @@ public class SuggestedQuestion extends QuestionMetaObject {
     }
 
     public SuggestedQuestion() {}
+
+    //For testing only
+    public SuggestedQuestion(final Question question) {
+        put(Columns.question, question);
+    }
+    public static Task<Object> createSuggestedQuestion(final Question question) {
+        final SuggestedQuestion suggestedQuestion = new SuggestedQuestion(question);
+        return suggestedQuestion.saveInBackground().continueWith(new Continuation<Void, Object>() {
+            @Override
+            public Object then(Task<Void> task) throws Exception {
+                if(task.isFaulted()) {
+                    task.getError().printStackTrace();
+                    Log.e("Error in createSuggestedQuestion", task.getError().getMessage());
+                }
+                PrivateStudentData.getPrivateStudentData().getRelation("blah").add(suggestedQuestion);
+                return PrivateStudentData.getPrivateStudentData().saveInBackground().continueWith(new Continuation<Void, Object>() {
+                    @Override
+                    public Object then(Task<Void> task) throws Exception {
+                        if(task.isFaulted()) {
+                            task.getError().printStackTrace();
+                            Log.e("Error in createSuggestedQuestion", task.getError().getMessage());
+                        }
+                        return null;
+                    }
+                });
+            }
+        });
+    }
 
     public Question getQuestion() { return (Question) getParseObject(Columns.question); }
     public Response getResponse() { return (Response) getParseObject(Columns.response); }
