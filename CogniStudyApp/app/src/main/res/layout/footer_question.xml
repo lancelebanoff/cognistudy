@@ -36,6 +36,13 @@
             auto:text="explanation here" >
         </io.github.kexanie.library.MathView>
 
+        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Bookmark"
+            android:drawableLeft="@drawable/icon_bookmarks"/>
+
         <ViewSwitcher
             android:id="@+id/vsBookmark"
             android:layout_below="@id/mvExplanation"
