@@ -96,8 +96,8 @@ public class ChallengeUserData extends ParseObject {
         put(Columns.categories, categories);
     }
 
-    public Task<Void> addResponseAndSaveEventually(Response response) {
+    public void addResponseAndSaveEventually(Response response) {
         getResponses().add(response);
-        return saveEventually();
+        saveEventually();
     }
 }

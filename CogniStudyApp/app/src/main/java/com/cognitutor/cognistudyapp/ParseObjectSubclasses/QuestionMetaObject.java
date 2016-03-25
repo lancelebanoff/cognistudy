@@ -21,9 +21,17 @@ public abstract class QuestionMetaObject extends ParseObject{
         return getCreatedAt();
     }
 
+    //Not all QuestionMetaObject subclasses have all of these columns
+    public class Columns {
+        public static final String createdAt = "createdAt";
+        public static final String response = "response";
+        public static final String question = "question";
+    }
+
     public static ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(Class<? extends QuestionMetaObject> clazz,
                                                                             String challengeId, String subject, String category) {
         ParseQuery<QuestionMetaObject> query = getMetaQuery(clazz);
+        query.orderByDescending(Columns.createdAt);
 
         if(challengeId != null) {
             query.fromPin(challengeId);
@@ -59,10 +67,10 @@ public abstract class QuestionMetaObject extends ParseObject{
 
         if(includeQuestionQuery) {
             if(includeResponseQuery) {
-                query.whereMatchesQuery("response", responseQuery);
+                query.whereMatchesQuery(Columns.response, responseQuery);
             }
             else {
-                query.whereMatchesQuery("question", questionQuery);
+                query.whereMatchesQuery(Columns.question, questionQuery);
             }
         }
         return query;

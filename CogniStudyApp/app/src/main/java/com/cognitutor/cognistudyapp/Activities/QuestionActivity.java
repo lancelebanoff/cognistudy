@@ -60,7 +60,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     protected Question mQuestionWithoutContents;
     protected QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
-    private Response mResponse = null;
+    protected Response mResponse = null;
     private Bookmark mBookmark = null;
 
 //    protected abstract void addComponents();

@@ -39,27 +39,25 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         }
         int firstChangedIdx = Integer.MAX_VALUE;
         int idx = 0;
-        Iterator<T> oldIterator = oldObjects.iterator();
-        while(oldIterator.hasNext()) {
-            T oldObj = oldIterator.next();
-            if(oldObj == null)
-                break;
-            boolean found = false;
-            Iterator<T> newIterator = list.iterator();
-            while(newIterator.hasNext()) {
-                T newObj = newIterator.next();
-                if(oldObj.getObjectId().equals(newObj.getObjectId())) {
-                    found = true;
-                    list.remove(newObj);
-                    break;
-                }
-            }
-            if(!found) {
-                firstChangedIdx = Math.min(firstChangedIdx, idx);
-                mItems.remove(oldObj);
-            }
-            idx++;
+
+        ConcurrentLinkedQueue<T> newObjects = new ConcurrentLinkedQueue<>();
+        for(T newObject : list) {
+            newObjects.add(newObject);
         }
+        Iterator<T> newIterator = newObjects.iterator();
+        int oldIdx = 0;
+        while(newIterator.hasNext() && oldIdx < mItems.size()) {
+            T newObj = newIterator.next();
+            T oldObj = mItems.get(oldIdx);
+            if(!oldObj.getObjectId().equals(newObj.getObjectId())) {
+                firstChangedIdx = oldIdx;
+                break;
+            }
+            oldObjects.remove(oldObj);
+            list.remove(newObj);
+            oldIdx++;
+        }
+        mItems.removeAll(oldObjects);
         mItems.addAll(list);
         int newNumItems = mItems.size();
         if(firstChangedIdx < Math.min(oldNumItems, newNumItems))

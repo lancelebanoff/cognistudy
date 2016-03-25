@@ -8,6 +8,7 @@ import android.widget.ViewSwitcher;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
@@ -39,8 +40,9 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
         return doCreateResponse(isSelectedAnswerCorrect, mChallenge.getObjectId()).continueWithTask(new Continuation<Response, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Response> task) throws Exception {
-                Response response = task.getResult();
-                return mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(response);
+                mResponse = task.getResult();
+                mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(mResponse);
+                return null;
             }
         });
     }

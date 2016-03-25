@@ -42,12 +42,21 @@ public abstract class AnswerableQuestionActivity extends QuestionActivity {
 
     public void showAnswerAndIncrementAnalytics(View view) {
 
-        boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
-        showAnswer(isSelectedAnswerCorrect);
-
+        final boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
         //Response and analytics
         incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
-        createResponse(isSelectedAnswerCorrect);
+        createResponse(isSelectedAnswerCorrect).continueWith(new Continuation<Void, Object>() {
+            @Override
+            public Object then(Task<Void> task) throws Exception {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showAnswer(isSelectedAnswerCorrect);
+                    }
+                });
+                return null;
+            }
+        });
     }
 
     protected void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
