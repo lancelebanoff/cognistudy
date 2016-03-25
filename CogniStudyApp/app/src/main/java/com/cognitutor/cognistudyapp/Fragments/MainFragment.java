@@ -19,7 +19,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
-import com.cognitutor.cognistudyapp.Activities.ChallengeQuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;

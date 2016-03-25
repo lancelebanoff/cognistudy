@@ -248,7 +248,10 @@ public class Challenge extends ParseObject {
         final Capture<String> user2BaseUserId = new Capture<>();
         try {
             getChallengeUserDataBaseUserId(getUser1Data(), user1BaseUserId).waitForCompletion();
-            getChallengeUserDataBaseUserId(getUser2Data(), user2BaseUserId).waitForCompletion();
+            ChallengeUserData user2Data = getUser2Data();
+            if (user2Data != null) {
+                getChallengeUserDataBaseUserId(getUser2Data(), user2BaseUserId).waitForCompletion();
+            }
         } catch (InterruptedException e) { e.printStackTrace(); }
         String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
         if (user1BaseUserId.get().equals(currentUserBaseUserId)) {
