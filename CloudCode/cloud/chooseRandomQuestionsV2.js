@@ -146,6 +146,10 @@ function getRandomQuestion(category, fetchedAnsQuesIds, additionalQuestionIds, s
 
 	var singleQuestionIds = fetchedAnsQuesIds.get("singleQuestionIds");
 	var bundleQuestionIds = fetchedAnsQuesIds.get("bundleQuestionIds");
+	if(singleQuestionIds == undefined)
+		singleQuestionIds = [];
+	if(bundleQuestionIds == undefined)
+		bundleQuestionIds = [];
 	console.log("Printing bundleQuestionIds");
 	printAnsweredQuestionIds(bundleQuestionIds);
 	console.log("Printing singleQuestionIds");

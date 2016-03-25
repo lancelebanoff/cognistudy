@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
@@ -32,6 +33,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalDayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -88,6 +90,7 @@ public class App extends Application {
 
     private void registerSubclasses() {
         ParseObject.registerSubclass(Achievement.class);
+        ParseObject.registerSubclass(Bookmark.class);
         ParseObject.registerSubclass(PrivateStudentData.class);
         ParseObject.registerSubclass(PublicUserData.class);
         ParseObject.registerSubclass(Student.class);
@@ -114,6 +117,7 @@ public class App extends Application {
         ParseObject.registerSubclass(StudentTotalTridayStats.class);
         ParseObject.registerSubclass(StudentTotalMonthStats.class);
         ParseObject.registerSubclass(PinnedObject.class);
+        ParseObject.registerSubclass(SuggestedQuestion.class);
     }
 }
 

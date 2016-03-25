@@ -80,8 +80,8 @@
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activities.QuestionActivity"
-            android:label="@string/title_activity_question"
+            android:name=".Activities.ChallengeQuestionActivity"
+            android:label="@string/title_activity_challenge_question"
             android:parentActivityName=".Activities.ChallengeActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -98,6 +98,12 @@
             android:name=".Activities.PastQuestionActivity"
             android:label="@string/title_activity_past_question"
             android:parentActivityName=".Activities.QuestionHistoryActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".Activities.BookmarkedQuestionActivity"
+            android:label="@string/title_activity_past_question"
+            android:parentActivityName=".Activities.BookmarksListActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
@@ -119,13 +125,13 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".Activities.SuggestedQuestionsActivity"
+            android:name=".Activities.SuggestedQuestionsListActivity"
             android:label="@string/title_activity_suggested_questions"
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".Activities.BookmarksActivity"
+            android:name=".Activities.BookmarksListActivity"
             android:label="@string/title_activity_bookmarks"
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" >
