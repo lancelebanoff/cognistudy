@@ -219,7 +219,7 @@ public class AnalyticsFragment extends CogniFragment {
 
                 // Double bar chart values
                 int[][] doubleBarValues = getDoubleBarValues(Constants.Analytics.TestSectionType.OVERALL,
-                        blockType, numBlocks, baseUserId);
+                        blockType, numBlocks, baseUserId, null);
 
                 AnalyticsData analyticsData = new AnalyticsData(
                         rollingDateRange, pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
@@ -268,7 +268,7 @@ public class AnalyticsFragment extends CogniFragment {
 
                 // Double bar chart values
                 int[][] doubleBarValues = getDoubleBarValues(Constants.Analytics.TestSectionType.SUBJECT,
-                        blockType, numBlocks, baseUserId);
+                        blockType, numBlocks, baseUserId, subject);
 
                 AnalyticsData analyticsData = new AnalyticsData(
                         rollingDateRange, pieLabel, pieValues, barLabels, barValues, doubleBarLabels, doubleBarValues
@@ -315,7 +315,7 @@ public class AnalyticsFragment extends CogniFragment {
         return doubleBarLabels;
     }
 
-    private int[][] getDoubleBarValues(String testSectionType, String blockType, int numBlocks, String baseUserId) {
+    private int[][] getDoubleBarValues(String testSectionType, String blockType, int numBlocks, String baseUserId, String subject) {
         int[][] doubleBarValues = new int[numBlocks][2];
         int maxBlockNum = 0, minBlockNum = 0;
 
@@ -341,7 +341,7 @@ public class AnalyticsFragment extends CogniFragment {
                     Class studentBlockStatsClass = Constants.Analytics.TestSectionTypeAndBlockTypeToStudentBlockStatsClass
                             .get(testSectionType, blockType);
                     StudentBlockStats studentBlockStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
-                            studentBlockStatsClass, baseUserId, blockNum);
+                            studentBlockStatsClass, baseUserId, blockNum, subject);
                     if (studentBlockStats != null) {
                         doubleBarValues[barIndex][0] = studentBlockStats.getCorrect();
                         doubleBarValues[barIndex][1] = studentBlockStats.getTotal();
@@ -364,7 +364,7 @@ public class AnalyticsFragment extends CogniFragment {
                     Class studentBlockStatsClass = Constants.Analytics.TestSectionTypeAndBlockTypeToStudentBlockStatsClass
                             .get(testSectionType, Constants.Analytics.BlockType.DAY);
                     StudentBlockStats subjectBlockStats = StudentBlockStats.getStudentBlockStatsByBlockNum(
-                            studentBlockStatsClass, baseUserId, blockNum);
+                            studentBlockStatsClass, baseUserId, blockNum, subject);
                     if (subjectBlockStats != null) {
                         doubleBarValues[barIndex][0] += subjectBlockStats.getCorrect();
                         doubleBarValues[barIndex][1] += subjectBlockStats.getTotal();
@@ -572,8 +572,8 @@ public class AnalyticsFragment extends CogniFragment {
 
         for (int i = 0; i < analyticsData.doubleBarCorrectAndTotalValues.length; i++) {
             int[] barValues = analyticsData.doubleBarCorrectAndTotalValues[i];
-            int correct = barValues[0];
-            int incorrect = barValues[1] - barValues[0];
+            float correct = (float) (barValues[0] + 0.01); // Add 0.01 to make sure that the number correct is hidden
+            float incorrect = barValues[1] - barValues[0];
             yVals.add(new BarEntry(new float[]{correct, incorrect}, i));
         }
 
