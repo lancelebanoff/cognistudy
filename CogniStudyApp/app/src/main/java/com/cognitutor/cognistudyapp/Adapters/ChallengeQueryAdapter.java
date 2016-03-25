@@ -15,6 +15,7 @@ import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.PracticeChallengeActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
@@ -269,42 +270,11 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
             calendarCurrentDate.setTime(currentDate);
 
             if(calendarCurrentDate.compareTo(calendarEndDate) < 0) { // If the end date hasn't come yet
-                String timeBetween = getTimeBetween(currentDate, endDate);
+                String timeBetween = DateUtils.getTimeBetween(currentDate, endDate);
                 txtDaysLeft.setText(timeBetween + " left to play");
             } else {
-                String timeBetween = getTimeBetween(endDate, currentDate);
+                String timeBetween = DateUtils.getTimeBetween(endDate, currentDate);
                 txtDaysLeft.setText(timeBetween + " ago");
-            }
-        }
-
-        public String getTimeBetween(Date startDate, Date endDate) {
-            final long secondsInMilli = 1000;
-            final long minutesInMilli = secondsInMilli * 60;
-            final long hoursInMilli = minutesInMilli * 60;
-            final long daysInMilli = hoursInMilli * 24;
-
-            long milliseconds = endDate.getTime() - startDate.getTime();
-            long days = milliseconds / daysInMilli;
-            long hours = milliseconds / hoursInMilli;
-            long minutes = milliseconds / minutesInMilli;
-            long seconds = milliseconds / secondsInMilli;
-
-            if (days > 1) {
-                return days + " days";
-            } else if (days == 1) {
-                return days + " day";
-            } else if (hours > 1) {
-                return hours + " hours";
-            } else if (hours == 1) {
-                return hours + " hour";
-            } else if (minutes > 1) {
-                return minutes + " minutes";
-            } else if (minutes == 1) {
-                return minutes + " minutes";
-            } else if (seconds > 1) {
-                return seconds + " seconds";
-            } else {
-                return "1 second";
             }
         }
     }

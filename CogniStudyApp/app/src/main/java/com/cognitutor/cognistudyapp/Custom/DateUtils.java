@@ -326,4 +326,35 @@ public class DateUtils {
         }
         return 1;
     }
+
+    public static String getTimeBetween(Date startDate, Date endDate) {
+        final long secondsInMilli = 1000;
+        final long minutesInMilli = secondsInMilli * 60;
+        final long hoursInMilli = minutesInMilli * 60;
+        final long daysInMilli = hoursInMilli * 24;
+
+        long milliseconds = endDate.getTime() - startDate.getTime();
+        long days = milliseconds / daysInMilli;
+        long hours = milliseconds / hoursInMilli;
+        long minutes = milliseconds / minutesInMilli;
+        long seconds = milliseconds / secondsInMilli;
+
+        if (days > 1) {
+            return days + " days";
+        } else if (days == 1) {
+            return days + " day";
+        } else if (hours > 1) {
+            return hours + " hours";
+        } else if (hours == 1) {
+            return hours + " hour";
+        } else if (minutes > 1) {
+            return minutes + " minutes";
+        } else if (minutes == 1) {
+            return minutes + " minute";
+        } else if (seconds > 1) {
+            return seconds + " seconds";
+        } else {
+            return "1 second";
+        }
+    }
 }

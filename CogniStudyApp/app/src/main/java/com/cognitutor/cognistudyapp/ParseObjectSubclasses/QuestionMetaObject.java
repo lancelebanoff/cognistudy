@@ -4,6 +4,8 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.Date;
+
 /**
  * Created by Kevin on 3/18/2016.
  */
@@ -15,8 +17,8 @@ public abstract class QuestionMetaObject extends ParseObject{
     public abstract String getQuestionId();
     public abstract String getResponseId();
 
-    public String getDate() {
-        return getCreatedAt().toString(); //TODO: Format?
+    public Date getDate() {
+        return getCreatedAt();
     }
 
     public static ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(Class<? extends QuestionMetaObject> clazz,

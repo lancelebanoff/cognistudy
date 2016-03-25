@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -97,6 +98,24 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     @Override
     public void onResume() {
         super.onResume();
+        int density = getResources().getDisplayMetrics().densityDpi;
+        String TAG = "Display size";
+        switch(density)
+        {
+            case DisplayMetrics.DENSITY_LOW:
+                Log.d(TAG, "LDPI");
+                break;
+            case DisplayMetrics.DENSITY_MEDIUM:
+                Log.d(TAG, "MDPI");
+                break;
+            case DisplayMetrics.DENSITY_HIGH:
+                Log.d(TAG, "HDPI");
+                break;
+            case DisplayMetrics.DENSITY_XHIGH:
+                Log.d(TAG, "XHDPI");
+                break;
+        }
+
 
 //        createAllListViews(getView());
     }
