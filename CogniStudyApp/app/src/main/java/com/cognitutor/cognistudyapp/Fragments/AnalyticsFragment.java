@@ -420,9 +420,10 @@ public class AnalyticsFragment extends CogniFragment {
 
     private void setPieChartData(AnalyticsData analyticsData) {
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-        for (int i = 0; i < analyticsData.pieCorrectAndTotalValues.length; i++) {
-            yVals1.add(new Entry((float) analyticsData.pieCorrectAndTotalValues[i], i));
-        }
+        int correct = analyticsData.pieCorrectAndTotalValues[0];
+        int incorrect = analyticsData.pieCorrectAndTotalValues[1] - correct;
+        yVals1.add(new Entry((float) incorrect, 0));
+        yVals1.add(new Entry((float) correct, 0));
 
         ArrayList<String> xVals = new ArrayList<String>();
         xVals.add("Incorrect" /* Incorrect */);

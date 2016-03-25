@@ -137,7 +137,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
                 if (calendarCurrentDate.compareTo(calendarEndDate) == 1) {
                     challenge.setHasEnded(true);
-                    challenge.setEndDate(new Date());
+                    challenge.setEndDate(calendarEndDate.getTime());
                     try {
                         challenge.save();
                     } catch (ParseException e) {
