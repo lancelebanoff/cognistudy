@@ -62,6 +62,11 @@ public class Question extends ParseObject {
             .get(questionId);
     }
 
+    public static Question getQuestionWithoutContents(String questionId) throws ParseException {
+        return Question.getQuery()
+                .get(questionId);
+    }
+
     public static Task<List<String>> chooseThreeQuestionIds(final Challenge challenge, int user1or2) {
         Task<List<String>> task = challenge.getChallengeUserData(user1or2).fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, List<String>>() {
                     @Override
@@ -170,5 +175,13 @@ public class Question extends ParseObject {
         QuestionContents contents = new QuestionContents(text, null, null, answers, 0, "Because it is");
         contents.put("test", true);
         return contents;
+    }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() +
+                " | questionContentsId: " + getQuestionContents().getObjectId() +
+                " | subject: " + getSubject() +
+                " | category: " + getCategory();
     }
 }

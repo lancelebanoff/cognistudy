@@ -17,7 +17,7 @@
         completions."
     </string>
     <string name="prompt_display_name">Display Name</string>
-    <string name="title_activity_question">Question</string>
+    <string name="title_activity_challenge_question">Question</string>
     <string name="title_activity_registration">Sign In</string>
     <string name="title_activity_new_challenge">New Challenge</string>
     <string name="title_activity_choose_board_configuration">Set Up Board</string>

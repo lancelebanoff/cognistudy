@@ -21,16 +21,20 @@ import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import org.apache.commons.io.IOUtils;
 
@@ -40,7 +44,7 @@ import bolts.Continuation;
 import bolts.Task;
 import io.github.kexanie.library.MathView;
 
-public class QuestionActivity extends CogniActivity implements View.OnClickListener {
+public abstract class QuestionActivity extends CogniActivity implements View.OnClickListener {
 
     /**
      * Extras:
@@ -48,15 +52,17 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
      *      CHALLENGE_ID: String
      *      USER1OR2: int
      */
-    private Intent mIntent;
+    protected Intent mIntent;
     private ListView listView;
     private ActivityViewHolder avh;
-    private Question mQuestion;
-    private QuestionContents mQuestionContents;
+    protected Question mQuestion;
+    protected Question mQuestionWithoutContents;
+    protected QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
-    private Challenge mChallenge = null;
-    private int mUser1or2;
-    private int mQuesAnsThisTurn = -1;
+    private Response mResponse = null;
+    private Bookmark mBookmark = null;
+
+//    protected abstract void addComponents();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,29 +70,39 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         setContentView(R.layout.activity_question);
         mIntent = getIntent();
 
-        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
         listView = (ListView) findViewById(R.id.listView);
         addComponents();
-        avh.btnSetLatex.setOnClickListener(this);
+        setOnClickListeners();
         ClickableListItem.setQuestionAnswered(false);
+        //TODO: Move this
+        try {
+            loadResponseAndBookmark().waitForCompletion(); //If this is a past question, mResponse will be loaded
+        } catch (InterruptedException e) { e.printStackTrace(); }
         loadQuestion();
+        setBookmarkComponents();
+    }
 
-        loadChallenge();
+    public String getQuestionId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID);
     }
 
     public void loadQuestion() {
 
-        try {
-            mQuestion = Question.getQuestionWithContents(mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID));
-        } catch(ParseException e) {
-            handleParseError(e);
-            return;
+        int selectedAnswer = -1;
+        if(mResponse != null) {
+            selectedAnswer = mResponse.getSelectedAnswer();
         }
+
+        try {
+            String questionId = getQuestionId();
+            mQuestion = Question.getQuestionWithContents(questionId);
+            mQuestionWithoutContents = Question.getQuestionWithoutContents(questionId);
+        } catch(ParseException e) { handleParseError(e); return; }
 
         mQuestionContents = mQuestion.getQuestionContents();
 
         List<String> answers = mQuestionContents.getAnswers();
-        answerAdapter = new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER); //TODO: Choose letter or roman
+        answerAdapter = new AnswerAdapter(this, answers, Constants.AnswerLabelType.LETTER, selectedAnswer); //TODO: Choose letter or roman
         listView.setAdapter(answerAdapter);
 
         avh.mvQuestion.setWebViewClient(new WebViewClient() {
@@ -114,13 +130,12 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             }
             avh.wvPassage.loadData(buildPassageHtml(bundle.getPassageText()), "text/html", "UTF-8");
         }
-//        avh.wvPassage.loadData(
-//                "<html><body>" +
-//                        "You scored <u>192</u> points." +
-//                        "</body></html>",
-//                "text/html",
-//                "UTF-8"
-//        );
+
+        if(mResponse != null) {
+            showAnswer(isSelectedAnswerCorrect());
+        }
+
+//        SuggestedQuestion.createSuggestedQuestion(mQuestion); //TODO: DELETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
     public void loadingFinished() {
@@ -144,24 +159,97 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             case R.id.btnSetLatex:
                 setLatex();
                 break;
+            case R.id.vsBookmark:
+                ViewSwitcher viewSwitcher = avh.vsBookmark;
+                if(viewSwitcher.getCurrentView().getId() == R.id.ivDoBookmark) {
+                    doBookmark();
+                }
+                else {
+                    undoBookmark();
+                }
+                avh.vsBookmark.showNext();
+                break;
         }
     }
 
-    private void loadChallenge() {
-        String challengeId = getChallengeId();
-        Challenge.getChallengeInBackground(challengeId)
-                .continueWith(new Continuation<Challenge, Void>() {
-                    @Override
-                    public Void then(Task<Challenge> task) throws Exception {
-                        mChallenge = task.getResult();
-
-                        return null;
-                    }
-                });
+    private Task<Bookmark> doBookmark() {
+        final Bookmark bookmark = new Bookmark(mResponse);
+        return bookmark.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Bookmark>>() {
+            @Override
+            public Task<Bookmark> then(Task<ParseObject> task) throws Exception {
+                return ParseObjectUtils.saveThenPinWithObjectIdInBackground(bookmark)
+                        .continueWith(new Continuation<Void, Bookmark>() {
+                            @Override
+                            public Bookmark then(Task<Void> task) throws Exception {
+                                PrivateStudentData.addBookmarkAndSaveEventually(bookmark).waitForCompletion();
+                                mBookmark = bookmark;
+                                return bookmark;
+                            }
+                        });
+            }
+        });
     }
 
-    private String getChallengeId() {
-        return mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+    private Task<Void> undoBookmark() {
+        ParseObject.unpinAllInBackground(mBookmark.getObjectId());
+        return mBookmark.deleteEventually();
+    }
+
+    private void setOnClickListeners() {
+        avh.btnSetLatex.setOnClickListener(this);
+        avh.vsBookmark.setOnClickListener(this);
+    }
+
+    private Task<Object> loadResponseAndBookmark() {
+        final String responseId = getResponseId();
+        if(responseId == null)
+            return CommonUtils.getCompletionTask(null);
+        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<Response>() {
+            @Override
+            public ParseQuery<Response> buildQuery() {
+                return Response.getQuery().whereEqualTo("objectId", responseId);
+            }
+        }).continueWith(new Continuation<Response, Object>() {
+            @Override
+            public Object then(Task<Response> task) throws Exception {
+                mResponse = task.getResult();
+                if (mResponse != null) {
+                    return loadBookmark();
+                } else {
+                    return null;
+                }
+            }
+        });
+    }
+
+    private String getResponseId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.RESPONSE_ID);
+    }
+
+    private Task<Object> loadBookmark() {
+        return Bookmark.getQueryWithResponseId(getResponseId())
+            .getFirstInBackground()
+            .continueWith(new Continuation<Bookmark, Object>() {
+                @Override
+                public Object then(Task<Bookmark> task) throws Exception {
+                    mBookmark = task.getResult();
+                    return null;
+                }
+            });
+    }
+
+    private void setBookmarkComponents() {
+        ViewSwitcher viewSwitcher = avh.vsBookmark;
+        if(mBookmark != null) {
+            if(viewSwitcher.getCurrentView().getId() == R.id.ivDoBookmark) {
+                viewSwitcher.showNext();
+            }
+        }
+        else {
+            if(viewSwitcher.getCurrentView().getId() == R.id.ivUndoBookmark) {
+                viewSwitcher.showNext();
+            }
+        }
     }
 
     private void addComponents() {
@@ -186,17 +274,11 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
 //        avh.mvQuestion.setText(text);
     }
 
-    public static void createNewQuestion() {
-
-        Question question = new Question(
-        );
-    }
-
-    private boolean isSelectedAnswerCorrect() {
+    protected boolean isSelectedAnswerCorrect() {
         return getSelectedAnswer() == getCorrectAnswer();
     }
 
-    private int getSelectedAnswer() {
+    protected int getSelectedAnswer() {
         return answerAdapter.getSelectedAnswer();
     }
 
@@ -204,9 +286,8 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         return mQuestionContents.getCorrectIdx();
     }
 
-    public void showAnswer(View view) {
+    protected void showAnswer(boolean isSelectedAnswerCorrect) {
 
-        boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
         if(isSelectedAnswerCorrect) {
             avh.txtCorrectIncorrect.setText("Correct!");
             avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.green));
@@ -221,135 +302,9 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.setVisibility(View.INVISIBLE);
-
-        createResponse(isSelectedAnswerCorrect);
-
-        incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
-
-        if(mChallenge != null)
-            incrementQuesAnsThisTurn(isSelectedAnswerCorrect);
     }
 
-    private void createResponse(boolean isSelectedAnswerCorrect) {
-        //TODO: Pin related objects
-        //TODO: Implement rating
-        final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
-        if(mChallenge != null) {
-            String pinName = getChallengeId();
-            ParseObjectUtils.pinThenSaveInBackground(pinName, response)
-                    .continueWith(new Continuation<Void, Object>() {
-                        @Override
-                        public Object then(Task<Void> task) throws Exception {
-                            PrivateStudentData.addResponse(response);
-                            return null;
-                        }
-                    });
-        }
-        else {
-            response.saveInBackground().continueWith(new Continuation<Void, Object>() {
-                @Override
-                public Object then(Task<Void> task) throws Exception {
-                    PrivateStudentData.addResponse(response);
-                    return null;
-                }
-            });
-        }
-    }
-
-    private void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
-        //TODO: wait for incrementAll to finish when necessary
-        StudentBlockStats.incrementAll(category, isSelectedAnswerCorrect);
-        StudentTRollingStats.incrementAllInBackground(mQuestion, category, isSelectedAnswerCorrect);
-    }
-
-    private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(mChallenge == null) {} // Wait until challenge is loaded
-
-                mQuesAnsThisTurn = mChallenge.incrementAndGetQuesAnsThisTurn();
-                if(isSelectedAnswerCorrect) {
-                    mChallenge.incrementCorrectAnsThisTurn();
-                }
-                if(mChallenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE) &&
-                        mChallenge.getQuesAnsThisTurn() == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
-                    mQuesAnsThisTurn = 0;
-                    mChallenge.setQuesAnsThisTurn(0);
-                    Question.chooseThreeQuestionIds(mChallenge, mUser1or2).onSuccess(new Continuation<List<String>, Void>() {
-                        @Override
-                        public Void then(Task<List<String>> task) throws Exception {
-                            saveChallengeAndShowButton();
-                            return null;
-                        }
-                    });
-                }
-                else {
-                    saveChallengeAndShowButton();
-                }
-            }
-        }).start();
-    }
-
-    private void saveChallengeAndShowButton() {
-        try {
-            mChallenge.save();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Switch Submit button to Continue button
-                ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-                viewSwitcher.setVisibility(View.VISIBLE);
-                viewSwitcher.showNext();
-            }
-        });
-    }
-
-    public void navigateToNextActivity(View view) {
-        String parentActivity = mIntent.getStringExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY);
-        switch(parentActivity) {
-            case Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY:
-                if(mQuesAnsThisTurn == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
-                    navigateToBattleshipAttackActivity();
-                } else {
-                    String questionId = mChallenge.getThisTurnQuestionIds().get(mQuesAnsThisTurn);
-                    navigateToNextQuestionActivity(questionId);
-                }
-                break;
-            case Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY:
-                navigateToParentActivity();
-                break;
-            case Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY:
-                navigateToParentActivity();
-                break;
-        }
-    }
-
-    private void navigateToParentActivity() {
-        finish();
-    }
-
-    private void navigateToNextQuestionActivity(String questionId) {
-        Intent intent = new Intent(this, QuestionActivity.class);
-        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
-        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
-//        fF4lsHt2iW
-//        eO4TCrdBdn
-        startActivity(intent);
-        finish();
-    }
-
-    private void navigateToBattleshipAttackActivity() {
-        Intent intent = new Intent(this, BattleshipAttackActivity.class);
-        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        startActivity(intent);
+    protected void navigateToParentActivity() {
         finish();
     }
 
@@ -368,6 +323,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
         private ViewGroup vgPostAnswer;
         private TextView txtCorrectIncorrect;
         private Button btnSubmit;
+        private ViewSwitcher vsBookmark;
 
         private ActivityViewHolder() {
             rlQuestionHeader = (LinearLayout) findViewById(R.id.rlQuestionHeader);
@@ -380,6 +336,7 @@ public class QuestionActivity extends CogniActivity implements View.OnClickListe
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
+            vsBookmark = (ViewSwitcher) findViewById(R.id.vsBookmark);
         }
 
         private void showLoading() {

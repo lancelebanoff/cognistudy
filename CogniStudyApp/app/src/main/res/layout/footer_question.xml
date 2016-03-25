@@ -36,6 +36,26 @@
             auto:text="explanation here" >
         </io.github.kexanie.library.MathView>
 
+        <ViewSwitcher
+            android:id="@+id/vsBookmark"
+            android:layout_below="@id/mvExplanation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/ivDoBookmark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_bookmarks"/>
+
+            <ImageView
+                android:id="@+id/ivUndoBookmark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_bookmarks_highlight" />
+
+        </ViewSwitcher>
+
     </RelativeLayout>
 
     <ViewSwitcher
@@ -43,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/vgPostAnswer"
         android:id="@+id/viewSwitcher"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true" >
 
         <com.cognitutor.cognistudyapp.Custom.CogniButton
@@ -52,7 +72,7 @@
             android:layout_height="wrap_content"
             android:text="Submit"
             android:id="@+id/btnSubmit"
-            android:onClick="showAnswer" />
+            android:onClick="showAnswerAndIncrementAnalytics" />
 
         <com.cognitutor.cognistudyapp.Custom.CogniButton
             android:layout_width="match_parent"

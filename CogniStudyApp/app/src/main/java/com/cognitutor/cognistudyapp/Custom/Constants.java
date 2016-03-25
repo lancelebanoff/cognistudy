@@ -168,6 +168,7 @@ public class Constants {
         public static final String FINISH_NEW_CHALLENGE_ACTIVITY = "FINISH_NEW_CHALLENGE_ACTIVITY";
         public static final String REFRESH_CHALLENGE_LIST = "REFRESH_CHALLENGE_LIST";
         public static final String CHALLENGE_ID = "CHALLENGE_ID";
+        public static final String RESPONSE_ID = "RESPONSE_ID";
         public static final String USER1OR2 = "USER1OR2";
 
         public static final String QUESTION_ID = "QUESTION_ID";
@@ -178,6 +179,8 @@ public class Constants {
             public static final String CHALLENGE_ACTIVITY = "CHALLENGE_ACTIVITY";
             public static final String SUGGESTED_QUESTIONS_ACTIVITY = "SUGGESTED_QUESTIONS_ACTIVITY";
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
+            public static final String QUESTION_HISTORY_ACTIVITY = "QUESTION_HISTORY_ACTIVITY";
+            public static final String BOOKMARKS_LIST_ACTIVITY = "BOOKMARKS_LIST_ACTIVITY";
         }
     }
 
@@ -238,6 +241,7 @@ public class Constants {
 
     public static class Subject {
         public static final String OVERALL = "Overall";
+        public static final String ALL_SUBJECTS = "All Subjects";
         public static final String READING = "Reading";
         public static final String MATH = "Math";
         public static final String ENGLISH = "English";
@@ -250,9 +254,14 @@ public class Constants {
         public static String[] getSubjectsPlusOverall() {
             return new String[] {OVERALL, READING, MATH, ENGLISH, SCIENCE} ;
         }
+
+        public static String[] getSubjectsPlusAll() {
+            return new String[] {ALL_SUBJECTS, READING, MATH, ENGLISH, SCIENCE} ;
+        }
     }
 
     public static class Category {
+        public static final String ALL_CATEGORIES = "All Categories";
         public static final String SOCIAL_STUDIES_SCIENCE = "Social Studies/Science";
         public static final String ARTS_LITERATURE = "Arts/Literature";
         public static final String PRE_ALGEBRA = "Pre-Algebra";
@@ -432,6 +441,12 @@ public class Constants {
     public static class RotationType {
         public static final String VERTICAL = "VERTICAL";
         public static final String HORIZONTAL = "HORIZONTAL";
+    }
+
+    public static class ResponseStatusType {
+        public static final String UNANSWERED = "Unanswered";
+        public static final String CORRECT = "Correct";
+        public static final String INCORRECT = "INCORRECT";
     }
 
     public static class ReviewStatusType {
