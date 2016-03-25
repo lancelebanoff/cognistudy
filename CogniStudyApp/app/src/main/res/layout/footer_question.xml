@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/vgPostAnswer"
         android:id="@+id/viewSwitcher"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true" >
 
         <com.cognitutor.cognistudyapp.Custom.CogniButton

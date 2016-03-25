@@ -51,11 +51,20 @@ public abstract class StudentBlockStats extends ParseObject{
         return new ParseQuery(getClass().getSimpleName());
     }
 
-    public static <T extends StudentBlockStats> T getStudentBlockStatsByBlockNum(final Class<T> clazz, final String baseUserId, final int blockNum) {
-        ParseQuery<T> query = ParseQuery.getQuery(clazz)
-                .whereEqualTo(SuperColumns.baseUserId, baseUserId)
-                .whereEqualTo(SuperColumns.blockNum, blockNum)
-                .fromLocalDatastore();
+    public static <T extends StudentBlockStats> T getStudentBlockStatsByBlockNum(final Class<T> clazz, final String baseUserId, final int blockNum, final String subject) {
+        ParseQuery<T> query;
+        if(subject != null && !subject.isEmpty()) {
+            query = ParseQuery.getQuery(clazz)
+                    .whereEqualTo(SuperColumns.baseUserId, baseUserId)
+                    .whereEqualTo(SuperColumns.blockNum, blockNum)
+                    .whereEqualTo(StudentSubjectBlockStats.Columns.subject, subject)
+                    .fromLocalDatastore();
+        } else {
+            query = ParseQuery.getQuery(clazz)
+                    .whereEqualTo(SuperColumns.baseUserId, baseUserId)
+                    .whereEqualTo(SuperColumns.blockNum, blockNum)
+                    .fromLocalDatastore();
+        }
         try {
             return query.getFirst();
         } catch (ParseException e) {

@@ -25,6 +25,7 @@ import com.parse.SaveCallback;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -371,6 +372,7 @@ public class NewChallengeActivity extends CogniActivity {
 
                 final String challengeType = getChallengeType();
                 final Challenge challenge = new Challenge(user1Data, challengeType);
+                challenge.setTimeLastPlayed(new Date());
                 return challenge.saveInBackground().continueWith(new Continuation<Void, Object>() {
                     @Override
                     public Object then(Task<Void> task) throws Exception {
