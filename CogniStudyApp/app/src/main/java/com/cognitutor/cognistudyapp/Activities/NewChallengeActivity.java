@@ -211,7 +211,7 @@ public class NewChallengeActivity extends CogniActivity {
             }
         }
         else {
-            CardView cvOpponent = (CardView) findViewById(R.id.llOpponent);
+            CardView cvOpponent = (CardView) findViewById(R.id.cvOpponent);
             cvOpponent.setVisibility(View.INVISIBLE);
 
 //            String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
