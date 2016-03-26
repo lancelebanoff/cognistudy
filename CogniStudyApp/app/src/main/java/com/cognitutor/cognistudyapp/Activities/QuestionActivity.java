@@ -62,6 +62,11 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     private AnswerAdapter answerAdapter;
     protected Response mResponse = null;
     private Bookmark mBookmark = null;
+    private BookmarkOption mBookmarkOption = BookmarkOption.DO_NOTHING;
+
+    enum BookmarkOption {
+        DO_NOTHING, DO_BOOKMARK, UNDO_BOOKMARK
+    }
 
 //    protected abstract void addComponents();
 
@@ -81,6 +86,12 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         } catch (InterruptedException e) { e.printStackTrace(); }
         loadQuestion();
         setBookmarkComponents();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        doOrUndoBookmark();
     }
 
     public String getQuestionId() {
@@ -163,6 +174,14 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         }
     }
 
+    private void doOrUndoBookmark() {
+        if (mBookmarkOption == BookmarkOption.DO_BOOKMARK) {
+            doBookmark();
+        } else if (mBookmarkOption == BookmarkOption.UNDO_BOOKMARK) {
+            undoBookmark();
+        }
+    }
+
     private Task<Bookmark> doBookmark() {
         final Bookmark bookmark = new Bookmark(mResponse);
         return bookmark.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Bookmark>>() {
@@ -196,11 +215,14 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             @Override
             public void onClick(View v) {
                 CogniCheckBox cbBookmark = avh.cbBookmark;
-                if(cbBookmark.isChecked()) {
-                    doBookmark();
+                if(cbBookmark.isChecked() && mBookmark == null) {
+                    mBookmarkOption = BookmarkOption.DO_BOOKMARK;
+                }
+                else if(!cbBookmark.isChecked() && mBookmark != null) {
+                    mBookmarkOption = BookmarkOption.UNDO_BOOKMARK;
                 }
                 else {
-                    undoBookmark();
+                    mBookmarkOption = BookmarkOption.DO_NOTHING;
                 }
             }
         };

@@ -43,20 +43,10 @@ public abstract class AnswerableQuestionActivity extends QuestionActivity {
     public void showAnswerAndIncrementAnalytics(View view) {
 
         final boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
+        showAnswer(isSelectedAnswerCorrect);
         //Response and analytics
         incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
-        createResponse(isSelectedAnswerCorrect).continueWith(new Continuation<Void, Object>() {
-            @Override
-            public Object then(Task<Void> task) throws Exception {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showAnswer(isSelectedAnswerCorrect);
-                    }
-                });
-                return null;
-            }
-        });
+        createResponse(isSelectedAnswerCorrect);
     }
 
     protected void incrementAnalytics(String category, boolean isSelectedAnswerCorrect) {
