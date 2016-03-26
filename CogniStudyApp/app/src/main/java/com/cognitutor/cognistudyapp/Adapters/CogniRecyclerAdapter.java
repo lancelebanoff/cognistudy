@@ -33,17 +33,11 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
     public void onDataLoaded(List<T> list) {
 
         int oldNumItems = mItems.size();
-        ConcurrentLinkedQueue<T> oldObjects = new ConcurrentLinkedQueue<>();
-        for(T oldObj : mItems) {
-            oldObjects.add(oldObj);
-        }
         int firstChangedIdx = Integer.MAX_VALUE;
         int idx = 0;
 
-        ConcurrentLinkedQueue<T> newObjects = new ConcurrentLinkedQueue<>();
-        for(T newObject : list) {
-            newObjects.add(newObject);
-        }
+        ConcurrentLinkedQueue<T> oldObjects = getConcurrentLinkedQueue(mItems);
+        ConcurrentLinkedQueue<T> newObjects = getConcurrentLinkedQueue(list);
         Iterator<T> newIterator = newObjects.iterator();
         int oldIdx = 0;
         while(newIterator.hasNext() && oldIdx < mItems.size()) {
@@ -68,5 +62,13 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         else if(oldNumItems > newNumItems) {
             notifyItemRangeRemoved(newNumItems, oldNumItems - newNumItems);
         }
+    }
+
+    private ConcurrentLinkedQueue<T> getConcurrentLinkedQueue(List<T> items) {
+        ConcurrentLinkedQueue<T> queue = new ConcurrentLinkedQueue<>();
+        for(T obj : items) {
+            queue.add(obj);
+        }
+        return queue;
     }
 }
