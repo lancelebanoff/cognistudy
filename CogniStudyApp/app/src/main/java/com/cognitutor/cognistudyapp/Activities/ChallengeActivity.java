@@ -286,8 +286,6 @@ public class ChallengeActivity extends CogniActivity {
         intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
         intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
         intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
-//        fF4lsHt2iW
-//        eO4TCrdBdn
         startActivity(intent);
     }
 

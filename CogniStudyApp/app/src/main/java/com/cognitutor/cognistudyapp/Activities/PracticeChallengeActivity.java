@@ -123,7 +123,7 @@ public class PracticeChallengeActivity extends CogniActivity {
         int quesAnsThisTurn = mChallenge.getQuesAnsThisTurn();
         List<String> questionIds = mChallenge.getThisTurnQuestionIds();
         if (questionIds != null && questionIds.size() > 0) {
-            navigateToQuestionActivity(questionIds.get(quesAnsThisTurn));
+            navigateToChallengeQuestionActivity(questionIds.get(quesAnsThisTurn));
         } else {
             chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?
         }
@@ -134,20 +134,18 @@ public class PracticeChallengeActivity extends CogniActivity {
             @Override
             public Void then(Task<List<String>> task) throws Exception {
                 List<String> questionIds = task.getResult();
-                navigateToQuestionActivity(questionIds.get(0));
+                navigateToChallengeQuestionActivity(questionIds.get(0));
                 return null;
             }
         });
     }
 
-    private void navigateToQuestionActivity(String questionId) {
-        Intent intent = new Intent(this, QuestionActivity.class);
+    private void navigateToChallengeQuestionActivity(String questionId) {
+        Intent intent = new Intent(this, ChallengeQuestionActivity.class);
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
         intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
         intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
         intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
-//        fF4lsHt2iW
-//        eO4TCrdBdn
         startActivity(intent);
     }
 
