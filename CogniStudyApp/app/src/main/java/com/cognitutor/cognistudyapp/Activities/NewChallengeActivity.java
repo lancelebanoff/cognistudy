@@ -4,12 +4,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.ViewSwitcher;
+import android.widget.ViewFlipper;
 
 import com.cognitutor.cognistudyapp.Custom.CogniCheckBox;
 import com.cognitutor.cognistudyapp.Custom.CogniRadioButton;
@@ -25,6 +26,7 @@ import com.parse.SaveCallback;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +48,7 @@ public class NewChallengeActivity extends CogniActivity {
     private ScrollView mSvCategories;
     private CogniRadioButton mRbDefaultTest;
     private CogniRadioButton mRbDefaultOpponent;
+    private ViewFlipper mViewFlipper;
 
     private String mSelectedTest;
     private HashSet<String> mSelectedSubjects;
@@ -67,6 +70,7 @@ public class NewChallengeActivity extends CogniActivity {
         mSvCategories = null;
         mRbDefaultTest = null;
         mRbDefaultOpponent = null;
+        mViewFlipper = (ViewFlipper) findViewById(R.id.viewSwitcher);
 
         mSelectedTest = "";
         mSelectedSubjects = new HashSet<>();
@@ -93,6 +97,7 @@ public class NewChallengeActivity extends CogniActivity {
                 @Override
                 public void onClick(View v) {
                     changeSelectedTest((CogniRadioButton) v);
+                    showOrHideNextButton();
                 }
             });
             radioButton.setText(testName);
@@ -129,6 +134,7 @@ public class NewChallengeActivity extends CogniActivity {
                 @Override
                 public void onClick(View view) {
                     addOrRemoveSelectedSubject((CogniCheckBox) view);
+                    showOrHideNextButton();
                 }
             });
             llSubjectRow.addView(checkBox);
@@ -159,6 +165,7 @@ public class NewChallengeActivity extends CogniActivity {
                     @Override
                     public void onClick(View v) {
                         addOrRemoveSelectedCategory((CheckBox) v);
+                        showOrHideNextButton();
                     }
                 });
                 checkBox.setText(subject + ": " + category);
@@ -171,10 +178,6 @@ public class NewChallengeActivity extends CogniActivity {
     private void displayOpponent() {
         int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
         if(user1or2 == 1) {
-            // Switch from opponent info to radio button to choose opponent
-            ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-            viewSwitcher.showNext();
-
             LinearLayout llOpponentsHolder = (LinearLayout) findViewById(R.id.llOpponentsHolder);
             LinearLayout llOpponentRow = null;
             CogniRadioGroup mRgOpponents = new CogniRadioGroup();
@@ -208,8 +211,8 @@ public class NewChallengeActivity extends CogniActivity {
             }
         }
         else {
-            LinearLayout llOpponent = (LinearLayout) findViewById(R.id.llOpponent);
-            llOpponent.setVisibility(View.INVISIBLE);
+            CardView cvOpponent = (CardView) findViewById(R.id.cvOpponent);
+            cvOpponent.setVisibility(View.INVISIBLE);
 
 //            String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
 //            Challenge.getChallengeInBackground(challengeId)
@@ -371,6 +374,7 @@ public class NewChallengeActivity extends CogniActivity {
 
                 final String challengeType = getChallengeType();
                 final Challenge challenge = new Challenge(user1Data, challengeType);
+                challenge.setTimeLastPlayed(new Date());
                 return challenge.saveInBackground().continueWith(new Continuation<Void, Object>() {
                     @Override
                     public Object then(Task<Void> task) throws Exception {
@@ -423,6 +427,14 @@ public class NewChallengeActivity extends CogniActivity {
                         return null;
                     }
                 });
+    }
+
+    private void showOrHideNextButton() {
+        if (mSelectedCategories.size() == 0 && mViewFlipper.getDisplayedChild() == 0) {
+            mViewFlipper.setDisplayedChild(1);
+        } else if (mSelectedCategories.size() > 0 && mViewFlipper.getDisplayedChild() == 1) {
+            mViewFlipper.setDisplayedChild(0);
+        }
     }
 
     private void navigateToPracticeChallengeActivity(String challengeId, int user1or2) {

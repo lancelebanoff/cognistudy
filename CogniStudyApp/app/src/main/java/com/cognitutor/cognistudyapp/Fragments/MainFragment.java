@@ -20,7 +20,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
-import com.cognitutor.cognistudyapp.Activities.ChallengeQuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -160,7 +159,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
                 if (calendarCurrentDate.compareTo(calendarEndDate) == 1) {
                     challenge.setHasEnded(true);
-                    challenge.setEndDate(new Date());
+                    challenge.setEndDate(calendarEndDate.getTime());
                     try {
                         challenge.save();
                     } catch (ParseException e) {
