@@ -18,7 +18,7 @@ import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
-import com.cognitutor.cognistudyapp.Custom.CogniCheckBox;
+import com.cognitutor.cognistudyapp.Custom.BookmarkButton;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
@@ -214,7 +214,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CogniCheckBox cbBookmark = avh.cbBookmark;
+                BookmarkButton cbBookmark = avh.cbBookmark;
                 if(cbBookmark.isChecked() && mBookmark == null) {
                     mBookmarkOption = BookmarkOption.DO_BOOKMARK;
                 }
@@ -267,7 +267,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     }
 
     private void setBookmarkComponents() {
-        CogniCheckBox cbBookmark = avh.cbBookmark;
+        BookmarkButton cbBookmark = avh.cbBookmark;
         boolean isBookmarked = mBookmark != null;
         boolean isChecked = cbBookmark.isChecked();
         if((isBookmarked && !isChecked) || (!isBookmarked && isChecked)) {
@@ -346,7 +346,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         private ViewGroup vgPostAnswer;
         private TextView txtCorrectIncorrect;
         private Button btnSubmit;
-        private CogniCheckBox cbBookmark;
+        private BookmarkButton cbBookmark;
 
         private ActivityViewHolder() {
             rlQuestionHeader = (LinearLayout) findViewById(R.id.rlQuestionHeader);
@@ -359,7 +359,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
-            cbBookmark = (CogniCheckBox) findViewById(R.id.cbBookmark);
+            cbBookmark = (BookmarkButton) findViewById(R.id.cbBookmark);
         }
 
         private void showLoading() {

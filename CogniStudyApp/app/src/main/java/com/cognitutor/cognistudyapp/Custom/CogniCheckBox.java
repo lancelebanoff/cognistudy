@@ -46,7 +46,7 @@ public class CogniCheckBox extends CogniButton {
         });
     }
 
-    private void switchChecked() {
+    protected void switchChecked() {
         checked = !checked;
         int color = checked ? R.color.green : R.color.colorPrimaryLight;
         setColor(getContext(), color);
