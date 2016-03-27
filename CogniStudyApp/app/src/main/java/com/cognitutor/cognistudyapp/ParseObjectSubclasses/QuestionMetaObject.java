@@ -79,4 +79,14 @@ public abstract class QuestionMetaObject extends ParseObject{
     private static ParseQuery<QuestionMetaObject> getMetaQuery(Class<? extends QuestionMetaObject> clazz) {
         return ParseQuery.getQuery(clazz.getSimpleName());
     }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() + " | " +
+                "questionId: " + getQuestionId() + " | " +
+                "responseId: " + getResponseId() + " | " +
+                "subject: " + getSubject() + " | " +
+                "category: " + getCategory() + " | " +
+                "status: " + getResponseStatus();
+    }
 }

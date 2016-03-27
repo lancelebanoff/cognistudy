@@ -47,6 +47,6 @@ public class QuestionContents extends ParseObject{
     @Override
     public String toString() {
         return "objectId: " + getObjectId() +
-                " | questionText: " + getQuestionText().substring(0, 50);
+                " | questionText: " + getQuestionText().substring(0, Math.min(50, getQuestionText().length()));
     }
 }
