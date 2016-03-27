@@ -7,6 +7,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
@@ -62,7 +63,15 @@ public class UserUtils {
                 if (task.getError() != null) {
                     task.getError().printStackTrace();
                 }
-                pinBookmarksInBackground();
+                //TODO: Remove logging
+                try {
+                    pinBookmarksInBackground().waitForCompletion();
+                    int num = ParseQuery.getQuery(QuestionContents.class).fromLocalDatastore().count();
+                    Log.d("num QuestionContents", String.valueOf(num));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return pinRollingStatsInBackground(student);
             }
         }).continueWithTask(new Continuation<Void, Task<Void>>() {

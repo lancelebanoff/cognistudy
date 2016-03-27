@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import android.util.Log;
+
 import com.cognitutor.cognistudyapp.Custom.Constants;
 
 import java.util.Arrays;
@@ -26,5 +28,11 @@ public class CommonUtils {
             }
         }
         return null;
+    }
+
+    public static void pinResponse(Response resonse) {
+        resonse.getQuestion().fetchIfNeededInBackground();
+        Log.d("Question available: ", String.valueOf(resonse.getQuestion().isDataAvailable()));
+        Log.d("Contents available: ", String.valueOf(resonse.getQuestion().getQuestionContents().isDataAvailable()));
     }
 }

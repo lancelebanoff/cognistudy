@@ -40,8 +40,8 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
         return doCreateResponse(isSelectedAnswerCorrect, mChallenge.getObjectId()).continueWithTask(new Continuation<Response, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Response> task) throws Exception {
-                mResponse = task.getResult();
-                mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(mResponse);
+//                mResponse = task.getResult();
+//                mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(mResponse);
                 return null;
             }
         });

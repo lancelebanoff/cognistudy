@@ -111,7 +111,8 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     private static Task<ParseQuery<PublicUserData>> getImportantCachedPublicUserDataQuery() {
 
         final List<ParseQuery<PublicUserData>> queries = new ArrayList<>();
-        queries.add(PublicUserData.getNonCurrentUserQuery().fromPin(Constants.PinNames.CurrentUser));
+        queries.add(PublicUserData.getNonCurrentUserQuery().fromPin(Constants.PinNames.CurrentUser)
+                .whereNotEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId()));
 
         return Challenge.getQuery()
                 .fromLocalDatastore()

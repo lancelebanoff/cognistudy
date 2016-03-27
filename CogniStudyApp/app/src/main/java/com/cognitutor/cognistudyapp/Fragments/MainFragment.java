@@ -26,6 +26,7 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
@@ -219,7 +220,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             final String challengeId = challenge.getObjectId();
             ParseRelation<Response> responseRelation = challenge.getCurUserChallengeUserData().getResponses();
             responseRelation.getQuery()
-                .include(Response.Columns.question)
+//                .include(Response.Columns.question)
                 .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
                 @Override
                 public Object then(Task<List<Response>> task) throws Exception {
@@ -228,7 +229,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     return null;
                 }
             });
-            challenge.pinInBackground(challengeId);
+            challenge.pinInBackground(challengeId).continueWith(new Continuation<Void, Object>() {
+                @Override
+                public Object then(Task<Void> task) throws Exception {
+                    int num = ParseQuery.getQuery(QuestionContents.class).fromLocalDatastore().count();
+                    Log.d("after ChallengePin", String.valueOf(num));
+                    return null;
+                }
+            });
         }
     }
 
