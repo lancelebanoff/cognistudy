@@ -86,10 +86,11 @@ public class UserUtils {
     }
 
     private static Task<Object> pinSuggestedQuestionsInBackground() {
-//        ParseQuery query = PrivateStudentData.getPrivateStudentData().getAssignedQuestions().getQuery()
-        ParseQuery query = PrivateStudentData.getPrivateStudentData().getRelation("blah").getQuery()
-                .include(SuggestedQuestion.Columns.response)
-                .include(SuggestedQuestion.Columns.question);
+        final String questionCol = SuggestedQuestion.Columns.response + "." + Response.Columns.question;
+        ParseQuery query = PrivateStudentData.getPrivateStudentData().getAssignedQuestions().getQuery()
+//        ParseQuery query = PrivateStudentData.getPrivateStudentData().getRelation("blah").getQuery()
+                .include(questionCol + "." + Question.Columns.bundle)
+                .include(questionCol + "." + Question.Columns.questionContents);
         return pinWithObjectIdInBackground(query);
     }
 
