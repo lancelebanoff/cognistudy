@@ -11,6 +11,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
@@ -581,6 +582,7 @@ public class ParseObjectUtils {
                 classes.add(Bookmark.class);
                 classes.add(Question.class);
                 classes.add(QuestionContents.class);
+                classes.add(QuestionBundle.class);
 //                classes.add(StudentCategoryDayStats.class);
 //                classes.add(StudentCategoryTridayStats.class);
 //                classes.add(StudentCategoryMonthStats.class);

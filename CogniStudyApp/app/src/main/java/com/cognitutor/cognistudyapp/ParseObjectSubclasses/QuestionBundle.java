@@ -38,4 +38,16 @@ public class QuestionBundle extends ParseObject {
 
     public String getPassageText() { return getString(Columns.passageText); }
     public ParseFile getImage() { return getParseFile(Columns.image); }
+    public List<Question> getQuestions() { return getList(Columns.questions); }
+
+    @Override
+    public String toString() {
+        String s = "objectId: " + getObjectId() + " | ";
+        List<Question> questions = getQuestions();
+        for(int i=0; i<questions.size(); i++) {
+            s += "q" + (i+1) + ": " + questions.get(i).getObjectId() + " | ";
+        }
+        s += "passageText: " + getPassageText().substring(0, Math.min(50, getPassageText().length()));
+        return s;
+    }
 }

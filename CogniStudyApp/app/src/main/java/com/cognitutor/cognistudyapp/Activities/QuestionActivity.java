@@ -57,7 +57,6 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     private ListView listView;
     private ActivityViewHolder avh;
     protected Question mQuestion;
-    protected Question mQuestionWithoutContents;
     protected QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
     protected Response mResponse = null;
@@ -105,11 +104,21 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             selectedAnswer = mResponse.getSelectedAnswer();
         }
 
+        String questionId = getQuestionId();
         try {
-            String questionId = getQuestionId();
-            mQuestion = Question.getQuestionWithContents(questionId);
-            mQuestionWithoutContents = Question.getQuestionWithoutContents(questionId);
-        } catch(ParseException e) { handleParseError(e); return; }
+            Question.getQuestionInBackground(questionId).continueWith(new Continuation<Question, Object>() {
+                @Override
+                public Object then(Task<Question> task) throws Exception {
+                    if(task.isFaulted()) {
+                        Exception e = task.getError();
+                        e.printStackTrace();
+                        throw e;
+                    }
+                    mQuestion = task.getResult();
+                    return null;
+                }
+            }).waitForCompletion();
+        } catch (InterruptedException e) { e.printStackTrace(); }
 
         mQuestionContents = mQuestion.getQuestionContents();
 

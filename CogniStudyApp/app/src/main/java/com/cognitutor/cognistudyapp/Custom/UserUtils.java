@@ -7,6 +7,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
@@ -77,8 +78,10 @@ public class UserUtils {
     }
 
     private static Task<Object> pinBookmarksInBackground() {
+        final String questionCol = Bookmark.Columns.response + "." + Response.Columns.question;
         ParseQuery query = PrivateStudentData.getPrivateStudentData().getBookmarks().getQuery()
-                .include(Bookmark.Columns.response + "." + Response.Columns.question);
+                .include(questionCol + "." + Question.Columns.bundle)
+                .include(questionCol + "." + Question.Columns.questionContents);
         return pinWithObjectIdInBackground(query);
     }
 

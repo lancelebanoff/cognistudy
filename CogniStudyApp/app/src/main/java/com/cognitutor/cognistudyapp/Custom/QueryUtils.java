@@ -549,10 +549,11 @@ public class QueryUtils {
         if(e instanceof ParseException) {
             ParseException pe = (ParseException) e;
             if(pe.getCode() != ErrorHandler.ErrorCode.OBJECT_NOT_FOUND) {
+                Log.e("QueryUtil " + localOrNetwork, e.getMessage());
                 e.printStackTrace();
             }
         }
-        Log.e("QueryUtil " + localOrNetwork, e.getMessage());
+//        Log.e("QueryUtil " + localOrNetwork, e.getMessage());
     }
 
     private static <T extends ParseObject> T doLocalGetQuery(ParseQuery<T> localDataQuery) {

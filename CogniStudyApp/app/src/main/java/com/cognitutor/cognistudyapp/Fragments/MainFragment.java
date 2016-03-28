@@ -26,6 +26,7 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
@@ -218,8 +219,11 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             Challenge challenge = (Challenge) obj;
             final String challengeId = challenge.getObjectId();
             ParseRelation<Response> responseRelation = challenge.getCurUserChallengeUserData().getResponses();
+            final String questionCol = Response.Columns.question;
             responseRelation.getQuery()
-                .include(Response.Columns.question)
+                .include(questionCol)
+                .include(questionCol + "." + Question.Columns.bundle)
+                .include(questionCol + "." + Question.Columns.questionContents)
                 .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
                 @Override
                 public Object then(Task<List<Response>> task) throws Exception {

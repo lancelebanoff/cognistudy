@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -62,9 +63,16 @@ public class Question extends ParseObject {
             .get(questionId);
     }
 
-    public static Question getQuestionWithoutContents(String questionId) throws ParseException {
-        return Question.getQuery()
-                .get(questionId);
+    public static Task<Question> getQuestionInBackground(final String questionId) {
+        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<Question>() {
+            @Override
+            public ParseQuery<Question> buildQuery() {
+                return Question.getQuery()
+                    .include(Columns.questionContents)
+                    .include(Columns.bundle)
+                    .whereEqualTo(Constants.ParseObjectColumns.objectId, questionId);
+            }
+        });
     }
 
     public static Task<List<String>> chooseThreeQuestionIds(final Challenge challenge, int user1or2) {
@@ -82,6 +90,9 @@ public class Question extends ParseObject {
                         params.put("category", categories.get(randomIndex));
 
                         List<Question> questions = ParseCloud.callFunction(Constants.CloudCodeFunction.CHOOSE_THREE_QUESTIONS, params);
+                        try {
+                            ParseObject.pinAllInBackground(challenge.getObjectId(), questions).waitForCompletion();
+                        } catch (InterruptedException e) { e.printStackTrace(); }
                         List<String> questionIds = new ArrayList<String>();
                         for (Question question : questions) {
                             questionIds.add(question.getObjectId());
