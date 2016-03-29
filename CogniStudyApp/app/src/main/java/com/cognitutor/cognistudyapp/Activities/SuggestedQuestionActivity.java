@@ -4,10 +4,8 @@ import android.os.Bundle;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import bolts.Continuation;
@@ -21,28 +19,26 @@ public class SuggestedQuestionActivity extends AnswerableQuestionActivity{
     private SuggestedQuestion mSuggestedQuestion;
 
     @Override
+    protected String getQuestionAndResponsePinName() {
+        return getQuestionMetaId(); //SuggestedQuestionId
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadSuggestedQuestion();
     }
 
     @Override
-    protected Task<Void> createResponse(boolean isSelectedAnswerCorrect) {
-        return doCreateResponse(isSelectedAnswerCorrect, getSuggestedQuestionId()).continueWith(new Continuation<Response, Void>() {
-            @Override
-            public Void then(Task<Response> task) throws Exception {
-                mSuggestedQuestion.addResponseAndPin(task.getResult());
-                return null;
-            }
-        });
+    protected void onPostCreateResponse(Response response) {
+        mSuggestedQuestion.addResponseAndPin(response);
     }
 
     private void loadSuggestedQuestion() {
-        final String suggestedQuestionId = getSuggestedQuestionId();
         QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<SuggestedQuestion>() {
             @Override
             public ParseQuery<SuggestedQuestion> buildQuery() {
-                return SuggestedQuestion.getQuery().whereEqualTo(Constants.ParseObjectColumns.objectId, getSuggestedQuestionId());
+                return SuggestedQuestion.getQuery().whereEqualTo(Constants.ParseObjectColumns.objectId, getQuestionMetaId());
             }
         }).continueWith(new Continuation<SuggestedQuestion, Object>() {
             @Override
@@ -54,9 +50,5 @@ public class SuggestedQuestionActivity extends AnswerableQuestionActivity{
                 return null;
             }
         });
-    }
-
-    private String getSuggestedQuestionId() {
-        return mIntent.getStringExtra(Constants.IntentExtra.QUESTION_META_ID);
     }
 }

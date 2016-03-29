@@ -23,6 +23,7 @@ import com.parse.ParseQueryAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -31,6 +32,7 @@ import java.util.Locale;
 public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject, QuestionListAdapter.ViewHolder> {
 
     private Class<? extends QuestionActivity> mTargetQuestionActivityClass;
+    private HashMap<String, String> mIntentExtras;
 
     public QuestionListAdapter(Activity activity, Class<? extends QuestionActivity> targetQuestionActivityClass, final ParseQuery query) {
         super(activity, new ParseQueryAdapter.QueryFactory<QuestionMetaObject>() {
@@ -39,6 +41,21 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
             }
         }, true); //TODO: Try true for hasStableIds
         mTargetQuestionActivityClass = targetQuestionActivityClass;
+    }
+
+    public QuestionListAdapter(Activity activity, Class<? extends QuestionActivity> targetQuestionActivityClass,
+                               HashMap<String, String> intentExtras, final ParseQuery query) {
+        super(activity, new ParseQueryAdapter.QueryFactory<QuestionMetaObject>() {
+            public ParseQuery<QuestionMetaObject> create() {
+                return query;
+            }
+        }, true); //TODO: Try true for hasStableIds
+        mIntentExtras = intentExtras;
+        mTargetQuestionActivityClass = targetQuestionActivityClass;
+    }
+
+    private void init() {
+
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -135,6 +152,11 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
         intent.putExtra(Constants.IntentExtra.QUESTION_META_ID, questionMetaId);
         intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
         intent.putExtra(Constants.IntentExtra.RESPONSE_ID, responseId);
+        if(mIntentExtras != null) {
+            for(String key : mIntentExtras.keySet()) {
+                intent.putExtra(key, mIntentExtras.get(key));
+            }
+        }
         mActivity.startActivity(intent);
     }
 

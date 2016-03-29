@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -29,9 +30,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -46,6 +45,8 @@ import bolts.Task;
 import io.github.kexanie.library.MathView;
 
 public abstract class QuestionActivity extends CogniActivity implements View.OnClickListener {
+
+    protected abstract String getQuestionAndResponsePinName();
 
     /**
      * Extras:
@@ -97,6 +98,10 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         return mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID);
     }
 
+    protected String getQuestionMetaId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.QUESTION_META_ID);
+    }
+
     public void loadQuestion() {
 
         int selectedAnswer = -1;
@@ -104,9 +109,8 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             selectedAnswer = mResponse.getSelectedAnswer();
         }
 
-        String questionId = getQuestionId();
         try {
-            Question.getQuestionInBackground(questionId).continueWith(new Continuation<Question, Object>() {
+            Question.getQuestionWithContentsInBackground(getQuestionAndResponsePinName(), getQuestionId()).continueWith(new Continuation<Question, Object>() {
                 @Override
                 public Object then(Task<Question> task) throws Exception {
                     if(task.isFaulted()) {
@@ -143,11 +147,17 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
 
         if(mQuestion.inBundle()) {
-            QuestionBundle bundle = null;
+            QuestionBundle bundle = mQuestion.getQuestionBundle();
             try {
-                bundle = mQuestion.getQuestionBundle().fetchIfNeeded();
+                bundle.fetchFromLocalDatastore();
             } catch (ParseException e) {
                 e.printStackTrace();
+                try {
+                    bundle.fetchIfNeeded();
+                } catch (ParseException e2) {
+                    e2.printStackTrace();
+                    Log.e("Fetching bundle", "Bundle should be in local datastore but was not");
+                }
             }
             avh.wvPassage.loadData(buildPassageHtml(bundle.getPassageText()), "text/html", "UTF-8");
         }

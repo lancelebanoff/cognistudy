@@ -159,7 +159,8 @@ public class ParseObjectUtils {
                 .continueWithTask(new Continuation<Void, Task<Void>>() {
                     @Override
                     public Task<Void> then(Task<Void> task) throws Exception {
-                        return pinInBackground(object.getObjectId(), object);
+//                        return pinInBackground(object.getObjectId(), object);
+                        return object.pinInBackground(object.getObjectId());
                     }
                 });
     }

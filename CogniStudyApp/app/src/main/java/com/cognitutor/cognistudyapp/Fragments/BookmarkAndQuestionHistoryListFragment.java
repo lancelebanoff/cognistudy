@@ -11,7 +11,7 @@ import com.cognitutor.cognistudyapp.R;
 /**
  * Created by Kevin on 3/28/2016.
  */
-public class PastQuestionsFragment extends CogniFragment {
+public class BookmarkAndQuestionHistoryListFragment extends CogniFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

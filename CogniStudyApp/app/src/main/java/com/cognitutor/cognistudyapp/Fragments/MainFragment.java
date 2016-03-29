@@ -223,7 +223,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             responseRelation.getQuery()
                 .include(questionCol)
                 .include(questionCol + "." + Question.Columns.bundle)
-                .include(questionCol + "." + Question.Columns.questionContents)
+//                .include(questionCol + "." + Question.Columns.questionContents)
                 .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
                 @Override
                 public Object then(Task<List<Response>> task) throws Exception {

@@ -92,8 +92,8 @@ public class UserUtils {
 //        ParseQuery query = PrivateStudentData.getPrivateStudentData().getRelation("blah").getQuery()
                 .include(SuggestedQuestion.Columns.response)
                 .include(questionCol)
-                .include(questionCol + "." + Question.Columns.bundle)
-                .include(questionCol + "." + Question.Columns.questionContents);
+                .include(questionCol + "." + Question.Columns.bundle);
+//                .include(questionCol + "." + Question.Columns.questionContents);
         return pinWithObjectIdInBackground(query);
     }
 

@@ -70,9 +70,15 @@ public abstract class QuestionListActivity extends CogniActivity {
         mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
         initializeSpinners();
 
-        mAdapter = new QuestionListAdapter(this, getTargetQuestionActivityClass(),
-                getSubjectAndCategoryQuery(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
+        mAdapter = createQuestionListAdapter();
         mQuestionList.setAdapter(mAdapter);
+    }
+
+    //This was made a method so that QuestionHistoryActivity could override the method and use the alternate constructor
+    // for QuestionListAdapter, which passes an additional intent extra to PastQuestionActivity containing the challenge id
+    protected QuestionListAdapter createQuestionListAdapter() {
+        return new QuestionListAdapter(this, getTargetQuestionActivityClass(),
+                getSubjectAndCategoryQuery(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
     }
 
     @Override

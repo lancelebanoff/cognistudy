@@ -29,6 +29,11 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     private int mQuesAnsThisTurn = -1;
 
     @Override
+    protected String getQuestionAndResponsePinName() {
+        return getChallengeId();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
@@ -36,14 +41,8 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     }
 
     @Override
-    protected Task<Void> createResponse(boolean isSelectedAnswerCorrect) {
-        return doCreateResponse(isSelectedAnswerCorrect, mChallenge.getObjectId()).continueWithTask(new Continuation<Response, Task<Void>>() {
-            @Override
-            public Task<Void> then(Task<Response> task) throws Exception {
-                mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(mResponse);
-                return null;
-            }
-        });
+    protected void onPostCreateResponse(Response response) {
+        mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(response);
     }
 
     @Override

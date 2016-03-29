@@ -57,14 +57,8 @@ public class Question extends ParseObject {
 
     public static ParseQuery<Question> getQuery() { return ParseQuery.getQuery(Question.class); }
 
-    public static Question getQuestionWithContents(String questionId) throws ParseException{
-        return Question.getQuery()
-            .include(Question.Columns.questionContents)
-            .get(questionId);
-    }
-
-    public static Task<Question> getQuestionInBackground(final String questionId) {
-        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<Question>() {
+    public static Task<Question> getQuestionWithContentsInBackground(final String pinName, final String questionId) {
+        return QueryUtils.getFirstCacheElseNetworkInBackground(pinName, new QueryUtils.ParseQueryBuilder<Question>() {
             @Override
             public ParseQuery<Question> buildQuery() {
                 return Question.getQuery()

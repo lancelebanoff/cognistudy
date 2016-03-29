@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.Fragments.CogniFragment;
 import com.cognitutor.cognistudyapp.Fragments.SuggestedQuestionsListFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
@@ -32,7 +33,8 @@ public class SuggestedQuestionsListActivity extends QuestionListActivity {
 
     @Override
     protected ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(String subject, String category) {
-        return QuestionMetaObject.getSubjectAndCategoryQuery(SuggestedQuestion.class, subject, category);
+        return QuestionMetaObject.getSubjectAndCategoryQuery(SuggestedQuestion.class, subject, category)
+                .whereEqualTo(SuggestedQuestion.Columns.studentBaseUserId, UserUtils.getCurrentUserId());
     }
 
     @Override

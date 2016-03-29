@@ -63,6 +63,7 @@ public abstract class QuestionMetaObject extends ParseObject{
         }
         else {
             query.include(SuggestedQuestion.Columns.question);
+            query.include(SuggestedQuestion.Columns.response);
         }
 
         if(includeQuestionQuery) {

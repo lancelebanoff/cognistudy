@@ -1,16 +1,10 @@
 package com.cognitutor.cognistudyapp.Activities;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-
-import com.cognitutor.cognistudyapp.Adapters.QuestionListAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Fragments.CogniFragment;
-import com.cognitutor.cognistudyapp.Fragments.PastQuestionsFragment;
+import com.cognitutor.cognistudyapp.Fragments.BookmarkAndQuestionHistoryListFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
-import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseQuery;
 
 public class BookmarksListActivity extends QuestionListActivity {
@@ -27,7 +21,7 @@ public class BookmarksListActivity extends QuestionListActivity {
 
     @Override
     protected Class<? extends CogniFragment> getFragmentClass() {
-        return PastQuestionsFragment.class;
+        return BookmarkAndQuestionHistoryListFragment.class;
     }
 
     @Override
