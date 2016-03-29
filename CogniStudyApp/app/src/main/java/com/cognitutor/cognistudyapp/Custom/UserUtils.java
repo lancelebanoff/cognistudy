@@ -54,9 +54,8 @@ public class UserUtils {
                 .include(colPrivateStudentData + "." + PrivateStudentData.Columns.friends)
 //                .include(colPrivateStudentData + "." + PrivateStudentData.Columns.assignedQuestions)
                 .getFirst();
-//        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
         final Student student = publicUserData.getStudent();
-        return publicUserData.pinInBackground(Constants.PinNames.CurrentUser).continueWithTask(new Continuation<Void, Task<Void>>() {
+        return publicUserData.pinInBackground().continueWithTask(new Continuation<Void, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Void> task) {
                 if (task.getError() != null) {
@@ -129,11 +128,9 @@ public class UserUtils {
                     answeredQuestionIdsList.add(answeredQuestionIds);
                 }
                 //TODO: Change ParseObjectUtils.pin to ParseObject.pin (later)
-//                ParseObjectUtils.pinAllInBackground(Constants.PinNames.CurrentUser, rollingStatsList);
-//                ParseObjectUtils.pinAllInBackground(Constants.PinNames.CurrentUser, answeredQuestionIdsList);
                 List<Task<Void>> tasks = new ArrayList<Task<Void>>();
-                tasks.add(ParseObject.pinAllInBackground(Constants.PinNames.CurrentUser, rollingStatsList));
-                tasks.add(ParseObject.pinAllInBackground(Constants.PinNames.CurrentUser, answeredQuestionIdsList));
+                tasks.add(ParseObject.pinAllInBackground(rollingStatsList));
+                tasks.add(ParseObject.pinAllInBackground(answeredQuestionIdsList));
                 Task.whenAll(tasks).waitForCompletion();
                 return null;
             }

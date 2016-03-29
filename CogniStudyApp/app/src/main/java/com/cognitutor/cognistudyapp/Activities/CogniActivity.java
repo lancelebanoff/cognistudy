@@ -114,7 +114,7 @@ public class CogniActivity extends AppCompatActivity {
             .continueWith(new Continuation<Void, Task<Void>>() {
                 @Override
                 public Task<Void> then(Task<Void> task) throws Exception {
-//                    ParseObjectUtils.logPinnedObjects(false);
+                    ParseObjectUtils.logPinnedObjects(false);
                     return ParseUser.logOutInBackground();
                 }
             }).continueWith(new Continuation<Task<Void>, Void>() {

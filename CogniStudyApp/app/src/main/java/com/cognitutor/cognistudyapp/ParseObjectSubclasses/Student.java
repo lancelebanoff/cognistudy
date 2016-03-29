@@ -104,7 +104,7 @@ public class Student extends ParseObject{
     }
 
     public static Task<Student> getStudentInBackground() {
-        return QueryUtils.getFirstPinElseNetworkInBackground(Constants.PinNames.CurrentUser, new QueryUtils.ParseQueryBuilder<Student>() {
+        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<Student>() {
             @Override
             public ParseQuery<Student> buildQuery() {
                 return Student.getQuery().whereEqualTo(Columns.baseUserId, UserUtils.getCurrentUserId());
