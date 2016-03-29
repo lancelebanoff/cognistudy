@@ -86,19 +86,16 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
         }
 
         private void setResponseStatusIcon(String responseStatus) {
-            int icon;
             switch (responseStatus) {
                 case Constants.ResponseStatusType.CORRECT:
-                    icon = R.drawable.ic_icon_correct;
+                    ivResponseStatus.setImageResource(R.drawable.ic_icon_correct);
                     break;
                 case Constants.ResponseStatusType.INCORRECT:
-                    icon = R.drawable.ic_icon_incorrect;
+                    ivResponseStatus.setImageResource(R.drawable.ic_icon_incorrect);
                     break;
                 default:
-                    icon = R.drawable.ic_icon_unanswered;
                     break;
             }
-            ivResponseStatus.setImageResource(icon);
         }
     }
 
