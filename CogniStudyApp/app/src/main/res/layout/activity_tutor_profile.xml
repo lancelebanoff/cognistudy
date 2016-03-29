@@ -91,13 +91,13 @@
 
                 <TextView
                     android:id="@+id/txtBiographyLabel"
-                    android:text="Biography"
+                    android:text="About me"
                     android:textColor="@color/colorPrimaryDark"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/llButtons"
-                    android:layout_marginTop="10dp"/>
+                    android:layout_marginTop="20dp"/>
 
                 <TextView
                     android:id="@+id/txtBiography"

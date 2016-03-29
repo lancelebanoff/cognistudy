@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
@@ -71,6 +72,8 @@ public class StudentProfileActivity extends CogniActivity {
                 return null;
             }
         });
+
+        Toast.makeText(this, "You are now following " + publicUserData.getDisplayName(), Toast.LENGTH_LONG).show();
     }
 
     public void onClick_btnUnfollow(View view) {
@@ -87,6 +90,8 @@ public class StudentProfileActivity extends CogniActivity {
                 return null;
             }
         });
+
+        Toast.makeText(this, "You are no longer following " + publicUserData.getDisplayName(), Toast.LENGTH_LONG).show();
     }
 
     public void navigateToNewChallengeActivity(View view) {

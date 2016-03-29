@@ -18,6 +18,9 @@ import com.parse.ParseImageView;
 
 import java.util.HashMap;
 
+import bolts.Continuation;
+import bolts.Task;
+
 public class TutorProfileActivity extends CogniActivity {
 
     /**
@@ -55,11 +58,16 @@ public class TutorProfileActivity extends CogniActivity {
         HashMap<String, Object> params = new HashMap<String, Object>();
         try {
             params.put("studentId", UserUtils.getStudent().getObjectId());
-            params.put("privateTutorDataId", publicUserData.getTutor().getObjectId());
+            params.put("publicTutorDataId", publicUserData.getObjectId());
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.STUDENT_REQUEST_TO_TUTOR, params);
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.STUDENT_REQUEST_TO_TUTOR, params).continueWith(new Continuation<Object, Void>() {
+            @Override
+            public Void then(Task<Object> task) throws Exception {
+                return null;
+            }
+        });
 
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.showNext();
