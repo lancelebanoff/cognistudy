@@ -1,9 +1,10 @@
 Parse.Cloud.define("assignQuestion", function(request, response) {
 	
+	Parse.Cloud.useMasterKey();
 	var pushQuery = new Parse.Query(Parse.Installation);
 	//pushQuery.matchesQuery('user', userQuery);
 
-	pushQuery.equalTo("userIds", request.params.baseUserId);
+	pushQuery.contains("userIds", request.params.baseUserId);
 
 	Parse.Push.send({
 		where: pushQuery,

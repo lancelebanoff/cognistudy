@@ -86,6 +86,32 @@ public class TutorProfileActivity extends CogniActivity {
         Toast.makeText(this, "Request sent to tutor.", Toast.LENGTH_LONG).show();
     }
 
+    public void onClick_btnRemoveTutor(View view) {
+        mCurrPrivateStudentData.removeTutor(publicUserData);
+
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("studentPublicDataId", PublicUserData.getPublicUserData().getObjectId());
+        params.put("tutorPublicDataId", publicUserData.getObjectId());
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.REMOVE_STUDENT, params).continueWith(new Continuation<Object, Void>() {
+            @Override
+            public Void then(Task<Object> task) throws Exception {
+                if (task.getError() != null) {
+                    task.getError().printStackTrace();
+                }
+                return null;
+            }
+        });
+
+        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+        viewSwitcher.showNext();
+
+        Toast.makeText(this, "Request sent to tutor.", Toast.LENGTH_LONG).show();
+    }
+
+    public void onClick_btnMessage(View view) {
+
+    }
+
     private ViewHolder createViewHolder() {
         ViewHolder holder = new ViewHolder();
         holder.txtName = (TextView) findViewById(R.id.txtName);

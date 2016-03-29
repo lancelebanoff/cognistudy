@@ -65,14 +65,14 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Follow"
-                            android:id="@+id/btnFollow"
+                            android:id="@+id/btnAddTutor"
                             android:onClick="onClick_btnFollow"/>
 
                         <com.cognitutor.cognistudyapp.Custom.CogniButton
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Unfollow"
-                            android:id="@+id/btnUnfollow"
+                            android:id="@+id/btnRemoveTutor"
                             android:onClick="onClick_btnUnfollow" />
                     </ViewSwitcher>
 
@@ -81,7 +81,7 @@
                         android:layout_height="wrap_content"
                         android:text="Message"
                         android:id="@+id/btnMessage"
-                        android:onClick="navigateToNewChallengeActivity"
+                        android:onClick="onClick_btnMessage"
                         android:layout_weight="1"/>
                 </LinearLayout>
 

@@ -540,6 +540,7 @@ public class Constants {
         public static final String DELETE_CHALLENGE = "deleteChallenge";
         public static final String CHOOSE_THREE_QUESTIONS = "chooseThreeQuestionsV2";
         public static final String STUDENT_REQUEST_TO_TUTOR = "studentRequestToTutor";
+        public static final String REMOVE_STUDENT = "removeStudent";
     }
 
     public static class PinNames {

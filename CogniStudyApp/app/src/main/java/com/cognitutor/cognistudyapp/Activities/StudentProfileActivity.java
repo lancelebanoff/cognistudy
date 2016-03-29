@@ -62,18 +62,18 @@ public class StudentProfileActivity extends CogniActivity {
 
     private void showOrHideButtons() {
         if (publicUserData.getObjectId().equals(PublicUserData.getPublicUserData().getObjectId())) {
-            CogniButton btnFollow = (CogniButton) findViewById(R.id.btnFollow);
+            CogniButton btnFollow = (CogniButton) findViewById(R.id.btnAddTutor);
             btnFollow.setVisibility(View.GONE);
-            CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnFollow);
+            CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnAddTutor);
             btnUnfollow.setVisibility(View.GONE);
-            CogniButton btnMessage = (CogniButton) findViewById(R.id.btnFollow);
+            CogniButton btnMessage = (CogniButton) findViewById(R.id.btnAddTutor);
             btnMessage.setVisibility(View.GONE);
         }
     }
 
     public void onClick_btnFollow(View view) {
         mViewSwitcher.showNext();
-        final CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnUnfollow);
+        final CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnRemoveTutor);
         btnUnfollow.setClickable(false);
 
         mCurrPrivateStudentData.addFriend(publicUserData);
@@ -91,7 +91,7 @@ public class StudentProfileActivity extends CogniActivity {
 
     public void onClick_btnUnfollow(View view) {
         mViewSwitcher.showNext();
-        final CogniButton btnFollow = (CogniButton) findViewById(R.id.btnUnfollow);
+        final CogniButton btnFollow = (CogniButton) findViewById(R.id.btnRemoveTutor);
         btnFollow.setClickable(false);
 
         mCurrPrivateStudentData.removeFriend(publicUserData);
@@ -105,6 +105,10 @@ public class StudentProfileActivity extends CogniActivity {
         });
 
         Toast.makeText(this, "You are no longer following " + publicUserData.getDisplayName(), Toast.LENGTH_LONG).show();
+    }
+
+    public void onClick_btnMessage(View view) {
+
     }
 
     public void navigateToNewChallengeActivity(View view) {
