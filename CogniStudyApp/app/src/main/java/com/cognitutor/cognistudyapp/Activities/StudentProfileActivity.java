@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
@@ -14,6 +15,10 @@ import java.util.HashMap;
 
 public class StudentProfileActivity extends CogniActivity {
 
+    /**
+     * Extras:
+     *      PUBLICUSERDATA_ID: String
+     */
     private ViewHolder holder;
     private Intent mIntent;
     private PublicUserData publicUserData;
@@ -26,7 +31,7 @@ public class StudentProfileActivity extends CogniActivity {
         holder = createViewHolder();
         mIntent = getIntent();
 
-        publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra("publicUserDataId")); //TODO: Change this
+        publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra(Constants.IntentExtra.PUBLICUSERDATA_ID)); //TODO: Change this
         if(publicUserData == null) { return; } //TODO: Handle this?
         holder.txtName.setText(publicUserData.getDisplayName());
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
