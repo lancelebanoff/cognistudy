@@ -3,8 +3,10 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.parse.GetCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -26,6 +28,9 @@ public class SuggestedQuestion extends QuestionMetaObject {
 
     @Override
     public String getSubject() {
+        try {
+            getQuestion().fetchFromLocalDatastore();
+        } catch (ParseException e) { e.printStackTrace(); }
         return getQuestion().getSubject();
     }
 
@@ -38,7 +43,7 @@ public class SuggestedQuestion extends QuestionMetaObject {
     public String getResponseId() {
         Response response = getResponse();
         if (response == null) {
-            return Constants.ResponseStatusType.UNANSWERED;
+            return null;
         }
         return response.getObjectId();
     }

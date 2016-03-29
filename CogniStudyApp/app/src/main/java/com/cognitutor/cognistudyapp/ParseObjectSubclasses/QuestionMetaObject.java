@@ -82,11 +82,12 @@ public abstract class QuestionMetaObject extends ParseObject{
 
     @Override
     public String toString() {
-        return "objectId: " + getObjectId() + " | " +
+        String s = "objectId: " + getObjectId() + " | " +
                 "questionId: " + getQuestionId() + " | " +
                 "responseId: " + getResponseId() + " | " +
                 "subject: " + getSubject() + " | " +
                 "category: " + getCategory() + " | " +
                 "status: " + getResponseStatus();
+        return s;
     }
 }

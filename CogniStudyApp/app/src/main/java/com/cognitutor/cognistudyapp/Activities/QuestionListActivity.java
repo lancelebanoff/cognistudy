@@ -37,7 +37,7 @@ import bolts.Task;
 /**
  * Created by Kevin on 3/18/2016.
  */
-public abstract class QuestionListActivity extends AppCompatActivity {
+public abstract class QuestionListActivity extends CogniActivity {
 
     protected Spinner mSpSubjects;
     protected Spinner mSpCategories;

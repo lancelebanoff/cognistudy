@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.cognitutor.cognistudyapp.Activities.QuestionListActivity;
 import com.cognitutor.cognistudyapp.R;
 
 import org.json.JSONObject;
@@ -14,9 +15,17 @@ import org.json.JSONObject;
  */
 public class SuggestedQuestionsFragment extends CogniPushListenerFragment {
 
+    QuestionListActivity mParentActivity;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_question_list, container, false);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mParentActivity = (QuestionListActivity) getActivity();
     }
 
     @Override
