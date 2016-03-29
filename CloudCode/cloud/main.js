@@ -20,4 +20,5 @@ var l4 = require('cloud/tutorRequestToStudent.js');
 var l5 = require('cloud/addTutor.js');
 var l6 = require('cloud/removeTutor.js');
 var l6 = require('cloud/chooseTenQuestions.js');
+var l7 = require('cloud/assignQuestion.js');
 
