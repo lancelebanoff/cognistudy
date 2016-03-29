@@ -30,6 +30,7 @@ public class MainActivity extends AuthenticationActivity {
     private final String TAG = "MainActivity";
     private Activity mActivity = this;
     private CogniViewPager mViewPager;
+    private PeopleFragment mPeopleFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,7 +166,7 @@ public class MainActivity extends AuthenticationActivity {
             if(position == Fragments.Main.ordinal())
                 return MainFragment.newInstance();
             if(position == Fragments.People.ordinal()) {
-                return PeopleFragment.newInstance(new PeopleListOnClickHandler() {
+                mPeopleFragment = PeopleFragment.newInstance(new PeopleListOnClickHandler() {
                     @Override
                     public void onListItemClick(PublicUserData publicUserData) {
                         Class destination;
@@ -179,6 +180,7 @@ public class MainActivity extends AuthenticationActivity {
                         mActivity.startActivity(intent);
                     }
                 });
+                return mPeopleFragment;
             }
             if(position == Fragments.Messages.ordinal())
                 return MessagesFragment.newInstance();
@@ -210,6 +212,12 @@ public class MainActivity extends AuthenticationActivity {
             return "";
         }
     }
+
+    //Used when a challenge finishes loading so that the opponent shows up in the people list
+    public void updatePeopleFragment() {
+        mPeopleFragment.updateList();
+    }
+
     private void onResumeTest() {
 //        DateUtils.test(true);
 //        QueryUtils.testCacheThenNetwork();

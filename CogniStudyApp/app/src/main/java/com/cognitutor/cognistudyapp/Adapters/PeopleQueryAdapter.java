@@ -88,7 +88,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 
         mLock.lock();
         reset();
-        loadObjects(); //TODO: delete this?
+        loadObjects(); //Uses the default query given in the constructor
         mLock.unlock();
     }
 

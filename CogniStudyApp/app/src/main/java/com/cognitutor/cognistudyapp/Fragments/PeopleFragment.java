@@ -16,6 +16,8 @@ import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Adapters.PeopleQueryAdapter;
 import com.cognitutor.cognistudyapp.R;
 
+import java.util.List;
+
 /**
  * Created by Lance on 12/27/2015.
  */
@@ -31,6 +33,14 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         PeopleFragment peopleFragment = new PeopleFragment();
         peopleFragment.onClickHandler = onClickHandler;
         return peopleFragment;
+    }
+
+    //Used when a challenge finishes loading and being pinned so that the opponent shows up in the people list
+    public void updateList() {
+        String q = searchView.getQuery().toString();
+        if(q.length() == 0) {
+            peopleQueryAdapter.resetResultsToDefault();
+        }
     }
 
     @Override
