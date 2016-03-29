@@ -193,8 +193,7 @@ public abstract class StudentTRollingStats extends ParseObject{
     }
 
     private static Task<StudentTRollingStats> updateCacheElseNetworkInBackground(final Class<? extends StudentTRollingStats> clazz, final String category) {
-        return QueryUtils.getFirstPinElseNetworkInBackground(Constants.PinNames.CurrentUser,
-                new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
+        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
                     @Override
                     public ParseQuery<StudentTRollingStats> buildQuery() {
                         return getCurrentUserStatsQuery(clazz, category)
@@ -204,8 +203,7 @@ public abstract class StudentTRollingStats extends ParseObject{
     }
 
     public static Task<StudentTRollingStats> getCacheElseNetworkInBackground(final Class<? extends StudentTRollingStats> clazz, final String category) {
-        return QueryUtils.getFirstPinElseNetworkInBackground(Constants.PinNames.CurrentUser,
-                new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
+        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
                     @Override
                     public ParseQuery<StudentTRollingStats> buildQuery() {
                         return getCurrentUserStatsQuery(clazz, category);
@@ -214,8 +212,7 @@ public abstract class StudentTRollingStats extends ParseObject{
     }
 
     public static StudentTRollingStats getCacheElseNetwork(final Class<? extends StudentTRollingStats> clazz, final String category) {
-        return QueryUtils.getFirstPinElseNetwork(Constants.PinNames.CurrentUser,
-                new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
+        return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<StudentTRollingStats>() {
             @Override
             public ParseQuery<StudentTRollingStats> buildQuery() {
                 return getCurrentUserStatsQuery(clazz, category);

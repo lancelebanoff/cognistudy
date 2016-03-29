@@ -572,9 +572,9 @@ public class ParseObjectUtils {
                 classes.add(PublicUserData.class);
                 classes.add(Student.class);
                 classes.add(PrivateStudentData.class);
-//                classes.add(StudentCategoryRollingStats.class);
-//                classes.add(StudentSubjectRollingStats.class);
-//                classes.add(StudentTotalRollingStats.class);
+                classes.add(StudentCategoryRollingStats.class);
+                classes.add(StudentSubjectRollingStats.class);
+                classes.add(StudentTotalRollingStats.class);
                 classes.add(Challenge.class);
                 classes.add(Response.class);
                 classes.add(SuggestedQuestion.class);

@@ -91,7 +91,7 @@ public class FacebookUtils {
 //                    Log.e("Error in fetching", task.getError().toString());
 //                }
 ////                return ParseObjectUtils.pinAllInBackground("fbFriends", friends); //TODO: What?
-//                return ParseObject.pinAllInBackground(Constants.PinNames.CurrentUser, friends);
+//                return ParseObject.pinAllInBackground(friends);
 //            }
 //        }).continueWithTask(new Continuation<Void, Task<Void>>() {
             @Override

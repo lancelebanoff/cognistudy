@@ -110,7 +110,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     private static Task<ParseQuery<PublicUserData>> getImportantCachedPublicUserDataQuery() {
 
         final List<ParseQuery<PublicUserData>> queries = new ArrayList<>();
-        queries.add(PublicUserData.getQuery().fromPin(Constants.PinNames.CurrentUser));
+        queries.add(PublicUserData.getQuery().fromPin(Constants.PinNames.CurrentUser)); //TODO: Rework now that CurrentUser pin name is defunct
 
         return Challenge.getQuery()
                 .fromLocalDatastore()

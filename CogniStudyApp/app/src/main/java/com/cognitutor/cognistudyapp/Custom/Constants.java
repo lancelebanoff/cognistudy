@@ -543,7 +543,7 @@ public class Constants {
         public static final String PeopleSearch = "PeopleSearch";
         public static final String PublicUserData = "PublicUserData";
         public static final String Challenge = "Challenge";
-        public static final String CurrentUser = "CurrentUser";
+        public static final String CurrentUser = "CurrentUser"; //deprecated
         public static final String BlockStats = "BlockStats";
         public static final String fbFriends = "fbFriends"; //deprecated
     }
