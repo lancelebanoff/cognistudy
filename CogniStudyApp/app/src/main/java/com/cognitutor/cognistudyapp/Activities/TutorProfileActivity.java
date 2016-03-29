@@ -8,7 +8,6 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Tutor;
 import com.cognitutor.cognistudyapp.R;
@@ -56,12 +55,8 @@ public class TutorProfileActivity extends CogniActivity {
 
     public void onClick_btnAddTutor(View view) {
         HashMap<String, Object> params = new HashMap<String, Object>();
-        try {
-            params.put("studentId", UserUtils.getStudent().getObjectId());
-            params.put("publicTutorDataId", publicUserData.getObjectId());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        params.put("publicStudentDataId", PublicUserData.getPublicUserData().getObjectId());
+        params.put("publicTutorDataId", publicUserData.getObjectId());
         ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.STUDENT_REQUEST_TO_TUTOR, params).continueWith(new Continuation<Object, Void>() {
             @Override
             public Void then(Task<Object> task) throws Exception {

@@ -47,6 +47,8 @@ public class StudentProfileActivity extends CogniActivity {
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
 
+        showOrHideButtons();
+
         try {
             mCurrPrivateStudentData = PublicUserData.getPublicUserData().getStudent().getPrivateStudentData();
         } catch (ParseException e) {
@@ -55,6 +57,17 @@ public class StudentProfileActivity extends CogniActivity {
         mViewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         if (mCurrPrivateStudentData.isFriendsWith(publicUserData)) {
             mViewSwitcher.showNext();
+        }
+    }
+
+    private void showOrHideButtons() {
+        if (publicUserData.getObjectId().equals(PublicUserData.getPublicUserData().getObjectId())) {
+            CogniButton btnFollow = (CogniButton) findViewById(R.id.btnFollow);
+            btnFollow.setVisibility(View.GONE);
+            CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnFollow);
+            btnUnfollow.setVisibility(View.GONE);
+            CogniButton btnMessage = (CogniButton) findViewById(R.id.btnFollow);
+            btnMessage.setVisibility(View.GONE);
         }
     }
 

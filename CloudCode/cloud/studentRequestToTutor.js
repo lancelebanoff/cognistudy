@@ -4,7 +4,7 @@ Parse.Cloud.define("studentRequestToTutor", function(request, response) {
 
 	Parse.Cloud.useMasterKey();
 	var publicTutorDataId = request.params.publicTutorDataId;
-	var studentId = request.params.studentId;
+	var publicStudentDataId = request.params.publicStudentDataId;
 	var query = new Parse.Query("PublicUserData")
 		.include("tutor.privateTutorData");
 	query.get(publicTutorDataId, {
@@ -12,21 +12,21 @@ Parse.Cloud.define("studentRequestToTutor", function(request, response) {
   		var privateTutorData = publicTutorData.get("tutor").get("privateTutorData");
 
 	  	// Main code
-		var studentQuery = new Parse.Query("Student");
-		studentQuery.get(studentId, {
-		  success: function(student) {
-			privateTutorData.addUnique("requestsFromStudents", student);
+		var studentQuery = new Parse.Query("PublicUserData");
+		studentQuery.get(publicStudentDataId, {
+		  success: function(publicStudentData) {
+			privateTutorData.addUnique("requestsFromStudents", publicStudentData);
 
 			privateTutorData.save(null, {
 			  success: function(privateTutorData) {
-			    response.success('Student added to RequestsFromStudents in PrivateTutorData with objectId: ' + student.id);
+			    response.success('Student added to RequestsFromStudents in PrivateTutorData with objectId: ' + publicStudentData.id);
 			  },
 			  error: function(privateTutorData, error) {
 			    response.error('Failed to save when adding student to RequestsFromStudents in PrivateTutorData, with error code: ' + error.message);
 			  }
 			});
 		  },
-		  error: function(student, error) {
+		  error: function(publicStudentData, error) {
 		    response.error('Failed to get student, with error code: ' + error.message);
 		  }
 		});
