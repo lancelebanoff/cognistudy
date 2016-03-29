@@ -15,7 +15,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -131,6 +130,20 @@ public class PrivateStudentData extends ParseObject{
                 return null;
             }
         });
+    }
+
+    public void addFriend(PublicUserData friend) {
+        add(Columns.friends, friend);
+    }
+
+    public void removeFriend(PublicUserData friend) {
+        ArrayList<PublicUserData> friendToRemove = new ArrayList<>();
+        friendToRemove.add(friend);
+        removeAll(Columns.friends, friendToRemove);
+    }
+
+    public boolean isFriendsWith(PublicUserData otherUser) {
+        return getFriendPublicUserIds().contains(otherUser.getObjectId());
     }
 
     @Override

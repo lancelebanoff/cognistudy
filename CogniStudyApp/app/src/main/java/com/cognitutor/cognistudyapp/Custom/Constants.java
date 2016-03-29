@@ -129,6 +129,7 @@ public class Constants {
     }
 
     public static class MenuItem {
+        public static final String MY_PROFILE = "My Profile";
         public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
         public static final String BOOKMARKS = "Bookmarks";
         public static final String ACHIEVEMENTS = "Achievements";
@@ -172,6 +173,7 @@ public class Constants {
         public static final String USER1OR2 = "USER1OR2";
 
         public static final String QUESTION_ID = "QUESTION_ID";
+        public static final String PUBLICUSERDATA_ID = "PUBLICUSERDATA_ID";
 
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
@@ -530,6 +532,7 @@ public class Constants {
     public static class CloudCodeFunction {
         public static final String DELETE_CHALLENGE = "deleteChallenge";
         public static final String CHOOSE_THREE_QUESTIONS = "chooseThreeQuestionsV2";
+        public static final String STUDENT_REQUEST_TO_TUTOR = "studentRequestToTutor";
     }
 
     public static class PinNames {

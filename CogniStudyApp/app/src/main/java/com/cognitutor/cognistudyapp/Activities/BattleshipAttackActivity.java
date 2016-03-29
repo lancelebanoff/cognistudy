@@ -110,8 +110,8 @@ public class BattleshipAttackActivity extends CogniActivity {
 
     private void showProfilePictures() {
         ParseFile[] parseFiles = mBattleshipBoardManager.getProfilePictures();
-        RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfileRounded1);
-        RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfileRounded2);
+        RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfile1);
+        RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfile2);
         img1.setParseFile(parseFiles[0]);
         img1.loadInBackground();
         img2.setParseFile(parseFiles[1]);
