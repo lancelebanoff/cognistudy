@@ -57,11 +57,11 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
             ivResponseStatus = (ImageView) itemView.findViewById(R.id.ivResponseStatus);
         }
 
-        public void setOnClickListener(final String questionId, final String responseId) {
+        public void setOnClickListener(final String questionMetaId, final String questionId, final String responseId) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateToQuestionActivity(questionId, responseId);
+                    navigateToQuestionActivity(questionMetaId, questionId, responseId);
                 }
             });
         }
@@ -118,7 +118,7 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
         holder.txtDate.setText(getDateToDisplay(meta));
         holder.setResponseStatusIcon(meta.getResponseStatus());
 
-        holder.setOnClickListener(meta.getQuestionId(), meta.getResponseId());
+        holder.setOnClickListener(meta.getObjectId(), meta.getQuestionId(), meta.getResponseId());
     }
 
     private String getDateToDisplay(QuestionMetaObject meta) {
@@ -132,9 +132,10 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
         return timeBetween + " ago";
     }
 
-    private void navigateToQuestionActivity(String questionId, String responseId) {
+    private void navigateToQuestionActivity(String questionMetaId, String questionId, String responseId) {
         Intent intent = new Intent(mActivity, mTargetQuestionActivityClass); //TODO: Change based on type of question
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, getParentActivityConstant());
+        intent.putExtra(Constants.IntentExtra.QUESTION_META_ID, questionMetaId);
         intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
         intent.putExtra(Constants.IntentExtra.RESPONSE_ID, responseId);
         mActivity.startActivity(intent);

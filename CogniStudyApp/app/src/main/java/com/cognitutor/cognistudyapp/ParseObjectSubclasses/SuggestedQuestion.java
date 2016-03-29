@@ -7,6 +7,7 @@ import com.parse.GetCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -107,5 +108,13 @@ public class SuggestedQuestion extends QuestionMetaObject {
                 e2.printStackTrace(); return "";
             }
         }
+    }
+
+    public static ParseQuery<SuggestedQuestion> getQuery() { return ParseQuery.getQuery(SuggestedQuestion.class); }
+
+    public void addResponseAndPin(Response response) {
+        put(Columns.response, response);
+        response.pinInBackground(getObjectId());
+        saveEventually();
     }
 }

@@ -21,18 +21,19 @@ public abstract class AnswerableQuestionActivity extends QuestionActivity {
 
     protected abstract Task<Void> createResponse(boolean isSelectedAnswerCorrect);
 
-    protected Task<Response> doCreateResponse(boolean isSelectedAnswerCorrect, final String challengeId) {
+    protected Task<Response> doCreateResponse(boolean isSelectedAnswerCorrect, final String pinName) {
         //TODO: Pin related objects
         //TODO: Implement rating
         final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
         return response.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Response>>() {
             @Override
             public Task<Response> then(Task<ParseObject> task) throws Exception {
-                return ParseObjectUtils.pinThenSaveInBackground(challengeId, response)
+                return ParseObjectUtils.pinThenSaveInBackground(pinName, response)
                         .continueWith(new Continuation<Void, Response>() {
                             @Override
                             public Response then(Task<Void> task) throws Exception {
                                 PrivateStudentData.addResponseAndSaveEventually(response);
+                                mResponse = response;
                                 return response;
                             }
                         });

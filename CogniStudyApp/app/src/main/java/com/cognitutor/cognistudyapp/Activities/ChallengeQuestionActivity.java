@@ -40,7 +40,6 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
         return doCreateResponse(isSelectedAnswerCorrect, mChallenge.getObjectId()).continueWithTask(new Continuation<Response, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Response> task) throws Exception {
-                mResponse = task.getResult();
                 mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(mResponse);
                 return null;
             }
@@ -73,6 +72,7 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
 
     private void loadChallenge() {
         String challengeId = getChallengeId();
+        //TODO: Load from localDataStore
         Challenge.getChallengeInBackground(challengeId)
                 .continueWith(new Continuation<Challenge, Void>() {
                     @Override
