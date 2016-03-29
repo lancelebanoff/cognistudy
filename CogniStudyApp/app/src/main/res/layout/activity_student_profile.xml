@@ -20,7 +20,7 @@
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="5dp"
                 android:src="@drawable/default_profile_pic"/>
 
             <RelativeLayout
@@ -49,47 +49,41 @@
                     android:layout_marginBottom="20dp"
                     android:layout_below="@+id/txtName" />
 
-                <ViewSwitcher
-                    android:id="@+id/viewSwitcher"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/llButtons"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
                     android:layout_below="@id/txtStudent">
 
-                    <com.cognitutor.cognistudyapp.Custom.CogniButton
-                        android:layout_width="wrap_content"
+                    <ViewSwitcher
+                        android:id="@+id/viewSwitcher"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Follow"
-                        android:id="@+id/btnFollow"
-                        android:onClick="onClick_btnFollow"
-                        android:layout_gravity="center_horizontal"/>
+                        android:layout_weight="1">
+
+                        <com.cognitutor.cognistudyapp.Custom.CogniButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Follow"
+                            android:id="@+id/btnFollow"
+                            android:onClick="onClick_btnFollow"/>
+
+                        <com.cognitutor.cognistudyapp.Custom.CogniButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Unfollow"
+                            android:id="@+id/btnUnfollow"
+                            android:onClick="onClick_btnUnfollow" />
+                    </ViewSwitcher>
 
                     <com.cognitutor.cognistudyapp.Custom.CogniButton
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Unfollow"
-                        android:id="@+id/btnUnfollow"
+                        android:text="Message"
+                        android:id="@+id/btnMessage"
                         android:onClick="navigateToNewChallengeActivity"
-                        android:layout_gravity="center_horizontal" />
-                </ViewSwitcher>
-
-                <com.cognitutor.cognistudyapp.Custom.CogniButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Message"
-                    android:id="@+id/btnMessage"
-                    android:onClick="navigateToNewChallengeActivity"
-                    android:layout_below="@id/viewSwitcher"
-                    android:layout_centerHorizontal="true" />
-
-                <com.cognitutor.cognistudyapp.Custom.CogniButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Send Notification"
-                    android:id="@+id/btnChallenge"
-                    android:onClick="navigateToNewChallengeActivity"
-                    android:layout_below="@id/btnMessage"
-                    android:layout_centerHorizontal="true" />
+                        android:layout_weight="1"/>
+                </LinearLayout>
 
             </RelativeLayout>
         </RelativeLayout>

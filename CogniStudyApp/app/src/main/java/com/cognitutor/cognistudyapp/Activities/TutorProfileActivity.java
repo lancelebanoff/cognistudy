@@ -10,6 +10,7 @@ import android.widget.ViewSwitcher;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Tutor;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -26,6 +27,7 @@ public class TutorProfileActivity extends CogniActivity {
     private ViewHolder holder;
     private Intent mIntent;
     private PublicUserData publicUserData;
+    private Tutor mTutor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +39,16 @@ public class TutorProfileActivity extends CogniActivity {
 
         publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra(Constants.IntentExtra.PUBLICUSERDATA_ID)); //TODO: Change this
         if(publicUserData == null) { return; } //TODO: Handle this?
+        try {
+            mTutor = publicUserData.getTutor();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         holder.txtName.setText(publicUserData.getDisplayName());
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
+        holder.txtBiography.setText(mTutor.getBiography());
     }
 
     public void onClick_btnAddTutor(View view) {
@@ -62,11 +71,13 @@ public class TutorProfileActivity extends CogniActivity {
         ViewHolder holder = new ViewHolder();
         holder.txtName = (TextView) findViewById(R.id.txtName);
         holder.imgProfile = (ParseImageView) findViewById(R.id.imgProfile);
+        holder.txtBiography = (TextView) findViewById(R.id.txtBiography);
         return holder;
     }
 
     private static class ViewHolder {
         public TextView txtName;
         public ParseImageView imgProfile;
+        public TextView txtBiography;
     }
 }

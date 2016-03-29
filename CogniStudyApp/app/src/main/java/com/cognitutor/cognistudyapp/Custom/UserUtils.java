@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
@@ -56,7 +55,7 @@ public class UserUtils {
                 .getFirst();
 //        ParseObjectUtils.pin(Constants.PinNames.CurrentUser, publicUserData);
         final Student student = publicUserData.getStudent();
-        return publicUserData.pinInBackground(Constants.PinNames.CurrentUser).continueWithTask(new Continuation<Void, Task<Void>>() {
+        return publicUserData.pinInBackground().continueWithTask(new Continuation<Void, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Void> task) {
                 if (task.getError() != null) {
