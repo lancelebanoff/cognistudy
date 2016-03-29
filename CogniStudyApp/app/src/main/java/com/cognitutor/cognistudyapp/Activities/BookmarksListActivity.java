@@ -11,13 +11,9 @@ import com.cognitutor.cognistudyapp.Fragments.PastQuestionsFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseQuery;
 
 public class BookmarksListActivity extends QuestionListActivity {
-
-    @Override
-    protected Class<? extends QuestionMetaObject> getTargetMetaClass() {
-        return Bookmark.class;
-    }
 
     @Override
     protected Class<? extends QuestionActivity> getTargetQuestionActivityClass() {
@@ -32,5 +28,11 @@ public class BookmarksListActivity extends QuestionListActivity {
     @Override
     protected Class<? extends CogniFragment> getFragmentClass() {
         return PastQuestionsFragment.class;
+    }
+
+    @Override
+    protected ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(String subject, String category) {
+        return QuestionMetaObject.getSubjectAndCategoryQuery(Bookmark.class, subject, category)
+                .fromLocalDatastore();
     }
 }

@@ -18,11 +18,6 @@ import bolts.Task;
 public class QuestionHistoryActivity extends QuestionListActivity {
 
     @Override
-    protected Class<? extends QuestionMetaObject> getTargetMetaClass() {
-        return Response.class;
-    }
-
-    @Override
     protected Class<? extends QuestionActivity> getTargetQuestionActivityClass() {
         return PastQuestionActivity.class;
     }
@@ -35,5 +30,15 @@ public class QuestionHistoryActivity extends QuestionListActivity {
     @Override
     protected Class<? extends CogniFragment> getFragmentClass() {
         return PastQuestionsFragment.class;
+    }
+
+    @Override
+    protected ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(String subject, String category) {
+        return QuestionMetaObject.getSubjectAndCategoryQuery(Response.class, subject, category)
+                .fromPin(getChallengeId());
+    }
+
+    private String getChallengeId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
     }
 }

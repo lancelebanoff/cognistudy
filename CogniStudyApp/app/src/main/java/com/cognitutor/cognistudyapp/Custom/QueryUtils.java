@@ -220,7 +220,7 @@ public class QueryUtils {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, deleteOldPinnedResults, null);
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, null);
     }
 
     /**
@@ -240,7 +240,7 @@ public class QueryUtils {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromPin(pinName);
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, deleteOldPinnedResults, null);
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, null);
     }
 
     /**
@@ -261,12 +261,35 @@ public class QueryUtils {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, null, false, null);
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.NONE, null, false, null);
+    }
+
+    /**
+     * Finds objects with the given query using fromLocalDatastore(), then updates the results with the network results. Pins each
+     * object with its object id as the pin name.
+     * <br />
+     * The OnDataLoadedListener's onLoaded() method will be called when results are returned from the cache, and again when results
+     * are returned from the network.
+     * @param builder
+     * @param listener
+     * @param <T> extends ParseObject
+     * @return
+     */
+    public static <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackgroundPinWithObjId(
+            final OnDataLoadedListener<T> listener, ParseQueryBuilder<T> builder) {
+
+        final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
+        final ParseQuery<T> networkQuery = builder.buildQuery();
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.OBJECT_ID, null, false, null);
+    }
+
+    enum PinNameOption {
+        NONE, CONSTANT, OBJECT_ID
     }
 
     protected <T extends ParseObject> Task<List<T>> doFindCacheThenNetworkInBackground(
             final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery, final OnDataLoadedListener<T> listener,
-            final String pinName, final boolean deleteOldPinnedResults, final QueryUtilsCacheThenNetworkHelper helper) {
+            final PinNameOption pinNameOption, final String pinName, final boolean deleteOldPinnedResults, final QueryUtilsCacheThenNetworkHelper helper) {
 
         final long startTime = System.currentTimeMillis();
 
@@ -285,12 +308,18 @@ public class QueryUtils {
                     addFromLocalOrNetwork(fromLocal, networkResults, combined);
                 }
                 combined.addAll(networkResults);
-                if (pinName != null) {
+                if(pinNameOption == PinNameOption.CONSTANT && pinName != null) {
                     if (deleteOldPinnedResults) {
                         ParseObjectUtils.unpinAllInBackground(pinName).waitForCompletion();
                     }
                     ParseObjectUtils.pinAllInBackground(pinName, combined).waitForCompletion();
-                } else { //if (deleteOldPinnedResults) {
+                }
+                else if(pinNameOption == PinNameOption.OBJECT_ID) {
+                    for(T obj : combined) {
+                        obj.pinInBackground(obj.getObjectId()).waitForCompletion(); //TODO: Why wait for completion?
+                    }
+                }
+                else if(pinNameOption == PinNameOption.NONE) { //if (deleteOldPinnedResults) {
                     ParseObjectUtils.pinAllInBackground(combined).waitForCompletion();
                 }
                 if (isCancelled(helper, startTime))

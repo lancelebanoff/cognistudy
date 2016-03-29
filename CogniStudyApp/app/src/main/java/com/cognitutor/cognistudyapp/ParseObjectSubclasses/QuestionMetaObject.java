@@ -29,16 +29,16 @@ public abstract class QuestionMetaObject extends ParseObject{
     }
 
     public static ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(Class<? extends QuestionMetaObject> clazz,
-                                                                            String challengeId, String subject, String category) {
+                                                                            String subject, String category) {
         ParseQuery<QuestionMetaObject> query = getMetaQuery(clazz);
         query.orderByDescending(Columns.createdAt);
 
-        if(challengeId != null) {
-            query.fromPin(challengeId);
-        }
-        else {
-            query.fromLocalDatastore();
-        }
+//        if(challengeId != null) {
+//            query.fromPin(challengeId);
+//        }
+//        else {
+//            query.fromLocalDatastore();
+//        }
 
         ParseQuery<Question> questionQuery = Question.getQuery();
         boolean includeQuestionQuery = false;
