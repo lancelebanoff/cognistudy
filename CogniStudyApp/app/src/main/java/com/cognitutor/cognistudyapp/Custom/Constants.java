@@ -144,10 +144,13 @@ public class Constants {
     }
 
     public static class NotificationData {
+        public static final String title = "title";
+        public static final String alert = "alert";
         public static final String ACTIVITY = "ACTIVITY";
         public static class Activity {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String CONVERSATION_ACTIVITY = "CONVERSATION_ACTIVITY";
+            public static final String SUGGESTED_QUESTION_ACTIVITY = "SUGGESTED_QUESTION_ACTIVITY";
         }
     }
 

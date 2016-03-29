@@ -1,8 +1,14 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -13,6 +19,7 @@ import android.widget.ViewFlipper;
 import com.cognitutor.cognistudyapp.Adapters.QuestionListAdapter;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Fragments.CogniFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.R;
@@ -30,17 +37,19 @@ import bolts.Task;
 /**
  * Created by Kevin on 3/18/2016.
  */
-public abstract class QuestionListActivity extends CogniActivity {
+public abstract class QuestionListActivity extends AppCompatActivity {
 
     protected Spinner mSpSubjects;
     protected Spinner mSpCategories;
     protected QuestionListAdapter mAdapter;
     protected CogniRecyclerView mQuestionList;
     protected Intent mIntent;
+    protected Fragment mFragment;
 
     protected abstract Class<? extends QuestionMetaObject> getTargetMetaClass();
     protected abstract Class<? extends QuestionActivity> getTargetQuestionActivityClass();
     protected abstract String getActivityName();
+    protected abstract Class<? extends CogniFragment> getFragmentClass();
 
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, ChallengeQuestionActivity.class); //TODO: Change depending on type of question
@@ -51,8 +60,20 @@ public abstract class QuestionListActivity extends CogniActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_question_list);
 
+        setContentView(R.layout.activity_question_list);
+        if(savedInstanceState == null) {
+            try {
+                mFragment = getFragmentClass().newInstance();
+            } catch (Exception e) { e.printStackTrace(); }
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.questionListFragmentContainer, mFragment).commit();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         mIntent = getIntent();
         mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
         mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -61,12 +82,17 @@ public abstract class QuestionListActivity extends CogniActivity {
 
         mAdapter = new QuestionListAdapter(this, getTargetQuestionActivityClass(),
                 QuestionMetaObject.getSubjectAndCategoryQuery(getTargetMetaClass(), getChallengeId(),
-                Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
+                        Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
         mQuestionList.setAdapter(mAdapter);
     }
 
     @Override
-    protected void onResume() {
+    public void onSupportActionModeStarted(ActionMode mode) {
+        super.onSupportActionModeStarted(mode);
+    }
+
+    @Override
+    public void onResume() {
         super.onResume();
         getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
     }

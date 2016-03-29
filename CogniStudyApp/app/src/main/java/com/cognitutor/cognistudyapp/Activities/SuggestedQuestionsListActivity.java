@@ -1,6 +1,8 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Fragments.CogniFragment;
+import com.cognitutor.cognistudyapp.Fragments.SuggestedQuestionsFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 
@@ -19,6 +21,11 @@ public class SuggestedQuestionsListActivity extends QuestionListActivity {
     @Override
     protected String getActivityName() {
         return Constants.IntentExtra.ParentActivity.SUGGESTED_QUESTIONS_ACTIVITY;
+    }
+
+    @Override
+    protected Class<? extends CogniFragment> getFragmentClass() {
+        return SuggestedQuestionsFragment.class;
     }
 }
 
