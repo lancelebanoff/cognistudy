@@ -209,7 +209,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     return null;
                 }
             });
-            challenge.pinInBackground(challengeId);
+            challenge.pinInBackground(challengeId).continueWith(new Continuation<Void, Object>() {
+                @Override
+                public Object then(Task<Void> task) throws Exception {
+                    //Update the people list so that the opponent shows up
+                    ((MainActivity) getActivity()).updatePeopleFragment();
+                    return null;
+                }
+            });
         }
     }
 
