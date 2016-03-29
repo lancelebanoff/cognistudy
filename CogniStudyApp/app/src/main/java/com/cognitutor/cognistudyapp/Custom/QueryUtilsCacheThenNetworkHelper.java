@@ -19,7 +19,7 @@ public class QueryUtilsCacheThenNetworkHelper extends QueryUtils {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
         final ParseQuery<T> networkQuery = builder.buildQuery();
-        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, pinName, deleteOldPinnedResults, this);
+        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, this);
     }
 
     public void cancelAllQueries() {
