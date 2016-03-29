@@ -60,6 +60,9 @@ public class TutorProfileActivity extends CogniActivity {
         ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.STUDENT_REQUEST_TO_TUTOR, params).continueWith(new Continuation<Object, Void>() {
             @Override
             public Void then(Task<Object> task) throws Exception {
+                if (task.getError() != null) {
+                    task.getError().printStackTrace();
+                }
                 return null;
             }
         });
