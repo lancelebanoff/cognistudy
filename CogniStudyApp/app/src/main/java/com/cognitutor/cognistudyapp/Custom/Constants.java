@@ -144,6 +144,13 @@ public class Constants {
         }
     }
 
+    public static class TutorRequest {
+        public static class Attribute {
+            public static final String NAME = "NAME";
+            public static final String PROFILE_PIC = "PROFILE_PIC";
+        }
+    }
+
     public static class NotificationData {
         public static final String ACTIVITY = "ACTIVITY";
         public static class Activity {

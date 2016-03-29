@@ -8,6 +8,7 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Tutor;
 import com.cognitutor.cognistudyapp.R;
@@ -27,7 +28,9 @@ public class TutorProfileActivity extends CogniActivity {
      *      PUBLICUSERDATA_ID: String
      */
     private ViewHolder holder;
+    private ViewSwitcher mViewSwitcher;
     private Intent mIntent;
+    private PrivateStudentData mCurrPrivateStudentData;
     private PublicUserData publicUserData;
     private Tutor mTutor;
 
@@ -51,6 +54,16 @@ public class TutorProfileActivity extends CogniActivity {
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtBiography.setText(mTutor.getBiography());
+
+        try {
+            mCurrPrivateStudentData = PublicUserData.getPublicUserData().getStudent().getPrivateStudentData();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        mViewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+        if (mCurrPrivateStudentData.hasTutor(publicUserData)) {
+            mViewSwitcher.showNext();
+        }
     }
 
     public void onClick_btnAddTutor(View view) {

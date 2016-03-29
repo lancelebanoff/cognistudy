@@ -13,6 +13,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
@@ -21,9 +22,11 @@ import android.widget.ListView;
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
+import com.cognitutor.cognistudyapp.Adapters.TutorRequestQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
@@ -52,10 +55,12 @@ import bolts.Task;
 
 public class MainFragment extends CogniPushListenerFragment implements View.OnClickListener {
 
+    private TutorRequestQueryAdapter tutorRequestAdapter;
     private ChallengeQueryAdapter challengeRequestQueryAdapter;
     private ChallengeQueryAdapter yourTurnChallengeQueryAdapter;
     private ChallengeQueryAdapter theirTurnChallengeQueryAdapter;
     private ChallengeQueryAdapter pastChallengeQueryAdapter;
+    private ListView tutorRequestListView;
     private ListView challengeRequestListView;
     private ListView yourTurnListView;
     private ListView theirTurnListView;
@@ -106,6 +111,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             public Void then(Task<PublicUserData> task) throws Exception {
                 PublicUserData publicUserData = task.getResult();
                 endChallengesThatRanOutOfTime(publicUserData);
+                createTutorRequestListView(rootView);
                 createChallengeRequestListView(rootView, publicUserData);
                 createYourTurnListView(rootView, publicUserData);
                 createTheirTurnListView(rootView, publicUserData);
@@ -159,6 +165,28 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 }
             }
         }
+    }
+
+    private void createTutorRequestListView(final View rootView) {
+        PrivateStudentData privateStudentData = PrivateStudentData.getPrivateStudentData();
+        List<PublicUserData> tutorRequests = privateStudentData.getTutorRequests();
+        tutorRequestAdapter = new TutorRequestQueryAdapter(getActivity(), this, tutorRequests);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tutorRequestListView = (ListView) rootView.findViewById(R.id.listTutorRequests);
+                tutorRequestListView.setFocusable(false);
+                tutorRequestListView.setAdapter(tutorRequestAdapter);
+                tutorRequestListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    }
+                });
+                setListViewHeightBasedOnChildren(tutorRequestListView);
+            }
+        });
     }
 
     private void createChallengeRequestListView(final View rootView, PublicUserData publicUserData) {
