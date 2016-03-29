@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;

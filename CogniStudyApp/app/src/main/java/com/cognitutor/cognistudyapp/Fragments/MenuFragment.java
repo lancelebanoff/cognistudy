@@ -16,8 +16,10 @@ import com.cognitutor.cognistudyapp.Activities.BookmarksListActivity;
 import com.cognitutor.cognistudyapp.Activities.HelpActivity;
 import com.cognitutor.cognistudyapp.Activities.SettingsActivity;
 import com.cognitutor.cognistudyapp.Activities.ShopActivity;
+import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 
@@ -82,10 +84,10 @@ public class MenuFragment extends CogniFragment {
 
     private List<MenuItem> getMenuItems() {
         ArrayList<MenuItem> menuItems = new ArrayList<>();
+        menuItems.add(new MenuItem(Constants.MenuItem.MY_PROFILE, R.drawable.icon_my_profile));
         menuItems.add(new MenuItem(Constants.MenuItem.SUGGESTED_QUESTIONS, R.drawable.icon_suggested_questions));
         menuItems.add(new MenuItem(Constants.MenuItem.BOOKMARKS, R.drawable.icon_bookmarks));
         menuItems.add(new MenuItem(Constants.MenuItem.ACHIEVEMENTS, R.drawable.icon_achievements));
-        menuItems.add(new MenuItem(Constants.MenuItem.SHOP, R.drawable.icon_shop));
         menuItems.add(new MenuItem(Constants.MenuItem.SETTINGS, R.drawable.icon_settings));
         menuItems.add(new MenuItem(Constants.MenuItem.HELP, R.drawable.icon_help));
         menuItems.add(new MenuItem(Constants.MenuItem.SIGN_OUT, R.drawable.icon_sign_out));
@@ -94,6 +96,11 @@ public class MenuFragment extends CogniFragment {
 
     private void onClick(String label) {
         switch(label) {
+            case Constants.MenuItem.MY_PROFILE:
+                Intent intent = new Intent(getActivity(), StudentProfileActivity.class);
+                intent.putExtra(Constants.IntentExtra.PUBLICUSERDATA_ID, PublicUserData.getPublicUserData().getObjectId());
+                startActivity(intent);
+                break;
             case Constants.MenuItem.SUGGESTED_QUESTIONS:
                 navigateToActivity(SuggestedQuestionsListActivity.class);
                 break;

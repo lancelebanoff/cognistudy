@@ -76,7 +76,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.ChallengeActivity"
-            android:label="@string/title_activity_challenge"
+            android:label=""
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -114,7 +114,8 @@
         </activity>
         <activity
             android:name=".Activities.StudentProfileActivity"
-            android:label="@string/title_activity_student_profile"
+            android:label=""
+            android:theme="@style/AppTheme.TransparentActionBar"
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" >
         </activity>
@@ -160,7 +161,11 @@
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".Activities.TutorProfileActivity"
+        <activity
+            android:name=".Activities.TutorProfileActivity"
+            android:label=""
+            android:theme="@style/AppTheme.TransparentActionBar"
+            android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" >
         </activity>
 
