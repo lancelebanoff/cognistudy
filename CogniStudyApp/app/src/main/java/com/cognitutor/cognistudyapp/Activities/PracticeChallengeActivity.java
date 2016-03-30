@@ -151,6 +151,7 @@ public class PracticeChallengeActivity extends CogniActivity {
 
     public void navigateToQuestionHistoryActivity(View view) {
         Intent intent = new Intent(this, QuestionHistoryActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mChallengeId);
         startActivity(intent);
     }
 
