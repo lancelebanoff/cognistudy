@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.cognitutor.cognistudyapp.Custom.RoundedImageView
+            android:id="@+id/imgProfileRounded"
+            android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"
+            android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/default_profile_pic"/>
+
+        <TextView
+            android:id="@+id/txtName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:layout_toRightOf="@+id/imgProfileRounded"
+            android:layout_centerVertical="true"
+            android:text="Tutor"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

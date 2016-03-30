@@ -8,6 +8,7 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Tutor;
 import com.cognitutor.cognistudyapp.R;
@@ -27,7 +28,9 @@ public class TutorProfileActivity extends CogniActivity {
      *      PUBLICUSERDATA_ID: String
      */
     private ViewHolder holder;
+    private ViewSwitcher mViewSwitcher;
     private Intent mIntent;
+    private PrivateStudentData mCurrPrivateStudentData;
     private PublicUserData publicUserData;
     private Tutor mTutor;
 
@@ -51,9 +54,22 @@ public class TutorProfileActivity extends CogniActivity {
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtBiography.setText(mTutor.getBiography());
+
+        try {
+            mCurrPrivateStudentData = PublicUserData.getPublicUserData().getStudent().getPrivateStudentData();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        mViewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+        if (mCurrPrivateStudentData.hasTutorOrRequestedTutor(publicUserData)) {
+            mViewSwitcher.showNext();
+        }
     }
 
     public void onClick_btnAddTutor(View view) {
+        mCurrPrivateStudentData.addRequestToTutor(publicUserData);
+        mCurrPrivateStudentData.saveInBackground();
+
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("publicStudentDataId", PublicUserData.getPublicUserData().getObjectId());
         params.put("publicTutorDataId", publicUserData.getObjectId());
@@ -71,6 +87,33 @@ public class TutorProfileActivity extends CogniActivity {
         viewSwitcher.showNext();
 
         Toast.makeText(this, "Request sent to tutor.", Toast.LENGTH_LONG).show();
+    }
+
+    public void onClick_btnRemoveTutor(View view) {
+        mCurrPrivateStudentData.removeTutor(publicUserData);
+        mCurrPrivateStudentData.saveInBackground();
+
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("studentPublicDataId", PublicUserData.getPublicUserData().getObjectId());
+        params.put("tutorPublicDataId", publicUserData.getObjectId());
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.REMOVE_STUDENT, params).continueWith(new Continuation<Object, Void>() {
+            @Override
+            public Void then(Task<Object> task) throws Exception {
+                if (task.getError() != null) {
+                    task.getError().printStackTrace();
+                }
+                return null;
+            }
+        });
+
+        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+        viewSwitcher.showNext();
+
+        Toast.makeText(this, "Unlinked from tutor.", Toast.LENGTH_LONG).show();
+    }
+
+    public void onClick_btnMessage(View view) {
+
     }
 
     private ViewHolder createViewHolder() {

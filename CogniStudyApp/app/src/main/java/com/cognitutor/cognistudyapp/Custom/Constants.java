@@ -144,6 +144,13 @@ public class Constants {
         }
     }
 
+    public static class TutorRequest {
+        public static class Attribute {
+            public static final String NAME = "NAME";
+            public static final String PROFILE_PIC = "PROFILE_PIC";
+        }
+    }
+
     public static class NotificationData {
         public static final String ACTIVITY = "ACTIVITY";
         public static class Activity {
@@ -533,6 +540,8 @@ public class Constants {
         public static final String DELETE_CHALLENGE = "deleteChallenge";
         public static final String CHOOSE_THREE_QUESTIONS = "chooseThreeQuestionsV2";
         public static final String STUDENT_REQUEST_TO_TUTOR = "studentRequestToTutor";
+        public static final String ADD_STUDENT = "addStudent";
+        public static final String REMOVE_STUDENT = "removeStudent";
     }
 
     public static class PinNames {
