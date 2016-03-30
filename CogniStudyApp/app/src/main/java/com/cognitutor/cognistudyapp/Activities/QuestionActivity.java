@@ -39,6 +39,7 @@ import com.parse.ParseQuery;
 import org.apache.commons.io.IOUtils;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -202,19 +203,34 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     }
 
     private Task<Bookmark> doBookmark() {
-        final Bookmark bookmark = new Bookmark(mResponse);
-        return bookmark.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Bookmark>>() {
+        return Task.callInBackground(new Callable<Bookmark>() {
             @Override
-            public Task<Bookmark> then(Task<ParseObject> task) throws Exception {
-                return ParseObjectUtils.saveThenPinWithObjectIdInBackground(bookmark)
-                        .continueWith(new Continuation<Void, Bookmark>() {
-                            @Override
-                            public Bookmark then(Task<Void> task) throws Exception {
-                                PrivateStudentData.addBookmarkAndSaveEventually(bookmark).waitForCompletion();
-                                mBookmark = bookmark;
-                                return bookmark;
-                            }
-                        });
+            public Bookmark call() throws Exception {
+                int count = 0;
+                while(mResponse == null) {
+                    Thread.sleep(100);
+                    count++;
+                    if(count > 100) {
+                        Log.e("doBookmark", "TIMEOUT");
+                        return null;
+                    }
+                }
+                final Bookmark bookmark = new Bookmark(mResponse);
+                bookmark.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Bookmark>>() {
+                    @Override
+                    public Task<Bookmark> then(Task<ParseObject> task) throws Exception {
+                        return ParseObjectUtils.saveThenPinWithObjectIdInBackground(bookmark)
+                                .continueWith(new Continuation<Void, Bookmark>() {
+                                    @Override
+                                    public Bookmark then(Task<Void> task) throws Exception {
+                                        PrivateStudentData.addBookmarkAndSaveEventually(bookmark).waitForCompletion();
+                                        mBookmark = bookmark;
+                                        return bookmark;
+                                    }
+                                });
+                    }
+                }).waitForCompletion();
+                return bookmark;
             }
         });
     }
@@ -347,6 +363,8 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     }
 
     protected void navigateToParentActivity() {
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
         finish();
     }
 

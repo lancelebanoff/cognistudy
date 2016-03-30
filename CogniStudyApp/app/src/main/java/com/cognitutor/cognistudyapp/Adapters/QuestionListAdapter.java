@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.cognitutor.cognistudyapp.Activities.ChallengeQuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionHistoryActivity;
+import com.cognitutor.cognistudyapp.Activities.QuestionListActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
@@ -52,10 +53,6 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
         }, true); //TODO: Try true for hasStableIds
         mIntentExtras = intentExtras;
         mTargetQuestionActivityClass = targetQuestionActivityClass;
-    }
-
-    private void init() {
-
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -106,11 +103,14 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
             switch (responseStatus) {
                 case Constants.ResponseStatusType.CORRECT:
                     ivResponseStatus.setImageResource(R.drawable.ic_icon_correct);
+                    ivResponseStatus.setVisibility(View.VISIBLE);
                     break;
                 case Constants.ResponseStatusType.INCORRECT:
                     ivResponseStatus.setImageResource(R.drawable.ic_icon_incorrect);
+                    ivResponseStatus.setVisibility(View.VISIBLE);
                     break;
                 default:
+                    ivResponseStatus.setVisibility(View.INVISIBLE);
                     break;
             }
         }
@@ -125,7 +125,7 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        final QuestionMetaObject meta = mItems.get(position);
+        final QuestionMetaObject meta = getItem(position);
         holder.setSubjectIcon(meta.getSubject());
         holder.txtCategory.setText(meta.getCategory());
         holder.txtCategory.setTypeface(null, Typeface.BOLD);
@@ -157,7 +157,7 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
                 intent.putExtra(key, mIntentExtras.get(key));
             }
         }
-        mActivity.startActivity(intent);
+        mActivity.startActivityForResult(intent, QuestionListActivity.REQUEST_CODE);
     }
 
     private String getParentActivityConstant() {
