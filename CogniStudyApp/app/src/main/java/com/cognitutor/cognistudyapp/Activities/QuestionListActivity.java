@@ -41,6 +41,8 @@ public abstract class QuestionListActivity extends CogniActivity {
     protected abstract Class<? extends CogniFragment> getFragmentClass();
     protected abstract ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(String subject, String category);
 
+    private boolean onResumeFinished;
+
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, ChallengeQuestionActivity.class); //TODO: Change depending on type of question
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, getActivityName());
@@ -64,14 +66,17 @@ public abstract class QuestionListActivity extends CogniActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mIntent = getIntent();
-        mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
-        mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
-        initializeSpinners();
+        onResumeFinished = false;
+        if(mAdapter == null) {
+            mIntent = getIntent();
+            mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
+            mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+            mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
+            initializeSpinners();
 
-        mAdapter = createQuestionListAdapter();
-        mQuestionList.setAdapter(mAdapter);
+            mAdapter = createQuestionListAdapter();
+            mQuestionList.setAdapter(mAdapter);
+        }
     }
 
     //This was made a method so that QuestionHistoryActivity could override the method and use the alternate constructor
@@ -90,12 +95,17 @@ public abstract class QuestionListActivity extends CogniActivity {
     public void onResume() {
         super.onResume();
         getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
+        onResumeFinished = true;
     }
 
     public void getAndDisplayFromSelections() {
-        getAndDisplay(getSelectedSubject(), getSelectedCategory());
+        //The category spinner's onItemSelected was getting called in initializeSpinners, before onResume(), where
+        // getAndDisplay is called. This was causing the items to blink. No need to call getAndDisplay before onResume().
+        if(onResumeFinished)
+            getAndDisplay(getSelectedSubject(), getSelectedCategory());
     }
 
+    //This method is overridden in SuggestedQuestionsListActivity
     protected void getAndDisplay(String subject, String category) {
 
         ParseQuery<QuestionMetaObject> query = getSubjectAndCategoryQuery(subject, category);
