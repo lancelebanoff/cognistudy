@@ -7,14 +7,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseFile;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -30,15 +30,14 @@ public class BattleshipAttackActivity extends CogniActivity {
 
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
+    private GridLayout mAnimationsGridLayout;
     private BattleshipBoardManager mBattleshipBoardManager;
-    private boolean mScoresHaveBeenLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_battleship_attack);
         mIntent = getIntent();
-        mScoresHaveBeenLoaded = false;
 
         // Exit ChallengeActivity
         Intent finishActivityIntent = new Intent(Constants.IntentExtra.FINISH_CHALLENGE_ACTIVITY);
@@ -65,11 +64,7 @@ public class BattleshipAttackActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts();
-                                if (!mScoresHaveBeenLoaded) {
-                                    showScores();
-                                    showProfilePictures();
-                                    mScoresHaveBeenLoaded = true;
-                                }
+                                showLoadingDone();
                             }
                         });
 
@@ -100,22 +95,25 @@ public class BattleshipAttackActivity extends CogniActivity {
                 removeOnGlobalLayoutListener(mTargetsGridLayout, this);
             }
         });
+
+        mAnimationsGridLayout = (GridLayout) findViewById(R.id.animationsGridLayout);
+        mBattleshipBoardManager.setAnimationsGridLayout(mAnimationsGridLayout);
+        observer = mAnimationsGridLayout.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mBattleshipBoardManager.initializeAnimationsGridLayout();
+                mBattleshipBoardManager.showPreviousTurn();
+                removeOnGlobalLayoutListener(mAnimationsGridLayout, this);
+            }
+        });
     }
 
-    private void showScores() {
-        TextView txtScore = (TextView) findViewById(R.id.txtScore);
-        int[] scores = mBattleshipBoardManager.getScores();
-        txtScore.setText(scores[0] + " - " + scores[1]);
-    }
-
-    private void showProfilePictures() {
-        ParseFile[] parseFiles = mBattleshipBoardManager.getProfilePictures();
-        RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfile1);
-        RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfile2);
-        img1.setParseFile(parseFiles[0]);
-        img1.loadInBackground();
-        img2.setParseFile(parseFiles[1]);
-        img2.loadInBackground();
+    private void showLoadingDone() {
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+        RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        rlContent.setVisibility(View.VISIBLE);
     }
 
     @Override

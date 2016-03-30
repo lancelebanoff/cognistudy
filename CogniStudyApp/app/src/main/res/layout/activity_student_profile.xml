@@ -65,14 +65,14 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Follow"
-                            android:id="@+id/btnAddTutor"
+                            android:id="@+id/btnFollow"
                             android:onClick="onClick_btnFollow"/>
 
                         <com.cognitutor.cognistudyapp.Custom.CogniButton
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Unfollow"
-                            android:id="@+id/btnRemoveTutor"
+                            android:id="@+id/btnUnfollow"
                             android:onClick="onClick_btnUnfollow" />
                     </ViewSwitcher>
 

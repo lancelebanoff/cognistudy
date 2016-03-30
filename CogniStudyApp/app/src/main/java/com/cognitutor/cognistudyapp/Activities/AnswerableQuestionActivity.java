@@ -21,7 +21,7 @@ public abstract class AnswerableQuestionActivity extends QuestionActivity {
 
     protected abstract void onPostCreateResponse(Response response);
 
-    private Task<Void> createResponse(boolean isSelectedAnswerCorrect) {
+    protected Task<Void> createResponse(boolean isSelectedAnswerCorrect) {
         return doCreateResponse(isSelectedAnswerCorrect, getQuestionAndResponsePinName()).continueWithTask(new Continuation<Response, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Response> task) throws Exception {

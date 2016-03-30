@@ -234,7 +234,7 @@ public class BattleshipBoardManager {
                 }
             }
             if (!mGifPositions.isEmpty()) {
-                drawGif(mGifPositions.get(0)[0], mGifPositions.get(0)[1], 5, 5, R.drawable.animation_pencil_fill_in);
+                drawPastTurnGif(mGifPositions.get(0)[0], mGifPositions.get(0)[1], 5, 5, R.drawable.animation_pencil_fill_in);
             }
         }
     }
@@ -389,7 +389,8 @@ public class BattleshipBoardManager {
                         }
                     }
                 }
-                setTargetImageResource(imgSpace, mBoardPositionStatus.get(row).get(col));
+                drawAttackGif(row, col, 5, 5, R.drawable.animation_pencil_fill_in, imgSpace,
+                        mBoardPositionStatus.get(row).get(col));
 
                 mGameBoard.setIsLastMoveAtPosition(row, col);
                 saveGameBoard();
@@ -569,7 +570,28 @@ public class BattleshipBoardManager {
         }
     }
 
-    private void drawGif(int row, int col, final int height, final int width, final int gifDrawableId) {
+    private void drawAttackGif(int row, int col, int height, int width, int gifDrawableId, final ImageView imgSpace, final String boardPositionStatus) {
+        final GifImageView gifImageView = new GifImageView(mActivity);
+        gifImageView.setImageResource(gifDrawableId);
+        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+        layoutParams.rowSpec = GridLayout.spec(row, 1);
+        layoutParams.columnSpec = GridLayout.spec(col, 1);
+        layoutParams.height = mAnimationsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * height;
+        layoutParams.width = mAnimationsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * width;
+        gifImageView.setLayoutParams(layoutParams);
+        mAnimationsGridLayout.addView(gifImageView);
+
+        GifDrawable gifDrawable = (GifDrawable) gifImageView.getDrawable();
+        gifDrawable.addAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationCompleted(int loopNumber) {
+                gifImageView.setVisibility(View.GONE);
+                setTargetImageResource(imgSpace, boardPositionStatus);
+            }
+        });
+    }
+
+    private void drawPastTurnGif(int row, int col, final int height, final int width, final int gifDrawableId) {
         final GifImageView gifImageView = new GifImageView(mActivity);
         gifImageView.setImageResource(gifDrawableId);
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
@@ -596,7 +618,7 @@ public class BattleshipBoardManager {
                 if (mPencilGifIndex < mGifPositions.size()) {
                     row = mGifPositions.get(mPencilGifIndex)[0];
                     col = mGifPositions.get(mPencilGifIndex)[1];
-                    drawGif(row, col, height, width, gifDrawableId); // Draw next gif
+                    drawPastTurnGif(row, col, height, width, gifDrawableId); // Draw next gif
                 }
             }
         });
