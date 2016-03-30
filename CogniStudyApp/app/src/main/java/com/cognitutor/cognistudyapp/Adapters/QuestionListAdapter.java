@@ -106,11 +106,14 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
             switch (responseStatus) {
                 case Constants.ResponseStatusType.CORRECT:
                     ivResponseStatus.setImageResource(R.drawable.ic_icon_correct);
+                    ivResponseStatus.setVisibility(View.VISIBLE);
                     break;
                 case Constants.ResponseStatusType.INCORRECT:
                     ivResponseStatus.setImageResource(R.drawable.ic_icon_incorrect);
+                    ivResponseStatus.setVisibility(View.VISIBLE);
                     break;
                 default:
+                    ivResponseStatus.setVisibility(View.INVISIBLE);
                     break;
             }
         }
@@ -125,7 +128,7 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        final QuestionMetaObject meta = mItems.get(position);
+        final QuestionMetaObject meta = getItem(position);
         holder.setSubjectIcon(meta.getSubject());
         holder.txtCategory.setText(meta.getCategory());
         holder.txtCategory.setTypeface(null, Typeface.BOLD);
