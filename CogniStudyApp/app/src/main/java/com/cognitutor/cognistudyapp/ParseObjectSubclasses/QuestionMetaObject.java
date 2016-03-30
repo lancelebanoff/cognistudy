@@ -4,6 +4,8 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.Date;
+
 /**
  * Created by Kevin on 3/18/2016.
  */
@@ -15,20 +17,28 @@ public abstract class QuestionMetaObject extends ParseObject{
     public abstract String getQuestionId();
     public abstract String getResponseId();
 
-    public String getDate() {
-        return getCreatedAt().toString(); //TODO: Format?
+    public Date getDate() {
+        return getCreatedAt();
+    }
+
+    //Not all QuestionMetaObject subclasses have all of these columns
+    public class Columns {
+        public static final String createdAt = "createdAt";
+        public static final String response = "response";
+        public static final String question = "question";
     }
 
     public static ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(Class<? extends QuestionMetaObject> clazz,
-                                                                            String challengeId, String subject, String category) {
+                                                                            String subject, String category) {
         ParseQuery<QuestionMetaObject> query = getMetaQuery(clazz);
+        query.orderByDescending(Columns.createdAt);
 
-        if(challengeId != null) {
-            query.fromPin(challengeId);
-        }
-        else {
-            query.fromLocalDatastore();
-        }
+//        if(challengeId != null) {
+//            query.fromPin(challengeId);
+//        }
+//        else {
+//            query.fromLocalDatastore();
+//        }
 
         ParseQuery<Question> questionQuery = Question.getQuery();
         boolean includeQuestionQuery = false;
@@ -53,14 +63,15 @@ public abstract class QuestionMetaObject extends ParseObject{
         }
         else {
             query.include(SuggestedQuestion.Columns.question);
+            query.include(SuggestedQuestion.Columns.response);
         }
 
         if(includeQuestionQuery) {
             if(includeResponseQuery) {
-                query.whereMatchesQuery("response", responseQuery);
+                query.whereMatchesQuery(Columns.response, responseQuery);
             }
             else {
-                query.whereMatchesQuery("question", questionQuery);
+                query.whereMatchesQuery(Columns.question, questionQuery);
             }
         }
         return query;
@@ -68,5 +79,16 @@ public abstract class QuestionMetaObject extends ParseObject{
 
     private static ParseQuery<QuestionMetaObject> getMetaQuery(Class<? extends QuestionMetaObject> clazz) {
         return ParseQuery.getQuery(clazz.getSimpleName());
+    }
+
+    @Override
+    public String toString() {
+        String s = "objectId: " + getObjectId() + " | " +
+                "questionId: " + getQuestionId() + " | " +
+                "responseId: " + getResponseId() + " | " +
+                "subject: " + getSubject() + " | " +
+                "category: " + getCategory() + " | " +
+                "status: " + getResponseStatus();
+        return s;
     }
 }

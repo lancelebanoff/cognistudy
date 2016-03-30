@@ -152,10 +152,17 @@ public class Constants {
     }
 
     public static class NotificationData {
+        public static final String title = "title";
+        public static final String alert = "alert";
         public static final String ACTIVITY = "ACTIVITY";
+        public static final String FRAGMENT = "FRAGMENT";
         public static class Activity {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String CONVERSATION_ACTIVITY = "CONVERSATION_ACTIVITY";
+            public static final String SUGGESTED_QUESTIONS_LIST_ACTIVITY = "SUGGESTED_QUESTIONS_LIST_ACTIVITY";
+        }
+        public static class Fragment {
+            public static final String SUGGESTED_QUESTIONS_LIST_FRAGMENT = "SUGGESTED_QUESTIONS_LIST_FRAGMENT";
         }
     }
 
@@ -178,6 +185,7 @@ public class Constants {
         public static final String CHALLENGE_ID = "CHALLENGE_ID";
         public static final String RESPONSE_ID = "RESPONSE_ID";
         public static final String USER1OR2 = "USER1OR2";
+        public static final String QUESTION_META_ID = "QUESTION_META_ID";
 
         public static final String QUESTION_ID = "QUESTION_ID";
         public static final String PUBLICUSERDATA_ID = "PUBLICUSERDATA_ID";

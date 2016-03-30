@@ -14,6 +14,7 @@ import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
@@ -99,7 +100,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 
     private static ParseQuery<PublicUserData> getDefaultQuery() {
 
-        return PublicUserData.getQuery()
+        return PublicUserData.getNonCurrentUserQuery()
                 .fromLocalDatastore();
 //                .whereContainedIn(PublicUserData.Columns.objectId, PrivateStudentData.getFriendPublicUserIds())
 //                .whereEqualTo(PublicUserData.Columns.fbLinked, true);
@@ -110,7 +111,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     private static Task<ParseQuery<PublicUserData>> getImportantCachedPublicUserDataQuery() {
 
         final List<ParseQuery<PublicUserData>> queries = new ArrayList<>();
-        queries.add(PublicUserData.getQuery().fromPin(Constants.PinNames.CurrentUser)); //TODO: Rework now that CurrentUser pin name is defunct
+        queries.add(PublicUserData.getNonCurrentUserQuery().fromPin(Constants.PinNames.CurrentUser));
 
         return Challenge.getQuery()
                 .fromLocalDatastore()
@@ -180,7 +181,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                 false, thisAdapter, new QueryUtils.ParseQueryBuilder <PublicUserData> () {
                     @Override
                     public ParseQuery<PublicUserData> buildQuery() {
-                        return PublicUserData.getQuery()
+                        return PublicUserData.getNonCurrentUserQuery()
                                 .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
                     }
         })
@@ -194,7 +195,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                         false, thisAdapter, new QueryUtils.ParseQueryBuilder<PublicUserData>() {
                             @Override
                             public ParseQuery<PublicUserData> buildQuery() {
-                                return PublicUserData.getQuery()
+                                return PublicUserData.getNonCurrentUserQuery()
                                         .whereContains(PublicUserData.Columns.searchableDisplayName, q);
                             }
                 });

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -18,6 +19,7 @@ import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
+import com.cognitutor.cognistudyapp.Custom.BookmarkButton;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
@@ -28,9 +30,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -46,6 +46,8 @@ import io.github.kexanie.library.MathView;
 
 public abstract class QuestionActivity extends CogniActivity implements View.OnClickListener {
 
+    protected abstract String getQuestionAndResponsePinName();
+
     /**
      * Extras:
      *      PARENT_ACTIVITY: string
@@ -56,11 +58,15 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     private ListView listView;
     private ActivityViewHolder avh;
     protected Question mQuestion;
-    protected Question mQuestionWithoutContents;
     protected QuestionContents mQuestionContents;
     private AnswerAdapter answerAdapter;
-    private Response mResponse = null;
+    protected Response mResponse = null;
     private Bookmark mBookmark = null;
+    private BookmarkOption mBookmarkOption = BookmarkOption.DO_NOTHING;
+
+    enum BookmarkOption {
+        DO_NOTHING, DO_BOOKMARK, UNDO_BOOKMARK
+    }
 
 //    protected abstract void addComponents();
 
@@ -82,8 +88,18 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         setBookmarkComponents();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        doOrUndoBookmark();
+    }
+
     public String getQuestionId() {
         return mIntent.getStringExtra(Constants.IntentExtra.QUESTION_ID);
+    }
+
+    protected String getQuestionMetaId() {
+        return mIntent.getStringExtra(Constants.IntentExtra.QUESTION_META_ID);
     }
 
     public void loadQuestion() {
@@ -94,10 +110,19 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         }
 
         try {
-            String questionId = getQuestionId();
-            mQuestion = Question.getQuestionWithContents(questionId);
-            mQuestionWithoutContents = Question.getQuestionWithoutContents(questionId);
-        } catch(ParseException e) { handleParseError(e); return; }
+            Question.getQuestionWithContentsInBackground(getQuestionAndResponsePinName(), getQuestionId()).continueWith(new Continuation<Question, Object>() {
+                @Override
+                public Object then(Task<Question> task) throws Exception {
+                    if(task.isFaulted()) {
+                        Exception e = task.getError();
+                        e.printStackTrace();
+                        throw e;
+                    }
+                    mQuestion = task.getResult();
+                    return null;
+                }
+            }).waitForCompletion();
+        } catch (InterruptedException e) { e.printStackTrace(); }
 
         mQuestionContents = mQuestion.getQuestionContents();
 
@@ -122,11 +147,17 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
 
         if(mQuestion.inBundle()) {
-            QuestionBundle bundle = null;
+            QuestionBundle bundle = mQuestion.getQuestionBundle();
             try {
-                bundle = mQuestion.getQuestionBundle().fetchIfNeeded();
+                bundle.fetchFromLocalDatastore();
             } catch (ParseException e) {
                 e.printStackTrace();
+                try {
+                    bundle.fetchIfNeeded();
+                } catch (ParseException e2) {
+                    e2.printStackTrace();
+                    Log.e("Fetching bundle", "Bundle should be in local datastore but was not");
+                }
             }
             avh.wvPassage.loadData(buildPassageHtml(bundle.getPassageText()), "text/html", "UTF-8");
         }
@@ -159,16 +190,14 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             case R.id.btnSetLatex:
                 setLatex();
                 break;
-            case R.id.vsBookmark:
-                ViewSwitcher viewSwitcher = avh.vsBookmark;
-                if(viewSwitcher.getCurrentView().getId() == R.id.ivDoBookmark) {
-                    doBookmark();
-                }
-                else {
-                    undoBookmark();
-                }
-                avh.vsBookmark.showNext();
-                break;
+        }
+    }
+
+    private void doOrUndoBookmark() {
+        if (mBookmarkOption == BookmarkOption.DO_BOOKMARK) {
+            doBookmark();
+        } else if (mBookmarkOption == BookmarkOption.UNDO_BOOKMARK) {
+            undoBookmark();
         }
     }
 
@@ -197,7 +226,25 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
 
     private void setOnClickListeners() {
         avh.btnSetLatex.setOnClickListener(this);
-        avh.vsBookmark.setOnClickListener(this);
+        avh.cbBookmark.setOnClickListener(getCbBookmarkOnClickListener());
+    }
+
+    private View.OnClickListener getCbBookmarkOnClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BookmarkButton cbBookmark = avh.cbBookmark;
+                if(cbBookmark.isChecked() && mBookmark == null) {
+                    mBookmarkOption = BookmarkOption.DO_BOOKMARK;
+                }
+                else if(!cbBookmark.isChecked() && mBookmark != null) {
+                    mBookmarkOption = BookmarkOption.UNDO_BOOKMARK;
+                }
+                else {
+                    mBookmarkOption = BookmarkOption.DO_NOTHING;
+                }
+            }
+        };
     }
 
     private Task<Object> loadResponseAndBookmark() {
@@ -239,16 +286,11 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     }
 
     private void setBookmarkComponents() {
-        ViewSwitcher viewSwitcher = avh.vsBookmark;
-        if(mBookmark != null) {
-            if(viewSwitcher.getCurrentView().getId() == R.id.ivDoBookmark) {
-                viewSwitcher.showNext();
-            }
-        }
-        else {
-            if(viewSwitcher.getCurrentView().getId() == R.id.ivUndoBookmark) {
-                viewSwitcher.showNext();
-            }
+        BookmarkButton cbBookmark = avh.cbBookmark;
+        boolean isBookmarked = mBookmark != null;
+        boolean isChecked = cbBookmark.isChecked();
+        if((isBookmarked && !isChecked) || (!isBookmarked && isChecked)) {
+            cbBookmark.setChecked(!isChecked);
         }
     }
 
@@ -323,7 +365,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         private ViewGroup vgPostAnswer;
         private TextView txtCorrectIncorrect;
         private Button btnSubmit;
-        private ViewSwitcher vsBookmark;
+        private BookmarkButton cbBookmark;
 
         private ActivityViewHolder() {
             rlQuestionHeader = (LinearLayout) findViewById(R.id.rlQuestionHeader);
@@ -336,7 +378,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
-            vsBookmark = (ViewSwitcher) findViewById(R.id.vsBookmark);
+            cbBookmark = (BookmarkButton) findViewById(R.id.cbBookmark);
         }
 
         private void showLoading() {

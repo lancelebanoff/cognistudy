@@ -2,27 +2,24 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.ViewFlipper;
 
 import com.cognitutor.cognistudyapp.Adapters.QuestionListAdapter;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Fragments.CogniFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.rey.material.widget.Spinner;
 
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -37,10 +34,12 @@ public abstract class QuestionListActivity extends CogniActivity {
     protected QuestionListAdapter mAdapter;
     protected CogniRecyclerView mQuestionList;
     protected Intent mIntent;
+    protected Fragment mFragment;
 
-    protected abstract Class<? extends QuestionMetaObject> getTargetMetaClass();
     protected abstract Class<? extends QuestionActivity> getTargetQuestionActivityClass();
     protected abstract String getActivityName();
+    protected abstract Class<? extends CogniFragment> getFragmentClass();
+    protected abstract ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(String subject, String category);
 
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, ChallengeQuestionActivity.class); //TODO: Change depending on type of question
@@ -51,30 +50,55 @@ public abstract class QuestionListActivity extends CogniActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_question_list);
 
+        setContentView(R.layout.activity_question_list);
+        if(savedInstanceState == null) {
+            try {
+                mFragment = getFragmentClass().newInstance();
+            } catch (Exception e) { e.printStackTrace(); }
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.questionListFragmentContainer, mFragment).commit();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         mIntent = getIntent();
         mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
         mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
         initializeSpinners();
 
-        mAdapter = new QuestionListAdapter(this, getTargetQuestionActivityClass(),
-                QuestionMetaObject.getSubjectAndCategoryQuery(getTargetMetaClass(), getChallengeId(),
-                Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
+        mAdapter = createQuestionListAdapter();
         mQuestionList.setAdapter(mAdapter);
     }
 
+    //This was made a method so that QuestionHistoryActivity could override the method and use the alternate constructor
+    // for QuestionListAdapter, which passes an additional intent extra to PastQuestionActivity containing the challenge id
+    protected QuestionListAdapter createQuestionListAdapter() {
+        return new QuestionListAdapter(this, getTargetQuestionActivityClass(),
+                getSubjectAndCategoryQuery(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
+    }
+
     @Override
-    protected void onResume() {
+    public void onSupportActionModeStarted(ActionMode mode) {
+        super.onSupportActionModeStarted(mode);
+    }
+
+    @Override
+    public void onResume() {
         super.onResume();
         getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
     }
 
+    public void getAndDisplayFromSelections() {
+        getAndDisplay(getSelectedSubject(), getSelectedCategory());
+    }
+
     protected void getAndDisplay(String subject, String category) {
 
-        ParseQuery<QuestionMetaObject> query = QuestionMetaObject.getSubjectAndCategoryQuery(
-                getTargetMetaClass(), getChallengeId(), subject, category);
+        ParseQuery<QuestionMetaObject> query = getSubjectAndCategoryQuery(subject, category);
         query.findInBackground()
                 .continueWith(new Continuation<List<QuestionMetaObject>, Object>() {
                     @Override
@@ -89,10 +113,6 @@ public abstract class QuestionListActivity extends CogniActivity {
                         return null;
                     }
                 });
-    }
-
-    private String getChallengeId() {
-        return mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
     }
 
     private void initializeSpinners() {
@@ -125,7 +145,7 @@ public abstract class QuestionListActivity extends CogniActivity {
         Spinner.OnItemSelectedListener categoriesListener = new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(Spinner parent, View view, int position, long id) {
-                getAndDisplayCategory();
+                getAndDisplayFromSelections();
             }
         };
         mSpCategories.setOnItemSelectedListener(categoriesListener);
@@ -156,10 +176,6 @@ public abstract class QuestionListActivity extends CogniActivity {
         String subject = getSelectedSubject();
         setCategoriesSpinner(subject);
         getAndDisplay(subject, Constants.Category.ALL_CATEGORIES);
-    }
-
-    private void getAndDisplayCategory() {
-        getAndDisplay(getSelectedSubject(), getSelectedCategory());
     }
 
     protected ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(ParseQuery<QuestionMetaObject> query, String subject, String category) {

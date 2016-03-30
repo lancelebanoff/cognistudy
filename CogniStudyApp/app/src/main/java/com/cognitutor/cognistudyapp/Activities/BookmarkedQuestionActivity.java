@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 
 /**
@@ -7,4 +8,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
  */
 public class BookmarkedQuestionActivity extends QuestionActivity {
 
+    @Override
+    protected String getQuestionAndResponsePinName() {
+        return getQuestionMetaId();
+    }
 }

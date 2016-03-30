@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/questionListFragmentLayout">
+
+    <RelativeLayout
+        android:id="@+id/spinnerLayout"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="10dp"
+        android:layout_height="wrap_content">
+
+        <com.rey.material.widget.Spinner
+            android:id="@+id/spSubjectsQL"
+            style="@style/Material.Widget.Spinner"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <com.rey.material.widget.Spinner
+            android:id="@+id/spCategoriesQL"
+            style="@style/Material.Widget.Spinner"
+            android:layout_toRightOf="@id/spSubjectsQL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+    <com.cognitutor.cognistudyapp.Custom.CogniRecyclerView
+        android:id="@+id/rvQuestionList"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/spinnerLayout"
+        android:layout_height="wrap_content" >
+    </com.cognitutor.cognistudyapp.Custom.CogniRecyclerView>
+
+</RelativeLayout>

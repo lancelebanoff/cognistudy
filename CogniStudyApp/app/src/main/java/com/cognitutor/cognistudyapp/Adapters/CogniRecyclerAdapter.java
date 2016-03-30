@@ -33,33 +33,25 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
     public void onDataLoaded(List<T> list) {
 
         int oldNumItems = mItems.size();
-        ConcurrentLinkedQueue<T> oldObjects = new ConcurrentLinkedQueue<>();
-        for(T oldObj : mItems) {
-            oldObjects.add(oldObj);
-        }
         int firstChangedIdx = Integer.MAX_VALUE;
         int idx = 0;
-        Iterator<T> oldIterator = oldObjects.iterator();
-        while(oldIterator.hasNext()) {
-            T oldObj = oldIterator.next();
-            if(oldObj == null)
+
+        ConcurrentLinkedQueue<T> oldObjects = getConcurrentLinkedQueue(mItems);
+        ConcurrentLinkedQueue<T> newObjects = getConcurrentLinkedQueue(list);
+        Iterator<T> newIterator = newObjects.iterator();
+        int oldIdx = 0;
+        while(newIterator.hasNext() && oldIdx < mItems.size()) {
+            T newObj = newIterator.next();
+            T oldObj = mItems.get(oldIdx);
+            if(!oldObj.getObjectId().equals(newObj.getObjectId())) {
+                firstChangedIdx = oldIdx;
                 break;
-            boolean found = false;
-            Iterator<T> newIterator = list.iterator();
-            while(newIterator.hasNext()) {
-                T newObj = newIterator.next();
-                if(oldObj.getObjectId().equals(newObj.getObjectId())) {
-                    found = true;
-                    list.remove(newObj);
-                    break;
-                }
             }
-            if(!found) {
-                firstChangedIdx = Math.min(firstChangedIdx, idx);
-                mItems.remove(oldObj);
-            }
-            idx++;
+            oldObjects.remove(oldObj);
+            list.remove(newObj);
+            oldIdx++;
         }
+        mItems.removeAll(oldObjects);
         mItems.addAll(list);
         int newNumItems = mItems.size();
         if(firstChangedIdx < Math.min(oldNumItems, newNumItems))
@@ -70,5 +62,13 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         else if(oldNumItems > newNumItems) {
             notifyItemRangeRemoved(newNumItems, oldNumItems - newNumItems);
         }
+    }
+
+    private ConcurrentLinkedQueue<T> getConcurrentLinkedQueue(List<T> items) {
+        ConcurrentLinkedQueue<T> queue = new ConcurrentLinkedQueue<>();
+        for(T obj : items) {
+            queue.add(obj);
+        }
+        return queue;
     }
 }

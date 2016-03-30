@@ -11,6 +11,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
@@ -158,7 +159,8 @@ public class ParseObjectUtils {
                 .continueWithTask(new Continuation<Void, Task<Void>>() {
                     @Override
                     public Task<Void> then(Task<Void> task) throws Exception {
-                        return pinInBackground(object.getObjectId(), object);
+//                        return pinInBackground(object.getObjectId(), object);
+                        return object.pinInBackground(object.getObjectId());
                     }
                 });
     }
@@ -573,14 +575,15 @@ public class ParseObjectUtils {
                 classes.add(Student.class);
                 classes.add(PrivateStudentData.class);
                 classes.add(StudentCategoryRollingStats.class);
-                classes.add(StudentSubjectRollingStats.class);
-                classes.add(StudentTotalRollingStats.class);
+//                classes.add(StudentSubjectRollingStats.class);
+//                classes.add(StudentTotalRollingStats.class);
                 classes.add(Challenge.class);
                 classes.add(Response.class);
                 classes.add(SuggestedQuestion.class);
                 classes.add(Bookmark.class);
                 classes.add(Question.class);
                 classes.add(QuestionContents.class);
+                classes.add(QuestionBundle.class);
 //                classes.add(StudentCategoryDayStats.class);
 //                classes.add(StudentCategoryTridayStats.class);
 //                classes.add(StudentCategoryMonthStats.class);

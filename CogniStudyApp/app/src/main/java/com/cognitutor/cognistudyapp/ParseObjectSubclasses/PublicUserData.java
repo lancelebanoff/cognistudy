@@ -92,6 +92,11 @@ public class PublicUserData extends ParseObject{
         return ParseQuery.getQuery(PublicUserData.class);
     }
 
+    public static ParseQuery<PublicUserData> getNonCurrentUserQuery() {
+        return ParseQuery.getQuery(PublicUserData.class)
+                        .whereNotEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId());
+    }
+
     public static PublicUserData getPublicUserData() {
         return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
             @Override

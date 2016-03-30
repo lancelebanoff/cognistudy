@@ -81,7 +81,7 @@ public class AnalyticsFragment extends CogniFragment {
             @Override
             public void run() {
                 // Wait until challenges are done loading
-                while (!((MainActivity) getActivity()).challengesFinishedLoading) {
+                while (getActivity() != null && !((MainActivity) getActivity()).challengesFinishedLoading) {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {

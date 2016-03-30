@@ -62,4 +62,6 @@
     <string name="title_dialog_quit_challenge">Resign</string>
     <string name="message_dialog_quit_challenge">Are you sure you want to resign?</string>
     <string name="num_shots_remaining">Shots remaining: </string>
+    <string name="bookmark_button_bookmark">BOOKMARK</string>
+    <string name="bookmark_button_bookmarked">BOOKMARKED</string>
 </resources>

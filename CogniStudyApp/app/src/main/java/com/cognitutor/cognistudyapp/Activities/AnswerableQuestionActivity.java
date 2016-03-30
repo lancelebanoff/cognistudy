@@ -19,20 +19,31 @@ import bolts.Task;
  */
 public abstract class AnswerableQuestionActivity extends QuestionActivity {
 
-    protected abstract Task<Void> createResponse(boolean isSelectedAnswerCorrect);
+    protected abstract void onPostCreateResponse(Response response);
 
-    protected Task<Response> doCreateResponse(boolean isSelectedAnswerCorrect, final String challengeId) {
+    private Task<Void> createResponse(boolean isSelectedAnswerCorrect) {
+        return doCreateResponse(isSelectedAnswerCorrect, getQuestionAndResponsePinName()).continueWithTask(new Continuation<Response, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Response> task) throws Exception {
+                onPostCreateResponse(task.getResult());
+                return null;
+            }
+        });
+    }
+
+    protected Task<Response> doCreateResponse(boolean isSelectedAnswerCorrect, final String pinName) {
         //TODO: Pin related objects
         //TODO: Implement rating
-        final Response response = new Response(mQuestionWithoutContents, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
+        final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
         return response.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Response>>() {
             @Override
             public Task<Response> then(Task<ParseObject> task) throws Exception {
-                return ParseObjectUtils.pinThenSaveInBackground(challengeId, response)
+                return ParseObjectUtils.pinThenSaveInBackground(pinName, response)
                         .continueWith(new Continuation<Void, Response>() {
                             @Override
                             public Response then(Task<Void> task) throws Exception {
                                 PrivateStudentData.addResponseAndSaveEventually(response);
+                                mResponse = response;
                                 return response;
                             }
                         });
@@ -42,9 +53,8 @@ public abstract class AnswerableQuestionActivity extends QuestionActivity {
 
     public void showAnswerAndIncrementAnalytics(View view) {
 
-        boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
+        final boolean isSelectedAnswerCorrect = isSelectedAnswerCorrect();
         showAnswer(isSelectedAnswerCorrect);
-
         //Response and analytics
         incrementAnalytics(mQuestion.getCategory(), isSelectedAnswerCorrect);
         createResponse(isSelectedAnswerCorrect);
