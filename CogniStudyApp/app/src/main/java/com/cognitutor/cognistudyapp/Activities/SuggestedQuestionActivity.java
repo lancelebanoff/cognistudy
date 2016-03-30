@@ -1,6 +1,8 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
@@ -17,6 +19,7 @@ import bolts.Task;
 public class SuggestedQuestionActivity extends AnswerableQuestionActivity{
 
     private SuggestedQuestion mSuggestedQuestion;
+    private boolean notifyParentAnswered;
 
     @Override
     protected String getQuestionAndResponsePinName() {
@@ -43,12 +46,39 @@ public class SuggestedQuestionActivity extends AnswerableQuestionActivity{
         }).continueWith(new Continuation<SuggestedQuestion, Object>() {
             @Override
             public Object then(Task<SuggestedQuestion> task) throws Exception {
-                if(task.isFaulted()) {
+                if (task.isFaulted()) {
                     task.getError().printStackTrace();
                 }
                 mSuggestedQuestion = task.getResult();
                 return null;
             }
         });
+    }
+
+    @Override
+    protected Task<Void> createResponse(boolean isSelectedAnswerCorrect) {
+        notifyParentAnswered = true;
+        return super.createResponse(isSelectedAnswerCorrect);
+    }
+
+    @Override
+    protected void navigateToParentActivity() {
+        Intent intent = new Intent();
+        if(notifyParentAnswered) {
+            intent.putExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST, mSuggestedQuestion.getObjectId());
+        }
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                navigateToParentActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

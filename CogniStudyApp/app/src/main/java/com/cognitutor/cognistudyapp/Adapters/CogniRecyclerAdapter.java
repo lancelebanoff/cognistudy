@@ -24,13 +24,21 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         mActivity = activity;
     }
 
+    public synchronized void notifyObjectIdChanged(String objectId) {
+        for(int i=0; i<getItemCount(); i++) {
+            if(getItem(i).getObjectId().equals(objectId)) {
+                notifyItemChanged(i);
+            }
+        }
+    }
+
     @Override
     public Activity getActivityForUIThread() {
         return mActivity;
     }
 
     @Override
-    public void onDataLoaded(List<T> list) {
+    public synchronized void onDataLoaded(List<T> list) {
 
         int oldNumItems = mItems.size();
         int firstChangedIdx = Integer.MAX_VALUE;

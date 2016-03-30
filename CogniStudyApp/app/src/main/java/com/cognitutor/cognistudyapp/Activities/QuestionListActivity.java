@@ -29,6 +29,8 @@ import bolts.Task;
  */
 public abstract class QuestionListActivity extends CogniActivity {
 
+    public static final int REQUEST_CODE = 1;
+
     protected Spinner mSpSubjects;
     protected Spinner mSpCategories;
     protected QuestionListAdapter mAdapter;
@@ -96,6 +98,17 @@ public abstract class QuestionListActivity extends CogniActivity {
         super.onResume();
         getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
         onResumeFinished = true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            if(data.hasExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST)) {
+                String objectId = data.getStringExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST);
+                mAdapter.notifyObjectIdChanged(objectId);
+            }
+        }
     }
 
     public void getAndDisplayFromSelections() {

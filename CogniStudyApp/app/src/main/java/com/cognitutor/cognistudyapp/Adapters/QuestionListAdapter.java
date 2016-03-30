@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.cognitutor.cognistudyapp.Activities.ChallengeQuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.Activities.QuestionHistoryActivity;
+import com.cognitutor.cognistudyapp.Activities.QuestionListActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
@@ -52,10 +53,6 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
         }, true); //TODO: Try true for hasStableIds
         mIntentExtras = intentExtras;
         mTargetQuestionActivityClass = targetQuestionActivityClass;
-    }
-
-    private void init() {
-
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -160,7 +157,7 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
                 intent.putExtra(key, mIntentExtras.get(key));
             }
         }
-        mActivity.startActivity(intent);
+        mActivity.startActivityForResult(intent, QuestionListActivity.REQUEST_CODE);
     }
 
     private String getParentActivityConstant() {
