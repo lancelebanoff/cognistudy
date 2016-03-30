@@ -114,6 +114,7 @@ public class SuggestedQuestion extends QuestionMetaObject {
 
     public void addResponseAndPin(Response response) {
         put(Columns.response, response);
+        put(Columns.answered, true);
         response.pinInBackground(getObjectId());
         saveEventually();
     }
