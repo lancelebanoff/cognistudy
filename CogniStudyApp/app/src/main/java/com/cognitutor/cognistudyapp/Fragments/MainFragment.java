@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +14,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
@@ -168,23 +168,32 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     }
 
     private void createTutorRequestListView(final View rootView) {
-        PrivateStudentData privateStudentData = PrivateStudentData.getPrivateStudentData();
-        List<PublicUserData> tutorRequests = privateStudentData.getTutorRequests();
-        tutorRequestAdapter = new TutorRequestAdapter(getActivity(), this, tutorRequests);
+        final Activity activity = getActivity();
+        final MainFragment fragment = this;
 
-        getActivity().runOnUiThread(new Runnable() {
+        PrivateStudentData.getPrivateStudentData().fetchInBackground().continueWith(new Continuation<ParseObject, Void>() {
             @Override
-            public void run() {
-                tutorRequestListView = (ListView) rootView.findViewById(R.id.listTutorRequests);
-                tutorRequestListView.setFocusable(false);
-                tutorRequestListView.setAdapter(tutorRequestAdapter);
-                tutorRequestListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public Void then(Task<ParseObject> task) throws Exception {
+                PrivateStudentData privateStudentData = (PrivateStudentData) task.getResult();
+                List<PublicUserData> tutorRequests = privateStudentData.getTutorRequests();
+                tutorRequestAdapter = new TutorRequestAdapter(activity, fragment, tutorRequests);
 
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tutorRequestListView = (ListView) rootView.findViewById(R.id.listTutorRequests);
+                        tutorRequestListView.setFocusable(false);
+                        tutorRequestListView.setAdapter(tutorRequestAdapter);
+
+                        View parentCardView = (View) tutorRequestListView.getParent().getParent();
+                        if (tutorRequestAdapter.getCount() == 0) {
+                            parentCardView.setVisibility(View.GONE);
+                        } else {
+                            parentCardView.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
-                setListViewHeightBasedOnChildren(tutorRequestListView);
+                return null;
             }
         });
     }

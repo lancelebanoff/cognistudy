@@ -5,7 +5,7 @@ Parse.Cloud.define("addStudent", function(request, response) {
 	Parse.Cloud.useMasterKey();
 	var tutorPublicDataId = request.params.tutorPublicDataId;
 	var studentPublicDataId = request.params.studentPublicDataId;
-	var query = new Parse.Query("PrivateTutorData");
+	var query = new Parse.Query("PublicUserData");
 	query.get(tutorPublicDataId, {
 	  success: function(publicTutorData) {
 	    // The object was retrieved successfully.

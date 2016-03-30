@@ -45,7 +45,12 @@ public class TutorRequestAdapter extends ArrayAdapter<PublicUserData> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
-        final PublicUserData tutor = getItem(position);
+        PublicUserData tutor = null;
+        try {
+            tutor = getItem(position).fetchIfNeeded();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) {
@@ -57,10 +62,12 @@ public class TutorRequestAdapter extends ArrayAdapter<PublicUserData> {
         }
 
         setItemViewContents(holder, tutor);
+
+        final PublicUserData tutorPublicUserData = tutor;
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                promptAcceptRequest(tutor);
+                promptAcceptRequest(tutorPublicUserData);
             }
         });
 
