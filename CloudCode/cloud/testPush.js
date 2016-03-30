@@ -1,12 +1,14 @@
 Parse.Cloud.define("sendPush", function(request, response) {
 
+	Parse.Cloud.useMasterKey();
+
 	//var userQuery = new Parse.Query(Parse.User);
 	//userQuery.equalTo("objectId", request.params.baseUserId);
 
 	var pushQuery = new Parse.Query(Parse.Installation);
 	//pushQuery.matchesQuery('user', userQuery);
 
-	pushQuery.equalTo("userIds", request.params.baseUserId);
+	pushQuery.contains("userIds", request.params.baseUserId);
 
 	Parse.Push.send({
 		where: pushQuery,

@@ -66,3 +66,21 @@ exports.deleteAllObjectsFromClasses = function(classes, key, value) {
 	});
 	return bigPromise;
 }
+
+exports.sendPushNotification = function(baseUserId, notiData) {
+
+	var pushQuery = new Parse.Query(Parse.Installation);
+	pushQuery.equalTo("userIds", baseUserId);
+
+	return Parse.Push.send({
+		where: pushQuery,
+		data: notiData 
+	}, {
+		success: function() {
+			console.log("Successful push");
+		},
+		error: function(error) {
+			console.log("Unsuccessful push");
+		}
+	});
+}

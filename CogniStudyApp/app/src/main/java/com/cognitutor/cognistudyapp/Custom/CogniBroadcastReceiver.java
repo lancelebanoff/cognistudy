@@ -1,21 +1,17 @@
 package com.cognitutor.cognistudyapp.Custom;
 
-import android.app.ActivityManager;
-import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Activities.ConversationActivity;
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
-import com.cognitutor.cognistudyapp.Fragments.MainFragment;
+import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseBroadcastReceiver;
 
@@ -23,9 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by Kevin on 1/28/2016.
@@ -68,6 +62,8 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
         switch(activityConstant) {
             case Constants.NotificationData.Activity.CONVERSATION_ACTIVITY:
                 return ConversationActivity.class;
+            case Constants.NotificationData.Activity.SUGGESTED_QUESTIONS_LIST_ACTIVITY:
+                return SuggestedQuestionsListActivity.class;
             default:
                 return MainActivity.class;
         }

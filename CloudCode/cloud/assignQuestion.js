@@ -1,31 +1,48 @@
+var common = require("cloud/common.js");
+
 Parse.Cloud.define("assignQuestion", function(request, response) {
 	
 	Parse.Cloud.useMasterKey();
-	var pushQuery = new Parse.Query(Parse.Installation);
-	//pushQuery.matchesQuery('user', userQuery);
 
-	pushQuery.equalTo("userIds", request.params.baseUserId);
+	var baseUserId = request.params.baseUserId;
+	var suggestedQuestionId = request.params.suggestedQuestionId;
 
-	pushQuery.find({success: function(results) {
-		console.log("Size of results = " + results.length);
-	}, error: function(error) {
-		console.log(error);
-	}});
-
-	Parse.Push.send({
-		where: pushQuery,
-		data: {
-			title: "Assigned Question",
-			alert: "New Assigned Question",
-			ACTIVITY: "SUGGESTED_QUESTION_ACTIVITY",
-			FRAGMENT: "SUGGESTED_QUESTION_LIST_FRAGMENT",
-		}
-	}, {
-		success: function() {
-			response.success("Successful push");
-		},
-		error: function(error) {
-			response.error("Unsuccessful push");
+	var suggestedQuestionQuery = new Parse.Query("SuggestedQuestion");
+	suggestedQuestionQuery.get(suggestedQuestionId, {
+		success: function(suggestedQuestion) {
+			var privateStudentDataQuery = new Parse.Query("PrivateStudentData");
+			privateStudentDataQuery.equalTo("baseUserId", baseUserId)
+			.first({
+				success: function(privateStudentData) {
+					privateStudentData.relation("assignedQuestions").add(suggestedQuestion);
+					privateStudentData.save({
+						success: function(saved) {
+							var data = createNotificationData();
+							common.sendPushNotification(baseUserId, data).then(
+								function(success) {
+									response.success();
+								}, function(error) {
+									response.error(error);
+							});
+						}, error: function(error) {
+							response.error(error);
+						}
+					});
+				}, error: function(error) {
+					response.error(error);
+				}
+			});
+		}, error: function(error) {
+			response.error(error);
 		}
 	});
 });
+
+function createNotificationData() {
+	var data = {};
+	data.title = "Assigned Question";
+	data.alert = "New Assigned Question";
+	data.ACTIVITY = "SUGGESTED_QUESTIONS_LIST_ACTIVITY";
+	data.FRAGMENT = "SUGGESTED_QUESTIONS_LIST_FRAGMENT";
+	return data;
+}

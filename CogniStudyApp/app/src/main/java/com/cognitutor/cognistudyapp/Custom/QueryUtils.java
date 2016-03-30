@@ -323,10 +323,11 @@ public class QueryUtils {
 
                 List<T> networkResults = doNetworkFindQuery(networkQuery);
                 final List<T> combined = new ArrayList<T>();
-                for (T fromLocal : localResults) {
-                    addFromLocalOrNetwork(fromLocal, networkResults, combined);
+                for (T fromNetwork : networkResults) {
+                    addFromLocalOrNetwork(fromNetwork, localResults, combined);
                 }
-                combined.addAll(networkResults);
+                if(localResults.size() > 0)
+                    Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
                 if(pinNameOption == PinNameOption.CONSTANT && pinName != null) {
                     if (deleteOldPinnedResults) {
 //                        ParseObjectUtils.unpinAllInBackground(pinName).waitForCompletion();
@@ -462,25 +463,54 @@ public class QueryUtils {
         });
     }
 
-    private static <T extends ParseObject> void addFromLocalOrNetwork(T fromLocal, List<T> networkResults, List<T> combined) {
+    private static <T extends ParseObject> void addFromLocalOrNetwork(T fromNetwork, List<T> localResults, List<T> combined) {
 
-        String localId = fromLocal.getObjectId();
-        Date localUpdatedAt = fromLocal.getUpdatedAt();
+        String networkId = fromNetwork.getObjectId();
+        Date networkUpdatedAt = fromNetwork.getUpdatedAt();
 
-        Iterator<T> iterator = networkResults.iterator();
+        Iterator<T> iterator = localResults.iterator();
         while(iterator.hasNext()) {
-            T fromNetwork = iterator.next();
-            if(localId != null && localId.equals(fromNetwork.getObjectId())) {
-                if(localUpdatedAt == null || fromNetwork.getUpdatedAt().after(localUpdatedAt))
+            T fromLocal = iterator.next();
+            String localId = fromLocal.getObjectId();
+            Date localUpdatedAt = fromLocal.getUpdatedAt();
+            if(localId != null && networkId.equals(localId)) {
+                if(localUpdatedAt == null || networkUpdatedAt.after(localUpdatedAt))
                     combined.add(fromNetwork);
                 else
                     combined.add(fromLocal);
-                networkResults.remove(fromNetwork);
+                localResults.remove(fromLocal);
                 return;
             }
         }
-        combined.add(fromLocal);
+        //No local result was found to match fromNetwork
+        combined.add(fromNetwork);
     }
+
+    //This is the old verson that does not preserve the order of the network results
+    //This method was used like so:
+    //for (T fromLocal : localResults) {
+    //  addFromLocalOrNetwork(fromLocal, networkResults, combined);
+    //}
+    //combined.addAll(networkResults);
+//    private static <T extends ParseObject> void addFromLocalOrNetwork(T fromLocal, List<T> networkResults, List<T> combined) {
+//
+//        String localId = fromLocal.getObjectId();
+//        Date localUpdatedAt = fromLocal.getUpdatedAt();
+//
+//        Iterator<T> iterator = networkResults.iterator();
+//        while(iterator.hasNext()) {
+//            T fromNetwork = iterator.next();
+//            if(localId != null && localId.equals(fromNetwork.getObjectId())) {
+//                if(localUpdatedAt == null || fromNetwork.getUpdatedAt().after(localUpdatedAt))
+//                    combined.add(fromNetwork);
+//                else
+//                    combined.add(fromLocal);
+//                networkResults.remove(fromNetwork);
+//                return;
+//            }
+//        }
+//        combined.add(fromLocal);
+//    }
 
     public static void testCacheThenNetwork() {
 

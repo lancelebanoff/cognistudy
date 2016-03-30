@@ -39,7 +39,7 @@ public class SuggestedQuestionsListFragment extends CogniPushListenerFragment {
     public JSONObject getConditions() {
         JSONObject conditions = new JSONObject();
         try {
-            conditions.put(Constants.NotificationData.FRAGMENT, Constants.NotificationData.Fragment.SUGGESTED_QUESTION_LIST_FRAGMENT);
+            conditions.put(Constants.NotificationData.FRAGMENT, Constants.NotificationData.Fragment.SUGGESTED_QUESTIONS_LIST_FRAGMENT);
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
     }

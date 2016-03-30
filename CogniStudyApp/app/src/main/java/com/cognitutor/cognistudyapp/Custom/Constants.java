@@ -159,10 +159,10 @@ public class Constants {
         public static class Activity {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String CONVERSATION_ACTIVITY = "CONVERSATION_ACTIVITY";
-            public static final String SUGGESTED_QUESTION_ACTIVITY = "SUGGESTED_QUESTION_ACTIVITY";
+            public static final String SUGGESTED_QUESTIONS_LIST_ACTIVITY = "SUGGESTED_QUESTIONS_LIST_ACTIVITY";
         }
         public static class Fragment {
-            public static final String SUGGESTED_QUESTION_LIST_FRAGMENT = "SUGGESTED_QUESTION_LIST_FRAGMENT";
+            public static final String SUGGESTED_QUESTIONS_LIST_FRAGMENT = "SUGGESTED_QUESTIONS_LIST_FRAGMENT";
         }
     }
 
