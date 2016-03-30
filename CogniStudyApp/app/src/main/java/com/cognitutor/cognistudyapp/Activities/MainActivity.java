@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
@@ -29,6 +30,7 @@ public class MainActivity extends AuthenticationActivity {
     private final String TAG = "MainActivity";
     private Activity mActivity = this;
     private CogniViewPager mViewPager;
+    private PeopleFragment mPeopleFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,14 +166,21 @@ public class MainActivity extends AuthenticationActivity {
             if(position == Fragments.Main.ordinal())
                 return MainFragment.newInstance();
             if(position == Fragments.People.ordinal()) {
-                return PeopleFragment.newInstance(new PeopleListOnClickHandler() {
+                mPeopleFragment = PeopleFragment.newInstance(new PeopleListOnClickHandler() {
                     @Override
                     public void onListItemClick(PublicUserData publicUserData) {
-                        Intent intent = new Intent(mActivity, StudentProfileActivity.class);
-                        intent.putExtra("publicUserDataId", publicUserData.getObjectId());
+                        Class destination;
+                        if (publicUserData.getUserType().equals(Constants.UserType.STUDENT)) {
+                            destination = StudentProfileActivity.class;
+                        } else {
+                            destination = TutorProfileActivity.class;
+                        }
+                        Intent intent = new Intent(mActivity, destination);
+                        intent.putExtra(Constants.IntentExtra.PUBLICUSERDATA_ID, publicUserData.getObjectId());
                         mActivity.startActivity(intent);
                     }
                 });
+                return mPeopleFragment;
             }
             if(position == Fragments.Messages.ordinal())
                 return MessagesFragment.newInstance();
@@ -203,6 +212,12 @@ public class MainActivity extends AuthenticationActivity {
             return "";
         }
     }
+
+    //Used when a challenge finishes loading so that the opponent shows up in the people list
+    public void updatePeopleFragment() {
+        mPeopleFragment.updateList();
+    }
+
     private void onResumeTest() {
 //        DateUtils.test(true);
 //        QueryUtils.testCacheThenNetwork();

@@ -129,6 +129,7 @@ public class Constants {
     }
 
     public static class MenuItem {
+        public static final String MY_PROFILE = "My Profile";
         public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
         public static final String BOOKMARKS = "Bookmarks";
         public static final String ACHIEVEMENTS = "Achievements";
@@ -140,6 +141,13 @@ public class Constants {
         public static class Attribute {
             public static final String LABEL = "LABEL";
             public static final String ICON = "ICON";
+        }
+    }
+
+    public static class TutorRequest {
+        public static class Attribute {
+            public static final String NAME = "NAME";
+            public static final String PROFILE_PIC = "PROFILE_PIC";
         }
     }
 
@@ -180,6 +188,7 @@ public class Constants {
         public static final String QUESTION_META_ID = "QUESTION_META_ID";
 
         public static final String QUESTION_ID = "QUESTION_ID";
+        public static final String PUBLICUSERDATA_ID = "PUBLICUSERDATA_ID";
 
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
@@ -538,6 +547,9 @@ public class Constants {
     public static class CloudCodeFunction {
         public static final String DELETE_CHALLENGE = "deleteChallenge";
         public static final String CHOOSE_THREE_QUESTIONS = "chooseThreeQuestionsV2";
+        public static final String STUDENT_REQUEST_TO_TUTOR = "studentRequestToTutor";
+        public static final String ADD_STUDENT = "addStudent";
+        public static final String REMOVE_STUDENT = "removeStudent";
     }
 
     public static class PinNames {
@@ -548,7 +560,7 @@ public class Constants {
         public static final String PeopleSearch = "PeopleSearch";
         public static final String PublicUserData = "PublicUserData";
         public static final String Challenge = "Challenge";
-        public static final String CurrentUser = "CurrentUser";
+        public static final String CurrentUser = "CurrentUser"; //deprecated
         public static final String BlockStats = "BlockStats";
         public static final String fbFriends = "fbFriends"; //deprecated
     }

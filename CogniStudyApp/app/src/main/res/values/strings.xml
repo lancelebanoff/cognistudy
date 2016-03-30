@@ -27,6 +27,7 @@
     <string name="title_activity_past_question">Question</string>
     <string name="title_activity_challenge_analytics">Challenge Stats</string>
     <string name="title_activity_student_profile">Student Profile</string>
+    <string name="title_activity_tutor_profile">Tutor Profile</string>
     <string name="title_activity_conversation">*Other persons name*</string>
     <string name="title_activity_suggested_questions">Suggested Questions</string>
     <string name="title_activity_bookmarks">Bookmarks</string>

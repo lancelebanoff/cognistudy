@@ -1,37 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_height="match_parent"
     tools:context=".Activities.StudentProfileActivity">
 
-    <com.parse.ParseImageView
-        android:id="@+id/imgProfile"
-        android:layout_marginBottom="20dp"
-        android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_large"
-        android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_large"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/kevin_profile_pic_150_150"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/txtName"
-        android:textSize="20dp"
-        android:textColor="@color/colorPrimaryDark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Kevin Joslyn"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:layout_below="@+id/imgProfile" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <com.cognitutor.cognistudyapp.Custom.CogniButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send Notification"
-        android:id="@+id/btnChallenge"
-        android:onClick="navigateToNewChallengeActivity"
-        android:layout_below="@id/txtName"
-        android:layout_centerHorizontal="true" />
+            <com.parse.ParseImageView
+                android:id="@+id/imgProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/default_profile_pic"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:layout_below="@id/imgProfile">
+
+                <TextView
+                    android:id="@+id/txtName"
+                    android:textSize="24sp"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/txtStudent"
+                    android:text="Student"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_below="@+id/txtName" />
+
+                <LinearLayout
+                    android:id="@+id/llButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/txtStudent">
+
+                    <ViewSwitcher
+                        android:id="@+id/viewSwitcher"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <com.cognitutor.cognistudyapp.Custom.CogniButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Follow"
+                            android:id="@+id/btnAddTutor"
+                            android:onClick="onClick_btnFollow"/>
+
+                        <com.cognitutor.cognistudyapp.Custom.CogniButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Unfollow"
+                            android:id="@+id/btnRemoveTutor"
+                            android:onClick="onClick_btnUnfollow" />
+                    </ViewSwitcher>
+
+                    <com.cognitutor.cognistudyapp.Custom.CogniButton
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Message"
+                        android:id="@+id/btnMessage"
+                        android:onClick="onClick_btnMessage"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+            </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
 </RelativeLayout>

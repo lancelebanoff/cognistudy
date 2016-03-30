@@ -14,6 +14,7 @@ Parse.Cloud.define("addTutor", function(request, response) {
 		  success: function(tutorPublicData) {
 		    // The object was retrieved successfully.
 			privateStudentData.addUnique("tutors", tutorPublicData);
+			privateStudentData.remove("requestsToTutors", tutorPublicData);
 
 			privateStudentData.save(null, {
 			  success: function(privateStudentData) {

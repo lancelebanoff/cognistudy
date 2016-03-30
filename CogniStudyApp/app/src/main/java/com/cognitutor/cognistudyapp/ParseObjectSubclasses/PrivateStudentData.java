@@ -40,6 +40,7 @@ public class PrivateStudentData extends ParseObject{
         public static final String bookmarks = "bookmarks";
         public static final String baseUserId = "baseUserId";
         public static final String responses = "responses";
+        public static final String requestsToTutors = "requestsToTutors";
     }
     public PrivateStudentData() {}
     public PrivateStudentData(ParseUser user) {
@@ -131,6 +132,62 @@ public class PrivateStudentData extends ParseObject{
                 return null;
             }
         });
+    }
+
+    public void addFriend(PublicUserData friend) {
+        add(Columns.friends, friend);
+    }
+
+    public void removeFriend(PublicUserData friend) {
+        ArrayList<PublicUserData> friendToRemove = new ArrayList<>();
+        friendToRemove.add(friend);
+        removeAll(Columns.friends, friendToRemove);
+    }
+
+    public boolean isFriendsWith(PublicUserData otherUser) {
+        return getFriendPublicUserIds().contains(otherUser.getObjectId());
+    }
+
+    public void addRequestToTutor(PublicUserData tutor) {
+        add(Columns.requestsToTutors, tutor);
+    }
+
+    public void addTutor(PublicUserData tutor) {
+        add(Columns.tutors, tutor);
+    }
+
+    public void removeTutor(PublicUserData tutor) {
+        ArrayList<PublicUserData> tutorToRemove = new ArrayList<>();
+        tutorToRemove.add(tutor);
+        removeAll(Columns.tutors, tutorToRemove);
+        removeAll(Columns.requestsToTutors, tutorToRemove);
+    }
+
+    public List<PublicUserData> getTutors() {
+        return getList(Columns.tutors);
+    }
+
+    public boolean hasTutor(PublicUserData tutor) {
+        return getTutors().contains(tutor);
+    }
+
+    public boolean hasRequestedTutor(PublicUserData tutor) {
+        List<PublicUserData> tutorsRequested = getList(Columns.requestsToTutors);
+        return tutorsRequested != null && tutorsRequested.contains(tutor);
+    }
+
+    public boolean hasTutorOrRequestedTutor(PublicUserData tutor) {
+        return hasTutor(tutor) || hasRequestedTutor(tutor);
+    }
+
+    public List<PublicUserData> getTutorRequests() {
+        return getList(Columns.requestsFromTutors);
+    }
+
+    public void removeTutorRequest(PublicUserData tutor) {
+        ArrayList<PublicUserData> tutorToRemove = new ArrayList<>();
+        tutorToRemove.add(tutor);
+        removeAll(Columns.requestsFromTutors, tutorToRemove);
     }
 
     @Override

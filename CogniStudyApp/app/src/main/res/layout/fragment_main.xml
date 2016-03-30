@@ -45,11 +45,49 @@
                 android:layout_centerHorizontal="true" />
 
             <android.support.v7.widget.CardView
-                android:id="@+id/cvChallengeRequests"
+                android:id="@+id/cvTutorRequests"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_below="@id/btnViewLocalDatastore"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="30dp"
+                android:visibility="gone"
+                card_view:cardUseCompatPadding="true"
+                card_view:contentPaddingLeft="3dp"
+                card_view:contentPaddingRight="3dp"
+                card_view:contentPaddingBottom="5dp"
+                card_view:cardCornerRadius="7dp"
+                card_view:cardBackgroundColor="@color/pink">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/txtTutorRequests"
+                        android:text="Tutor Requests"
+                        android:textColor="@color/white"/>
+
+                    <ListView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/listTutorRequests"
+                        android:layout_below="@+id/txtTutorRequests"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:background="@color/white" />
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/cvChallengeRequests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_below="@id/cvTutorRequests"
                 android:visibility="gone"
                 card_view:cardUseCompatPadding="true"
                 card_view:contentPaddingLeft="3dp"

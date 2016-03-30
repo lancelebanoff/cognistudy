@@ -10,6 +10,15 @@
         android:src="@drawable/background_desk"
         android:scaleType="centerCrop"/>
 
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/icon_back"
+        android:id="@+id/imgBack"
+        android:onClick="onClick_imgBack"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -83,20 +92,6 @@
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside" />
 
-            <com.cognitutor.cognistudyapp.Custom.CogniImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/icon_switch"
-                android:id="@+id/btnSwitchView"
-                android:onClick="onClick_btnSwitchView"
-                android:visibility="invisible"
-                android:layout_alignBottom="@+id/headerChallengeScore"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:adjustViewBounds="true"
-                android:scaleType="centerInside" />
-
             <ProgressBar
                 android:id="@+id/progressBarSmall"
                 android:layout_width="wrap_content"
@@ -151,7 +146,8 @@
                 android:id="@+id/headerChallengeScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"/>
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="0dp"/>
 
         </RelativeLayout>
     </RelativeLayout>
