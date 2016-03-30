@@ -93,10 +93,6 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         b = (Button) rootView.findViewById(R.id.btnViewLocalDatastore);
         b.setOnClickListener(this);
 
-        createAllListViews(rootView);
-        setSwipeRefreshLayout(rootView);
-        initializeBroadcastReceiver();
-
         return rootView;
     }
 
@@ -121,8 +117,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 break;
         }
 
-
-//        createAllListViews(getView());
+        createAllListViews(getView());
+        setSwipeRefreshLayout(getView());
+        initializeBroadcastReceiver();
     }
 
     private void createAllListViews(final View rootView) {
