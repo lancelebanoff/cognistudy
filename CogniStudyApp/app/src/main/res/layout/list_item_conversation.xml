@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <com.cognitutor.cognistudyapp.Custom.RoundedImageView
+        android:id="@+id/imgConversationProfile"
+        android:layout_width="@dimen/com_facebook_profilepictureview_preset_size_small"
+        android:layout_height="@dimen/com_facebook_profilepictureview_preset_size_small"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/default_profile_pic"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/imgConversationProfile"
+        android:paddingLeft="20dp">
+
+        <TextView
+            android:id="@+id/txtConversationUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:text="Player Name"/>
+
+        <TextView
+            android:id="@+id/txtLastMessageSubstring"
+            android:layout_alignParentBottom="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp" />
+    </RelativeLayout>
+
+    <TextView
+        android:paddingTop="5dp"
+        android:layout_alignParentRight="true"
+        android:id="@+id/txtConversationDate"
+        android:layout_marginRight="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>
