@@ -13,6 +13,7 @@ var m12 = require('cloud/chooseRandomQuestionsV2.js');
 var m13 = require('cloud/deleteTestQuestions.js');
 var m14 = require('cloud/studentRequestToTutor');
 var m15 = require('cloud/removeStudent');
+var m16 = require('cloud/addStudent');
 
 var l1 = require('cloud/getAllSubStats.js');
 var l2 = require('cloud/getSubStats.js');

@@ -61,12 +61,15 @@ public class TutorProfileActivity extends CogniActivity {
             e.printStackTrace();
         }
         mViewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        if (mCurrPrivateStudentData.hasTutor(publicUserData)) {
+        if (mCurrPrivateStudentData.hasTutorOrRequestedTutor(publicUserData)) {
             mViewSwitcher.showNext();
         }
     }
 
     public void onClick_btnAddTutor(View view) {
+        mCurrPrivateStudentData.addRequestToTutor(publicUserData);
+        mCurrPrivateStudentData.saveInBackground();
+
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("publicStudentDataId", PublicUserData.getPublicUserData().getObjectId());
         params.put("publicTutorDataId", publicUserData.getObjectId());
@@ -88,6 +91,7 @@ public class TutorProfileActivity extends CogniActivity {
 
     public void onClick_btnRemoveTutor(View view) {
         mCurrPrivateStudentData.removeTutor(publicUserData);
+        mCurrPrivateStudentData.saveInBackground();
 
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("studentPublicDataId", PublicUserData.getPublicUserData().getObjectId());
@@ -105,7 +109,7 @@ public class TutorProfileActivity extends CogniActivity {
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.showNext();
 
-        Toast.makeText(this, "Request sent to tutor.", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Unlinked from tutor.", Toast.LENGTH_LONG).show();
     }
 
     public void onClick_btnMessage(View view) {

@@ -10,26 +10,32 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 
+import java.util.HashMap;
 import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/14/2016.
  */
-public class TutorRequestQueryAdapter extends ArrayAdapter<PublicUserData> {
+public class TutorRequestAdapter extends ArrayAdapter<PublicUserData> {
 
     private Activity mActivity;
     private MainFragment mFragment;
     private PrivateStudentData mPrivateStudentData;
 
-    public TutorRequestQueryAdapter(Context context, MainFragment fragment, List<PublicUserData> tutorRequests) {
+    public TutorRequestAdapter(Context context, MainFragment fragment, List<PublicUserData> tutorRequests) {
         super(context, R.layout.list_item_tutor_request, tutorRequests);
         mActivity = (Activity) context;
         mFragment = fragment;
@@ -87,6 +93,19 @@ public class TutorRequestQueryAdapter extends ArrayAdapter<PublicUserData> {
             @Override
             public void done(ParseException e) {
                 mFragment.refresh();
+            }
+        });
+
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("studentPublicDataId", PublicUserData.getPublicUserData().getObjectId());
+        params.put("tutorPublicDataId", tutorPublicUserData.getObjectId());
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.ADD_STUDENT, params).continueWith(new Continuation<Object, Void>() {
+            @Override
+            public Void then(Task<Object> task) throws Exception {
+                if (task.getError() != null) {
+                    task.getError().printStackTrace();
+                }
+                return null;
             }
         });
     }

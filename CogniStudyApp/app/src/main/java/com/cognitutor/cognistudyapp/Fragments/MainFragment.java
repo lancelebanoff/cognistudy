@@ -22,7 +22,7 @@ import android.widget.ListView;
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
-import com.cognitutor.cognistudyapp.Adapters.TutorRequestQueryAdapter;
+import com.cognitutor.cognistudyapp.Adapters.TutorRequestAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
@@ -55,7 +55,7 @@ import bolts.Task;
 
 public class MainFragment extends CogniPushListenerFragment implements View.OnClickListener {
 
-    private TutorRequestQueryAdapter tutorRequestAdapter;
+    private TutorRequestAdapter tutorRequestAdapter;
     private ChallengeQueryAdapter challengeRequestQueryAdapter;
     private ChallengeQueryAdapter yourTurnChallengeQueryAdapter;
     private ChallengeQueryAdapter theirTurnChallengeQueryAdapter;
@@ -170,7 +170,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private void createTutorRequestListView(final View rootView) {
         PrivateStudentData privateStudentData = PrivateStudentData.getPrivateStudentData();
         List<PublicUserData> tutorRequests = privateStudentData.getTutorRequests();
-        tutorRequestAdapter = new TutorRequestQueryAdapter(getActivity(), this, tutorRequests);
+        tutorRequestAdapter = new TutorRequestAdapter(getActivity(), this, tutorRequests);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
