@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.cognitutor.cognistudyapp.Activities.ConversationActivity;
+import com.cognitutor.cognistudyapp.Activities.ChatActivity;
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.R;
@@ -61,7 +61,7 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
     private Class getActivityClass(String activityConstant) {
         switch(activityConstant) {
             case Constants.NotificationData.Activity.CONVERSATION_ACTIVITY:
-                return ConversationActivity.class;
+                return ChatActivity.class;
             case Constants.NotificationData.Activity.SUGGESTED_QUESTIONS_LIST_ACTIVITY:
                 return SuggestedQuestionsListActivity.class;
             default:

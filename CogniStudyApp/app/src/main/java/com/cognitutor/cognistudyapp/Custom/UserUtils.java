@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
@@ -63,6 +64,7 @@ public class UserUtils {
                 }
                 pinBookmarksInBackground();
                 pinSuggestedQuestionsInBackground();
+                pinConversationsInBackground();
                 return pinRollingStatsInBackground(student);
             }
         }).continueWithTask(new Continuation<Void, Task<Void>>() {
@@ -74,6 +76,11 @@ public class UserUtils {
                 return StudentBlockStats.pinAllBlockStatsInBackground(student);
             }
         });
+    }
+
+    private static Task<Object> pinConversationsInBackground() {
+        ParseQuery query = Conversation.getQueryForCurrentUserConversations();
+        return pinWithObjectIdInBackground(query);
     }
 
     private static Task<Object> pinBookmarksInBackground() {

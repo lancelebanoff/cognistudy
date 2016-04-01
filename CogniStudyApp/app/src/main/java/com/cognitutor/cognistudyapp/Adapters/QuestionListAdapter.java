@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by Kevin on 3/18/2016.
@@ -141,6 +142,7 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
         String timeBetween = DateUtils.getTimeBetween(questionDate, currentDate);
         if(timeBetween.contains("day")) {
             SimpleDateFormat formatter = new SimpleDateFormat("MMMM d", Locale.US);
+            formatter.setTimeZone(TimeZone.getTimeZone("America/New_York"));
             return formatter.format(questionDate);
         }
         return timeBetween + " ago";

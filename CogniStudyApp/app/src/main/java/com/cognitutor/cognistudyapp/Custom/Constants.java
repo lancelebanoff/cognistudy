@@ -187,6 +187,8 @@ public class Constants {
         public static final String USER1OR2 = "USER1OR2";
         public static final String QUESTION_META_ID = "QUESTION_META_ID";
         public static final String UPDATE_OBJECT_ID_IN_LIST = "UPDATE_OBJECT_ID_IN_LIST";
+        public static final String CONVERSATION_ID = "CONVERSATION_ID";
+        public static final String BASEUSERID = "BASEUSERID";
 
         public static final String QUESTION_ID = "QUESTION_ID";
         public static final String PUBLICUSERDATA_ID = "PUBLICUSERDATA_ID";

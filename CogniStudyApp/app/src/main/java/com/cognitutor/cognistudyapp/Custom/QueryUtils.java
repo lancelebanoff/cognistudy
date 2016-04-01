@@ -302,6 +302,21 @@ public class QueryUtils {
         return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.OBJECT_ID, null, false, null);
     }
 
+    /**
+     * Finds objects using query 1 and then updates the results using query2
+     * @param pinName
+     * @param listener
+     * @param query1 The local data query to be executed first
+     * @param query2 The network data query to be executed second
+     * @param <T>
+     * @return
+     */
+    public static <T extends ParseObject> Task<List<T>> findQuery1ThenQuery2InBackground(
+            final String pinName, final OnDataLoadedListener<T> listener, ParseQuery<T> query1, ParseQuery<T> query2) {
+
+        return new QueryUtils().doFindCacheThenNetworkInBackground(query1, query2, listener, PinNameOption.CONSTANT, pinName, false, null);
+    }
+
     enum PinNameOption {
         NO_NAME, CONSTANT, OBJECT_ID
     }

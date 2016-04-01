@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.cognitutor.cognistudyapp.R;
 
-public class ConversationActivity extends CogniActivity {
+public class ChatActivity extends CogniActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

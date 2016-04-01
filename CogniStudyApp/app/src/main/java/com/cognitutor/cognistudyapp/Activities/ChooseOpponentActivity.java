@@ -22,35 +22,20 @@ import com.parse.ParseUser;
 
 import java.util.HashMap;
 
-public class ChooseOpponentActivity extends CogniActivity {
+public class ChooseOpponentActivity extends PeopleFragmentActivity {
 
     /**
      * Extras:
      *      CHALLENGE_ID: String
      */
-    private Intent mIntent;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choose_opponent);
-        mIntent = getIntent();
-
-        createPeopleFragment();
-    }
-
-    private void createPeopleFragment() {
-        PeopleFragment fragment = PeopleFragment.newInstance(new PeopleListOnClickHandler() {
+    protected PeopleListOnClickHandler getPeopleListOnClickHandler() {
+        return new PeopleListOnClickHandler() {
             @Override
             public void onListItemClick(PublicUserData publicUserData) {
                 chooseOpponent(publicUserData);
             }
-        });
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.frameLayout, fragment)
-                .commit();
+        };
     }
 
     public void chooseOpponent(PublicUserData publicUserData) {

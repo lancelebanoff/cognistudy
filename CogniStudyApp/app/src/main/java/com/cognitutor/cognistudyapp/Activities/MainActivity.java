@@ -17,7 +17,7 @@ import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
-import com.cognitutor.cognistudyapp.Fragments.MessagesFragment;
+import com.cognitutor.cognistudyapp.Fragments.ConversationsFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
@@ -183,7 +183,7 @@ public class MainActivity extends AuthenticationActivity {
                 return mPeopleFragment;
             }
             if(position == Fragments.Messages.ordinal())
-                return MessagesFragment.newInstance();
+                return ConversationsFragment.newInstance();
             if(position == Fragments.Analytics.ordinal())
                 return AnalyticsFragment.newInstance();
             if(position == Fragments.Menu.ordinal())

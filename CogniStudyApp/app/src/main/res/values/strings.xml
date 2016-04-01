@@ -20,6 +20,7 @@
     <string name="title_activity_challenge_question">Question</string>
     <string name="title_activity_registration">Sign In</string>
     <string name="title_activity_new_challenge">New Challenge</string>
+    <string name="title_activity_new_conversation">Send Message</string>
     <string name="title_activity_choose_board_configuration">Set Up Board</string>
     <string name="title_activity_challenge">Challenge</string>
     <string name="title_activity_battleship_attack">Attack</string>

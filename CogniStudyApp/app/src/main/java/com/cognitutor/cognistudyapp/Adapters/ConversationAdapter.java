@@ -1,22 +1,24 @@
 package com.cognitutor.cognistudyapp.Adapters;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.ChatActivity;
+import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Message;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Kevin on 3/30/2016.
@@ -27,20 +29,9 @@ public class ConversationAdapter extends CogniRecyclerAdapter<Conversation, Conv
         super(activity, new ParseQueryAdapter.QueryFactory<Conversation>() {
             @Override
             public ParseQuery<Conversation> create() {
-                return getDefaultQuery();
+                return Conversation.getQueryForCurrentUserConversations();
             }
         }, true);
-    }
-
-    private static ParseQuery<Conversation> getDefaultQuery() {
-        List<ParseQuery<Conversation>> orQueries = new ArrayList<>();
-        ParseQuery<Conversation> query1 = Conversation.getQuery()
-                .whereEqualTo(Conversation.Columns.baseUserId1, UserUtils.getCurrentUserId());
-        ParseQuery<Conversation> query2 = Conversation.getQuery()
-                .whereEqualTo(Conversation.Columns.baseUserId2, UserUtils.getCurrentUserId());
-        orQueries.add(query1);
-        orQueries.add(query2);
-        return ParseQuery.or(orQueries);
     }
 
     @Override
@@ -54,11 +45,15 @@ public class ConversationAdapter extends CogniRecyclerAdapter<Conversation, Conv
     public void onBindViewHolder(ViewHolder holder, int position) {
         Conversation conversation = getItem(position);
         PublicUserData pud = conversation.getOtherUserPublicUserData();
+        Message lastMessage = conversation.getLastMessage();
         holder.imgConversationProfile.setParseFile(pud.getProfilePic());
         holder.imgConversationProfile.loadInBackground();
         holder.txtConversationUserName.setText(pud.getDisplayName());
-        holder.txtLastMessageSubstring.setText("blah"); //TODO
-        holder.txtConversationDate.setText(conversation.getUpdatedAt().toString()); //TODO
+        holder.txtConversationUserName.setTypeface(null, Typeface.BOLD);
+        holder.txtLastMessageSubstring.setText(lastMessage.getText());
+        holder.txtConversationDate.setText(DateUtils.getTimeOrDate(conversation.getUpdatedAt()));
+
+        holder.setOnClickListener(conversation.getObjectId());
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -77,13 +72,20 @@ public class ConversationAdapter extends CogniRecyclerAdapter<Conversation, Conv
             txtConversationDate = (TextView) itemView.findViewById(R.id.txtConversationDate);
         }
 
-        public void setOnClickListener() {
+        public void setOnClickListener(final String conversationId) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO
+                    navigateToChatActivity(conversationId);
                 }
             });
         }
+    }
+
+    public void navigateToChatActivity(String conversationId) {
+        Intent intent = new Intent(mActivity, ChatActivity.class);
+        intent.putExtra(Constants.IntentExtra.CONVERSATION_ID, conversationId);
+        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
+        mActivity.startActivity(intent);
     }
 }

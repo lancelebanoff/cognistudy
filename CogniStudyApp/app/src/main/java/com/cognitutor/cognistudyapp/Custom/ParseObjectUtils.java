@@ -7,6 +7,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -437,6 +438,7 @@ public class ParseObjectUtils {
                         classesToUnpinWithObjectId.add(Challenge.class);
                         classesToUnpinWithObjectId.add(Bookmark.class);
                         classesToUnpinWithObjectId.add(SuggestedQuestion.class);
+                        classesToUnpinWithObjectId.add(Conversation.class);
                         for(Class clazz : classesToUnpinWithObjectId) {
                             ParseQuery.getQuery(clazz).fromLocalDatastore().findInBackground().continueWith(new Continuation<List<ParseObject>, Object>() {
                                 @Override
