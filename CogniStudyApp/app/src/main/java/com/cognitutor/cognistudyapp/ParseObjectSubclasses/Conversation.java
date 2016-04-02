@@ -82,7 +82,7 @@ public class Conversation extends ParseObject {
                 .orderByDescending(Constants.ParseObjectColumns.updatedAt);
     }
 
-    public static ParseQuery<Conversation> getQueryForOtherUserConversation(String otherUserBaseUserId) {
+    public static ParseQuery<Conversation> getQueryForConversant(String otherUserBaseUserId) {
         List<ParseQuery<Conversation>> orQueries = new ArrayList<>();
         ParseQuery<Conversation> query1 = Conversation.getQuery()
                 .whereEqualTo(Conversation.Columns.baseUserId1, UserUtils.getCurrentUserId())

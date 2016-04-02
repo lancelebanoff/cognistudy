@@ -240,41 +240,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     @Override
                     public void onLoaded(List<ParseObject> objects, Exception e) {
                         setListViewHeightBasedOnChildren(challengeRequestListView);
-                        pinChallengesWithObjectIdInBackground(objects);
                     }
                 });
             }
         });
-    }
-
-    //TODO: Remove later when cacheThenNetwork works
-    private void pinChallengesWithObjectIdInBackground(List<ParseObject> objects) {
-        for(ParseObject obj : objects) {
-            Challenge challenge = (Challenge) obj;
-            final String challengeId = challenge.getObjectId();
-            ParseRelation<Response> responseRelation = challenge.getCurUserChallengeUserData().getResponses();
-            final String questionCol = Response.Columns.question;
-            responseRelation.getQuery()
-                .include(questionCol)
-                .include(questionCol + "." + Question.Columns.bundle)
-//                .include(questionCol + "." + Question.Columns.questionContents)
-                .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
-                @Override
-                public Object then(Task<List<Response>> task) throws Exception {
-                    Log.d("pinning challenge " + challengeId, task.getResult().size() + " questions in relation");
-                    ParseObject.pinAllInBackground(challengeId, task.getResult());
-                    return null;
-                }
-            });
-            challenge.pinInBackground(challengeId).continueWith(new Continuation<Void, Object>() {
-                @Override
-                public Object then(Task<Void> task) throws Exception {
-                    //Update the people list so that the opponent shows up
-                    ((MainActivity) getActivity()).updatePeopleFragment();
-                    return null;
-                }
-            });
-        }
     }
 
     private void createYourTurnListView(final View rootView, PublicUserData publicUserData) {
@@ -302,7 +271,6 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     @Override
                     public void onLoaded(List<ParseObject> objects, Exception e) {
                         setListViewHeightBasedOnChildren(yourTurnListView);
-                        pinChallengesWithObjectIdInBackground(objects);
                     }
                 });
             }
@@ -334,7 +302,6 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     @Override
                     public void onLoaded(List<ParseObject> objects, Exception e) {
                         setListViewHeightBasedOnChildren(theirTurnListView);
-                        pinChallengesWithObjectIdInBackground(objects);
                     }
                 });
             }
@@ -370,7 +337,6 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                     @Override
                     public void onLoaded(List<ParseObject> objects, Exception e) {
                         setListViewHeightBasedOnChildren(pastChallengeListView);
-                        pinChallengesWithObjectIdInBackground(objects);
                     }
                 });
             }

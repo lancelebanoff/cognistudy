@@ -1,17 +1,12 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
-import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
-import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import bolts.Continuation;
@@ -28,41 +23,15 @@ public class NewConversationActivity extends PeopleFragmentActivity {
         return new PeopleListOnClickHandler() {
             @Override
             public void onListItemClick(PublicUserData publicUserData) {
-                chooseConversant(publicUserData);
+                navigateToChatActivity(publicUserData.getBaseUserId(), publicUserData.getDisplayName());
             }
         };
     }
 
-    private void chooseConversant(final PublicUserData publicUserData) {
-
-        getExistingConversation(publicUserData.getBaseUserId()).continueWith(new Continuation<Conversation, Object>() {
-            @Override
-            public Object then(Task<Conversation> task) throws Exception {
-                Conversation conversation = task.getResult();
-                if(conversation != null) {
-                    navigateToChatActivity(conversation.getObjectId(), conversation.getOtherUserBaseUserId());
-                }
-                else {
-                    navigateToChatActivity(null, publicUserData.getBaseUserId());
-                }
-                return null;
-            }
-        });
-    }
-
-    private Task<Conversation> getExistingConversation(final String otherUserBaseUserId) {
-        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<Conversation>() {
-            @Override
-            public ParseQuery<Conversation> buildQuery() {
-                return Conversation.getQueryForOtherUserConversation(otherUserBaseUserId);
-            }
-        });
-    }
-
-    private void navigateToChatActivity(String conversationId, String baseUserId) {
+    private void navigateToChatActivity(String baseUserId, String displayName) {
         Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra(Constants.IntentExtra.CONVERSATION_ID, conversationId);
         intent.putExtra(Constants.IntentExtra.BASEUSERID, baseUserId);
+        intent.putExtra(Constants.IntentExtra.CONVERSANT_DISPLAY_NAME, displayName);
         startActivity(intent);
         finish();
     }

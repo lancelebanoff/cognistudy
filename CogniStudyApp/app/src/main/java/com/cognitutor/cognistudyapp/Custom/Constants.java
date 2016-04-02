@@ -189,6 +189,7 @@ public class Constants {
         public static final String UPDATE_OBJECT_ID_IN_LIST = "UPDATE_OBJECT_ID_IN_LIST";
         public static final String CONVERSATION_ID = "CONVERSATION_ID";
         public static final String BASEUSERID = "BASEUSERID";
+        public static final String CONVERSANT_DISPLAY_NAME = "CONVERSANT_DISPLAY_NAME";
 
         public static final String QUESTION_ID = "QUESTION_ID";
         public static final String PUBLICUSERDATA_ID = "PUBLICUSERDATA_ID";
