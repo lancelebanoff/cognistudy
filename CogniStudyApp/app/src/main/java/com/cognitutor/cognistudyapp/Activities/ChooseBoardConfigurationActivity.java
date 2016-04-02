@@ -14,7 +14,9 @@ import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FunctionCallback;
 import com.parse.GetCallback;
@@ -112,60 +114,69 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
 
     public void onClick_btnStartChallenge(View view) {
         mBattleshipBoardManager.saveNewGameBoard();
-        if(mUser1or2 == 1) {
-            setChallengeActivated();
-        }
-        else {
-            setChallengeAccepted();
-            navigateToChallengeActivity();
-        }
-        finish();
-    }
-
-    private void setChallengeActivated() {
         Challenge.getChallengeInBackground(mChallengeId)
                 .onSuccess(new Continuation<Challenge, Void>() {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
-                        challenge.setTimeLastPlayed(new Date());
-                        challenge.setActivated(true);
-                        challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
-                            @Override
-                            public Void then(Task<Void> task) throws Exception {
-                                // Refresh Challenge list
-                                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
-                                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
-                                sendBroadcast(refreshIntent);
-                                return null;
-                            }
-                        });
+                        if (challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER)) {
+                            createComputerBoard();
+                            challenge.setActivated(true);
+                            challenge.setOtherTurnUserId(PublicUserData.getComputerPublicUserData().getBaseUserId());
+                            setChallengeAccepted(challenge);
+                            navigateToChallengeActivity();
+                        } else if (mUser1or2 == 1) {
+                            setChallengeActivated(challenge);
+                        } else {
+                            setChallengeAccepted(challenge);
+                            navigateToChallengeActivity();
+                        }
+                        finish();
                         return null;
                     }
                 });
     }
 
-    private void setChallengeAccepted() {
-        Challenge.getChallengeInBackground(mChallengeId)
-                .onSuccess(new Continuation<Challenge, Void>() {
-                    @Override
-                    public Void then(Task<Challenge> task) throws Exception {
-                        Challenge challenge = task.getResult();
-                        challenge.setAccepted(true);
-                        challenge.setTimeLastPlayed(new Date());
-                        challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
-                            @Override
-                            public Void then(Task<Void> task) throws Exception {
-                                // Refresh Challenge list
-                                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
-                                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
-                                sendBroadcast(refreshIntent);
-                                return null;
-                            }
-                        });
-                        return null;
-                    }
-                });
+    private void createComputerBoard() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                GridLayout computerShipsGridLayout = (GridLayout) findViewById(R.id.computerShipsGridLayout);
+                mBattleshipBoardManager.setShipsGridLayout(computerShipsGridLayout);
+                mBattleshipBoardManager.createComputerBoard();
+            }
+        });
+    }
+
+    private void setChallengeActivated(Challenge challenge) {
+        challenge.setTimeLastPlayed(new Date());
+        challenge.setActivated(true);
+        challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                // Refresh Challenge list
+                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+                sendBroadcast(refreshIntent);
+                return null;
+            }
+        });
+}
+
+    private void setChallengeAccepted(Challenge challenge) {
+        challenge.setAccepted(true);
+        challenge.setTimeLastPlayed(new Date());
+        challenge.setCurTurnUserId(UserUtils.getCurrentUserId());
+        challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                // Refresh Challenge list
+                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+                sendBroadcast(refreshIntent);
+                return null;
+            }
+        });
     }
 
     private void navigateToChallengeActivity() {

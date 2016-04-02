@@ -29,15 +29,13 @@ import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.FindCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
-import com.parse.ParseRelation;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -145,43 +143,41 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 .whereEqualTo(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         queries.add(Challenge.getQuery()
                 .whereEqualTo(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
-        List<Challenge> challenges = null;
-        try {
-            challenges = ParseQuery.or(queries).find();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        ParseQuery.or(queries).findInBackground(new FindCallback<Challenge>() {
+            @Override
+            public void done(List<Challenge> challenges, ParseException error) {
+                for (Challenge challenge : challenges) {
+                    if(!challenge.getHasEnded() && !challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER)) {
+                        Calendar calendarCurrentDate = Calendar.getInstance(); // Today
+                        calendarCurrentDate.setTime(new Date());
 
-        for (Challenge challenge : challenges) {
-            if(!challenge.getHasEnded()) {
-                Calendar calendarCurrentDate = Calendar.getInstance(); // Today
-                calendarCurrentDate.setTime(new Date());
+                        Calendar calendarEndDate = Calendar.getInstance(); // 3 days past time last played
+                        calendarEndDate.setTime(challenge.getTimeLastPlayed());
+                        calendarEndDate.add(Calendar.DATE, Constants.ChallengeAttribute.NUM_DAYS_PER_TURN);
 
-                Calendar calendarEndDate = Calendar.getInstance(); // 3 days past time last played
-                calendarEndDate.setTime(challenge.getTimeLastPlayed());
-                calendarEndDate.add(Calendar.DATE, Constants.ChallengeAttribute.NUM_DAYS_PER_TURN);
-
-                if (calendarCurrentDate.compareTo(calendarEndDate) == 1) {
-                    challenge.setHasEnded(true);
-                    challenge.setEndDate(calendarEndDate.getTime());
-                    try {
-                        challenge.save();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    // Delete unaccepted challenges
-                    if (!challenge.getAccepted()) {
-                        final HashMap<String, Object> params = new HashMap<>();
-                        params.put(Challenge.Columns.objectId, challenge.getObjectId());
-                        try {
-                            ParseCloud.callFunction(Constants.CloudCodeFunction.DELETE_CHALLENGE, params);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
+                        if (calendarCurrentDate.compareTo(calendarEndDate) == 1) {
+                            challenge.setHasEnded(true);
+                            challenge.setEndDate(calendarEndDate.getTime());
+                            try {
+                                challenge.save();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            // Delete unaccepted challenges
+                            if (!challenge.getAccepted()) {
+                                final HashMap<String, Object> params = new HashMap<>();
+                                params.put(Challenge.Columns.objectId, challenge.getObjectId());
+                                try {
+                                    ParseCloud.callFunction(Constants.CloudCodeFunction.DELETE_CHALLENGE, params);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
+        });
     }
 
     private void createTutorRequestListView(final View rootView) {
