@@ -1,10 +1,12 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,6 +55,17 @@ public class Challenge extends ParseObject {
     }
 
     public Challenge() {}
+
+    public static Task<List<Challenge>> getAllChallengesForUserInBackground() {
+        ParseQuery<Challenge> query1 = getQuery()
+                .whereEqualTo(Columns.curTurnUserId, UserUtils.getCurrentUserId());
+        ParseQuery<Challenge> query2 = getQuery()
+                .whereEqualTo(Columns.otherTurnUserId, UserUtils.getCurrentUserId());
+        List<ParseQuery<Challenge>> queries = new ArrayList<>();
+        queries.add(query1);
+        queries.add(query2);
+        return ParseQuery.or(queries).findInBackground();
+    }
 
     public static ParseQuery<Challenge> getQuery() {
         return ParseQuery.getQuery(Challenge.class);
