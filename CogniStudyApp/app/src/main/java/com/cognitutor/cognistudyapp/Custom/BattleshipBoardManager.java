@@ -24,6 +24,7 @@ import com.parse.ParseObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -43,8 +44,8 @@ public class BattleshipBoardManager {
     private Activity mActivity;
     private Challenge mChallenge;
     private ChallengeUserData mViewedChallengeUserData; // The player who owns the gamebaord that is being viewed
-    private ChallengeUserData mCurrentUserData; // The current player
-    private ChallengeUserData mOpponentUserData; // The player who is not currently playing
+    private ChallengeUserData mCurrentUserData; // The player who is looking at the board
+    private ChallengeUserData mOpponentUserData; // The player who is not looking at the board
     private GameBoard mGameBoard; // The gamebaord currently being viewed
     private ArrayList<Ship> mShips;
     private ArrayList<ShipDrawableData> mShipDrawableDatas;
@@ -55,6 +56,7 @@ public class BattleshipBoardManager {
     private ImageView[][] mTargetImageViews;
     private ArrayList<int[]> mGifPositions;
     private int mPencilGifIndex;
+    private boolean mComputerWon;
 
     // Used for new challenge
     public BattleshipBoardManager(Activity activity, Challenge challenge,
@@ -64,6 +66,7 @@ public class BattleshipBoardManager {
         mChallenge = challenge;
         mViewedChallengeUserData = challengeUserData;
         mTargetImageViews = new ImageView[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
+        mComputerWon = false;
     }
 
     // Used for existing challenge
@@ -80,6 +83,7 @@ public class BattleshipBoardManager {
         mGameBoard = gameBoard;
         mShips = (ArrayList<Ship>) ships;
         mTargetImageViews = new ImageView[Constants.GameBoard.NUM_ROWS][Constants.GameBoard.NUM_COLUMNS];
+        mComputerWon = false;
         retrieveShipDrawableDatas();
         retrieveBoardPositionStatus();
     }
@@ -327,6 +331,154 @@ public class BattleshipBoardManager {
         alertLostChallenge();
     }
 
+    public void createComputerBoard() {
+        placeShips();
+        GameBoard gameBoard = new GameBoard(mShips, createShipAt());
+        gameBoard.saveInBackground();
+        ChallengeUserData computerUserData = mChallenge.getChallengeUserData(2);
+        computerUserData.setGameBoard(gameBoard);
+        computerUserData.saveInBackground();
+    }
+
+    public void takeComputerTurn() {
+        final int NUM_SHOTS = 3;
+        for (int i = 0; i < NUM_SHOTS; i++) {
+            findAndTakeComputerShot();
+        }
+        if (!mComputerWon) {
+            setOtherPlayerTurn(true);
+            GameBoard computerGameBoard = mOpponentUserData.getGameBoard();
+            computerGameBoard.setShouldDisplayLastMove(false);
+            computerGameBoard.resetIsLastMove();
+            computerGameBoard.saveInBackground();
+        }
+    }
+
+    private void findAndTakeComputerShot() {
+        Location previousHit = findPreviousHit();
+        if (previousHit != null) {
+            fireAroundPosition(previousHit.row, previousHit.col);
+        } else {
+            fireRandomly();
+        }
+    }
+
+    private class Location {
+        int row;
+        int col;
+        public Location(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+    }
+
+    private Location findPreviousHit() {
+        for (int row = 0; row < Constants.GameBoard.NUM_ROWS; row++) {
+            for (int col = 0; col < Constants.GameBoard.NUM_COLUMNS; col++) {
+                boolean hitAtPosition = mBoardPositionStatus.get(row).get(col).equals(Constants.GameBoardPositionStatus.HIT);
+                boolean hasShotAllAroundPosition = hasShotAllAroundPosition(row, col);
+                if (hitAtPosition && !hasShotAllAroundPosition) {
+                    return new Location(row, col);
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean hasShotAllAroundPosition(int row, int col) {
+        boolean shotAbove = row == 0 || positionHasBeenShot(row - 1, col);
+        boolean shotBelow = row == Constants.GameBoard.NUM_ROWS - 1 || positionHasBeenShot(row + 1, col);
+        boolean shotToLeft = col == 0 || positionHasBeenShot(row, col - 1);
+        boolean shotToRight = col == Constants.GameBoard.NUM_COLUMNS - 1 || positionHasBeenShot(row, col + 1);
+        return shotAbove && shotBelow && shotToLeft && shotToRight;
+    }
+
+    private void fireRandomly() {
+        int row, col;
+        do {
+            row = new Random().nextInt(Constants.GameBoard.NUM_ROWS);
+            col = new Random().nextInt(Constants.GameBoard.NUM_COLUMNS);
+        } while (positionHasBeenShot(row, col));
+        takeComputerShot(row, col);
+    }
+
+    private boolean positionHasBeenShot(int row, int col) {
+        switch (mBoardPositionStatus.get(row).get(col)) {
+            case Constants.GameBoardPositionStatus.HIT:
+            case Constants.GameBoardPositionStatus.MISS:
+                return true;
+        }
+        return false;
+    }
+
+    private void fireAroundPosition(int row, int col) {
+        boolean shotAbove = row == 0 || positionHasBeenShot(row - 1, col);
+        boolean shotBelow = row == Constants.GameBoard.NUM_ROWS - 1 || positionHasBeenShot(row + 1, col);
+        boolean shotToLeft = col == 0 || positionHasBeenShot(row, col - 1);
+        boolean shotToRight = col == Constants.GameBoard.NUM_COLUMNS - 1 || positionHasBeenShot(row, col + 1);
+        if (!shotAbove) {
+            takeComputerShot(row - 1, col);
+            return;
+        }
+        if (!shotBelow) {
+            takeComputerShot(row + 1, col);
+            return;
+        }
+        if (!shotToLeft) {
+            takeComputerShot(row, col - 1);
+            return;
+        }
+        if (!shotToRight) {
+            takeComputerShot(row, col + 1);
+            return;
+        }
+    }
+
+    private void takeComputerShot(int row, int col) {
+        Ship shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
+        if(shipThatOccupiesPosition == null) {
+            mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.MISS);
+        }
+        else {
+            mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.HIT);
+            shipThatOccupiesPosition.decrementHitsRemaining();
+            if(shipThatOccupiesPosition.getHitsRemaining() == 0) {
+                mOpponentUserData.incrementScore();
+                mOpponentUserData.saveInBackground();
+
+                if(mOpponentUserData.getScore() == Constants.GameBoard.NUM_SHIPS) {
+                    computerWins();
+                }
+            }
+        }
+        mGameBoard.setIsLastMoveAtPosition(row, col);
+        saveGameBoard();
+    }
+
+    private void computerWins() {
+        String curTurnUserId = mChallenge.getCurTurnUserId();
+        String otherTurnUserId = mChallenge.getOtherTurnUserId();
+        mChallenge.setCurTurnUserId(otherTurnUserId);
+        mChallenge.setOtherTurnUserId(curTurnUserId);
+        mChallenge.setQuesAnsThisTurn(0);
+        mChallenge.setCorrectAnsThisTurn(0);
+        mChallenge.setThisTurnQuestionIds(new ArrayList<String>());
+        mChallenge.incrementNumTurns();
+        mChallenge.setTimeLastPlayed(new Date());
+        mChallenge.saveInBackground();
+
+        mGameBoard.setShouldDisplayLastMove(true);
+        mGameBoard.saveInBackground();
+
+        setOtherPlayerTurn(true);
+
+        mChallenge.setHasEnded(true);
+        mChallenge.setEndDate(new Date());
+        mChallenge.setWinner(mOpponentUserData.getPublicUserData().getBaseUserId());
+        mChallenge.saveInBackground();
+        mComputerWon = true;
+    }
+
     // Build the image filename based on the skin and position status, then set image resource
     private void setTargetImageResource(ImageView imgSpace, String positionStatus) {
         String targetSkin = Constants.ShopItemType.SKIN_TARGET_DEFAULT;
@@ -365,7 +517,7 @@ public class BattleshipBoardManager {
             case Constants.GameBoardPositionStatus.DETECTION:
                 showNumShotsRemaining();
                 if(mNumShotsRemaining == 0) {
-                    setOtherPlayerTurn();
+                    setOtherPlayerTurn(false);
                 } else {
                     mChallenge.setNumShotsRemaining(mNumShotsRemaining);
                     mChallenge.saveInBackground();
@@ -385,7 +537,7 @@ public class BattleshipBoardManager {
 
                         if(mCurrentUserData.getScore() == Constants.GameBoard.NUM_SHIPS) {
                             endChallenge();
-                            setOtherPlayerTurn();
+                            setOtherPlayerTurn(false);
                         }
                     }
                 }
@@ -398,7 +550,7 @@ public class BattleshipBoardManager {
         }
     }
 
-    private void setOtherPlayerTurn() {
+    private void setOtherPlayerTurn(boolean isComputerTurn) {
         String curTurnUserId = mChallenge.getCurTurnUserId();
         String otherTurnUserId = mChallenge.getOtherTurnUserId();
         mChallenge.setCurTurnUserId(otherTurnUserId);
@@ -411,19 +563,23 @@ public class BattleshipBoardManager {
         mChallenge.saveInBackground();
 
         mGameBoard.setShouldDisplayLastMove(true);
-        mCurrentUserData.getGameBoard().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject object, ParseException e) {
-                GameBoard opponentGameBoard = (GameBoard) object;
-                opponentGameBoard.setShouldDisplayLastMove(false);
-                opponentGameBoard.resetIsLastMove();
-                opponentGameBoard.saveInBackground();
-            }
-        });
+        mGameBoard.saveInBackground();
+
+        if (!isComputerTurn) {
+            mCurrentUserData.getGameBoard().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject object, ParseException e) {
+                    GameBoard opponentGameBoard = (GameBoard) object;
+                    opponentGameBoard.setShouldDisplayLastMove(false);
+                    opponentGameBoard.resetIsLastMove();
+                    opponentGameBoard.saveInBackground();
+                }
+            });
+        }
     }
 
     private void endChallenge() {
-        setOtherPlayerTurn();
+        setOtherPlayerTurn(false);
 
         mChallenge.setHasEnded(true);
         mChallenge.setEndDate(new Date());
