@@ -375,10 +375,9 @@ public class BattleshipBoardManager {
     private Location findPreviousHit() {
         for (int row = 0; row < Constants.GameBoard.NUM_ROWS; row++) {
             for (int col = 0; col < Constants.GameBoard.NUM_COLUMNS; col++) {
-                Ship shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
-                boolean hitNoShipOrDeadShip = shipThatOccupiesPosition == null || shipThatOccupiesPosition.getHitsRemaining() > 0;
+                boolean hitAtPosition = mBoardPositionStatus.get(row).get(col).equals(Constants.GameBoardPositionStatus.HIT);
                 boolean hasShotAllAroundPosition = hasShotAllAroundPosition(row, col);
-                if (hitNoShipOrDeadShip && hasShotAllAroundPosition) {
+                if (hitAtPosition && !hasShotAllAroundPosition) {
                     return new Location(row, col);
                 }
             }
