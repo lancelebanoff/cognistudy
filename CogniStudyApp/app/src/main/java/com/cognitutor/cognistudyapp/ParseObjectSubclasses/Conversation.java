@@ -22,6 +22,13 @@ public class Conversation extends ParseObject {
 
     public Conversation() {}
 
+    public Conversation(String baseUserId1, String baseUserId2, PublicUserData pud1, PublicUserData pud2) {
+        put(Columns.baseUserId1, baseUserId1);
+        put(Columns.baseUserId2, baseUserId2);
+        put(Columns.publicUserData1, pud1);
+        put(Columns.publicUserData1, pud2);
+    }
+
     public class Columns {
         public static final String messages = "messages";
         public static final String publicUserData1 = "publicUserData1";

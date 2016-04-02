@@ -134,6 +134,7 @@
             android:name=".Activities.ChatActivity"
             android:label="@string/title_activity_conversation"
             android:parentActivityName=".Activities.MainActivity"
+            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait" >
         </activity>
         <activity

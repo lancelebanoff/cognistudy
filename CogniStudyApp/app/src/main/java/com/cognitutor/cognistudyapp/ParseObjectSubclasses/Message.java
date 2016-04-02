@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 /**
  * Created by Kevin on 3/30/2016.
@@ -26,4 +27,10 @@ public class Message extends ParseObject {
     public String getReceiverBaseUserId() { return getString(Columns.receiverBaseUserId); }
     public String getSenderBaseUserId() { return getString(Columns.senderBaseUserId); }
     public String getText() { return getString(Columns.text); }
+
+    public boolean isCurUserSender() {
+        return getSenderBaseUserId().equals(UserUtils.getCurrentUserId());
+    }
+
+    public static ParseQuery<Message> getQuery() { return ParseQuery.getQuery(Message.class); }
 }

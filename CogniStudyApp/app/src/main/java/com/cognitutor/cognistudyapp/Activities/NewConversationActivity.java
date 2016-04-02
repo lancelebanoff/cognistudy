@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Intent;
 
+import com.cognitutor.cognistudyapp.Adapters.ChatAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
@@ -23,15 +24,16 @@ public class NewConversationActivity extends PeopleFragmentActivity {
         return new PeopleListOnClickHandler() {
             @Override
             public void onListItemClick(PublicUserData publicUserData) {
-                navigateToChatActivity(publicUserData.getBaseUserId(), publicUserData.getDisplayName());
+                navigateToChatActivity(publicUserData);
             }
         };
     }
 
-    private void navigateToChatActivity(String baseUserId, String displayName) {
+    private void navigateToChatActivity(PublicUserData publicUserData) {
         Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra(Constants.IntentExtra.BASEUSERID, baseUserId);
-        intent.putExtra(Constants.IntentExtra.CONVERSANT_DISPLAY_NAME, displayName);
+        intent.putExtra(Constants.IntentExtra.BASEUSERID, publicUserData.getBaseUserId());
+        intent.putExtra(Constants.IntentExtra.CONVERSANT_DISPLAY_NAME, publicUserData.getDisplayName());
+        ChatActivity.setConversantPud(publicUserData);
         startActivity(intent);
         finish();
     }

@@ -53,7 +53,7 @@ public class ConversationAdapter extends CogniRecyclerAdapter<Conversation, Conv
         holder.txtLastMessageSubstring.setText(lastMessage.getText());
         holder.txtConversationDate.setText(DateUtils.getTimeOrDate(conversation.getUpdatedAt()));
 
-        holder.setOnClickListener(conversation.getObjectId(), pud.getDisplayName());
+        holder.setOnClickListener(pud);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -72,21 +72,22 @@ public class ConversationAdapter extends CogniRecyclerAdapter<Conversation, Conv
             txtConversationDate = (TextView) itemView.findViewById(R.id.txtConversationDate);
         }
 
-        public void setOnClickListener(final String conversationId, final String displayName) {
+        public void setOnClickListener(final PublicUserData pud) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateToChatActivity(conversationId, displayName);
+                    navigateToChatActivity(pud);
                 }
             });
         }
     }
 
-    public void navigateToChatActivity(String conversationId, String displayName) {
+    public void navigateToChatActivity(PublicUserData publicUserData) {
         Intent intent = new Intent(mActivity, ChatActivity.class);
-        intent.putExtra(Constants.IntentExtra.CONVERSATION_ID, conversationId);
-        intent.putExtra(Constants.IntentExtra.CONVERSANT_DISPLAY_NAME, displayName);
+        intent.putExtra(Constants.IntentExtra.BASEUSERID, publicUserData.getBaseUserId());
+        intent.putExtra(Constants.IntentExtra.CONVERSANT_DISPLAY_NAME, publicUserData.getDisplayName());
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
+        ChatActivity.setConversantPud(publicUserData);
         mActivity.startActivity(intent);
     }
 }
