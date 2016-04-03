@@ -368,13 +368,18 @@ public class NewChallengeActivity extends CogniActivity {
             @Override
             public Task<Object> then(Task<PublicUserData> task) throws Exception {
                 final PublicUserData user1PublicUserData = task.getResult();
-                final ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData,
+                ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData,
                         new ArrayList<String>(mSelectedSubjects), new ArrayList<String>(mSelectedCategories));
                 user1Data.saveInBackground();
 
                 final String challengeType = getChallengeType();
                 final Challenge challenge = new Challenge(user1Data, challengeType);
                 challenge.setTimeLastPlayed(new Date());
+                if (challengeType.equals(Constants.ChallengeType.ONE_PLAYER)) {
+                    ChallengeUserData user2Data = new ChallengeUserData(PublicUserData.getComputerPublicUserData());
+                    user2Data.saveInBackground();
+                    challenge.setUser2Data(user2Data);
+                }
                 return challenge.saveInBackground().continueWith(new Continuation<Void, Object>() {
                     @Override
                     public Object then(Task<Void> task) throws Exception {
@@ -382,6 +387,8 @@ public class NewChallengeActivity extends CogniActivity {
                         if (e == null) {
                             if (challengeType.equals(Constants.ChallengeType.PRACTICE)) {
                                 savePracticeChallenge(challenge, user1PublicUserData);
+                            } else if (challengeType.equals(Constants.ChallengeType.ONE_PLAYER)) {
+                                navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
                             } else if (mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
                                 navigateToChooseOpponentActivity(challenge.getObjectId(), 1);
                             } else {

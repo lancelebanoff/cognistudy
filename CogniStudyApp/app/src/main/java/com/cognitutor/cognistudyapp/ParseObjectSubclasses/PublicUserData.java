@@ -94,7 +94,8 @@ public class PublicUserData extends ParseObject{
 
     public static ParseQuery<PublicUserData> getNonCurrentUserQuery() {
         return ParseQuery.getQuery(PublicUserData.class)
-                        .whereNotEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId());
+                .whereNotEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
+                .whereContainedIn(PublicUserData.Columns.userType, Arrays.asList(Constants.UserType.nonComputerUserTypes));
     }
 
     public static PublicUserData getPublicUserData() {
@@ -135,6 +136,15 @@ public class PublicUserData extends ParseObject{
             @Override
             public ParseQuery<PublicUserData> buildQuery() {
                 return PublicUserData.getQuery().whereEqualTo(Columns.baseUserId, baseUserId);
+            }
+        });
+    }
+
+    public static PublicUserData getComputerPublicUserData() {
+        return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+            @Override
+            public ParseQuery<PublicUserData> buildQuery() {
+                return PublicUserData.getQuery().whereEqualTo(Columns.userType, Constants.UserType.COMPUTER);
             }
         });
     }

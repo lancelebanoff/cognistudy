@@ -50,6 +50,8 @@ public class ChallengeActivity extends CogniActivity {
     private String mChallengeId;
     private int mCurrentUser1or2;
     private int mViewingUser1or2;
+    private boolean mIsComputerOpponent;
+    private boolean mIsCurrentUsersTurn;
     private boolean mScoresHaveBeenLoaded;
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
@@ -72,9 +74,11 @@ public class ChallengeActivity extends CogniActivity {
         mScoresHaveBeenLoaded = false;
 
         mChallenge = Challenge.getChallenge(mChallengeId);
-        initializeBoard(mViewingUser1or2);
+        mIsComputerOpponent = mChallenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER);
+        String currentUserId = ParseUser.getCurrentUser().getObjectId();
+        mIsCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
 
-        showOrHideButtons();
+        initializeBoard(mViewingUser1or2);
     }
 
     @Override
@@ -98,6 +102,11 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
+                                if (mIsComputerOpponent && !mIsCurrentUsersTurn && (mCurrentUser1or2 == mViewingUser1or2)) {
+                                    mBattleshipBoardManager.takeComputerTurn();
+                                    mIsCurrentUsersTurn = true;
+                                    showOrHideButtons();
+                                }
                                 showLoadingDone();
                                 if (!mScoresHaveBeenLoaded) {
                                     showScores();
@@ -132,10 +141,8 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void showOrHideButtons() {
-        String currentUserId = ParseUser.getCurrentUser().getObjectId();
-        boolean isCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
-        if (isCurrentUsersTurn && !mChallenge.getHasEnded()) {
+        if (mIsCurrentUsersTurn && !mChallenge.getHasEnded()) {
             btnYourTurn.setVisibility(View.VISIBLE);
         } else {
             btnYourTurn.setVisibility(View.INVISIBLE);

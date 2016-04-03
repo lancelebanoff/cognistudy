@@ -150,9 +150,13 @@ public class AnalyticsFragment extends CogniFragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        int totalAnswered = analyticsData.pieCorrectAndTotalValues[1];
-                        if (totalAnswered > 0) {
-                            displayAnalytics(analyticsData);
+                        if (analyticsData != null) {
+                            int totalAnswered = analyticsData.pieCorrectAndTotalValues[1];
+                            if (totalAnswered > 0) {
+                                displayAnalytics(analyticsData);
+                            } else {
+                                showNoAnalytics();
+                            }
                         } else {
                             showNoAnalytics();
                         }

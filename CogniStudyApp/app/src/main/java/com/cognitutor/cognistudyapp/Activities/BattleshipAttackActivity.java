@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.R;
 
 import bolts.Continuation;
@@ -103,7 +104,6 @@ public class BattleshipAttackActivity extends CogniActivity {
             @Override
             public void onGlobalLayout() {
                 mBattleshipBoardManager.initializeAnimationsGridLayout();
-                mBattleshipBoardManager.showPreviousTurn();
                 removeOnGlobalLayoutListener(mAnimationsGridLayout, this);
             }
         });
@@ -118,18 +118,30 @@ public class BattleshipAttackActivity extends CogniActivity {
 
     @Override
     public void onBackPressed() {
-        mBattleshipBoardManager.saveGameBoard();
-        super.onBackPressed();
+        onClick_btnDone(null);
     }
 
     public void onClick_btnDone(View view) {
         mBattleshipBoardManager.saveGameBoard();
+        Challenge.getChallengeInBackground(mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID)).continueWith(new Continuation<Challenge, Void>() {
+            @Override
+            public Void then(Task<Challenge> task) throws Exception {
+                Challenge challenge = task.getResult();
+                boolean isComputerOpponent = challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER);
+                if (isComputerOpponent) {
+                    navigateToChallengeActivity();
+                }
+                finish();
+                return null;
+            }
+        });
+    }
 
-        // Refresh Challenge list
-        Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
-        refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
-        sendBroadcast(refreshIntent);
-
+    private void navigateToChallengeActivity() {
+        Intent intent = new Intent(this, ChallengeActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
+        startActivity(intent);
         finish();
     }
 
