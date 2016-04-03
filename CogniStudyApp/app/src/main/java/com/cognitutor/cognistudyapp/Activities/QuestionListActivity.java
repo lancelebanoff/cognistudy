@@ -2,27 +2,24 @@ package com.cognitutor.cognistudyapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.ViewFlipper;
 
 import com.cognitutor.cognistudyapp.Adapters.QuestionListAdapter;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Fragments.CogniFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.rey.material.widget.Spinner;
 
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -32,15 +29,21 @@ import bolts.Task;
  */
 public abstract class QuestionListActivity extends CogniActivity {
 
+    public static final int REQUEST_CODE = 1;
+
     protected Spinner mSpSubjects;
     protected Spinner mSpCategories;
     protected QuestionListAdapter mAdapter;
     protected CogniRecyclerView mQuestionList;
     protected Intent mIntent;
+    protected Fragment mFragment;
 
-    protected abstract Class<? extends QuestionMetaObject> getTargetMetaClass();
     protected abstract Class<? extends QuestionActivity> getTargetQuestionActivityClass();
     protected abstract String getActivityName();
+    protected abstract Class<? extends CogniFragment> getFragmentClass();
+    protected abstract ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(String subject, String category);
+
+    private boolean onResumeFinished;
 
     public void navigateToQuestionActivity(View view) {
         Intent intent = new Intent(this, ChallengeQuestionActivity.class); //TODO: Change depending on type of question
@@ -51,30 +54,74 @@ public abstract class QuestionListActivity extends CogniActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_question_list);
-
-        mIntent = getIntent();
-        mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
-        mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
-        initializeSpinners();
-
-        mAdapter = new QuestionListAdapter(this, getTargetQuestionActivityClass(),
-                QuestionMetaObject.getSubjectAndCategoryQuery(getTargetMetaClass(), getChallengeId(),
-                Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
-        mQuestionList.setAdapter(mAdapter);
+        if(savedInstanceState == null) {
+            try {
+                mFragment = getFragmentClass().newInstance();
+            } catch (Exception e) { e.printStackTrace(); }
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.questionListFragmentContainer, mFragment).commit();
+        }
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
+    protected void onStart() {
+        super.onStart();
+        onResumeFinished = false;
+        if(mAdapter == null) {
+            mIntent = getIntent();
+            mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
+            mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+            mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
+            initializeSpinners();
+
+            mAdapter = createQuestionListAdapter();
+            mQuestionList.setAdapter(mAdapter);
+        }
     }
 
+    //This was made a method so that QuestionHistoryActivity could override the method and use the alternate constructor
+    // for QuestionListAdapter, which passes an additional intent extra to PastQuestionActivity containing the challenge id
+    protected QuestionListAdapter createQuestionListAdapter() {
+        return new QuestionListAdapter(this, getTargetQuestionActivityClass(),
+                getSubjectAndCategoryQuery(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES));
+    }
+
+    @Override
+    public void onSupportActionModeStarted(ActionMode mode) {
+        super.onSupportActionModeStarted(mode);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
+        onResumeFinished = true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            if(data.hasExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST)) {
+                String objectId = data.getStringExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST);
+                mAdapter.notifyObjectIdChanged(objectId);
+            }
+        }
+    }
+
+    public void getAndDisplayFromSelections() {
+        //The category spinner's onItemSelected was getting called in initializeSpinners, before onResume(), where
+        // getAndDisplay is called. This was causing the items to blink. No need to call getAndDisplay before onResume().
+        if(onResumeFinished)
+            getAndDisplay(getSelectedSubject(), getSelectedCategory());
+    }
+
+    //This method is overridden in SuggestedQuestionsListActivity
     protected void getAndDisplay(String subject, String category) {
 
-        ParseQuery<QuestionMetaObject> query = QuestionMetaObject.getSubjectAndCategoryQuery(
-                getTargetMetaClass(), getChallengeId(), subject, category);
+        ParseQuery<QuestionMetaObject> query = getSubjectAndCategoryQuery(subject, category);
         query.findInBackground()
                 .continueWith(new Continuation<List<QuestionMetaObject>, Object>() {
                     @Override
@@ -89,10 +136,6 @@ public abstract class QuestionListActivity extends CogniActivity {
                         return null;
                     }
                 });
-    }
-
-    private String getChallengeId() {
-        return mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
     }
 
     private void initializeSpinners() {
@@ -125,7 +168,7 @@ public abstract class QuestionListActivity extends CogniActivity {
         Spinner.OnItemSelectedListener categoriesListener = new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(Spinner parent, View view, int position, long id) {
-                getAndDisplayCategory();
+                getAndDisplayFromSelections();
             }
         };
         mSpCategories.setOnItemSelectedListener(categoriesListener);
@@ -156,10 +199,6 @@ public abstract class QuestionListActivity extends CogniActivity {
         String subject = getSelectedSubject();
         setCategoriesSpinner(subject);
         getAndDisplay(subject, Constants.Category.ALL_CATEGORIES);
-    }
-
-    private void getAndDisplayCategory() {
-        getAndDisplay(getSelectedSubject(), getSelectedCategory());
     }
 
     protected ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(ParseQuery<QuestionMetaObject> query, String subject, String category) {

@@ -1,36 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:paddingLeft="10dp"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
     android:paddingTop="10dp"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_marginTop="10dp"
+    app:cardUseCompatPadding="true"
+    android:focusable="true"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="125dp"
-        android:layout_height="wrap_content"
-        android:text="Science"
-        android:paddingBottom="10dp"
-        android:id="@+id/txtSubject" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_toRightOf="@id/txtSubject"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Social Studies/Science"
-        android:id="@+id/txtCategory" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-    <TextView
-        android:layout_below="@id/txtSubject"
-        android:id="@+id/txtDate"
-        android:text="March 18"
-        android:layout_width="125dp"
-        android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/ivSubject"
+                android:paddingRight="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <TextView
-        android:layout_toRightOf="@id/txtDate"
-        android:layout_below="@id/txtSubject"
-        android:id="@+id/txtResponseStatus"
-        android:text="Correct"
-        android:layout_width="125dp"
-        android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:layout_toRightOf="@id/ivSubject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-</RelativeLayout>
+                <TextView
+                    android:paddingTop="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Social Studies/Science"
+                    android:id="@+id/txtCategory" />
+
+                <TextView
+                    android:layout_below="@id/txtCategory"
+                    android:layout_alignParentBottom="true"
+                    android:paddingBottom="10dp"
+                    android:id="@+id/txtDate"
+                    android:text="March 18"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <ImageView
+            android:paddingTop="5dp"
+            android:layout_alignParentRight="true"
+            android:id="@+id/ivResponseStatus"
+            android:layout_marginRight="5dp"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

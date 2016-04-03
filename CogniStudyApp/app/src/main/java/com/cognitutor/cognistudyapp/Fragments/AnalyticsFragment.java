@@ -81,7 +81,7 @@ public class AnalyticsFragment extends CogniFragment {
             @Override
             public void run() {
                 // Wait until challenges are done loading
-                while (!((MainActivity) getActivity()).challengesFinishedLoading) {
+                while (getActivity() != null && !((MainActivity) getActivity()).challengesFinishedLoading) {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -150,9 +150,13 @@ public class AnalyticsFragment extends CogniFragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        int totalAnswered = analyticsData.pieCorrectAndTotalValues[1];
-                        if (totalAnswered > 0) {
-                            displayAnalytics(analyticsData);
+                        if (analyticsData != null) {
+                            int totalAnswered = analyticsData.pieCorrectAndTotalValues[1];
+                            if (totalAnswered > 0) {
+                                displayAnalytics(analyticsData);
+                            } else {
+                                showNoAnalytics();
+                            }
                         } else {
                             showNoAnalytics();
                         }

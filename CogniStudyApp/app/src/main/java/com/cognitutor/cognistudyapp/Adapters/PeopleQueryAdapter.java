@@ -22,11 +22,11 @@ import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import bolts.Capture;
 import bolts.Continuation;
 import bolts.Task;
 
@@ -99,7 +99,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 
     private static ParseQuery<PublicUserData> getDefaultQuery() {
 
-        return PublicUserData.getQuery()
+        return PublicUserData.getNonCurrentUserQuery()
                 .fromLocalDatastore();
 //                .whereContainedIn(PublicUserData.Columns.objectId, PrivateStudentData.getFriendPublicUserIds())
 //                .whereEqualTo(PublicUserData.Columns.fbLinked, true);
@@ -110,7 +110,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     private static Task<ParseQuery<PublicUserData>> getImportantCachedPublicUserDataQuery() {
 
         final List<ParseQuery<PublicUserData>> queries = new ArrayList<>();
-        queries.add(PublicUserData.getQuery().fromPin(Constants.PinNames.CurrentUser)); //TODO: Rework now that CurrentUser pin name is defunct
+        queries.add(PublicUserData.getNonCurrentUserQuery().fromPin(Constants.PinNames.CurrentUser));
 
         return Challenge.getQuery()
                 .fromLocalDatastore()
@@ -180,7 +180,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                 false, thisAdapter, new QueryUtils.ParseQueryBuilder <PublicUserData> () {
                     @Override
                     public ParseQuery<PublicUserData> buildQuery() {
-                        return PublicUserData.getQuery()
+                        return PublicUserData.getNonCurrentUserQuery()
                                 .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
                     }
         })
@@ -194,7 +194,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                         false, thisAdapter, new QueryUtils.ParseQueryBuilder<PublicUserData>() {
                             @Override
                             public ParseQuery<PublicUserData> buildQuery() {
-                                return PublicUserData.getQuery()
+                                return PublicUserData.getNonCurrentUserQuery()
                                         .whereContains(PublicUserData.Columns.searchableDisplayName, q);
                             }
                 });

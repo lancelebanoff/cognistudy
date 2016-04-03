@@ -34,6 +34,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalMonthStats
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Tutor;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -118,6 +119,7 @@ public class App extends Application {
         ParseObject.registerSubclass(StudentTotalMonthStats.class);
         ParseObject.registerSubclass(PinnedObject.class);
         ParseObject.registerSubclass(SuggestedQuestion.class);
+        ParseObject.registerSubclass(Tutor.class);
     }
 }
 

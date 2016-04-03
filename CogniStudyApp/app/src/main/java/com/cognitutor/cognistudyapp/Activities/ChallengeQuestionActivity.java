@@ -8,6 +8,7 @@ import android.widget.ViewSwitcher;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
@@ -28,6 +29,11 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     private int mQuesAnsThisTurn = -1;
 
     @Override
+    protected String getQuestionAndResponsePinName() {
+        return getChallengeId();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
@@ -35,14 +41,8 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     }
 
     @Override
-    protected Task<Void> createResponse(boolean isSelectedAnswerCorrect) {
-        return doCreateResponse(isSelectedAnswerCorrect, mChallenge.getObjectId()).continueWithTask(new Continuation<Response, Task<Void>>() {
-            @Override
-            public Task<Void> then(Task<Response> task) throws Exception {
-                Response response = task.getResult();
-                return mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(response);
-            }
-        });
+    protected void onPostCreateResponse(Response response) {
+        mChallenge.getChallengeUserData(mUser1or2).addResponseAndSaveEventually(response);
     }
 
     @Override
@@ -71,6 +71,7 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
 
     private void loadChallenge() {
         String challengeId = getChallengeId();
+        //TODO: Load from localDataStore
         Challenge.getChallengeInBackground(challengeId)
                 .continueWith(new Continuation<Challenge, Void>() {
                     @Override

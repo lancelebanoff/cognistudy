@@ -1,17 +1,10 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
-import android.support.v4.content.res.TypedArrayUtils;
-import android.text.format.DateUtils;
-import android.util.Log;
-
 import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
-import com.parse.FindCallback;
-import com.parse.ParseACL;
 import com.parse.ParseClassName;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -20,8 +13,6 @@ import com.parse.ParseUser;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 import bolts.Task;
 
@@ -80,6 +71,13 @@ public class PublicUserData extends ParseObject{
         return (Student) getParseObject(Columns.student).fetchIfNeeded();
     }
 
+    public Tutor getTutor() throws ParseException {
+        //TODO: Finish this
+        Tutor tutor = (Tutor) getParseObject(Columns.tutor);
+        tutor.fetchIfNeeded();
+        return tutor;
+    }
+
     //TODO: Add getTutor() method
 
     public String getUserType() { return getString(Columns.userType); }
@@ -94,6 +92,12 @@ public class PublicUserData extends ParseObject{
         return ParseQuery.getQuery(PublicUserData.class);
     }
 
+    public static ParseQuery<PublicUserData> getNonCurrentUserQuery() {
+        return ParseQuery.getQuery(PublicUserData.class)
+                .whereNotEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
+                .whereContainedIn(PublicUserData.Columns.userType, Arrays.asList(Constants.UserType.nonComputerUserTypes));
+    }
+
     public static PublicUserData getPublicUserData() {
         return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
             @Override
@@ -105,24 +109,44 @@ public class PublicUserData extends ParseObject{
 //        return getPublicUserDataFromBaseUserId(ParseUser.getCurrentUser().getObjectId());
     }
 
-    public static PublicUserData getPublicUserData(String publicUserDataID) {
-        try { return getLocalDataStoreQuery(Columns.objectId, publicUserDataID).getFirst(); }
-        catch (ParseException e) { e.printStackTrace(); return null; }
+    public static PublicUserData getPublicUserData(final String publicUserDataID) {
+        return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+            @Override
+            public ParseQuery<PublicUserData> buildQuery() {
+                return PublicUserData.getQuery().whereEqualTo(Columns.objectId, publicUserDataID);
+            }
+        });
     }
 
-    private static PublicUserData getPublicUserDataFromBaseUserId(String baseUserId) {
-
-        try { return getLocalDataStoreQuery(Columns.baseUserId, baseUserId).getFirst(); }
-        catch (ParseException e) { e.printStackTrace(); return null; }
+    private static PublicUserData getPublicUserDataFromBaseUserId(final String baseUserId) {
+        return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+            @Override
+            public ParseQuery<PublicUserData> buildQuery() {
+                return PublicUserData.getQuery().whereEqualTo(Columns.baseUserId, baseUserId);
+            }
+        });
     }
 
     public static Task<PublicUserData> getPublicUserDataInBackground() {
-        return getPublicUserDataInBackground(ParseUser.getCurrentUser().getObjectId());
+        return getPublicUserDataFromBaseUserIdInBackground(ParseUser.getCurrentUser().getObjectId());
     }
 
-    public static Task<PublicUserData> getPublicUserDataInBackground(String baseUserId) {
+    public static Task<PublicUserData> getPublicUserDataFromBaseUserIdInBackground(final String baseUserId) {
+        return QueryUtils.getFirstCacheElseNetworkInBackground(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+            @Override
+            public ParseQuery<PublicUserData> buildQuery() {
+                return PublicUserData.getQuery().whereEqualTo(Columns.baseUserId, baseUserId);
+            }
+        });
+    }
 
-        return getLocalDataStoreQuery(Columns.baseUserId, baseUserId).getFirstInBackground();
+    public static PublicUserData getComputerPublicUserData() {
+        return QueryUtils.getFirstCacheElseNetwork(new QueryUtils.ParseQueryBuilder<PublicUserData>() {
+            @Override
+            public ParseQuery<PublicUserData> buildQuery() {
+                return PublicUserData.getQuery().whereEqualTo(Columns.userType, Constants.UserType.COMPUTER);
+            }
+        });
     }
 
     private static ParseQuery<PublicUserData> getLocalDataStoreQuery(String column, String baseUserId) {

@@ -129,6 +129,7 @@ public class Constants {
     }
 
     public static class MenuItem {
+        public static final String MY_PROFILE = "My Profile";
         public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
         public static final String BOOKMARKS = "Bookmarks";
         public static final String ACHIEVEMENTS = "Achievements";
@@ -143,11 +144,25 @@ public class Constants {
         }
     }
 
+    public static class TutorRequest {
+        public static class Attribute {
+            public static final String NAME = "NAME";
+            public static final String PROFILE_PIC = "PROFILE_PIC";
+        }
+    }
+
     public static class NotificationData {
+        public static final String title = "title";
+        public static final String alert = "alert";
         public static final String ACTIVITY = "ACTIVITY";
+        public static final String FRAGMENT = "FRAGMENT";
         public static class Activity {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String CONVERSATION_ACTIVITY = "CONVERSATION_ACTIVITY";
+            public static final String SUGGESTED_QUESTIONS_LIST_ACTIVITY = "SUGGESTED_QUESTIONS_LIST_ACTIVITY";
+        }
+        public static class Fragment {
+            public static final String SUGGESTED_QUESTIONS_LIST_FRAGMENT = "SUGGESTED_QUESTIONS_LIST_FRAGMENT";
         }
     }
 
@@ -170,8 +185,11 @@ public class Constants {
         public static final String CHALLENGE_ID = "CHALLENGE_ID";
         public static final String RESPONSE_ID = "RESPONSE_ID";
         public static final String USER1OR2 = "USER1OR2";
+        public static final String QUESTION_META_ID = "QUESTION_META_ID";
+        public static final String UPDATE_OBJECT_ID_IN_LIST = "UPDATE_OBJECT_ID_IN_LIST";
 
         public static final String QUESTION_ID = "QUESTION_ID";
+        public static final String PUBLICUSERDATA_ID = "PUBLICUSERDATA_ID";
 
         public static class ParentActivity {
             public static final String PARENT_ACTIVITY = "PARENT_ACTIVITY";
@@ -361,6 +379,9 @@ public class Constants {
         public static final String STUDENT = "STUDENT";
         public static final String TUTOR = "TUTOR";
         public static final String ADMIN = "ADMIN";
+        public static final String COMPUTER = "COMPUTER";
+
+        public static final String[] nonComputerUserTypes = new String[] {STUDENT, TUTOR, ADMIN};
     }
 
     public static class AchievementGroupType {
@@ -530,6 +551,9 @@ public class Constants {
     public static class CloudCodeFunction {
         public static final String DELETE_CHALLENGE = "deleteChallenge";
         public static final String CHOOSE_THREE_QUESTIONS = "chooseThreeQuestionsV2";
+        public static final String STUDENT_REQUEST_TO_TUTOR = "studentRequestToTutor";
+        public static final String ADD_STUDENT = "addStudent";
+        public static final String REMOVE_STUDENT = "removeStudent";
     }
 
     public static class PinNames {

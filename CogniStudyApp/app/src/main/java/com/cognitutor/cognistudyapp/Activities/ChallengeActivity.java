@@ -10,13 +10,12 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.view.Gravity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -51,6 +50,8 @@ public class ChallengeActivity extends CogniActivity {
     private String mChallengeId;
     private int mCurrentUser1or2;
     private int mViewingUser1or2;
+    private boolean mIsComputerOpponent;
+    private boolean mIsCurrentUsersTurn;
     private boolean mScoresHaveBeenLoaded;
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
@@ -73,9 +74,11 @@ public class ChallengeActivity extends CogniActivity {
         mScoresHaveBeenLoaded = false;
 
         mChallenge = Challenge.getChallenge(mChallengeId);
-        initializeBoard(mViewingUser1or2);
+        mIsComputerOpponent = mChallenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER);
+        String currentUserId = ParseUser.getCurrentUser().getObjectId();
+        mIsCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
 
-        showOrHideButtons();
+        initializeBoard(mViewingUser1or2);
     }
 
     @Override
@@ -99,6 +102,11 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
+                                if (mIsComputerOpponent && !mIsCurrentUsersTurn && (mCurrentUser1or2 == mViewingUser1or2)) {
+                                    mBattleshipBoardManager.takeComputerTurn();
+                                    mIsCurrentUsersTurn = true;
+                                    showOrHideButtons();
+                                }
                                 showLoadingDone();
                                 if (!mScoresHaveBeenLoaded) {
                                     showScores();
@@ -114,8 +122,10 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void showLoadingDone() {
-        ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
-        btnSwitch.setVisibility(View.VISIBLE);
+        RoundedImageView imgProfile1 = (RoundedImageView) findViewById(R.id.imgProfile1);
+        imgProfile1.setClickable(true);
+        RoundedImageView imgProfile2 = (RoundedImageView) findViewById(R.id.imgProfile2);
+        imgProfile2.setClickable(true);
 
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBarSmall);
         progressBar.setVisibility(View.GONE);
@@ -124,9 +134,6 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void showLoading() {
-        ImageButton btnSwitch = (ImageButton) findViewById(R.id.btnSwitchView);
-        btnSwitch.setVisibility(View.INVISIBLE);
-
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBarSmall);
         progressBar.setVisibility(View.VISIBLE);
         RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlGridLayoutHolder);
@@ -134,10 +141,8 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void showOrHideButtons() {
-        String currentUserId = ParseUser.getCurrentUser().getObjectId();
-        boolean isCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
-        if (isCurrentUsersTurn && !mChallenge.getHasEnded()) {
+        if (mIsCurrentUsersTurn && !mChallenge.getHasEnded()) {
             btnYourTurn.setVisibility(View.VISIBLE);
         } else {
             btnYourTurn.setVisibility(View.INVISIBLE);
@@ -204,8 +209,8 @@ public class ChallengeActivity extends CogniActivity {
 
     private void showProfilePictures() {
         ParseFile[] parseFiles = mBattleshipBoardManager.getProfilePictures();
-        RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfileRounded1);
-        RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfileRounded2);
+        RoundedImageView img1 = (RoundedImageView) findViewById(R.id.imgProfile1);
+        RoundedImageView img2 = (RoundedImageView) findViewById(R.id.imgProfile2);
         img1.setParseFile(parseFiles[0]);
         img1.loadInBackground().continueWith(new Continuation<byte[], Void>() {
             @Override
@@ -219,9 +224,25 @@ public class ChallengeActivity extends CogniActivity {
         img2.loadInBackground();
     }
 
-    public void onClick_btnSwitchView(View view) {
-        mBattleshipBoardManager.clearImages();
+    public void onClick_imgProfile1(View view) {
+        if (mViewingUser1or2 != mCurrentUser1or2) {
+            switchView();
+        }
+    }
 
+    public void onClick_imgProfile2(View view) {
+        if (mViewingUser1or2 == mCurrentUser1or2) {
+            switchView();
+        }
+    }
+
+    private void switchView() {
+        RoundedImageView imgProfile1 = (RoundedImageView) findViewById(R.id.imgProfile1);
+        imgProfile1.setClickable(false);
+        RoundedImageView imgProfile2 = (RoundedImageView) findViewById(R.id.imgProfile2);
+        imgProfile2.setClickable(false);
+
+        mBattleshipBoardManager.clearImages();
         mViewingUser1or2 = mViewingUser1or2 == 1 ? 2 : 1;
         initializeBoard(mViewingUser1or2);
 
@@ -234,6 +255,10 @@ public class ChallengeActivity extends CogniActivity {
             imgHalo1.setVisibility(View.INVISIBLE);
             imgHalo2.setVisibility(View.VISIBLE);
         }
+    }
+
+    public void onClick_imgBack(View view) {
+        finish();
     }
 
     public void onClick_btnResign(View view) {
@@ -268,7 +293,7 @@ public class ChallengeActivity extends CogniActivity {
         Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).continueWith(new Continuation<List<String>, Void>() {
             @Override
             public Void then(Task<List<String>> task) throws Exception {
-                if(task.isFaulted()) {
+                if (task.isFaulted()) {
                     task.getError().printStackTrace();
                     Log.e("chooseThreeQuestionIds", task.getError().getMessage());
                     return null;

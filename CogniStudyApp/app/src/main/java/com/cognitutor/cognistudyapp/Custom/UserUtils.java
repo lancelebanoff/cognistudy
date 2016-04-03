@@ -4,9 +4,10 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentBlockStats;
@@ -16,6 +17,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -62,6 +64,8 @@ public class UserUtils {
                     task.getError().printStackTrace();
                 }
                 pinBookmarksInBackground();
+                pinSuggestedQuestionsInBackground();
+                pinChallengeResponsesInBackground();
                 return pinRollingStatsInBackground(student);
             }
         }).continueWithTask(new Continuation<Void, Task<Void>>() {
@@ -75,17 +79,48 @@ public class UserUtils {
         });
     }
 
+    private static Task<Object> pinChallengeResponsesInBackground() {
+        return Challenge.getAllChallengesForUserInBackground().continueWith(new Continuation<List<Challenge>, Object>() {
+            @Override
+            public Object then(Task<List<Challenge>> task) throws Exception {
+                for(Challenge challenge : task.getResult()) {
+                    final String challengeId = challenge.getObjectId();
+                    final String questionCol = Response.Columns.question;
+                    ParseRelation<Response> responseRelation = challenge.getCurUserChallengeUserData().getResponses();
+                    responseRelation.getQuery()
+                        .include(questionCol)
+                        .include(questionCol + "." + Question.Columns.bundle)
+                        .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
+                        @Override
+                        public Object then(Task<List<Response>> task) throws Exception {
+                            Log.d("pinning challenge " + challengeId, task.getResult().size() + " questions in relation");
+                            ParseObject.pinAllInBackground(challengeId, task.getResult());
+                            return null;
+                        }
+                    });
+                    challenge.pinInBackground(challengeId);
+                }
+                return null;
+            }
+        });
+    }
+
     private static Task<Object> pinBookmarksInBackground() {
+        final String questionCol = Bookmark.Columns.response + "." + Response.Columns.question;
         ParseQuery query = PrivateStudentData.getPrivateStudentData().getBookmarks().getQuery()
-                .include(Bookmark.Columns.response + "." + Response.Columns.question);
+                .include(questionCol + "." + Question.Columns.bundle)
+                .include(questionCol + "." + Question.Columns.questionContents);
         return pinWithObjectIdInBackground(query);
     }
 
     private static Task<Object> pinSuggestedQuestionsInBackground() {
-//        ParseQuery query = PrivateStudentData.getPrivateStudentData().getAssignedQuestions().getQuery()
-        ParseQuery query = PrivateStudentData.getPrivateStudentData().getRelation("blah").getQuery()
+        final String questionCol = SuggestedQuestion.Columns.question;
+        ParseQuery query = PrivateStudentData.getPrivateStudentData().getAssignedQuestions().getQuery()
+//        ParseQuery query = PrivateStudentData.getPrivateStudentData().getRelation("blah").getQuery()
                 .include(SuggestedQuestion.Columns.response)
-                .include(SuggestedQuestion.Columns.question);
+                .include(questionCol)
+                .include(questionCol + "." + Question.Columns.bundle);
+//                .include(questionCol + "." + Question.Columns.questionContents);
         return pinWithObjectIdInBackground(query);
     }
 
@@ -94,6 +129,9 @@ public class UserUtils {
         .continueWith(new Continuation<List<ParseObject>, Object>() {
             @Override
             public Object then(Task<List<ParseObject>> task) throws Exception {
+                if (task.isFaulted()) {
+                    Log.e("pinWithObjId", task.getError().getMessage());
+                }
                 List<ParseObject> list = task.getResult();
                 for (ParseObject obj : list) {
                     obj.pinInBackground(obj.getObjectId());

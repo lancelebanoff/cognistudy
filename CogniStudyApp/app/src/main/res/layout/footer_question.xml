@@ -36,25 +36,14 @@
             auto:text="explanation here" >
         </io.github.kexanie.library.MathView>
 
-        <ViewSwitcher
-            android:id="@+id/vsBookmark"
+        <com.cognitutor.cognistudyapp.Custom.BookmarkButton
+            android:id="@+id/cbBookmark"
             android:layout_below="@id/mvExplanation"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/ivDoBookmark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/icon_bookmarks"/>
-
-            <ImageView
-                android:id="@+id/ivUndoBookmark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/icon_bookmarks_highlight" />
-
-        </ViewSwitcher>
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/bookmark_button_bookmark"
+            android:drawableLeft="@drawable/ic_action_icon_bookmark"/>
 
     </RelativeLayout>
 

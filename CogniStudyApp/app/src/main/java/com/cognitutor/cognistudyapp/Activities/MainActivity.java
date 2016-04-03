@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
@@ -168,8 +169,14 @@ public class MainActivity extends AuthenticationActivity {
                 mPeopleFragment = PeopleFragment.newInstance(new PeopleListOnClickHandler() {
                     @Override
                     public void onListItemClick(PublicUserData publicUserData) {
-                        Intent intent = new Intent(mActivity, StudentProfileActivity.class);
-                        intent.putExtra("publicUserDataId", publicUserData.getObjectId());
+                        Class destination;
+                        if (publicUserData.getUserType().equals(Constants.UserType.STUDENT)) {
+                            destination = StudentProfileActivity.class;
+                        } else {
+                            destination = TutorProfileActivity.class;
+                        }
+                        Intent intent = new Intent(mActivity, destination);
+                        intent.putExtra(Constants.IntentExtra.PUBLICUSERDATA_ID, publicUserData.getObjectId());
                         mActivity.startActivity(intent);
                     }
                 });
@@ -212,6 +219,7 @@ public class MainActivity extends AuthenticationActivity {
     }
 
     private void onResumeTest() {
+//        Log.d("InstallationId", ParseInstallation.getCurrentInstallation().getObjectId());
 //        DateUtils.test(true);
 //        QueryUtils.testCacheThenNetwork();
 //        ParseObjectUtils.testPins(false);

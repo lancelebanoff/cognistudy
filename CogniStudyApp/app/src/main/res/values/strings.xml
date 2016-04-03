@@ -27,6 +27,7 @@
     <string name="title_activity_past_question">Question</string>
     <string name="title_activity_challenge_analytics">Challenge Stats</string>
     <string name="title_activity_student_profile">Student Profile</string>
+    <string name="title_activity_tutor_profile">Tutor Profile</string>
     <string name="title_activity_conversation">*Other persons name*</string>
     <string name="title_activity_suggested_questions">Suggested Questions</string>
     <string name="title_activity_bookmarks">Bookmarks</string>
@@ -61,4 +62,6 @@
     <string name="title_dialog_quit_challenge">Resign</string>
     <string name="message_dialog_quit_challenge">Are you sure you want to resign?</string>
     <string name="num_shots_remaining">Shots remaining: </string>
+    <string name="bookmark_button_bookmark">BOOKMARK</string>
+    <string name="bookmark_button_bookmarked">BOOKMARKED</string>
 </resources>
