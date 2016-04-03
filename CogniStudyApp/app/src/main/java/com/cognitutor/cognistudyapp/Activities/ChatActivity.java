@@ -19,6 +19,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Message;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -27,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -259,6 +261,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
                 mConversation.addMessageAndSaveInBackground(message).continueWith(new Continuation<Void, Object>() {
                     @Override
                     public Object then(Task<Void> task) throws Exception {
+                        sendMessageNotification(message.getText());
                         mConversation.pinInBackground(mConversation.getObjectId());
                         return null;
                     }
@@ -266,6 +269,24 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
                 return null;
             }
         });
+    }
+    
+    private void sendMessageNotification(String messageText) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(Constants.CloudCodeFunction.SendMessageNotification.senderBaseUserId, UserUtils.getCurrentUserId());
+        params.put(Constants.CloudCodeFunction.SendMessageNotification.receiverBaseUserId, getConversantBaseUserId());
+        params.put(Constants.CloudCodeFunction.SendMessageNotification.senderName, PublicUserData.getPublicUserData().getDisplayName());
+        params.put(Constants.CloudCodeFunction.SendMessageNotification.messageText, messageText);
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.SEND_MESSAGE_NOTIFICATION, params)
+            .continueWith(new Continuation<Object, Object>() {
+                @Override
+                public Object then(Task<Object> task) throws Exception {
+                    if(task.isFaulted()) {
+                        task.getError().printStackTrace();
+                    }
+                    return null;
+                }
+            });
     }
 
     private String getConversantBaseUserId() {

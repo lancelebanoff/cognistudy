@@ -558,6 +558,14 @@ public class Constants {
         public static final String STUDENT_REQUEST_TO_TUTOR = "studentRequestToTutor";
         public static final String ADD_STUDENT = "addStudent";
         public static final String REMOVE_STUDENT = "removeStudent";
+        public static final String SEND_MESSAGE_NOTIFICATION = "sendMessageNotification";
+
+        public static class SendMessageNotification {
+            public static final String senderBaseUserId = "senderBaseUserId";
+            public static final String receiverBaseUserId = "receiverBaseUserId";
+            public static final String senderName = "senderName";
+            public static final String messageText = "messageText";
+        }
     }
 
     public static class PinNames {
