@@ -52,7 +52,6 @@ public class PrivateStudentData extends ParseObject{
         put(Columns.blocked, new ArrayList<ParseObject>());
         put(Columns.recentChallenges, new ArrayList<ParseObject>());
         put(Columns.requestsFromTutors, new ArrayList<ParseObject>());
-        put(Columns.assignedQuestions, new ArrayList<ParseObject>());
         put(Columns.baseUserId, user.getObjectId());
     }
 
