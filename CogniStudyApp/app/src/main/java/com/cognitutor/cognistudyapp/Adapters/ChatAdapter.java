@@ -34,6 +34,7 @@ import bolts.Task;
 public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.MessageViewHolder> {
 
     private PublicUserData mConversantPud;
+    private ChatActivity mChatActivity;
 
     public ChatAdapter(Activity activity, PublicUserData conversantPud, final String conversantBaseUserId) {
         super(activity, new ParseQueryAdapter.QueryFactory<Message>() {
@@ -42,7 +43,14 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
                 return getLocalOrQuery(conversantBaseUserId);
             }
         }, true);
+        mChatActivity = (ChatActivity) activity;
         mConversantPud = conversantPud;
+        addOnDataSetChangedListener(new OnDataSetChangedListener() {
+            @Override
+            public void onDataSetChanged() {
+                mChatActivity.scrollToBottom();
+            }
+        });
     }
 
     public void loadFromNetwork(final Conversation conversation) {
@@ -54,7 +62,6 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
                     @Override
                     public void run() {
                         onDataLoaded(list);
-                        ((ChatActivity) mActivity).mRecyclerView.scrollToPosition(getItemCount()-1);
                     }
                 });
                 ParseObject.pinAllInBackground(conversation.getObjectId(), list);
@@ -69,11 +76,11 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
         ParseQuery<Message> orQuery2 = Message.getQuery().whereEqualTo(Message.Columns.senderBaseUserId, conversantBaseUserId);
         queries.add(orQuery1);
         queries.add(orQuery2);
-        return ParseQuery.or(queries).fromLocalDatastore().orderByAscending(Constants.ParseObjectColumns.createdAt);
+        return ParseQuery.or(queries).fromLocalDatastore().orderByAscending(Message.Columns.sentAt);
     }
 
     private static ParseQuery<Message> getRelationQuery(Conversation conversation) {
-        return conversation.getMessages().getQuery().orderByAscending(Constants.ParseObjectColumns.createdAt);
+        return conversation.getMessages().getQuery().orderByAscending(Message.Columns.sentAt);
     }
 
     static final int CUR_USER = 0;
@@ -96,7 +103,7 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         Message message = getItem(position);
         holder.txtMessage.setText(message.getText());
-        holder.txtTime.setText(DateUtils.getTimeOrDate(message.getCreatedAt()));
+        holder.txtTime.setText(DateUtils.getTimeOrDate(message.getSentAt()));
 
         if(getItemViewType(position) == CONVERSANT) {
             ViewHolderConversantSender convHolder = (ViewHolderConversantSender) holder;

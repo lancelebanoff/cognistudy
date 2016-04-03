@@ -355,6 +355,8 @@ public class DateUtils {
 
     public static String getTimeOrDate(Date date) {
         Date now = new Date();
+        if(date == null) //This object was newly created
+            date = new Date();
         long milliseconds = now.getTime() - date.getTime();
         long days = getDays(milliseconds);
 

@@ -70,6 +70,9 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         else if(oldNumItems > newNumItems) {
             notifyItemRangeRemoved(newNumItems, oldNumItems - newNumItems);
         }
+        if(firstChangedIdx != Integer.MAX_VALUE) {
+            fireOnDataSetChanged();
+        }
     }
 
     private ConcurrentLinkedQueue<T> getConcurrentLinkedQueue(List<T> items) {

@@ -8,6 +8,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Bookmark;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Message;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -597,6 +598,8 @@ public class ParseObjectUtils {
 //                classes.add(StudentTotalMonthStats.class);
                 classes.add(AnsweredQuestionIds.class);
                 classes.add(Achievement.class);
+                classes.add(Conversation.class);
+                classes.add(Message.class);
                 classes.add(PinnedObject.class);
 
                 try {

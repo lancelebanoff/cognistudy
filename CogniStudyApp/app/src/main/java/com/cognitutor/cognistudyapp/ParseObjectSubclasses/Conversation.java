@@ -67,9 +67,9 @@ public class Conversation extends ParseObject {
         return getPublicUserData2();
     }
 
-    public Task<Void> addMessageAndSaveEventually(Message message) {
+    public Task<Void> addMessageAndSaveInBackground(Message message) {
         getMessages().add(message);
-        return saveEventually();
+        return saveInBackground();
     }
 
     public static ParseQuery<Conversation> getQuery() { return ParseQuery.getQuery(Conversation.class); }

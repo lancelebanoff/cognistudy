@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.View;
 import android.widget.EditText;
 
 import com.cognitutor.cognistudyapp.Adapters.ChatAdapter;
@@ -15,6 +16,7 @@ import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Message;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
@@ -26,7 +28,7 @@ import java.util.Date;
 import bolts.Continuation;
 import bolts.Task;
 
-public class ChatActivity extends CogniActivity {
+public class ChatActivity extends CogniActivity implements View.OnClickListener {
 
     private static PublicUserData mConversantPud;
 
@@ -42,6 +44,10 @@ public class ChatActivity extends CogniActivity {
         mConversantPud = pud;
     }
 
+    public void scrollToBottom() {
+        mRecyclerView.scrollToPosition(mChatAdapter.getItemCount()-1);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,16 +58,34 @@ public class ChatActivity extends CogniActivity {
 
         mEditText = (EditText) findViewById(R.id.editText);
         mBtnSendMsg = (CogniButton) findViewById(R.id.btnSendMsg);
+        mBtnSendMsg.setOnClickListener(this);
 
         mRecyclerView = (CogniRecyclerView) findViewById(R.id.rvChatMessages);
         mChatAdapter = new ChatAdapter(this, mConversantPud, getConversantBaseUserId());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mChatAdapter);
+        mRecyclerView.addOnLayoutChangeListener(getOnLayoutChangeListener());
 
         initFinished = false;
         loadConversationAndConversant()
             .continueWithTask(fetchConversation())
             .continueWithTask(loadMessages());
+    }
+
+    private View.OnLayoutChangeListener getOnLayoutChangeListener() {
+        return new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if(bottom < oldBottom) {
+                    mRecyclerView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mRecyclerView.scrollToPosition(mChatAdapter.getItemCount()-1);
+                        }
+                    }, 100);
+                }
+            }
+        };
     }
 
     @Override
@@ -192,6 +216,55 @@ public class ChatActivity extends CogniActivity {
         };
     }
 
+    private void sendMessage() {
+        String text = mEditText.getText().toString();
+        mEditText.setText("");
+
+        final Message message = new Message(mConversation, text);
+        message.pinInBackground(mConversation.getObjectId()).continueWith(new Continuation<Void, Object>() {
+            @Override
+            public Object then(Task<Void> task) throws Exception {
+                mChatAdapter.loadObjects();
+                return null;
+            }
+        });
+
+        //If this conversation is new and has not been saved to the server, check to make sure the conversant didn't already
+        // start a conversation
+        if(mConversation.getUpdatedAt() == null) {
+            Conversation.getQueryForConversant(getConversantBaseUserId())
+                    .getFirstInBackground().continueWith(new Continuation<Conversation, Object>() {
+                @Override
+                public Object then(Task<Conversation> task) throws Exception {
+                    if(task.getResult() != null) {
+                        mConversation = task.getResult();
+                    }
+                    doSendMessage(message);
+                    return null;
+                }
+            });
+        }
+        else {
+            doSendMessage(message);
+        }
+    }
+
+    private void doSendMessage(final Message message) {
+        message.saveInBackground().continueWith(new Continuation<Void, Object>() {
+            @Override
+            public Object then(Task<Void> task) throws Exception {
+                mConversation.addMessageAndSaveInBackground(message).continueWith(new Continuation<Void, Object>() {
+                    @Override
+                    public Object then(Task<Void> task) throws Exception {
+                        mConversation.pinInBackground(mConversation.getObjectId());
+                        return null;
+                    }
+                });
+                return null;
+            }
+        });
+    }
+
     private String getConversantBaseUserId() {
         return mIntent.getStringExtra(Constants.IntentExtra.BASEUSERID);
     }
@@ -202,5 +275,13 @@ public class ChatActivity extends CogniActivity {
 
     private Bitmap decodeByteArray(byte[] data) {
         return BitmapFactory.decodeByteArray(data, 0, data.length, new BitmapFactory.Options());
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnSendMsg:
+                sendMessage();
+        }
     }
 }
