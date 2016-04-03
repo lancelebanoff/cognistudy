@@ -19,7 +19,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by Kevin on 1/28/2016.
@@ -31,10 +33,12 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i("onReceive", "got Notification");
+        JSONObject data = getData(intent);
+        final Map<String, String> intentExtras = getIntentExtras(data); //intentExtras will not always be given
+        //Title, alert, and activityConstant are required
         try {
-            JSONObject data = new JSONObject(intent.getExtras().getString("com.parse.Data"));
-            final String title = data.getString("title");
-            final String alert = data.getString("alert");
+            final String title = data.getString(Constants.NotificationData.title);
+            final String alert = data.getString(Constants.NotificationData.alert);
             final String activityConstant = data.getString(Constants.NotificationData.ACTIVITY);
 
             for(CogniReceiverHandler handler : handlers) {
@@ -50,17 +54,37 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
             }
 
             if(Foreground.get().isBackground()) {
-                generateNotification(context, title, alert, getActivityClass(activityConstant));
+                generateNotification(context, title, alert, getActivityClass(activityConstant), intentExtras);
             }
         } catch (JSONException e) {
-            Log.e("onReceive", e.getMessage());
+            e.printStackTrace();
         }
         super.onReceive(context, intent);
     }
 
+    private JSONObject getData(Intent intent) {
+        try {
+            return new JSONObject(intent.getExtras().getString("com.parse.Data"));
+        } catch (JSONException e) { e.printStackTrace(); return null; }
+    }
+
+    private Map<String, String> getIntentExtras(JSONObject data) {
+
+        Map<String, String> map = new HashMap<>();
+        try {
+            JSONObject intentExtras = data.getJSONObject(Constants.NotificationData.intentExtras);
+            Iterator<String> keys = intentExtras.keys();
+            while(keys.hasNext()) {
+                String key = keys.next();
+                map.put(key, intentExtras.getString(key));
+            }
+        } catch (JSONException e) { }
+        return map;
+    }
+
     private Class getActivityClass(String activityConstant) {
         switch(activityConstant) {
-            case Constants.NotificationData.Activity.CONVERSATION_ACTIVITY:
+            case Constants.NotificationData.Activity.CHAT_ACTIVITY:
                 return ChatActivity.class;
             case Constants.NotificationData.Activity.SUGGESTED_QUESTIONS_LIST_ACTIVITY:
                 return SuggestedQuestionsListActivity.class;
@@ -69,11 +93,15 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
         }
     }
 
-    private void generateNotification(Context context, String title, String text, Class activityClass) {
+    private void generateNotification(Context context, String title, String text, Class activityClass,
+                                      Map<String, String> intentExtras) {
 
         int id = 0;
 
         Intent resultIntent = new Intent(context, activityClass);
+        for(String key : intentExtras.keySet()) {
+            resultIntent.putExtra(key, intentExtras.get(key));
+        }
         //TODO: Add task stack (in xml?)
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(activityClass);

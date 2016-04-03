@@ -11,15 +11,19 @@ import android.view.ViewGroup;
 import com.cognitutor.cognistudyapp.Activities.NewConversationActivity;
 import com.cognitutor.cognistudyapp.Adapters.ConversationAdapter;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseQuery;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by Lance on 12/27/2015.
  */
-public class ConversationsFragment extends CogniFragment implements View.OnClickListener{
+public class ConversationsFragment extends CogniPushListenerFragment implements View.OnClickListener{
 
     private ConversationAdapter mConversationAdapter;
     private CogniRecyclerView mRecyclerView;
@@ -68,6 +72,20 @@ public class ConversationsFragment extends CogniFragment implements View.OnClick
     public void createNewConversation() {
         Intent intent = new Intent(getActivity(), NewConversationActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onReceiveHandler() {
+
+    }
+
+    @Override
+    public JSONObject getConditions() {
+        JSONObject conditions = new JSONObject();
+        try {
+            conditions.put(Constants.NotificationData.FRAGMENT, Constants.NotificationData.Fragment.CONVERSATIONS_FRAGMENT);
+        } catch (JSONException e) { e.printStackTrace(); }
+        return conditions;
     }
 }
 

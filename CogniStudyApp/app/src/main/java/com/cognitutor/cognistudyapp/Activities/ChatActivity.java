@@ -23,12 +23,15 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Date;
 
 import bolts.Continuation;
 import bolts.Task;
 
-public class ChatActivity extends CogniActivity implements View.OnClickListener {
+public class ChatActivity extends CogniPushListenerActivity implements View.OnClickListener {
 
     private static PublicUserData mConversantPud;
 
@@ -89,7 +92,7 @@ public class ChatActivity extends CogniActivity implements View.OnClickListener 
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if(initFinished)
             loadMessagesIfNecessary();
@@ -283,5 +286,20 @@ public class ChatActivity extends CogniActivity implements View.OnClickListener 
             case R.id.btnSendMsg:
                 sendMessage();
         }
+    }
+
+    @Override
+    public void onReceiveHandler() {
+        mChatAdapter.loadFromNetwork(mConversation);
+    }
+
+    @Override
+    public JSONObject getConditions() {
+        JSONObject conditions = new JSONObject();
+        try {
+            conditions.put(Constants.NotificationData.ACTIVITY, Constants.NotificationData.Activity.CHAT_ACTIVITY);
+            conditions.put(Constants.NotificationData.conversantBaseuserId, getConversantBaseUserId());
+        } catch (JSONException e) { e.printStackTrace(); }
+        return conditions;
     }
 }

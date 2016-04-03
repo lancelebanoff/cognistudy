@@ -154,15 +154,18 @@ public class Constants {
     public static class NotificationData {
         public static final String title = "title";
         public static final String alert = "alert";
+        public static final String conversantBaseuserId = "conversantBaseuserId";
+        public static final String intentExtras = "intentExtras";
         public static final String ACTIVITY = "ACTIVITY";
         public static final String FRAGMENT = "FRAGMENT";
         public static class Activity {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
-            public static final String CONVERSATION_ACTIVITY = "CONVERSATION_ACTIVITY";
+            public static final String CHAT_ACTIVITY = "CHAT_ACTIVITY";
             public static final String SUGGESTED_QUESTIONS_LIST_ACTIVITY = "SUGGESTED_QUESTIONS_LIST_ACTIVITY";
         }
         public static class Fragment {
             public static final String SUGGESTED_QUESTIONS_LIST_FRAGMENT = "SUGGESTED_QUESTIONS_LIST_FRAGMENT";
+            public static final String CONVERSATIONS_FRAGMENT = "CONVERSATIONS_FRAGMENT";
         }
     }
 
