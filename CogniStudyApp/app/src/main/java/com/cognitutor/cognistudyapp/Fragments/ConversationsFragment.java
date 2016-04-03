@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -27,9 +28,14 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
 
     private ConversationAdapter mConversationAdapter;
     private CogniRecyclerView mRecyclerView;
+    public static final int REQUEST_CODE = 1;
 
     public static final ConversationsFragment newInstance() {
         return new ConversationsFragment();
+    }
+
+    public void notifyObjectIdChanged(String objectId) {
+        mConversationAdapter.notifyObjectIdChanged(objectId);
     }
 
     @Override
@@ -37,7 +43,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_conversations, container, false);
 
-        mConversationAdapter = new ConversationAdapter(getActivity());
+        mConversationAdapter = new ConversationAdapter(getActivity(), this);
 
         mRecyclerView = (CogniRecyclerView) rootView.findViewById(R.id.rvConversations);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -71,7 +77,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
 
     public void createNewConversation() {
         Intent intent = new Intent(getActivity(), NewConversationActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 
     @Override
@@ -86,6 +92,17 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
             conditions.put(Constants.NotificationData.FRAGMENT, Constants.NotificationData.Fragment.CONVERSATIONS_FRAGMENT);
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            if(data.hasExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST)) {
+                String objectId = data.getStringExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST);
+                mConversationAdapter.notifyObjectIdChanged(objectId);
+            }
+        }
     }
 }
 

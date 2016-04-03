@@ -10,9 +10,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.ChatActivity;
+import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
+import com.cognitutor.cognistudyapp.Fragments.ConversationsFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Message;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -25,13 +27,16 @@ import com.parse.ParseQueryAdapter;
  */
 public class ConversationAdapter extends CogniRecyclerAdapter<Conversation, ConversationAdapter.ViewHolder> {
 
-    public ConversationAdapter(Activity activity) {
+    private ConversationsFragment mConversationsFragment;
+
+    public ConversationAdapter(Activity activity, ConversationsFragment conversationsFragment) {
         super(activity, new ParseQueryAdapter.QueryFactory<Conversation>() {
             @Override
             public ParseQuery<Conversation> create() {
                 return Conversation.getQueryForCurrentUserConversations();
             }
         }, true);
+        mConversationsFragment = conversationsFragment;
     }
 
     @Override
@@ -88,6 +93,6 @@ public class ConversationAdapter extends CogniRecyclerAdapter<Conversation, Conv
         intent.putExtra(Constants.IntentExtra.CONVERSANT_DISPLAY_NAME, publicUserData.getDisplayName());
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.MAIN_ACTIVITY);
         ChatActivity.setConversantPud(publicUserData);
-        mActivity.startActivity(intent);
+        mConversationsFragment.startActivityForResult(intent, ConversationsFragment.REQUEST_CODE);
     }
 }

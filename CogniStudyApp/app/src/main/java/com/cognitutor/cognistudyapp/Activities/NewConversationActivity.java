@@ -6,6 +6,7 @@ import com.cognitutor.cognistudyapp.Adapters.ChatAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.Fragments.ConversationsFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.parse.ParseQuery;
@@ -33,6 +34,7 @@ public class NewConversationActivity extends PeopleFragmentActivity {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(Constants.IntentExtra.BASEUSERID, publicUserData.getBaseUserId());
         intent.putExtra(Constants.IntentExtra.CONVERSANT_DISPLAY_NAME, publicUserData.getDisplayName());
+        intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
         ChatActivity.setConversantPud(publicUserData);
         startActivity(intent);
         finish();

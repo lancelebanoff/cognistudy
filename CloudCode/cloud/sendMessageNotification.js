@@ -30,6 +30,6 @@ function createNotificationData(senderName, messageText, senderBaseUserId) {
 	data.intentExtras = {};
 	data.intentExtras.BASEUSERID = senderBaseUserId;
 	data.intentExtras.CONVERSANT_DISPLAY_NAME = senderName;
-	data.intentExtras.PARENT_ACTIVITY = MAIN_ACTIVITY;
+	data.intentExtras.PARENT_ACTIVITY = "MAIN_ACTIVITY";
 	return data;
 }

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -44,6 +45,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
     private boolean initFinished;
     private EditText mEditText;
     private CogniButton mBtnSendMsg;
+    private boolean mNotifyParentNewMessage;
 
     public static void setConversantPud(PublicUserData pud) {
         mConversantPud = pud;
@@ -60,6 +62,8 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
 
         mIntent = getIntent();
         setActivityTitle();
+
+        mNotifyParentNewMessage = false;
 
         mEditText = (EditText) findViewById(R.id.editText);
         mBtnSendMsg = (CogniButton) findViewById(R.id.btnSendMsg);
@@ -230,6 +234,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
             @Override
             public Object then(Task<Void> task) throws Exception {
                 mChatAdapter.loadObjects();
+                mNotifyParentNewMessage = true;
                 return null;
             }
         });
@@ -281,7 +286,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
             .continueWith(new Continuation<Object, Object>() {
                 @Override
                 public Object then(Task<Object> task) throws Exception {
-                    if(task.isFaulted()) {
+                    if (task.isFaulted()) {
                         task.getError().printStackTrace();
                     }
                     return null;
@@ -312,6 +317,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
     @Override
     public void onReceiveHandler() {
         mChatAdapter.loadFromNetwork(mConversation);
+        mNotifyParentNewMessage = true;
     }
 
     @Override
@@ -322,5 +328,25 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
             conditions.put(Constants.NotificationData.conversantBaseuserId, getConversantBaseUserId());
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                navigateToParentActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    protected void navigateToParentActivity() {
+        Intent intent = new Intent();
+        if(mNotifyParentNewMessage) {
+            intent.putExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST, mConversation.getObjectId());
+        }
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }
