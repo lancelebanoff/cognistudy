@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
@@ -17,6 +18,8 @@ import com.parse.CountCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
+
+import java.util.List;
 
 public class ChallengeAnalyticsActivity extends CogniActivity {
 
@@ -29,6 +32,9 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
     private Challenge mChallenge;
     private ChallengeUserData mCurrUserData;
     private ChallengeUserData mOpponentUserData;
+    private GameBoard mCurrGameBoard;
+    private GameBoard mOpponentGameBoard;
+    private LinearLayout mLlChallengeStats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,17 +52,24 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
         mChallenge = Challenge.getChallenge(challengeId);
         mCurrUserData = mChallenge.getChallengeUserData(user1or2);
         mOpponentUserData = mChallenge.getChallengeUserData(opponentUser1or2);
+        try {
+            mCurrGameBoard = mCurrUserData.getGameBoard().fetchIfNeeded();
+            mOpponentGameBoard = mOpponentUserData.getGameBoard().fetchIfNeeded();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         displayStats();
     }
 
     private void displayStats() {
-        LinearLayout llChallengeStats = (LinearLayout) findViewById(R.id.llChallengeStats);
+        mLlChallengeStats = (LinearLayout) findViewById(R.id.llChallengeStats);
         String[] subjects = Constants.Subject.getSubjects();
         for (String subject : subjects) {
             View listItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
             fillListItemForSubject(listItem, subject);
-            llChallengeStats.addView(listItem);
+            mLlChallengeStats.addView(listItem);
         }
+        fillBattleshipListItems();
     }
 
     private void fillListItemForSubject(View listItem, String subject) {
@@ -128,5 +141,39 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
                 });
             }
         });
+    }
+
+    private void fillBattleshipListItems() {
+        fillHitsAndMissesListItems();
+
+    }
+
+    private void fillHitsAndMissesListItems() {
+        View hitsListItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
+        View missesListItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
+        int currUserViewId = R.id.txtCurrentValue;
+        fillHitsAndMissesForUser(hitsListItem, missesListItem, mOpponentGameBoard, currUserViewId);
+        mLlChallengeStats.addView(hitsListItem);
+        int opponentUserViewId = R.id.txtOpponentValue;
+        fillHitsAndMissesForUser(hitsListItem, missesListItem, mCurrGameBoard, opponentUserViewId);
+        mLlChallengeStats.addView(missesListItem);
+    }
+
+    private void fillHitsAndMissesForUser(View hitsListItem, View missesListItem, GameBoard gameBoard, int viewId) {
+        int numHits = 0, numMisses = 0;
+        List<List<String>> boardPositionStatus = gameBoard.getStatus();
+        for (List<String> row : boardPositionStatus) {
+            for (String space : row) {
+                if (space.equals(Constants.GameBoardPositionStatus.HIT)) {
+                    numHits++;
+                } else if (space.equals(Constants.GameBoardPositionStatus.MISS)) {
+                    numMisses++;
+                }
+            }
+        }
+        TextView txtHits = (TextView) hitsListItem.findViewById(viewId);
+        txtHits.setText("" + numHits);
+        TextView txtMisses = (TextView) missesListItem.findViewById(viewId);
+        txtMisses.setText("" + numMisses);
     }
 }
