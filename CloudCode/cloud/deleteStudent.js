@@ -12,7 +12,7 @@ Parse.Cloud.define("deleteStudent", function(request, response) {
 			Parse.Object.fetchAll(results).then(function(fetchedResults) {
 				Parse.Object.destroyAll(fetchedResults).then(function(success) {
 					console.log("Pinned objects deleted");
-					response.success("Done!");
+					// response.success("Done!");
 				}, function(error) {
 					response.error("destroyAll for pinned objects failed");
 				});

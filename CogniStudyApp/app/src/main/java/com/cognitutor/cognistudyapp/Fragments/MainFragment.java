@@ -31,6 +31,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -184,26 +185,31 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         final Activity activity = getActivity();
         final MainFragment fragment = this;
 
-        PrivateStudentData.getPrivateStudentData().fetchInBackground().continueWith(new Continuation<ParseObject, Void>() {
+        PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
             @Override
-            public Void then(Task<ParseObject> task) throws Exception {
-                PrivateStudentData privateStudentData = (PrivateStudentData) task.getResult();
-                List<PublicUserData> tutorRequests = privateStudentData.getTutorRequests();
-                tutorRequestAdapter = new TutorRequestAdapter(activity, fragment, tutorRequests);
-
-                getActivity().runOnUiThread(new Runnable() {
+            public Void then(Task<PrivateStudentData> task) throws Exception {
+                task.getResult().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
                     @Override
-                    public void run() {
-                        tutorRequestListView = (ListView) rootView.findViewById(R.id.listTutorRequests);
-                        tutorRequestListView.setFocusable(false);
-                        tutorRequestListView.setAdapter(tutorRequestAdapter);
+                    public void done(ParseObject object, ParseException e) {
+                        PrivateStudentData privateStudentData = (PrivateStudentData) object;
+                        List<PublicUserData> tutorRequests = privateStudentData.getTutorRequests();
+                        tutorRequestAdapter = new TutorRequestAdapter(activity, fragment, tutorRequests);
 
-                        View parentCardView = (View) tutorRequestListView.getParent().getParent();
-                        if (tutorRequestAdapter.getCount() == 0) {
-                            parentCardView.setVisibility(View.GONE);
-                        } else {
-                            parentCardView.setVisibility(View.VISIBLE);
-                        }
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tutorRequestListView = (ListView) rootView.findViewById(R.id.listTutorRequests);
+                                tutorRequestListView.setFocusable(false);
+                                tutorRequestListView.setAdapter(tutorRequestAdapter);
+
+                                View parentCardView = (View) tutorRequestListView.getParent().getParent();
+                                if (tutorRequestAdapter.getCount() == 0) {
+                                    parentCardView.setVisibility(View.GONE);
+                                } else {
+                                    parentCardView.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
                     }
                 });
                 return null;
