@@ -39,4 +39,12 @@ public class Message extends ParseObject {
     }
 
     public static ParseQuery<Message> getQuery() { return ParseQuery.getQuery(Message.class); }
+
+    @Override
+    public String toString() {
+        return "objectId: " + (getObjectId() == null ? "_UNDEFINED" : getObjectId()) + " | " +
+                "sender: " + getSenderBaseUserId() + " | " +
+                "receiver: " + getReceiverBaseUserId() + " | " +
+                "message: " + getText().substring(0, Math.min(getText().length(),30));
+    }
 }

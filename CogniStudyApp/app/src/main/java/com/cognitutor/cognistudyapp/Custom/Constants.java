@@ -154,7 +154,7 @@ public class Constants {
     public static class NotificationData {
         public static final String title = "title";
         public static final String alert = "alert";
-        public static final String conversantBaseuserId = "conversantBaseuserId";
+        public static final String conversantBaseUserId = "conversantBaseUserId";
         public static final String intentExtras = "intentExtras";
         public static final String ACTIVITY = "ACTIVITY";
         public static final String FRAGMENT = "FRAGMENT";

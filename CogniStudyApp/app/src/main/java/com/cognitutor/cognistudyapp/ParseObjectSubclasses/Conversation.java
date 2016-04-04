@@ -101,4 +101,11 @@ public class Conversation extends ParseObject {
         orQueries.add(query2);
         return ParseQuery.or(orQueries);
     }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() + " | " +
+                "user1: " + getBaseUserId1() + " | " +
+                "user2: " + getBaseUserId2();
+    }
 }

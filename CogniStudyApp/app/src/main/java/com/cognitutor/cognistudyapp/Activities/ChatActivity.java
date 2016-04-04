@@ -317,6 +317,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
     @Override
     public void onReceiveHandler() {
         mChatAdapter.loadFromNetwork(mConversation);
+//        scrollToBottom();
         mNotifyParentNewMessage = true;
     }
 
@@ -325,7 +326,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
         JSONObject conditions = new JSONObject();
         try {
             conditions.put(Constants.NotificationData.ACTIVITY, Constants.NotificationData.Activity.CHAT_ACTIVITY);
-            conditions.put(Constants.NotificationData.conversantBaseuserId, getConversantBaseUserId());
+            conditions.put(Constants.NotificationData.conversantBaseUserId, getConversantBaseUserId());
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
     }

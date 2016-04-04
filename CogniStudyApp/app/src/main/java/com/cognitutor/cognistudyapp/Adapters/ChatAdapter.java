@@ -23,6 +23,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import bolts.Continuation;
@@ -48,7 +49,12 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
         addOnDataSetChangedListener(new OnDataSetChangedListener() {
             @Override
             public void onDataSetChanged() {
-                mChatActivity.scrollToBottom();
+                mChatActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mChatActivity.scrollToBottom();
+                    }
+                });
             }
         });
     }
