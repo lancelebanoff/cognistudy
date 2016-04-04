@@ -155,8 +155,10 @@ public class PracticeChallengeActivity extends CogniActivity {
         startActivity(intent);
     }
 
-    public void navigateToChallengeAnalyticsActivity(View view) {
-        Intent intent = new Intent(this, ChallengeAnalyticsActivity.class);
+    public void navigateToPracticeChallengeAnalyticsActivity(View view) {
+        Intent intent = new Intent(this, PracticeChallengeAnalyticsActivity.class);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
         startActivity(intent);
     }
 
