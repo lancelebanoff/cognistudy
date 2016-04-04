@@ -259,20 +259,21 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
         TextView txtLabel = (TextView) listItem.findViewById(R.id.txtLabel);
         txtLabel.setText("Turns taken");
         int totalTurns = mChallenge.getNumTurns();
-        int user1ViewId, user2ViewId;
+        int firstTurnUserViewId, secondTurnUserViewId;
         int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
-        if (user1or2 == 1) {
-            user1ViewId = R.id.txtCurrentValue;
-            user2ViewId = R.id.txtOpponentValue;
+        boolean isComputerOpponent = mChallenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER);
+        if (user1or2 == 2 || isComputerOpponent) {
+            firstTurnUserViewId = R.id.txtCurrentValue;
+            secondTurnUserViewId = R.id.txtOpponentValue;
         } else {
-            user1ViewId = R.id.txtOpponentValue;
-            user2ViewId = R.id.txtCurrentValue;
+            firstTurnUserViewId = R.id.txtOpponentValue;
+            secondTurnUserViewId = R.id.txtCurrentValue;
         }
-        fillNumTurnsForUser(listItem, totalTurns / 2, user2ViewId);
+        fillNumTurnsForUser(listItem, totalTurns / 2, secondTurnUserViewId);
         if (totalTurns % 2 == 0) {
-            fillNumTurnsForUser(listItem, totalTurns / 2, user1ViewId);
+            fillNumTurnsForUser(listItem, totalTurns / 2, firstTurnUserViewId);
         } else {
-            fillNumTurnsForUser(listItem, totalTurns / 2 + 1, user1ViewId);
+            fillNumTurnsForUser(listItem, totalTurns / 2 + 1, firstTurnUserViewId);
         }
         removeDividerLine(listItem);
         mLlBattleshipStats.addView(listItem);
