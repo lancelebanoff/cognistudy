@@ -6,4 +6,5 @@
     <dimen name="appbar_padding_top">8dp</dimen>
     <dimen name="tablayout_elevation">6dp</dimen>
     <dimen name="menu_item_icon_size">32dp</dimen>
+    <dimen name="challenge_stats_width_for_number">48dp</dimen>
 </resources>
