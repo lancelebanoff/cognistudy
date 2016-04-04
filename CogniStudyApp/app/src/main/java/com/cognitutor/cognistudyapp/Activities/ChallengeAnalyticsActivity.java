@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -16,7 +17,9 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.CountCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 
@@ -54,13 +57,20 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
         mChallenge = Challenge.getChallenge(challengeId);
         mCurrUserData = mChallenge.getChallengeUserData(user1or2);
         mOpponentUserData = mChallenge.getChallengeUserData(opponentUser1or2);
-        try {
-            mCurrGameBoard = mCurrUserData.getGameBoard().fetchIfNeeded();
-            mOpponentGameBoard = mOpponentUserData.getGameBoard().fetchIfNeeded();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        displayStats();
+        mCurrGameBoard = mCurrUserData.getGameBoard();
+        mOpponentGameBoard = mOpponentUserData.getGameBoard();
+        mCurrGameBoard.fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+            @Override
+            public void done(ParseObject object, ParseException e) {
+                mOpponentGameBoard.fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                    @Override
+                    public void done(ParseObject object, ParseException e) {
+                        displayStats();
+                        loadingDone();
+                    }
+                });
+            }
+        });
     }
 
     private void displayStats() {
@@ -283,5 +293,12 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
     private void removeDividerLine(View listItem) {
         View dividerLine = listItem.findViewById(R.id.dividerLine);
         dividerLine.setVisibility(View.GONE);
+    }
+
+    private void loadingDone() {
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+        RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        rlContent.setVisibility(View.VISIBLE);
     }
 }
