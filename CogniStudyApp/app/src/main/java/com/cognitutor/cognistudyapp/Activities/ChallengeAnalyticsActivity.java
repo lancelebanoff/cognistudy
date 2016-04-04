@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -34,7 +35,8 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
     private ChallengeUserData mOpponentUserData;
     private GameBoard mCurrGameBoard;
     private GameBoard mOpponentGameBoard;
-    private LinearLayout mLlChallengeStats;
+    private LinearLayout mLlSubjectStats;
+    private LinearLayout mLlBattleshipStats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,14 +64,33 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
     }
 
     private void displayStats() {
-        mLlChallengeStats = (LinearLayout) findViewById(R.id.llChallengeStats);
+        mLlSubjectStats = (LinearLayout) findViewById(R.id.llSubjectStats);
+        addHeaderListItem();
         String[] subjects = Constants.Subject.getSubjects();
-        for (String subject : subjects) {
+        for (int i = 0; i < subjects.length; i++) {
+            String subject = subjects[i];
             View listItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
             fillListItemForSubject(listItem, subject);
-            mLlChallengeStats.addView(listItem);
+            if (i == subjects.length - 1) {
+                removeDividerLine(listItem);
+            }
+            mLlSubjectStats.addView(listItem);
         }
         fillBattleshipListItems();
+    }
+
+    private void addHeaderListItem() {
+        View listItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
+        ImageView ivIcon = (ImageView) listItem.findViewById(R.id.ivIcon);
+        ivIcon.setImageResource(R.drawable.icon_empty);
+        TextView txtLabel = (TextView) listItem.findViewById(R.id.txtLabel);
+        txtLabel.setText("Subject");
+        TextView txtCurrentValue = (TextView) listItem.findViewById(R.id.txtCurrentValue);
+        txtCurrentValue.setText("You");
+        TextView txtOpponentValue = (TextView) listItem.findViewById(R.id.txtOpponentValue);
+        txtOpponentValue.setText("Them");
+        enlargeDividerLine(listItem);
+        mLlSubjectStats.addView(listItem);
     }
 
     private void fillListItemForSubject(View listItem, String subject) {
@@ -95,7 +116,7 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
                 icon = R.drawable.icon_reading;
                 break;
         }
-        ImageView ivSubject = (ImageView) listItem.findViewById(R.id.ivSubject);
+        ImageView ivSubject = (ImageView) listItem.findViewById(R.id.ivIcon);
         ivSubject.setImageResource(icon);
     }
 
@@ -144,19 +165,44 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
     }
 
     private void fillBattleshipListItems() {
+        mLlBattleshipStats = (LinearLayout) findViewById(R.id.llBattleshipStats);
+        addBattleshipHeaderListItem();
         fillHitsAndMissesListItems();
+        fillBattleshipsDestroyedListItem();
+        fillNumTurnsListItem();
+    }
 
+    private void addBattleshipHeaderListItem() {
+        View listItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
+        ImageView ivIcon = (ImageView) listItem.findViewById(R.id.ivIcon);
+        ivIcon.setImageResource(R.drawable.icon_empty);
+        TextView txtLabel = (TextView) listItem.findViewById(R.id.txtLabel);
+        txtLabel.setText("Game Stats");
+        TextView txtCurrentValue = (TextView) listItem.findViewById(R.id.txtCurrentValue);
+        txtCurrentValue.setText("You");
+        TextView txtOpponentValue = (TextView) listItem.findViewById(R.id.txtOpponentValue);
+        txtOpponentValue.setText("Them");
+        enlargeDividerLine(listItem);
+        mLlBattleshipStats.addView(listItem);
     }
 
     private void fillHitsAndMissesListItems() {
         View hitsListItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
         View missesListItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
+        ImageView ivHitIcon = (ImageView) hitsListItem.findViewById(R.id.ivIcon);
+        ivHitIcon.setImageResource(R.drawable.icon_hit);
+        ImageView ivMissIcon = (ImageView) missesListItem.findViewById(R.id.ivIcon);
+        ivMissIcon.setImageResource(R.drawable.icon_miss);
+        TextView txtHitsLabel = (TextView) hitsListItem.findViewById(R.id.txtLabel);
+        txtHitsLabel.setText("Hits");
+        TextView txtMissesLabel = (TextView) missesListItem.findViewById(R.id.txtLabel);
+        txtMissesLabel.setText("Misses");
         int currUserViewId = R.id.txtCurrentValue;
         fillHitsAndMissesForUser(hitsListItem, missesListItem, mOpponentGameBoard, currUserViewId);
-        mLlChallengeStats.addView(hitsListItem);
         int opponentUserViewId = R.id.txtOpponentValue;
         fillHitsAndMissesForUser(hitsListItem, missesListItem, mCurrGameBoard, opponentUserViewId);
-        mLlChallengeStats.addView(missesListItem);
+        mLlBattleshipStats.addView(hitsListItem);
+        mLlBattleshipStats.addView(missesListItem);
     }
 
     private void fillHitsAndMissesForUser(View hitsListItem, View missesListItem, GameBoard gameBoard, int viewId) {
@@ -175,5 +221,67 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
         txtHits.setText("" + numHits);
         TextView txtMisses = (TextView) missesListItem.findViewById(viewId);
         txtMisses.setText("" + numMisses);
+    }
+
+    private void fillBattleshipsDestroyedListItem() {
+        View listItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
+        ImageView ivIcon = (ImageView) listItem.findViewById(R.id.ivIcon);
+        ivIcon.setImageResource(R.drawable.icon_score);
+        TextView txtLabel = (TextView) listItem.findViewById(R.id.txtLabel);
+        txtLabel.setText("Score");
+        int currUserViewId = R.id.txtCurrentValue;
+        fillBattleshipsDestroyedForUser(listItem, mCurrUserData, currUserViewId);
+        int opponentUserViewId = R.id.txtOpponentValue;
+        fillBattleshipsDestroyedForUser(listItem, mOpponentUserData, opponentUserViewId);
+        mLlBattleshipStats.addView(listItem);
+    }
+
+    private void fillBattleshipsDestroyedForUser(View listItem, ChallengeUserData challengeUserData, int viewId) {
+        TextView txtBattleshipsDestroyed = (TextView) listItem.findViewById(viewId);
+        int score = challengeUserData.getScore();
+        txtBattleshipsDestroyed.setText("" + score);
+    }
+
+    private void fillNumTurnsListItem() {
+        View listItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
+        ImageView ivIcon = (ImageView) listItem.findViewById(R.id.ivIcon);
+        ivIcon.setImageResource(R.drawable.icon_turn);
+        TextView txtLabel = (TextView) listItem.findViewById(R.id.txtLabel);
+        txtLabel.setText("Turns taken");
+        int totalTurns = mChallenge.getNumTurns();
+        int user1ViewId, user2ViewId;
+        int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        if (user1or2 == 1) {
+            user1ViewId = R.id.txtCurrentValue;
+            user2ViewId = R.id.txtOpponentValue;
+        } else {
+            user1ViewId = R.id.txtOpponentValue;
+            user2ViewId = R.id.txtCurrentValue;
+        }
+        fillNumTurnsForUser(listItem, totalTurns / 2, user2ViewId);
+        if (totalTurns % 2 == 0) {
+            fillNumTurnsForUser(listItem, totalTurns / 2, user1ViewId);
+        } else {
+            fillNumTurnsForUser(listItem, totalTurns / 2 + 1, user1ViewId);
+        }
+        removeDividerLine(listItem);
+        mLlBattleshipStats.addView(listItem);
+    }
+
+    private void fillNumTurnsForUser(View listItem, int numTurns, int viewId) {
+        TextView txtTurns = (TextView) listItem.findViewById(viewId);
+        txtTurns.setText("" + numTurns);
+    }
+
+    private void enlargeDividerLine(View listItem) {
+        View dividerLine = listItem.findViewById(R.id.dividerLine);
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) dividerLine.getLayoutParams();
+        layoutParams.height = layoutParams.height * 3;
+        dividerLine.setLayoutParams(layoutParams);
+    }
+
+    private void removeDividerLine(View listItem) {
+        View dividerLine = listItem.findViewById(R.id.dividerLine);
+        dividerLine.setVisibility(View.GONE);
     }
 }
