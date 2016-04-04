@@ -7,9 +7,14 @@ import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQueryAdapter;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import bolts.Capture;
 
 /**
  * Created by Kevin on 2/21/2016.
@@ -18,10 +23,20 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         extends ParseRecyclerQueryAdapter<T, U> implements QueryUtils.OnDataLoadedListener<T> {
 
     protected Activity mActivity;
+    private HashMap<String, Date> mLastSeenUpdatedAtMap;
 
     public CogniRecyclerAdapter(Activity activity, final ParseQueryAdapter.QueryFactory<T> factory, final boolean hasStableIds) {
         super(factory, hasStableIds);
         mActivity = activity;
+        mLastSeenUpdatedAtMap = new HashMap<>();
+        addOnDataSetChangedListener(new OnDataSetChangedListener() {
+            @Override
+            public void onDataSetChanged() {
+                for(T obj : mItems) {
+                    setLastSeenUpdatedAt(obj);
+                }
+            }
+        });
     }
 
     public synchronized void notifyObjectIdChanged(String objectId) {
@@ -37,42 +52,91 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         return mActivity;
     }
 
+    private Date getLastSeenUpdatedAt(T obj) {
+        return mLastSeenUpdatedAtMap.get(obj.getObjectId());
+    }
+
+    private boolean hasBeenSeen(T obj) {
+        return mLastSeenUpdatedAtMap.containsKey(obj.getObjectId());
+    }
+
+    private void setLastSeenUpdatedAt(T obj) {
+        mLastSeenUpdatedAtMap.put(obj.getObjectId(), obj.getUpdatedAt());
+    }
+
     @Override
-    public synchronized void onDataLoaded(List<T> list) {
+    public synchronized List<T> onDataLoaded(List<T> list) {
 
-        int oldNumItems = mItems.size();
-        int firstChangedIdx = Integer.MAX_VALUE;
-        int idx = 0;
-
-        ConcurrentLinkedQueue<T> oldObjects = getConcurrentLinkedQueue(mItems);
-        ConcurrentLinkedQueue<T> newObjects = getConcurrentLinkedQueue(list);
-        Iterator<T> newIterator = newObjects.iterator();
+        final int oldNumItems = mItems.size();
+        final Capture<Integer> firstChangedIdx = new Capture<>(Integer.MAX_VALUE);
+        final boolean[] changedArray = new boolean[mItems.size()];
+        final Capture<Boolean> objectChanged = new Capture<>(false);
+        Iterator<T> listIterator = list.iterator();
         int oldIdx = 0;
-        while(newIterator.hasNext() && oldIdx < mItems.size()) {
-            T newObj = newIterator.next();
-            T oldObj = mItems.get(oldIdx);
+        T newObj = null;
+        T oldObj;
+
+        //Walk through each list side by side until you find an object that is not the same
+        // If an object has been updated, note this
+        while(listIterator.hasNext() && oldIdx < mItems.size()) {
+            newObj = listIterator.next();
+            oldObj = mItems.get(oldIdx);
             if(!oldObj.getObjectId().equals(newObj.getObjectId())) {
-                firstChangedIdx = oldIdx;
+                firstChangedIdx.set(oldIdx);
                 break;
             }
-            oldObjects.remove(oldObj);
-            list.remove(newObj);
+            //hasBeenSeen should always be true
+            if(hasBeenSeen(newObj) && newObj.getUpdatedAt().after(getLastSeenUpdatedAt(newObj))) {
+                changedArray[oldIdx] = true;
+                objectChanged.set(true);
+            }
             oldIdx++;
         }
-        mItems.removeAll(oldObjects);
+
+        //Find all of the new objects that were not in the list previously so we can return them
+        List<T> newObjects = new ArrayList<>();
+        while (listIterator.hasNext()) {
+            newObj = listIterator.next();
+            boolean found = false;
+            for (int i = firstChangedIdx.get(); i < mItems.size(); i++) {
+                oldObj = mItems.get(i);
+                if (newObj.getObjectId().equals(oldObj.getObjectId())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                newObjects.add(newObj);
+            }
+        }
+
+        //Update the dataset
+        mItems.clear();
         mItems.addAll(list);
-        int newNumItems = mItems.size();
-        if(firstChangedIdx < Math.min(oldNumItems, newNumItems))
-            notifyItemRangeChanged(firstChangedIdx, Math.min(oldNumItems, newNumItems));
-        if(newNumItems > oldNumItems) {
-            notifyItemRangeInserted(oldNumItems, newNumItems - oldNumItems);
-        }
-        else if(oldNumItems > newNumItems) {
-            notifyItemRangeRemoved(newNumItems, oldNumItems - newNumItems);
-        }
-        if(firstChangedIdx != Integer.MAX_VALUE || oldNumItems != newNumItems) {
-            fireOnDataSetChanged();
-        }
+        final int newNumItems = mItems.size();
+
+        getActivityForUIThread().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //Notify the adapter of the dataset changes
+                if(firstChangedIdx.get() < Math.min(oldNumItems, newNumItems))
+                    notifyItemRangeChanged(firstChangedIdx.get(), Math.min(oldNumItems, newNumItems));
+                if(newNumItems > oldNumItems) {
+                    notifyItemRangeInserted(oldNumItems, newNumItems - oldNumItems);
+                }
+                else if(oldNumItems > newNumItems) {
+                    notifyItemRangeRemoved(newNumItems, oldNumItems - newNumItems);
+                }
+                for(int i = 0; i < changedArray.length; i++) {
+                    if(changedArray[i])
+                        notifyItemChanged(i);
+                }
+                if(firstChangedIdx.get() != Integer.MAX_VALUE || oldNumItems != newNumItems || objectChanged.get()) {
+                    fireOnDataSetChanged();
+                }
+            }
+        });
+        return newObjects;
     }
 
     private ConcurrentLinkedQueue<T> getConcurrentLinkedQueue(List<T> items) {
@@ -81,5 +145,13 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
             queue.add(obj);
         }
         return queue;
+    }
+
+    @Override
+    public void loadObjects() {
+        super.loadObjects();
+        for(T obj : mItems) {
+            setLastSeenUpdatedAt(obj);
+        }
     }
 }

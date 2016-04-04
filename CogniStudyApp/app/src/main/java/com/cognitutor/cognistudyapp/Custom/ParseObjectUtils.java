@@ -583,7 +583,7 @@ public class ParseObjectUtils {
                 classes.add(Challenge.class);
                 classes.add(Response.class);
                 classes.add(SuggestedQuestion.class);
-                classes.add(Bookmark.class);
+//                classes.add(Bookmark.class);
                 classes.add(Question.class);
                 classes.add(QuestionContents.class);
                 classes.add(QuestionBundle.class);

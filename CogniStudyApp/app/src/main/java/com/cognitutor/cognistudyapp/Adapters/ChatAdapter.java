@@ -64,13 +64,8 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
             @Override
             public Object then(Task<List<Message>> task) throws Exception {
                 final List<Message> list = task.getResult();
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onDataLoaded(list);
-                    }
-                });
-                ParseObject.pinAllInBackground(conversation.getObjectId(), list);
+                List<Message> newMessagesToPin = onDataLoaded(list);
+                ParseObject.pinAllInBackground(conversation.getObjectId(), newMessagesToPin);
                 return null;
             }
         });
