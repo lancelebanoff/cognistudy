@@ -154,15 +154,18 @@ public class Constants {
     public static class NotificationData {
         public static final String title = "title";
         public static final String alert = "alert";
+        public static final String conversantBaseUserId = "conversantBaseUserId";
+        public static final String intentExtras = "intentExtras";
         public static final String ACTIVITY = "ACTIVITY";
         public static final String FRAGMENT = "FRAGMENT";
         public static class Activity {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
-            public static final String CONVERSATION_ACTIVITY = "CONVERSATION_ACTIVITY";
+            public static final String CHAT_ACTIVITY = "CHAT_ACTIVITY";
             public static final String SUGGESTED_QUESTIONS_LIST_ACTIVITY = "SUGGESTED_QUESTIONS_LIST_ACTIVITY";
         }
         public static class Fragment {
             public static final String SUGGESTED_QUESTIONS_LIST_FRAGMENT = "SUGGESTED_QUESTIONS_LIST_FRAGMENT";
+            public static final String CONVERSATIONS_FRAGMENT = "CONVERSATIONS_FRAGMENT";
         }
     }
 
@@ -187,6 +190,10 @@ public class Constants {
         public static final String USER1OR2 = "USER1OR2";
         public static final String QUESTION_META_ID = "QUESTION_META_ID";
         public static final String UPDATE_OBJECT_ID_IN_LIST = "UPDATE_OBJECT_ID_IN_LIST";
+        public static final String CONVERSATION_ID = "CONVERSATION_ID";
+        public static final String BASEUSERID = "BASEUSERID";
+        public static final String CONVERSANT_DISPLAY_NAME = "CONVERSANT_DISPLAY_NAME";
+        public static final String CONVERSANT_PROFILE_PIC_DATA = "CONVERSANT_PROFILE_PIC_DATA";
 
         public static final String QUESTION_ID = "QUESTION_ID";
         public static final String PUBLICUSERDATA_ID = "PUBLICUSERDATA_ID";
@@ -554,6 +561,14 @@ public class Constants {
         public static final String STUDENT_REQUEST_TO_TUTOR = "studentRequestToTutor";
         public static final String ADD_STUDENT = "addStudent";
         public static final String REMOVE_STUDENT = "removeStudent";
+        public static final String SEND_MESSAGE_NOTIFICATION = "sendMessageNotification";
+
+        public static class SendMessageNotification {
+            public static final String senderBaseUserId = "senderBaseUserId";
+            public static final String receiverBaseUserId = "receiverBaseUserId";
+            public static final String senderName = "senderName";
+            public static final String messageText = "messageText";
+        }
     }
 
     public static class PinNames {

@@ -70,6 +70,11 @@
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".Activities.NewConversationActivity"
+            android:label="@string/title_activity_new_conversation"
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".Activities.ChooseBoardConfigurationActivity"
             android:label="@string/title_activity_choose_board_configuration"
             android:parentActivityName=".Activities.NewChallengeActivity"
@@ -126,9 +131,10 @@
             android:theme="@style/AppTheme.TransparentActionBar" >
         </activity>
         <activity
-            android:name=".Activities.ConversationActivity"
+            android:name=".Activities.ChatActivity"
             android:label="@string/title_activity_conversation"
             android:parentActivityName=".Activities.MainActivity"
+            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait" >
         </activity>
         <activity
