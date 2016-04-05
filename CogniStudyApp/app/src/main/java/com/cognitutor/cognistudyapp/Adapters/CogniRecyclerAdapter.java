@@ -39,12 +39,17 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         });
     }
 
-    public synchronized void notifyObjectIdChanged(String objectId) {
-        for(int i=0; i<getItemCount(); i++) {
-            if(getItem(i).getObjectId().equals(objectId)) {
-                notifyItemChanged(i);
+    public synchronized void notifyObjectIdChanged(final String objectId) {
+        getActivityForUIThread().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < getItemCount(); i++) {
+                    if (getItem(i).getObjectId().equals(objectId)) {
+                        notifyItemChanged(i);
+                    }
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -65,7 +70,7 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
     }
 
     @Override
-    public synchronized List<T> onDataLoaded(List<T> list) {
+    public synchronized List<T> onDataLoaded(final List<T> list) {
 
         final int oldNumItems = mItems.size();
         final Capture<Integer> firstChangedIdx = new Capture<>(Integer.MAX_VALUE);
@@ -110,14 +115,15 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
             }
         }
 
-        //Update the dataset
-        mItems.clear();
-        mItems.addAll(list);
-        final int newNumItems = mItems.size();
-
         getActivityForUIThread().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+                //Update the dataset
+                mItems.clear();
+                mItems.addAll(list);
+                final int newNumItems = mItems.size();
+
                 //Notify the adapter of the dataset changes
                 if(firstChangedIdx.get() < Math.min(oldNumItems, newNumItems))
                     notifyItemRangeChanged(firstChangedIdx.get(), Math.min(oldNumItems, newNumItems));

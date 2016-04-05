@@ -100,7 +100,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
         if(requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if(data.hasExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST)) {
                 String objectId = data.getStringExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST);
-                mConversationAdapter.notifyObjectIdChanged(objectId);
+                notifyObjectIdChanged(objectId);
             }
         }
     }
