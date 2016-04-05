@@ -36,6 +36,7 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
 
     private PublicUserData mConversantPud;
     private ChatActivity mChatActivity;
+    private boolean conversantPudLoaded = false;
 
     public ChatAdapter(Activity activity, PublicUserData conversantPud, final String conversantBaseUserId) {
         super(activity, new ParseQueryAdapter.QueryFactory<Message>() {
@@ -57,6 +58,22 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
                 });
             }
         });
+    }
+
+    public void notifyPublicUserDataLoaded() {
+        if(!conversantPudLoaded) {
+            conversantPudLoaded = true;
+            getActivityForUIThread().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < mItems.size(); i++) {
+                        if (!getItem(i).isCurUserSender()) {
+                            notifyItemChanged(i);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     public void loadFromNetwork(final Conversation conversation) {
@@ -110,9 +127,15 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
             ViewHolderConversantSender convHolder = (ViewHolderConversantSender) holder;
             if(!convHolder.isProfilePicSet) {
                 RoundedImageView imgProfileConversant = convHolder.imgProfileConversant;
-                imgProfileConversant.setParseFile(mConversantPud.getProfilePic());
-                convHolder.isProfilePicSet = true;
-                imgProfileConversant.loadInBackground();
+                if(mConversantPud != null) {
+                    conversantPudLoaded = true;
+                    imgProfileConversant.setParseFile(mConversantPud.getProfilePic());
+                    convHolder.isProfilePicSet = true;
+                    imgProfileConversant.loadInBackground();
+                }
+                else {
+                    imgProfileConversant.setImageResource(R.drawable.default_profile_pic);
+                }
             }
         }
     }

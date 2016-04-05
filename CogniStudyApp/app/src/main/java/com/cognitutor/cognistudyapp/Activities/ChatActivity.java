@@ -161,6 +161,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
 
         return loadConversationCacheElseNetwork()
                 .continueWithTask(loadConversant())
+                .continueWith(notifyAdapterConversantLoaded())
                 .continueWith(createConversationIfNecessary());
     }
 
@@ -210,6 +211,16 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
                 return mConversantPud;
             }
         });
+    }
+
+    private Continuation<PublicUserData, PublicUserData> notifyAdapterConversantLoaded() {
+        return new Continuation<PublicUserData, PublicUserData>() {
+            @Override
+            public PublicUserData then(Task<PublicUserData> task) throws Exception {
+                mChatAdapter.notifyPublicUserDataLoaded();
+                return task.getResult();
+            }
+        };
     }
 
     private Continuation<PublicUserData, Void> createConversationIfNecessary() {
