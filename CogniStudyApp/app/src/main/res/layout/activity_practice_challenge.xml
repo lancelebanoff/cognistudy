@@ -74,7 +74,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/icon_challenge_analytics"
                     android:id="@+id/btnChallengeAnalytics"
-                    android:onClick="navigateToChallengeAnalyticsActivity"
+                    android:onClick="navigateToPracticeChallengeAnalyticsActivity"
                     android:adjustViewBounds="true"
                     android:scaleType="centerInside"
                     android:layout_weight="1" />

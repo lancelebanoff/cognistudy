@@ -158,11 +158,12 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     }
 
     @Override
-    public void onDataLoaded(List<PublicUserData> list) {
+    public List<PublicUserData> onDataLoaded(List<PublicUserData> list) {
         mLock.lock();
-        super.onDataLoaded(list);
+        List<PublicUserData> newObjects = super.onDataLoaded(list);
         lastSearchObjects = cloneLastSearch();
         mLock.unlock();
+        return newObjects;
     }
 
     public void search(final String queryText) {

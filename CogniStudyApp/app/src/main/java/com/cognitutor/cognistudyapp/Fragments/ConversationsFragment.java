@@ -59,6 +59,10 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
     @Override
     public void onResume() {
         super.onResume();
+        loadCacheThenNetwork();
+    }
+
+    private void loadCacheThenNetwork() {
         QueryUtils.findCacheThenNetworkInBackgroundPinWithObjId(mConversationAdapter, new QueryUtils.ParseQueryBuilder<Conversation>() {
             @Override
             public ParseQuery<Conversation> buildQuery() {
@@ -82,7 +86,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
 
     @Override
     public void onReceiveHandler() {
-
+        loadCacheThenNetwork();
     }
 
     @Override
@@ -100,7 +104,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
         if(requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if(data.hasExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST)) {
                 String objectId = data.getStringExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST);
-                mConversationAdapter.notifyObjectIdChanged(objectId);
+                notifyObjectIdChanged(objectId);
             }
         }
     }

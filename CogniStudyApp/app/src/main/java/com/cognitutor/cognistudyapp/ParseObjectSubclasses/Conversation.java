@@ -26,7 +26,7 @@ public class Conversation extends ParseObject {
         put(Columns.baseUserId1, baseUserId1);
         put(Columns.baseUserId2, baseUserId2);
         put(Columns.publicUserData1, pud1);
-        put(Columns.publicUserData1, pud2);
+        put(Columns.publicUserData2, pud2);
     }
 
     public class Columns {
@@ -100,5 +100,12 @@ public class Conversation extends ParseObject {
         orQueries.add(query1);
         orQueries.add(query2);
         return ParseQuery.or(orQueries);
+    }
+
+    @Override
+    public String toString() {
+        return "objectId: " + getObjectId() + " | " +
+                "user1: " + getBaseUserId1() + " | " +
+                "user2: " + getBaseUserId2();
     }
 }

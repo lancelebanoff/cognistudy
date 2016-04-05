@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
@@ -22,6 +23,7 @@ import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseInstallation;
 
 public class MainActivity extends AuthenticationActivity {
 
@@ -31,6 +33,11 @@ public class MainActivity extends AuthenticationActivity {
     private Activity mActivity = this;
     private CogniViewPager mViewPager;
     private PeopleFragment mPeopleFragment;
+
+    private static boolean cameFromChatActivity = false;
+    public static void notifyCameFromChatActivity() {
+        cameFromChatActivity = true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +122,15 @@ public class MainActivity extends AuthenticationActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        setFragment();
         onResumeTest();
+    }
+
+    private void setFragment() {
+        if(cameFromChatActivity) {
+            cameFromChatActivity = false;
+            mViewPager.setCurrentItem(Fragments.Messages.ordinal());
+        }
     }
 
     //TODO: Remove testing later
@@ -219,7 +234,7 @@ public class MainActivity extends AuthenticationActivity {
     }
 
     private void onResumeTest() {
-//        Log.d("InstallationId", ParseInstallation.getCurrentInstallation().getObjectId());
+        Log.d("InstallationId", ParseInstallation.getCurrentInstallation().getObjectId());
 //        DateUtils.test(true);
 //        QueryUtils.testCacheThenNetwork();
 //        ParseObjectUtils.testPins(false);

@@ -110,7 +110,8 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.icon_cognitutor)
+//                .setSmallIcon(R.drawable.icon_cognitutor)
+                .setSmallIcon(R.drawable.ic_stat_icon_pencil_in_gear)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setContentIntent(resultPendingIntent);

@@ -31,7 +31,7 @@ public class QueryUtils {
 
     public interface OnDataLoadedListener<T extends ParseObject> {
         Activity getActivityForUIThread();
-        void onDataLoaded(List<T> list);
+        List<T> onDataLoaded(List<T> list);
     }
 
     public interface OnDataLoadedSingleObjectListener<T extends ParseObject> {
@@ -334,36 +334,37 @@ public class QueryUtils {
                 if (isCancelled(helper, startTime))
                     return null;
                 if (listener != null)
-                    runOnDataLoadedOnUIThread(listener, localResults);
+                    listener.onDataLoaded(localResults);
 
                 List<T> networkResults = doNetworkFindQuery(networkQuery);
                 final List<T> combined = new ArrayList<T>();
                 for (T fromNetwork : networkResults) {
                     addFromLocalOrNetwork(fromNetwork, localResults, combined);
                 }
-                if(localResults.size() > 0)
+
+                if (localResults.size() > 0)
                     Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
-                if(pinNameOption == PinNameOption.CONSTANT && pinName != null) {
-                    if (deleteOldPinnedResults) {
-//                        ParseObjectUtils.unpinAllInBackground(pinName).waitForCompletion();
-                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
-                    }
-                    ParseObject.pinAllInBackground(pinName, combined).waitForCompletion();
-//                    ParseObjectUtils.pinAllInBackground(pinName, combined).waitForCompletion();
-                }
-                else if(pinNameOption == PinNameOption.OBJECT_ID) {
-                    for(T obj : combined) {
-                        obj.pinInBackground(obj.getObjectId()).waitForCompletion(); //TODO: Why wait for completion?
-                    }
-                }
-                else if(pinNameOption == PinNameOption.NO_NAME) { //if (deleteOldPinnedResults) {
-//                    ParseObjectUtils.pinAllInBackground(combined).waitForCompletion();
-                    ParseObject.pinAllInBackground(combined).waitForCompletion();
-                }
                 if (isCancelled(helper, startTime))
                     return null;
+
+                List<T> newObjectsToPin = combined;
                 if (listener != null)
-                    runOnDataLoadedOnUIThread(listener, combined);
+                    newObjectsToPin = listener.onDataLoaded(combined);
+
+                if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
+                    if (deleteOldPinnedResults) {
+                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+                        ParseObject.pinAllInBackground(pinName, combined).waitForCompletion();
+                    } else {
+                        ParseObject.pinAllInBackground(pinName, newObjectsToPin).waitForCompletion();
+                    }
+                } else if (pinNameOption == PinNameOption.OBJECT_ID) {
+                    for (T obj : newObjectsToPin) {
+                        obj.pinInBackground(obj.getObjectId()).waitForCompletion(); //TODO: Why wait for completion?
+                    }
+                } else if (pinNameOption == PinNameOption.NO_NAME) { //if (deleteOldPinnedResults) {
+                    ParseObject.pinAllInBackground(newObjectsToPin).waitForCompletion();
+                }
                 return combined;
             }
         });
@@ -459,11 +460,11 @@ public class QueryUtils {
         return helper != null && helper.lastCancelled > startTime;
     }
 
-    private static <T extends ParseObject> void runOnDataLoadedOnUIThread(final OnDataLoadedListener<T> listener, final List<T> list) {
+    private static <T extends ParseObject> void runOnDataLoadedOnUIThread(final OnDataLoadedListener<T> listener, final List<T> list, final String pinName) {
         listener.getActivityForUIThread().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                listener.onDataLoaded(list);
+                List<T> newObjects = listener.onDataLoaded(list);
             }
         });
     }

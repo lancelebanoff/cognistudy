@@ -149,9 +149,8 @@ public class Challenge extends ParseObject {
     }
 
     public int incrementAndGetQuesAnsThisTurn() {
-        int quesAnsThisTurn = getQuesAnsThisTurn() + 1;
-        setQuesAnsThisTurn(quesAnsThisTurn);
-        return quesAnsThisTurn;
+        increment(Columns.quesAnsThisTurn);
+        return getQuesAnsThisTurn();
     }
 
     // If the number of shots has not been set yet, then set it. Then return the number of shots
@@ -201,7 +200,7 @@ public class Challenge extends ParseObject {
     }
 
     public void incrementNumTurns() {
-        put(Columns.numTurns, getNumTurns() + 1);
+        increment(Columns.numTurns);
     }
 
     public String getWinner() {
@@ -253,7 +252,7 @@ public class Challenge extends ParseObject {
     }
 
     public void incrementCorrectAnsThisTurn() {
-        put(Columns.correctAnsThisTurn, getCorrectAnsThisTurn() + 1);
+        increment(Columns.correctAnsThisTurn);
     }
 
     public int getUser1Or2() {

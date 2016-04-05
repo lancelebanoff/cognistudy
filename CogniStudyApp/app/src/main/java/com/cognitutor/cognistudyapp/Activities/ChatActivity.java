@@ -79,6 +79,8 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
         loadConversationAndConversant()
             .continueWithTask(fetchConversation())
             .continueWithTask(loadMessages());
+
+        MainActivity.notifyCameFromChatActivity();
     }
 
     private View.OnLayoutChangeListener getOnLayoutChangeListener() {
@@ -161,6 +163,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
 
         return loadConversationCacheElseNetwork()
                 .continueWithTask(loadConversant())
+                .continueWith(notifyAdapterConversantLoaded())
                 .continueWith(createConversationIfNecessary());
     }
 
@@ -210,6 +213,16 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
                 return mConversantPud;
             }
         });
+    }
+
+    private Continuation<PublicUserData, PublicUserData> notifyAdapterConversantLoaded() {
+        return new Continuation<PublicUserData, PublicUserData>() {
+            @Override
+            public PublicUserData then(Task<PublicUserData> task) throws Exception {
+                mChatAdapter.setConversantPublicUserData(mConversantPud);
+                return task.getResult();
+            }
+        };
     }
 
     private Continuation<PublicUserData, Void> createConversationIfNecessary() {
@@ -317,6 +330,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
     @Override
     public void onReceiveHandler() {
         mChatAdapter.loadFromNetwork(mConversation);
+//        scrollToBottom();
         mNotifyParentNewMessage = true;
     }
 
@@ -325,7 +339,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
         JSONObject conditions = new JSONObject();
         try {
             conditions.put(Constants.NotificationData.ACTIVITY, Constants.NotificationData.Activity.CHAT_ACTIVITY);
-            conditions.put(Constants.NotificationData.conversantBaseuserId, getConversantBaseUserId());
+            conditions.put(Constants.NotificationData.conversantBaseUserId, getConversantBaseUserId());
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
     }

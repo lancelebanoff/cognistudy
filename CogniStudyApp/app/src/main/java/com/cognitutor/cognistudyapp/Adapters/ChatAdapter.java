@@ -23,6 +23,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import bolts.Continuation;
@@ -35,6 +36,7 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
 
     private PublicUserData mConversantPud;
     private ChatActivity mChatActivity;
+    private boolean conversantPudLoaded = false;
 
     public ChatAdapter(Activity activity, PublicUserData conversantPud, final String conversantBaseUserId) {
         super(activity, new ParseQueryAdapter.QueryFactory<Message>() {
@@ -48,9 +50,31 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
         addOnDataSetChangedListener(new OnDataSetChangedListener() {
             @Override
             public void onDataSetChanged() {
-                mChatActivity.scrollToBottom();
+                mChatActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mChatActivity.scrollToBottom();
+                    }
+                });
             }
         });
+    }
+
+    public void setConversantPublicUserData(PublicUserData publicUserData) {
+        mConversantPud = publicUserData;
+        if(!conversantPudLoaded) {
+            conversantPudLoaded = true;
+            getActivityForUIThread().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < mItems.size(); i++) {
+                        if (!getItem(i).isCurUserSender()) {
+                            notifyItemChanged(i);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     public void loadFromNetwork(final Conversation conversation) {
@@ -58,13 +82,8 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
             @Override
             public Object then(Task<List<Message>> task) throws Exception {
                 final List<Message> list = task.getResult();
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onDataLoaded(list);
-                    }
-                });
-                ParseObject.pinAllInBackground(conversation.getObjectId(), list);
+                List<Message> newMessagesToPin = onDataLoaded(list);
+                ParseObject.pinAllInBackground(conversation.getObjectId(), newMessagesToPin);
                 return null;
             }
         });
@@ -109,9 +128,18 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
             ViewHolderConversantSender convHolder = (ViewHolderConversantSender) holder;
             if(!convHolder.isProfilePicSet) {
                 RoundedImageView imgProfileConversant = convHolder.imgProfileConversant;
-                imgProfileConversant.setParseFile(mConversantPud.getProfilePic());
-                convHolder.isProfilePicSet = true;
-                imgProfileConversant.loadInBackground();
+                if(mConversantPud != null) {
+                    conversantPudLoaded = true;
+                    imgProfileConversant.setParseFile(mConversantPud.getProfilePic());
+                    convHolder.isProfilePicSet = true;
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) { e.printStackTrace(); }
+                    imgProfileConversant.loadInBackground();
+                }
+                else {
+                    imgProfileConversant.setImageResource(R.drawable.default_profile_pic);
+                }
             }
         }
     }
