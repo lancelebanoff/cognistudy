@@ -34,6 +34,11 @@ public class MainActivity extends AuthenticationActivity {
     private CogniViewPager mViewPager;
     private PeopleFragment mPeopleFragment;
 
+    private static boolean cameFromChatActivity = false;
+    public static void notifyCameFromChatActivity() {
+        cameFromChatActivity = true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,7 +122,15 @@ public class MainActivity extends AuthenticationActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        setFragment();
         onResumeTest();
+    }
+
+    private void setFragment() {
+        if(cameFromChatActivity) {
+            cameFromChatActivity = false;
+            mViewPager.setCurrentItem(Fragments.Messages.ordinal());
+        }
     }
 
     //TODO: Remove testing later
