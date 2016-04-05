@@ -26,7 +26,7 @@ public class Conversation extends ParseObject {
         put(Columns.baseUserId1, baseUserId1);
         put(Columns.baseUserId2, baseUserId2);
         put(Columns.publicUserData1, pud1);
-        put(Columns.publicUserData1, pud2);
+        put(Columns.publicUserData2, pud2);
     }
 
     public class Columns {

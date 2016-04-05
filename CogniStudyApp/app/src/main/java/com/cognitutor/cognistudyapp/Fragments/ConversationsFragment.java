@@ -59,6 +59,10 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
     @Override
     public void onResume() {
         super.onResume();
+        loadCacheThenNetwork();
+    }
+
+    private void loadCacheThenNetwork() {
         QueryUtils.findCacheThenNetworkInBackgroundPinWithObjId(mConversationAdapter, new QueryUtils.ParseQueryBuilder<Conversation>() {
             @Override
             public ParseQuery<Conversation> buildQuery() {
@@ -82,7 +86,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
 
     @Override
     public void onReceiveHandler() {
-        //TODO
+        loadCacheThenNetwork();
     }
 
     @Override
