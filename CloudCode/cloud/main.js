@@ -25,6 +25,8 @@ var l5 = require('cloud/addTutor.js');
 var l6 = require('cloud/removeTutor.js');
 var l7 = require('cloud/chooseTenQuestions.js');
 var l8 = require('cloud/getStudentAllTimeAnswered.js');
+var l9 = require('cloud/queryAllQuestions.js');
+var l10 = require('cloud/oldestPendingQuestion.js');
 
 var a1 = require('cloud/assignQuestion.js');
 
