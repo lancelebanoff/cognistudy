@@ -36,13 +36,13 @@
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".Activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         <activity
             android:name=".Activities.LoginActivity"
@@ -51,8 +51,8 @@
         <activity
             android:name=".Activities.LoadingActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoDisplay"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoDisplay" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -126,9 +126,9 @@
         <activity
             android:name=".Activities.StudentProfileActivity"
             android:label=""
-            android:theme="@style/AppTheme.TransparentActionBar"
             android:parentActivityName=".Activities.MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.TransparentActionBar" >
         </activity>
         <activity
             android:name=".Activities.ChatActivity"
@@ -176,16 +176,16 @@
         <activity
             android:name=".Activities.TutorProfileActivity"
             android:label=""
-            android:theme="@style/AppTheme.TransparentActionBar"
             android:parentActivityName=".Activities.MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.TransparentActionBar" >
         </activity>
 
         <service android:name="com.parse.PushService" />
 
-        <!--android:name="com.parse.ParsePushBroadcastReceiver"-->
+        <!-- android:name="com.parse.ParsePushBroadcastReceiver" -->
         <receiver
-            android:name="com.cognitutor.cognistudyapp.Custom.CogniBroadcastReceiver"
+            android:name=".Custom.CogniBroadcastReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
@@ -204,23 +204,33 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".Activities.CogniActivity"
+        <activity
+            android:name=".Activities.CogniActivity"
             android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".Activities.VerifyEmailActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_verify_email" />
-        <activity android:name=".Activities.ChooseDisplayNameActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_choose_display_name" />
-        <activity android:name=".Activities.ChooseOpponentActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_choose_opponent" >
+        <activity
+            android:name=".Activities.VerifyEmailActivity"
+            android:label="@string/title_activity_verify_email"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.ChooseDisplayNameActivity"
+            android:label="@string/title_activity_choose_display_name"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.ChooseOpponentActivity"
+            android:label="@string/title_activity_choose_opponent"
+            android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".Activities.PracticeChallengeActivity"
-            android:screenOrientation="portrait"
+        <activity
+            android:name=".Activities.PracticeChallengeActivity"
             android:label="@string/title_activity_practice_challenge"
-            android:parentActivityName=".Activities.MainActivity" >
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity android:name=".Activities.PracticeChallengeAnalyticsActivity"
+            android:label="@string/title_activity_challenge_analytics"
+            android:parentActivityName=".Activities.PracticeChallengeActivity"
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 

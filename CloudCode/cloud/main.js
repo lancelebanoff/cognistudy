@@ -23,6 +23,8 @@ var l3 = require('cloud/getSomeCatStats.js');
 var l4 = require('cloud/tutorRequestToStudent.js');
 var l5 = require('cloud/addTutor.js');
 var l6 = require('cloud/removeTutor.js');
-var l6 = require('cloud/chooseTenQuestions.js');
-var l7 = require('cloud/assignQuestion.js');
+var l7 = require('cloud/chooseTenQuestions.js');
+var l8 = require('cloud/getStudentAllTimeAnswered.js');
+
+var a1 = require('cloud/assignQuestion.js');
 
