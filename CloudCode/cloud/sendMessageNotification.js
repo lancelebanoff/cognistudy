@@ -10,7 +10,7 @@ Parse.Cloud.define("sendMessageNotification", function(request, response) {
 	var messageText = request.params.messageText;
 
 	var data = createNotificationData(senderName, messageText, senderBaseUserId);
-	common.sendPushNotification(baseUserId, data).then(
+	common.sendPushNotification(receiverBaseUserId, data).then(
 		function(success) {
 			response.success();
 		}, function(error) {
