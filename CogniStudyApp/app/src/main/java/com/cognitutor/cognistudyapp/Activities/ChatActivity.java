@@ -219,7 +219,7 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
         return new Continuation<PublicUserData, PublicUserData>() {
             @Override
             public PublicUserData then(Task<PublicUserData> task) throws Exception {
-                mChatAdapter.notifyPublicUserDataLoaded();
+                mChatAdapter.setConversantPublicUserData(mConversantPud);
                 return task.getResult();
             }
         };

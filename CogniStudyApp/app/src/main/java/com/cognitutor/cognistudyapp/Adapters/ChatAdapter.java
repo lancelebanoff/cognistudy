@@ -60,7 +60,8 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
         });
     }
 
-    public void notifyPublicUserDataLoaded() {
+    public void setConversantPublicUserData(PublicUserData publicUserData) {
+        mConversantPud = publicUserData;
         if(!conversantPudLoaded) {
             conversantPudLoaded = true;
             getActivityForUIThread().runOnUiThread(new Runnable() {
@@ -131,6 +132,9 @@ public class ChatAdapter extends CogniRecyclerAdapter<Message, ChatAdapter.Messa
                     conversantPudLoaded = true;
                     imgProfileConversant.setParseFile(mConversantPud.getProfilePic());
                     convHolder.isProfilePicSet = true;
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) { e.printStackTrace(); }
                     imgProfileConversant.loadInBackground();
                 }
                 else {
