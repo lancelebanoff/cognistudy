@@ -83,6 +83,7 @@ public class NewChallengeActivity extends CogniActivity {
         drawCategories();
         displayOpponent();
         setDefaults();
+        showTutorialDialogIfNeeded(Constants.Tutorial.NEW_CHALLENGE, null);
     }
 
     private void displayTests() {

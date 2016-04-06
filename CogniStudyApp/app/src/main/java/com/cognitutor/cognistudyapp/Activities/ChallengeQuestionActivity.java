@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ViewSwitcher;
 
-import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
@@ -37,6 +35,7 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        showTutorialDialogIfNeeded(Constants.Tutorial.QUESTION, null);
         loadChallenge();
     }
 

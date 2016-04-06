@@ -27,6 +27,7 @@ import com.cognitutor.cognistudyapp.Custom.CogniImageButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseFile;
@@ -78,6 +79,7 @@ public class ChallengeActivity extends CogniActivity {
         String currentUserId = ParseUser.getCurrentUser().getObjectId();
         mIsCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
 
+        handleTutorial();
         initializeBoard(mViewingUser1or2);
     }
 
@@ -102,11 +104,6 @@ public class ChallengeActivity extends CogniActivity {
                             @Override
                             public void run() {
                                 initializeGridLayouts(viewingUser1or2);
-                                if (mIsComputerOpponent && !mIsCurrentUsersTurn && (mCurrentUser1or2 == mViewingUser1or2)) {
-                                    mBattleshipBoardManager.takeComputerTurn();
-                                    mIsCurrentUsersTurn = true;
-                                    showOrHideButtons();
-                                }
                                 showLoadingDone();
                                 if (!mScoresHaveBeenLoaded) {
                                     showScores();
@@ -119,6 +116,21 @@ public class ChallengeActivity extends CogniActivity {
                         return null;
                     }
                 });
+    }
+
+    private void handleTutorial() {
+        if (mIsCurrentUsersTurn) {
+            showTutorialDialogIfNeeded(Constants.Tutorial.YOUR_TURN, null);
+        } else if (mIsComputerOpponent) {
+            showTutorialDialogIfNeeded(Constants.Tutorial.COMPUTERS_TURN, new Runnable() {
+                @Override
+                public void run() {
+                    mBattleshipBoardManager.takeComputerTurn();
+                    mIsCurrentUsersTurn = true;
+                    showOrHideButtons();
+                }
+            });
+        }
     }
 
     private void showLoadingDone() {
@@ -151,6 +163,15 @@ public class ChallengeActivity extends CogniActivity {
         if (mChallenge.getHasEnded()) {
             CogniImageButton btnResign = (CogniImageButton) findViewById(R.id.btnResign);
             btnResign.setVisibility(View.INVISIBLE);
+        }
+
+        int opponentUser1or2 = mCurrentUser1or2 == 1 ? 2 : 1;
+        ChallengeUserData opponentUserData = mChallenge.getChallengeUserData(opponentUser1or2);
+        if (opponentUserData == null || opponentUserData.getGameBoard() == null) {
+            CogniImageButton btnQuestionHistory = (CogniImageButton) findViewById(R.id.btnQuestionHistory);
+            btnQuestionHistory.setVisibility(View.INVISIBLE);
+            CogniImageButton btnChallengeAnalytics = (CogniImageButton) findViewById(R.id.btnChallengeAnalytics);
+            btnChallengeAnalytics.setVisibility(View.INVISIBLE);
         }
     }
 

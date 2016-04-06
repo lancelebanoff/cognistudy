@@ -37,6 +37,7 @@ public class ChooseOpponentActivity extends CogniActivity {
         mIntent = getIntent();
 
         createPeopleFragment();
+        showTutorialDialogIfNeeded(Constants.Tutorial.CHOOSE_OPPONENT, null);
     }
 
     private void createPeopleFragment() {
