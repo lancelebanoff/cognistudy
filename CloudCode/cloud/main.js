@@ -16,6 +16,7 @@ var m15 = require('cloud/removeStudent');
 var m16 = require('cloud/addStudent');
 var m17 = require('cloud/deleteAllObjectsFromClasses')
 var m18 = require('cloud/sendMessageNotification.js')
+var m19 = require('cloud/deleteAnalytics.js')
 
 var l1 = require('cloud/getAllSubStats.js');
 var l2 = require('cloud/getSubStats.js');
