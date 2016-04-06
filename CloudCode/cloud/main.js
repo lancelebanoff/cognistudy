@@ -15,6 +15,7 @@ var m14 = require('cloud/studentRequestToTutor');
 var m15 = require('cloud/removeStudent');
 var m16 = require('cloud/addStudent');
 var m17 = require('cloud/deleteAllObjectsFromClasses')
+var m18 = require('cloud/sendMessageNotification.js')
 
 var l1 = require('cloud/getAllSubStats.js');
 var l2 = require('cloud/getSubStats.js');
@@ -24,6 +25,8 @@ var l5 = require('cloud/addTutor.js');
 var l6 = require('cloud/removeTutor.js');
 var l7 = require('cloud/chooseTenQuestions.js');
 var l8 = require('cloud/getStudentAllTimeAnswered.js');
+var l9 = require('cloud/queryAllQuestions.js');
+var l10 = require('cloud/oldestPendingQuestion.js');
 
 var a1 = require('cloud/assignQuestion.js');
 

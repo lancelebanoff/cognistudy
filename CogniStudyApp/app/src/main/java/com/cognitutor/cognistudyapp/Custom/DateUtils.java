@@ -327,17 +327,57 @@ public class DateUtils {
         return 1;
     }
 
+    private static final long secondsInMilli = 1000;
+    private static long getSecondsInMilli() {
+        return secondsInMilli;
+    }
+    private static long getMinutesInMilli() {
+        return secondsInMilli * 60;
+    }
+    private static long getHoursInMilli() {
+        return getMinutesInMilli() * 60;
+    }
+    private static long getDaysInMilli() {
+        return getHoursInMilli() * 60;
+    }
+    private static long getDays(long milli) {
+        return milli / getDaysInMilli();
+    }
+    private static long getHours(long milli) {
+        return milli / getHoursInMilli();
+    }
+    private static long getMinutes(long milli) {
+        return milli / getMinutesInMilli();
+    }
+    private static long getSeconds(long milli) {
+        return milli / getSecondsInMilli();
+    }
+
+    public static String getTimeOrDate(Date date) {
+        Date now = new Date();
+        if(date == null) //This object was newly created
+            date = new Date();
+        long milliseconds = now.getTime() - date.getTime();
+        long days = getDays(milliseconds);
+
+        SimpleDateFormat formatter;
+        if (days > 1) {
+            formatter = new SimpleDateFormat("M/d/yyyy", Locale.US);
+        }
+        else {
+            formatter = new SimpleDateFormat("h:mm a", Locale.US);
+        }
+        formatter.setTimeZone(ny);
+        return formatter.format(date);
+    }
+
     public static String getTimeBetween(Date startDate, Date endDate) {
-        final long secondsInMilli = 1000;
-        final long minutesInMilli = secondsInMilli * 60;
-        final long hoursInMilli = minutesInMilli * 60;
-        final long daysInMilli = hoursInMilli * 24;
 
         long milliseconds = endDate.getTime() - startDate.getTime();
-        long days = milliseconds / daysInMilli;
-        long hours = milliseconds / hoursInMilli;
-        long minutes = milliseconds / minutesInMilli;
-        long seconds = milliseconds / secondsInMilli;
+        long days = getDays(milliseconds);
+        long hours = getHours(milliseconds);
+        long minutes = getMinutes(milliseconds);
+        long seconds = getSeconds(milliseconds);
 
         if (days > 1) {
             return days + " days";

@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by Lance on 12/27/2015.
  */
-public class PeopleFragment extends CogniFragment implements View.OnClickListener {
+public class PeopleFragment extends CogniFragment {
 
     private PeopleListOnClickHandler onClickHandler;
     private PeopleQueryAdapter peopleQueryAdapter;
@@ -91,12 +91,6 @@ public class PeopleFragment extends CogniFragment implements View.OnClickListene
         peopleQueryAdapter.loadObjects();
 
         return rootView;
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()) {
-        }
     }
 
     private void navigateToProfile() {

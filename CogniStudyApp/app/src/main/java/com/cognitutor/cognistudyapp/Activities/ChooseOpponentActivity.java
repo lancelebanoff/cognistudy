@@ -4,11 +4,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
-import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -22,36 +20,27 @@ import com.parse.ParseUser;
 
 import java.util.HashMap;
 
-public class ChooseOpponentActivity extends CogniActivity {
+public class ChooseOpponentActivity extends PeopleFragmentActivity {
 
     /**
      * Extras:
      *      CHALLENGE_ID: String
      */
-    private Intent mIntent;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choose_opponent);
-        mIntent = getIntent();
 
-        createPeopleFragment();
         showTutorialDialogIfNeeded(Constants.Tutorial.CHOOSE_OPPONENT, null);
     }
 
-    private void createPeopleFragment() {
-        PeopleFragment fragment = PeopleFragment.newInstance(new PeopleListOnClickHandler() {
+    @Override
+    protected PeopleListOnClickHandler getPeopleListOnClickHandler() {
+        return new PeopleListOnClickHandler() {
             @Override
             public void onListItemClick(PublicUserData publicUserData) {
                 chooseOpponent(publicUserData);
             }
-        });
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.frameLayout, fragment)
-                .commit();
+        };
     }
 
     public void chooseOpponent(PublicUserData publicUserData) {
