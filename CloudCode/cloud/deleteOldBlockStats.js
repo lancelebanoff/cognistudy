@@ -30,6 +30,11 @@ Parse.Cloud.job("deleteOldBlockStats", function(request, status) {
 						success: function(students) {
 							var promises = [];
 							console.log("Num students = " + students.length);
+
+							var tenDaysAgo = new Date(); 
+							tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+
+							promises.push(deleteOldChallenges(tenDaysAgo));
 							for(var i=0; i<students.length; i++) {
 								promises.push(decrementStudentStats(students[i], day, status));
 							}
@@ -42,7 +47,7 @@ Parse.Cloud.job("deleteOldBlockStats", function(request, status) {
 										status.success("Finished!");
 										}, function(error) { status.error("Error deleting old stats"); }
 									);
-								}, function(errors) { common.logErrors(errors); status.error("Error deleting decrementing student stats"); }
+								}, function(errors) { common.logErrors(errors); status.error("Error decrementing student stats"); }
 							);
 						}, error: function(error) { status.error("Error retrieving students"); }
 					});
@@ -52,6 +57,30 @@ Parse.Cloud.job("deleteOldBlockStats", function(request, status) {
 	});
 });
 
+function deleteOldChallenges(tenDaysAgo) {
+
+	var promise = new Parse.Promise();
+	var query = new Parse.Query("Challenge");
+	query.lessThan("endDate", tenDaysAgo);
+	query.find({
+		success: function(challenges) {
+
+			var promises = [];
+			for(var i=0; i<challenges.length; i++) {
+				var challengeId = challenges[i].id;
+				console.log("Found old challenge " + challengeId);
+				promises.push(Parse.Cloud.run("deleteChallenge", {"objectId": challengeId})); 
+			}
+			Parse.Promise.when(promises).then(
+				function(success) {
+					promise.resolve();
+				}, function(error) { promise.reject(error); }
+			);
+		}, error: function(error) { promise.reject(error); }
+	});
+	return promise;
+}
+
 function decrementStudentStats(stud, day, status) {
 
 	console.log("Reached decrementStudentStats with student baseUserId = " + stud.get("baseUserId"));
@@ -60,13 +89,13 @@ function decrementStudentStats(stud, day, status) {
 	stud.fetch({
 		success: function(student) {
 
-			console.log("day = " + day.toString());
+			// console.log("day = " + day.toString());
 
 			var SEVEN_DAYS_AGO = day - 7;
 			var THIRTY_DAYS_AGO = day - 30;
 
-			console.log("SEVEN_DAYS_AGO = " + SEVEN_DAYS_AGO.toString());
-			console.log("THIRTY_DAYS_AGO = " + THIRTY_DAYS_AGO.toString());
+			// console.log("SEVEN_DAYS_AGO = " + SEVEN_DAYS_AGO.toString());
+			// console.log("THIRTY_DAYS_AGO = " + THIRTY_DAYS_AGO.toString());
 
 			var promiseList = [];
 
@@ -95,13 +124,16 @@ function decrementRollingStats(student, subjectOrCat, weekOrMonth, day) {
 
 	var rollingStatsList = student.get("student" + subjectOrCat.capitalizeFirstLetter() + "RollingStats");
 
+	var studentBaseUserId = student.get("baseUserId"); ///////////////////
+	var column = "student" + subjectOrCat.capitalizeFirstLetter() + "RollingStats";
+
 	Parse.Object.fetchAllIfNeeded(rollingStatsList).then(
 		function(rollingStatsList) {
 
 			getDayStats(student, subjectOrCat, day).then(
 				function(dayStatsList) {
 
-					console.log("length of dayStatsList = " + dayStatsList.length);
+					// console.log("length of dayStatsList = " + dayStatsList.length);
 
 					var savePromises = [];
 					for(var i=0; i<dayStatsList.length; i++) {
@@ -117,6 +149,12 @@ function decrementRollingStats(student, subjectOrCat, weekOrMonth, day) {
 						}
 						var tot = block.get("total");
 						var correct = block.get("correct");
+						if(foundRollingStats === undefined) {
+							console.log("student " + studentBaseUserId + " foundRollingStats is undefined!");
+							console.log(column + ": cat is " + cat);
+							console.log("student " + student.get("baseUserId") + ": student" + subjectOrCat.capitalizeFirstLetter() + "RollingStats size = " + rollingStatsList.length);
+							console.log("Reached next line");
+						}
 						foundRollingStats.increment("totalPast" + weekOrMonth.capitalizeFirstLetter(), -tot);
 						foundRollingStats.increment("correctPast" + weekOrMonth.capitalizeFirstLetter(), -correct);
 						savePromises.push(foundRollingStats.save());
