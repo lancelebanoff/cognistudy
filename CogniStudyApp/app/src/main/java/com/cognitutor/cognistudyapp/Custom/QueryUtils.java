@@ -336,6 +336,16 @@ public class QueryUtils {
                 if (listener != null)
                     listener.onDataLoaded(localResults);
 
+                if (deleteOldPinnedResults) { //TODO: && App.isNetworkConnected()
+                    if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
+                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+                    } else if (pinNameOption == PinNameOption.OBJECT_ID) {
+                        for (T obj : localResults) {
+                            ParseObject.unpinAllInBackground(obj.getObjectId()).waitForCompletion();
+                        }
+                    }
+                }
+
                 List<T> networkResults = doNetworkFindQuery(networkQuery);
                 final List<T> combined = new ArrayList<T>();
                 for (T fromNetwork : networkResults) {
@@ -353,7 +363,6 @@ public class QueryUtils {
 
                 if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
                     if (deleteOldPinnedResults) {
-                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
                         ParseObject.pinAllInBackground(pinName, combined).waitForCompletion();
                     } else {
                         ParseObject.pinAllInBackground(pinName, newObjectsToPin).waitForCompletion();
@@ -362,7 +371,7 @@ public class QueryUtils {
                     for (T obj : newObjectsToPin) {
                         obj.pinInBackground(obj.getObjectId()).waitForCompletion(); //TODO: Why wait for completion?
                     }
-                } else if (pinNameOption == PinNameOption.NO_NAME) { //if (deleteOldPinnedResults) {
+                } else if (pinNameOption == PinNameOption.NO_NAME) { //deleteOldPinnedResults not implemented for this case
                     ParseObject.pinAllInBackground(newObjectsToPin).waitForCompletion();
                 }
                 return combined;
