@@ -2,6 +2,8 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
 import android.app.Application;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
@@ -59,6 +61,8 @@ public class App extends Application {
     public static ProfileTracker profileTracker;
     public static boolean isLocalDatastoreEnabled;
     private static boolean initFinished = false;
+    private static ConnectivityManager cMgr = null;
+
 
     @Override public void onCreate() {
         super.onCreate();
@@ -124,6 +128,23 @@ public class App extends Application {
         ParseObject.registerSubclass(Tutor.class);
         ParseObject.registerSubclass(Message.class);
         ParseObject.registerSubclass(Conversation.class);
+    }
+
+    // Check for Internet connectivity
+    //TODO: Add this to QueryUtils functions
+    public static boolean isNetworkConnected() {
+
+        //Log.d(TAG, "Checking connectivity");
+        if ( cMgr != null){
+            NetworkInfo info = cMgr.getActiveNetworkInfo();
+            if (info!= null) {
+                if (info.isConnected()) {
+                    return true;
+                }
+            }
+        }
+        //Log.d(TAG, "No internet connection");
+        return false;
     }
 }
 

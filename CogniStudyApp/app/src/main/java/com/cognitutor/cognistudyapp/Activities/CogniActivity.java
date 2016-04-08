@@ -23,8 +23,6 @@ import bolts.Task;
 
 public class CogniActivity extends AppCompatActivity {
 
-    private static ConnectivityManager cMgr = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,22 +121,5 @@ public class CogniActivity extends AppCompatActivity {
                     return null;
                 }
         });
-    }
-
-    // Check for Internet connectivity
-    //TODO: Add this to QueryUtils functions
-    private static boolean isNetworkConnected() {
-
-        //Log.d(TAG, "Checking connectivity");
-        if ( cMgr != null){
-            NetworkInfo info = cMgr.getActiveNetworkInfo();
-            if (info!= null) {
-                if (info.isConnected()) {
-                    return true;
-                }
-            }
-        }
-        //Log.d(TAG, "No internet connection");
-        return false;
     }
 }

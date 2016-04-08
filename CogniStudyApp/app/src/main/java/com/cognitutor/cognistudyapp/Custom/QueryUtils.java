@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.app.Activity;
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.Activities.CogniActivity;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
 import com.parse.ParseException;
@@ -79,7 +80,7 @@ public class QueryUtils {
                     public Task<List<TClass>> then(Task<List<TClass>> task) throws Exception {
                         handleFault(task, QueryType.local);
                         List<TClass> results = task.getResult();
-                        if (results.size() != 0) {
+                        if (results.size() != 0 || !App.isNetworkConnected()) {
                             pinResult.set(false);
                             return getCompletionTask(results);
                         }
@@ -137,7 +138,7 @@ public class QueryUtils {
                     public Task<TClass> then(Task<TClass> task) throws Exception {
                         handleFault(task, QueryType.local);
                         TClass result = task.getResult();
-                        if (result != null) {
+                        if (result != null || !App.isNetworkConnected()) {
                             pinResult.set(false);
                             return getCompletionTask(result);
                         }
@@ -335,6 +336,10 @@ public class QueryUtils {
                     return null;
                 if (listener != null)
                     listener.onDataLoaded(localResults);
+
+                if (!App.isNetworkConnected()) {
+                    return new ArrayList<>();
+                }
 
                 List<T> networkResults = doNetworkFindQuery(networkQuery);
                 final List<T> combined = new ArrayList<T>();
