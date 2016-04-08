@@ -35,7 +35,6 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
-        showTutorialDialogIfNeeded(Constants.Tutorial.QUESTION, null);
         loadChallenge();
     }
 
@@ -76,6 +75,10 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
                         mChallenge = task.getResult();
+
+                        if (!mChallenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
+                            showTutorialDialogIfNeeded(Constants.Tutorial.QUESTION, null);
+                        }
 
                         return null;
                     }

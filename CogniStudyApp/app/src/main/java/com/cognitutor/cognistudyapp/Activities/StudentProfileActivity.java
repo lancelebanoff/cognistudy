@@ -47,7 +47,7 @@ public class StudentProfileActivity extends CogniActivity {
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
 
-        showOrHideButtons();
+        showOrHideButtonsAndTutorialDialog();
 
         try {
             mCurrPrivateStudentData = PublicUserData.getPublicUserData().getStudent().getPrivateStudentData();
@@ -60,7 +60,7 @@ public class StudentProfileActivity extends CogniActivity {
         }
     }
 
-    private void showOrHideButtons() {
+    private void showOrHideButtonsAndTutorialDialog() {
         if (publicUserData.getObjectId().equals(PublicUserData.getPublicUserData().getObjectId())) {
             CogniButton btnFollow = (CogniButton) findViewById(R.id.btnFollow);
             btnFollow.setVisibility(View.GONE);
@@ -68,6 +68,8 @@ public class StudentProfileActivity extends CogniActivity {
             btnUnfollow.setVisibility(View.GONE);
             CogniButton btnMessage = (CogniButton) findViewById(R.id.btnMessage);
             btnMessage.setVisibility(View.GONE);
+        } else {
+            showTutorialDialogIfNeeded(Constants.Tutorial.FOLLOW_STUDENT, null);
         }
     }
 

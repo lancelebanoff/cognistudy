@@ -64,6 +64,8 @@ public class TutorProfileActivity extends CogniActivity {
         if (mCurrPrivateStudentData.hasTutorOrRequestedTutor(publicUserData)) {
             mViewSwitcher.showNext();
         }
+
+        showTutorialDialogIfNeeded(Constants.Tutorial.LINK_TUTOR, null);
     }
 
     public void onClick_btnAddTutor(View view) {
