@@ -203,6 +203,7 @@ public class Constants {
     }
 
     public static class NotificationData {
+        public static final String baseUserId = "baseUserId";
         public static final String title = "title";
         public static final String alert = "alert";
         public static final String conversantBaseUserId = "conversantBaseUserId";

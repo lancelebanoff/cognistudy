@@ -98,9 +98,11 @@ public class RegistrationActivity extends AuthenticationActivity {
                                 } else if (user.isNew()) {
                                     Log.d("Onclick", "New user!");
                                     UserUtils.setUserLoggedIn(true);
+                                    UserUtils.addUserIdToInstallation();
                                     getUserDetailsFromFB();
                                 } else {
                                     UserUtils.setUserLoggedIn(true);
+                                    UserUtils.addUserIdToInstallation();
                                     try {
                                         UserUtils.pinCurrentUser().waitForCompletion();
                                     } catch (Exception e2) {

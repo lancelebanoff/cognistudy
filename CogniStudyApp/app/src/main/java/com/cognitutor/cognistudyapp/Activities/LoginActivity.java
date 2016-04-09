@@ -266,6 +266,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
                 }
                 else {
                     UserUtils.setUserLoggedIn(true);
+                    UserUtils.addUserIdToInstallation();
                     navigateToNewDestination(); //Will go to main activity if user has verified email and chosen display name, or appropriate activity otherwise
                 }
             }

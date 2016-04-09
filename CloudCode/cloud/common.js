@@ -71,6 +71,7 @@ exports.sendPushNotification = function(baseUserId, notiData) {
 
 	var pushQuery = new Parse.Query(Parse.Installation);
 	pushQuery.equalTo("userIds", baseUserId);
+	notiData.baseUserId = baseUserId;
 
 	return Parse.Push.send({
 		where: pushQuery,

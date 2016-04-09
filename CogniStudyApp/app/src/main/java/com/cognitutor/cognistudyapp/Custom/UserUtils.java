@@ -16,6 +16,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentCategoryRolling
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -90,14 +91,14 @@ public class UserUtils {
         return Challenge.getAllChallengesForUserInBackground().continueWith(new Continuation<List<Challenge>, Object>() {
             @Override
             public Object then(Task<List<Challenge>> task) throws Exception {
-                for(Challenge challenge : task.getResult()) {
+                for (Challenge challenge : task.getResult()) {
                     final String challengeId = challenge.getObjectId();
                     final String questionCol = Response.Columns.question;
                     ParseRelation<Response> responseRelation = challenge.getCurUserChallengeUserData().getResponses();
                     responseRelation.getQuery()
-                        .include(questionCol)
-                        .include(questionCol + "." + Question.Columns.bundle)
-                        .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
+                            .include(questionCol)
+                            .include(questionCol + "." + Question.Columns.bundle)
+                            .findInBackground().continueWith(new Continuation<List<Response>, Object>() {
                         @Override
                         public Object then(Task<List<Response>> task) throws Exception {
                             Log.d("pinning challenge " + challengeId, task.getResult().size() + " questions in relation");
@@ -184,5 +185,21 @@ public class UserUtils {
 
     public static String getCurrentUserId() {
         return ParseUser.getCurrentUser().getObjectId();
+    }
+
+    public static void addUserIdToInstallation() {
+        final String baseUserId = UserUtils.getCurrentUserId();
+        final String userIds = "userIds";
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        List<String> list = installation.getList(userIds);
+        if(list == null) {
+            list = new ArrayList<>();
+            list.add(baseUserId);
+            installation.put(userIds, list);
+        }
+        else {
+            installation.addUnique(userIds, UserUtils.getCurrentUserId());
+        }
+        installation.saveInBackground();
     }
 }
