@@ -114,11 +114,19 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
                 newObjects.add(newObj);
             }
         }
+        final Capture<Boolean> isChallenge = new Capture<>(false);
+        if(getClass().equals(ChallengeQueryAdapter.class)) {
+            isChallenge.set(true);
+        }
 
         getActivityForUIThread().runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
+                if(isChallenge.get()) {
+                    int a = 0;
+                    a = 5;
+                }
                 //Update the dataset
                 mItems.clear();
                 mItems.addAll(list);

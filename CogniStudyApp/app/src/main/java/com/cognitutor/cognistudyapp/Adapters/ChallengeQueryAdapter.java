@@ -204,14 +204,96 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Challenge challenge = getItem(position);
+        final Challenge challenge = getItem(position);
+        final View finalView = holder.itemView;
         if(challenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
-
+            setItemViewContentsForPractice(holder, challenge.getUser1Data());
+            finalView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    navigateToPracticeChallengeActivity(challenge.getObjectId(), 1);
+                }
+            });
         }
         else {
-
+            final int user1or2 = challenge.getUser1Or2();
+            setItemViewContents(holder, challenge, challenge.getCurUserChallengeUserData(), challenge.getOtherUserChallengeUserData());
+            finalView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!challenge.getAccepted() && challenge.isCurUsersTurn() && !challenge.getHasEnded()) {
+                        promptAcceptChallenge(challenge, user1or2);
+                    } else {
+                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+                    }
+                }
+            });
         }
     }
+
+//    @Override
+//    public void onBindViewHolder(ViewHolder holder, int position) {
+//        final ViewHolder finalHolder = holder;
+//        final Challenge challenge = getItem(position);
+//        final View finalView = holder.itemView;
+//        if(challenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
+//            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+//                @Override
+//                public void done(ParseObject object, ParseException e) {
+//                    ChallengeUserData challengeUserData = (ChallengeUserData) object;
+//                    setItemViewContentsForPractice(finalHolder, challengeUserData);
+//
+//                    finalView.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            navigateToPracticeChallengeActivity(challenge.getObjectId(), 1);
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//        else {
+//            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+//                @Override
+//                public void done(ParseObject object, ParseException e) {
+//                    final ChallengeUserData user1Data = (ChallengeUserData) object;
+//                    challenge.getUser2Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+//                        @Override
+//                        public void done(ParseObject object, ParseException e) {
+//                            final ChallengeUserData user2Data = (ChallengeUserData) object;
+//
+//                            String user1BaseUserId = user1Data.getPublicUserData().getBaseUserId();
+//                            String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
+//                            ChallengeUserData currentChallengeUserData, opponentChallengeUserData;
+//                            final int user1or2;
+//                            if (user1BaseUserId.equals(currentUserBaseUserId)) {
+//                                currentChallengeUserData = user1Data;
+//                                opponentChallengeUserData = user2Data;
+//                                user1or2 = 1;
+//                            } else {
+//                                currentChallengeUserData = user2Data;
+//                                opponentChallengeUserData = user1Data;
+//                                user1or2 = 2;
+//                            }
+//                            setItemViewContents(finalHolder, challenge, currentChallengeUserData, opponentChallengeUserData);
+//
+//                            finalView.setOnClickListener(new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    String userId = PublicUserData.getPublicUserData().getBaseUserId();
+//                                    if (!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId) && !challenge.getHasEnded()) {
+//                                        promptAcceptChallenge(challenge, user1or2);
+//                                    } else {
+//                                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+//                                    }
+//                                }
+//                            });
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView txtName;

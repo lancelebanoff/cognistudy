@@ -304,6 +304,21 @@ public class Challenge extends ParseObject {
         }
     }
 
+    public ChallengeUserData getOtherUserChallengeUserData() {
+        switch (getUser1Or2()) {
+            case 1:
+                return getUser2Data();
+            case 2:
+                return getUser1Data();
+            default:
+                return null;
+        }
+    }
+
+    public boolean isCurUsersTurn() {
+        return getCurTurnUserId().equals(UserUtils.getCurrentUserId());
+    }
+
     @Override
     public String toString() {
         return "objectId: " + getObjectId() +

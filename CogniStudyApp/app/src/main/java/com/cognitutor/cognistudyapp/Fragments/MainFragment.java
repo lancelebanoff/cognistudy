@@ -26,6 +26,7 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Adapters.ParseRecyclerQueryAdapter;
 import com.cognitutor.cognistudyapp.Adapters.TutorRequestAdapter;
+import com.cognitutor.cognistudyapp.Custom.ChallengeRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
@@ -65,14 +66,15 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private ChallengeQueryAdapter theirTurnChallengeQueryAdapter;
     private ChallengeQueryAdapter pastChallengeQueryAdapter;
     private ListView tutorRequestListView;
-    private CogniRecyclerView challengeRequestListView;
-    private CogniRecyclerView yourTurnListView;
-    private CogniRecyclerView theirTurnListView;
-    private CogniRecyclerView pastChallengeListView;
+    private ChallengeRecyclerView challengeRequestListView;
+    private ChallengeRecyclerView yourTurnListView;
+    private ChallengeRecyclerView theirTurnListView;
+    private ChallengeRecyclerView pastChallengeListView;
 
     public static ArrayAdapter<ParseObject> answeredQuestionIdAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private BroadcastReceiver mBroadcastReceiver;
+    private ArrayList<ChallengeQueryAdapter> adapterList;
 
     public static final MainFragment newInstance() {
         return new MainFragment();
@@ -81,6 +83,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        adapterList = new ArrayList<>();
     }
 
     @Override
@@ -95,6 +98,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         b = (Button) rootView.findViewById(R.id.btnViewLocalDatastore);
         b.setOnClickListener(this);
 
+        createAllListViews(rootView);
         return rootView;
     }
 
@@ -119,7 +123,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 break;
         }
 
-        createAllListViews(getView());
+//        createAllListViews(getView());
+        loadChallengesFromNetwork(); //TODO: Is this ok?
         setSwipeRefreshLayout(getView());
         initializeBroadcastReceiver();
     }
@@ -146,7 +151,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void endChallengesThatRanOutOfTime(PublicUserData publicUserData) {
+    private void endChallengesThatRanOutOfTime(PublicUserData publicUserData) { //TODO: Where should this go if not in refresh?
         List<ParseQuery<Challenge>> queries = new ArrayList<ParseQuery<Challenge>>();
         queries.add(Challenge.getQuery()
                 .whereEqualTo(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
@@ -232,8 +237,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
-        challengeRequestListView = (CogniRecyclerView) rootView.findViewById(R.id.listChallengeRequests);
-        createListView(challengeRequestListView, challengeRequestQueryAdapter);
+        challengeRequestListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listChallengeRequests);
+//        createListView(challengeRequestListView, challengeRequestQueryAdapter);
     }
 
     private void createYourTurnListView(final View rootView, PublicUserData publicUserData) {
@@ -243,7 +248,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
-        yourTurnListView = (CogniRecyclerView) rootView.findViewById(R.id.listYourTurnChallenges);
+        yourTurnListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listYourTurnChallenges);
         createListView(yourTurnListView, yourTurnChallengeQueryAdapter);
     }
 
@@ -253,8 +258,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
         theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
-        theirTurnListView = (CogniRecyclerView) rootView.findViewById(R.id.listTheirTurnChallenges);
-        createListView(theirTurnListView, theirTurnChallengeQueryAdapter);
+        theirTurnListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listTheirTurnChallenges);
+//        createListView(theirTurnListView, theirTurnChallengeQueryAdapter);
     }
 
     private void createPastChallengeListView(final View rootView, PublicUserData publicUserData) {
@@ -270,66 +275,54 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairsList.add(keyValuePairs1);
         keyValuePairsList.add(keyValuePairs2);
         pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairsList, true);
-        pastChallengeListView = (CogniRecyclerView) rootView.findViewById(R.id.listPastChallenges);
-        createListView(pastChallengeListView, pastChallengeQueryAdapter);
+        pastChallengeListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listPastChallenges);
+//        createListView(pastChallengeListView, pastChallengeQueryAdapter);
     }
 
-    private void createListView(final CogniRecyclerView recyclerView, final ChallengeQueryAdapter adapter) {
+    private void createListView(final ChallengeRecyclerView recyclerView, final ChallengeQueryAdapter adapter) {
         recyclerView.setFocusable(false);
         recyclerView.setAdapter(adapter);
+        adapterList.add(adapter);
         adapter.loadObjects();
 
-        adapter.addOnQueryLoadListener(new ParseRecyclerQueryAdapter.OnQueryLoadListener<Challenge>() {
-            @Override
-            public void onLoaded(List<Challenge> objects, Exception e) {
-                setListViewHeightBasedOnChildren(recyclerView);
-            }
-
-            @Override
-            public void onLoading() {
-
-            }
-        });
+//        adapter.addOnQueryLoadListener(new ParseRecyclerQueryAdapter.OnQueryLoadListener<Challenge>() {
+//            @Override
+//            public void onLoaded(List<Challenge> objects, Exception e) {
+//                setListViewHeightBasedOnChildren(recyclerView);
+//            }
+//
+//            @Override
+//            public void onLoading() {
+//
+//            }
+//        });
     }
 
-    public class ChallengeLayoutManager extends RecyclerView.LayoutManager {
-
-        @Override
-        public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-            return null;
-        }
-
-        @Override
-        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-            super.onLayoutChildren(recycler, state);
-        }
-    }
-
-    public static void setListViewHeightBasedOnChildren(CogniRecyclerView listView) {
-        RecyclerView.Adapter listAdapter = listView.getAdapter();
-        if (listAdapter == null) {
-            // pre-condition
-            return;
-        }
-
-        View parentCardView = (View) listView.getParent().getParent();
-        if(listAdapter.getItemCount() == 0) {
-            parentCardView.setVisibility(View.GONE);
-        } else {
-            parentCardView.setVisibility(View.VISIBLE);
-        }
-
-        int totalHeight = 0;
-        for (int i = 0; i < listAdapter.getItemCount(); i++) {
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0);
-            totalHeight += listItem.getMeasuredHeight();
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getItemCount() - 1));
-        listView.setLayoutParams(params);
-    }
+//    public static void setListViewHeightBasedOnChildren(CogniRecyclerView listView) {
+//        RecyclerView.Adapter listAdapter = listView.getAdapter();
+//        if (listAdapter == null) {
+//            // pre-condition
+//            return;
+//        }
+//
+//        View parentCardView = (View) listView.getParent().getParent();
+//        if(listAdapter.getItemCount() == 0) {
+//            parentCardView.setVisibility(View.GONE);
+//        } else {
+//            parentCardView.setVisibility(View.VISIBLE);
+//        }
+//
+//        int totalHeight = 0;
+//        for (int i = 0; i < listAdapter.getItemCount(); i++) {
+//            View listItem = listAdapter.getView(i, null, listView);
+//            listItem.measure(0, 0);
+//            totalHeight += listItem.getMeasuredHeight();
+//        }
+//
+//        ViewGroup.LayoutParams params = listView.getLayoutParams();
+//        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getItemCount() - 1));
+//        listView.setLayoutParams(params);
+//    }
 
     private void setSwipeRefreshLayout(View rootView) {
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
@@ -347,12 +340,19 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                createAllListViews(rootView);
+//                createAllListViews(rootView);
+                loadChallengesFromNetwork();
                 if (mSwipeRefreshLayout != null) {
                     mSwipeRefreshLayout.setRefreshing(false);
                 }
             }
         }, 1000);
+    }
+
+    private void loadChallengesFromNetwork() {
+        for (ChallengeQueryAdapter adapter : adapterList) {
+            adapter.loadFromNetwork();
+        }
     }
 
     @Override
@@ -391,7 +391,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             @Override
             public void onReceive(Context arg0, Intent intent) {
                 if (intent.getExtras().containsKey(Constants.IntentExtra.REFRESH_CHALLENGE_LIST)) {
-                    createAllListViews(getView());
+                    for(ChallengeQueryAdapter adapter : adapterList) {
+                        adapter.loadObjects(); //TODO: Does this work?
+                    }
+//                    createAllListViews(getView());
                 }
             }
         };
