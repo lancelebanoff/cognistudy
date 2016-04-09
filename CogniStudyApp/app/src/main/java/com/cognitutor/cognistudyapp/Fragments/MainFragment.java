@@ -423,7 +423,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private void showArrowGif() {
         mGifArrow = new GifImageView(getActivity());
         mGifArrow.setImageResource(R.drawable.animation_bouncing_arrow);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(426, 600);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                (int) getResources().getDimension(R.dimen.start_challenge_arrow_width),
+                (int) getResources().getDimension(R.dimen.start_challenge_arrow_height)
+        );
         layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
         layoutParams.addRule(RelativeLayout.BELOW, R.id.btnStartChallenge);
         mGifArrow.setLayoutParams(layoutParams);
