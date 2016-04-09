@@ -55,6 +55,11 @@ public class ChallengeRecyclerView extends CogniRecyclerView{
         }
 
         @Override
+        public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
+            super.onMeasure(recycler, state, widthSpec, heightSpec);
+        }
+
+        @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
             super.onLayoutChildren(recycler, state);
 

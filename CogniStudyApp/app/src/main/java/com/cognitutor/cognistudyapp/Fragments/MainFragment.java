@@ -249,7 +249,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
         yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
         yourTurnListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listYourTurnChallenges);
-        createListView(yourTurnListView, yourTurnChallengeQueryAdapter);
+//        createListView(yourTurnListView, yourTurnChallengeQueryAdapter);
     }
 
     private void createTheirTurnListView(final View rootView, PublicUserData publicUserData) {
@@ -276,7 +276,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairsList.add(keyValuePairs2);
         pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairsList, true);
         pastChallengeListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listPastChallenges);
-//        createListView(pastChallengeListView, pastChallengeQueryAdapter);
+        createListView(pastChallengeListView, pastChallengeQueryAdapter);
     }
 
     private void createListView(final ChallengeRecyclerView recyclerView, final ChallengeQueryAdapter adapter) {
