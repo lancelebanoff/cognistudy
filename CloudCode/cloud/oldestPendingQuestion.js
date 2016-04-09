@@ -13,9 +13,8 @@ Parse.Cloud.define("oldestPendingQuestion", function(request, response) {
 	var contentsQuery = new Parse.Query("QuestionContents").equalTo("author", authorObject);
 	var dataQuery = new Parse.Query("QuestionData").equalTo("reviewStatus", "PENDING");
 	if(isAdmin) {
-		var query = new Parse.Query("Question")
+		var query = new Parse.Query("Question").notContainedIn("objectId", alreadyVisited)
 			.ascending("createdAt").matchesKeyInQuery("questionData", "objectId", dataQuery)
-			.doesNotMatchKeyInQuery("questionContents", "objectId", contentsQuery);
 	}
 	else {
 		var query = new Parse.Query("Question").notContainedIn("objectId", alreadyVisited)
