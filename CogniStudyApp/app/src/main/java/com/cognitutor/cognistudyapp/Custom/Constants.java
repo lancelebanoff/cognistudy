@@ -127,6 +127,7 @@ public class Constants {
     public static class Loading {
         public static final int QUESTION_LOADING_TIME = 2000;
         public static final int QUESTION_TUTORIAL_WAIT_TIME = 500;
+        public static final int CHALLENGE_ARROW_WAIT_TIME = 2000;
     }
 
     public static class MenuItem {
