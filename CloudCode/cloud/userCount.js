@@ -37,8 +37,8 @@ Parse.Cloud.afterSave("Student", function(request) {
             }
             student.set("randomEnabledChanged", false);
             var promises = [];
-            promises.add(student.save());
-            promises.add(userCount.save());
+            promises.push(student.save());
+            promises.push(userCount.save());
             Parse.Promise.when(promises).then(
                 function(success) {
                     return;
