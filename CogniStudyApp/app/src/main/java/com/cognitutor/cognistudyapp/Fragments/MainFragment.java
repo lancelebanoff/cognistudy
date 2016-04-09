@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
@@ -19,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
@@ -49,6 +51,7 @@ import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
+import pl.droidsonroids.gif.GifImageView;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -117,6 +120,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         }
 
         createAllListViews(getView());
+        showOrHideArrow();
         setSwipeRefreshLayout(getView());
         initializeBroadcastReceiver();
     }
@@ -148,7 +152,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             @Override
             public void done(List<Challenge> challenges, ParseException error) {
                 for (Challenge challenge : challenges) {
-                    if(!challenge.getHasEnded() && !challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER)) {
+                    if (!challenge.getHasEnded() && !challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER)) {
                         Calendar calendarCurrentDate = Calendar.getInstance(); // Today
                         calendarCurrentDate.setTime(new Date());
 
@@ -393,6 +397,42 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 }
             }
         }, 1000);
+    }
+
+    private void showOrHideArrow() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(Constants.Loading.CHALLENGE_ARROW_WAIT_TIME);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (allAdaptersAreEmpty()) {
+                            showArrowGif();
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void showArrowGif() {
+        final GifImageView gifImageView = new GifImageView(getActivity());
+        gifImageView.setImageResource(R.drawable.animation_bouncing_arrow);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(426, 600);
+        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        layoutParams.addRule(RelativeLayout.BELOW, R.id.btnViewLocalDatastore);
+        gifImageView.setLayoutParams(layoutParams);
+
+        RelativeLayout rlContent = (RelativeLayout) getActivity().findViewById(R.id.rlContentMain);
+        rlContent.addView(gifImageView);
+    }
+
+    private boolean allAdaptersAreEmpty() {
+        return challengeRequestQueryAdapter.getCount() == 0 &&
+                yourTurnChallengeQueryAdapter.getCount() == 0 &&
+                theirTurnChallengeQueryAdapter.getCount() == 0 &&
+                pastChallengeQueryAdapter.getCount() == 0;
     }
 
     @Override

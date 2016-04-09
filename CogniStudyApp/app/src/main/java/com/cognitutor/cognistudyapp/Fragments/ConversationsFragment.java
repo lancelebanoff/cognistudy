@@ -3,11 +3,13 @@ package com.cognitutor.cognistudyapp.Fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.NewConversationActivity;
 import com.cognitutor.cognistudyapp.Adapters.ConversationAdapter;
@@ -49,6 +51,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mConversationAdapter);
         mConversationAdapter.loadObjects();
+        showOrHideNoMessagesText();
 
         FloatingActionButton fabNewConversation = (FloatingActionButton) rootView.findViewById(R.id.fabNewConversation);
         fabNewConversation.setOnClickListener(this);
@@ -69,6 +72,24 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
                 return Conversation.getQueryForCurrentUserConversations();
             }
         });
+    }
+
+    private void showOrHideNoMessagesText() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(Constants.Loading.CHALLENGE_ARROW_WAIT_TIME);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mConversationAdapter.getItemCount() == 0) {
+                            TextView txtNoMessages = (TextView) getActivity().findViewById(R.id.txtNoMessages);
+                            txtNoMessages.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+        }).start();
     }
 
     @Override

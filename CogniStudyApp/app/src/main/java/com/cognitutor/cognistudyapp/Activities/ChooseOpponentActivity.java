@@ -4,11 +4,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
-import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -28,6 +26,13 @@ public class ChooseOpponentActivity extends PeopleFragmentActivity {
      * Extras:
      *      CHALLENGE_ID: String
      */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        showTutorialDialogIfNeeded(Constants.Tutorial.CHOOSE_OPPONENT, null);
+    }
+
     @Override
     protected PeopleListOnClickHandler getPeopleListOnClickHandler() {
         return new PeopleListOnClickHandler() {

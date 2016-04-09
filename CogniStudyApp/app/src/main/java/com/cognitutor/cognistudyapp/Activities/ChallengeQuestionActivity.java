@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ViewSwitcher;
 
-import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
@@ -77,6 +75,10 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
                     @Override
                     public Void then(Task<Challenge> task) throws Exception {
                         mChallenge = task.getResult();
+
+                        if (!mChallenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
+                            showTutorialDialogIfNeeded(Constants.Tutorial.QUESTION, null);
+                        }
 
                         return null;
                     }

@@ -42,6 +42,7 @@ public class Student extends ParseObject{
         public static final String studentTotalDayStats = "studentTotalDayStats";
         public static final String studentTotalTridayStats = "studentTotalTridayStats";
         public static final String studentTotalMonthStats = "studentTotalMonthStats";
+        public static final String tutorialProgress = "tutorialProgress";
     }
 
     public Student() {}
@@ -98,6 +99,10 @@ public class Student extends ParseObject{
     public List<StudentSubjectRollingStats> getStudentSubjectRollingStats() { return getList(Columns.studentSubjectRollingStats); }
     public StudentTotalRollingStats getStudentTotalRollingStats() { return (StudentTotalRollingStats) getParseObject(Columns.studentTotalRollingStats); }
     public PrivateStudentData getPrivateStudentData() { return (PrivateStudentData) getParseObject(Columns.privateStudentData); }
+    public void resetTutorialProgress() { put(Columns.tutorialProgress, new ArrayList<String>()); }
+    public boolean tutorialProgressContains(String dialogLabel) { return getTutorialProgress().contains(dialogLabel); }
+    public List<String> getTutorialProgress() { return getList(Columns.tutorialProgress); }
+    public void addToTutorialProgress(String label) { add(Columns.tutorialProgress, label); }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);

@@ -207,10 +207,10 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             @Override
             public Bookmark call() throws Exception {
                 int count = 0;
-                while(mResponse == null) {
+                while (mResponse == null) {
                     Thread.sleep(100);
                     count++;
-                    if(count > 100) {
+                    if (count > 100) {
                         Log.e("doBookmark", "TIMEOUT");
                         return null;
                     }
@@ -360,6 +360,19 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         // Switch Submit button to Continue button
         ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         viewSwitcher.setVisibility(View.INVISIBLE);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(Constants.Loading.QUESTION_TUTORIAL_WAIT_TIME);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showTutorialDialogIfNeeded(Constants.Tutorial.ADDING_BOOKMARKS, null);
+                    }
+                });
+            }
+        }).start();
     }
 
     protected void navigateToParentActivity() {
