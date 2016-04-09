@@ -17,12 +17,14 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.GetCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -573,9 +575,27 @@ public class BattleshipBoardManager {
                     opponentGameBoard.setShouldDisplayLastMove(false);
                     opponentGameBoard.resetIsLastMove();
                     opponentGameBoard.saveInBackground();
+                    sendYourTurnNotification();
                 }
             });
         }
+    }
+
+    private void sendYourTurnNotification() {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(Constants.CloudCodeFunction.SendYourTurnNotification.challengeId, mChallenge.getObjectId());
+        params.put(Constants.CloudCodeFunction.SendYourTurnNotification.senderBaseUserId, UserUtils.getCurrentUserId());
+        params.put(Constants.CloudCodeFunction.SendYourTurnNotification.receiverBaseUserId, mChallenge.getOpponentBaseUserId());
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.SEND_YOUR_TURN_NOTIFICATION, params)
+                .continueWith(new Continuation<Object, Object>() {
+                    @Override
+                    public Object then(Task<Object> task) throws Exception {
+                        if (task.isFaulted()) {
+                            task.getError().printStackTrace();
+                        }
+                        return null;
+                    }
+                });
     }
 
     private void endChallenge() {

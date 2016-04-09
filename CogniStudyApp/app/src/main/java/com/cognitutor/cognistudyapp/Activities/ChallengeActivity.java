@@ -33,12 +33,15 @@ import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
 
-public class ChallengeActivity extends CogniActivity {
+public class ChallengeActivity extends CogniPushListenerActivity {
 
     /**
      * Extras:
@@ -84,7 +87,7 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
         showOrHideButtons();
@@ -389,5 +392,21 @@ public class ChallengeActivity extends CogniActivity {
     protected void onDestroy() {
         unregisterReceiver(mBroadcastReceiver);
         super.onDestroy();
+    }
+
+    @Override
+    public void onReceiveHandler() {
+        mScoresHaveBeenLoaded = false;
+        initializeBoard(mViewingUser1or2);
+    }
+
+    @Override
+    public JSONObject getConditions() {
+        JSONObject conditions = new JSONObject();
+        try {
+            conditions.put(Constants.NotificationData.ACTIVITY, Constants.NotificationData.Activity.CHALLENGE_ACTIVITY);
+            conditions.put(Constants.NotificationData.challengeId, mChallengeId);
+        } catch (JSONException e) { e.printStackTrace(); }
+        return conditions;
     }
 }

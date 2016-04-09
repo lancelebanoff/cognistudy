@@ -304,6 +304,13 @@ public class Challenge extends ParseObject {
         }
     }
 
+    public String getOpponentBaseUserId() {
+        String curTurnUserId = getCurTurnUserId();
+        if(curTurnUserId.equals(UserUtils.getCurrentUserId()))
+            return getOtherTurnUserId();
+        return curTurnUserId;
+    }
+
     @Override
     public String toString() {
         return "objectId: " + getObjectId() +
