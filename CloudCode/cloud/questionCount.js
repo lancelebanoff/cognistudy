@@ -34,16 +34,18 @@ Parse.Cloud.afterSave("Question", function(request) {
 						catStats.increment("count", 1);
 						subStats.increment("count", 1);
 					}
-					// else if(isActiveChanged) {
-						var amount = 0;
-						if(question.get("isActive"))
-							amount = 1;
-						else
-							amount = -1;
-						catStats.increment("numActive", amount);
+
+					var amount = 0;
+					if(question.get("isActive"))
+						amount = 1;
+					else
+						amount = -1;
+					catStats.increment("numActive", amount);
+					subStats.increment("numActive", amount);
+					if(!question.get("inBundle")) {
 						catStats.increment("numActiveNotInBundle", amount);
-						subStats.increment("numActive", amount);
-					// }
+					}
+
 					question.set("isActiveChanged", false);
 					var promises = [];
 					promises.push(catStats.save());
@@ -76,8 +78,10 @@ Parse.Cloud.afterDelete("Question", function(request) {
 					subStats.increment("count", -1);
 					if(question.get("isActive")) {
 						catStats.increment("numActive", -1);
-						catStats.increment("numActiveNotInBundle", -1);
 						subStats.increment("numActive", -1);
+						if(!question.get("inBundle")) {
+							catStats.increment("numActiveNotInBundle", -1);
+						}
 					}
 					var promises = [];
 					promises.push(catStats.save());
