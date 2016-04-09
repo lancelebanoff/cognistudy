@@ -128,6 +128,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
             finish();
         } else if (mUser1or2 == 1) {
             setChallengeActivated(mChallenge);
+            //TODO: Send notification here
             boolean dialogShown = showTutorialDialogIfNeeded(Constants.Tutorial.CHALLENGE_REQUEST_SENT, new Runnable() {
                 @Override
                 public void run() {

@@ -586,6 +586,7 @@ public class BattleshipBoardManager {
         params.put(Constants.CloudCodeFunction.SendYourTurnNotification.challengeId, mChallenge.getObjectId());
         params.put(Constants.CloudCodeFunction.SendYourTurnNotification.senderBaseUserId, UserUtils.getCurrentUserId());
         params.put(Constants.CloudCodeFunction.SendYourTurnNotification.receiverBaseUserId, mChallenge.getOpponentBaseUserId());
+        params.put(Constants.CloudCodeFunction.SendYourTurnNotification.user1Or2, mChallenge.getOpponentUser1Or2());
         ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.SEND_YOUR_TURN_NOTIFICATION, params)
                 .continueWith(new Continuation<Object, Object>() {
                     @Override

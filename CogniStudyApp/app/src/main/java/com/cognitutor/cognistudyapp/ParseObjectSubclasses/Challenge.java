@@ -276,6 +276,14 @@ public class Challenge extends ParseObject {
         }
     }
 
+    public int getOpponentUser1Or2() {
+        int user1Or2 = getUser1Or2();
+        if(user1Or2 == 1)
+            return 2;
+        else
+            return 1;
+    }
+
     private Task<Object> getChallengeUserDataBaseUserId(ChallengeUserData challengeUserData, final Capture<String> baseUserId) {
         return challengeUserData.fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, Object>() {
             @Override
