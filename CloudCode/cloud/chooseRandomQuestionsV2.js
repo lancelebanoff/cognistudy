@@ -217,7 +217,7 @@ function getRandomQuestion(category, fetchedAnsQuesIds, additionalQuestionIds, s
 
 						var query = new Parse.Query("Question")
 						.equalTo("isActive", true)
-						.equalTo("test", true) ////////////////////////////////////TODO: Remove later
+						.equalTo("test", false)
 						.equalTo("category", category)
 						.notContainedIn("objectId", allQuestionIds)
 						.skip(skipNum)

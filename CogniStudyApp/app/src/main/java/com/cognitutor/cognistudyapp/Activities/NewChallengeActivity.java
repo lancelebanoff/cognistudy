@@ -56,8 +56,8 @@ public class NewChallengeActivity extends CogniActivity {
     private String mSelectedOpponent;
     private HashMap<CheckBox, String> mCategoryCheckboxToCategory;
 
-    private final String DEFAULT_TEST = Constants.Test.BOTH;
-    private final String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
+    private String DEFAULT_TEST = Constants.Test.BOTH;
+    private String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +81,14 @@ public class NewChallengeActivity extends CogniActivity {
         displayTests();
         displaySubjects();
         drawCategories();
+
+        boolean firstTime = showTutorialDialogIfNeeded(Constants.Tutorial.NEW_CHALLENGE, null);
+        if (firstTime) {
+            DEFAULT_OPPONENT = Constants.OpponentType.COMPUTER;
+        }
+
         displayOpponent();
         setDefaults();
-        showTutorialDialogIfNeeded(Constants.Tutorial.NEW_CHALLENGE, null);
     }
 
     private void displayTests() {

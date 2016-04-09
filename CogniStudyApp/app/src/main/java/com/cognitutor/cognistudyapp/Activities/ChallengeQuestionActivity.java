@@ -77,7 +77,12 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
                         mChallenge = task.getResult();
 
                         if (!mChallenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
-                            showTutorialDialogIfNeeded(Constants.Tutorial.QUESTION, null);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showTutorialDialogIfNeeded(Constants.Tutorial.QUESTION, null);
+                                }
+                            });
                         }
 
                         return null;

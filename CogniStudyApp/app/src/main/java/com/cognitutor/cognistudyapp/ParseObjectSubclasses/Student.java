@@ -55,6 +55,7 @@ public class Student extends ParseObject{
         put(Columns.achievements, new ArrayList<ParseObject>());
         put(Columns.shopItemsBought, new ArrayList<ParseObject>());
         put(Columns.skinSelections, new ArrayList<ParseObject>());
+        put(Columns.tutorialProgress, new ArrayList<String>());
         setRandomEnabled(true);
         setPublicAnalytics(true);
         put(Columns.baseUserId, baseUserId);

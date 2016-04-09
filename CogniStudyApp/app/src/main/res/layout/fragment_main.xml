@@ -33,24 +33,12 @@
                 android:layout_marginBottom="10dp"
                 android:layout_centerHorizontal="true" />
 
-            <com.cognitutor.cognistudyapp.Custom.CogniButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Log LocalDatastore"
-                android:id="@+id/btnViewLocalDatastore"
-                android:onClick="onClick"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_below="@id/btnStartChallenge"
-                android:layout_centerHorizontal="true" />
-
             <android.support.v7.widget.CardView
                 android:id="@+id/cvTutorRequests"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_below="@id/btnViewLocalDatastore"
+                android:layout_below="@id/btnStartChallenge"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="30dp"
                 android:visibility="gone"
