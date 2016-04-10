@@ -17,6 +17,7 @@ import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FunctionCallback;
@@ -128,6 +129,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
             finish();
         } else if (mUser1or2 == 1) {
             setChallengeActivated(mChallenge);
+            sendChallengeRequestNotification();
             boolean dialogShown = showTutorialDialogIfNeeded(Constants.Tutorial.CHALLENGE_REQUEST_SENT, new Runnable() {
                 @Override
                 public void run() {
@@ -144,6 +146,15 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
             navigateToChallengeActivity();
             finish();
         }
+    }
+
+    private void sendChallengeRequestNotification() {
+        String challengeId = mChallenge.getObjectId();
+        String senderBaseUserId = UserUtils.getCurrentUserId();
+        String receiverBaseUserId = mChallenge.getOpponentBaseUserId();
+        int user1Or2 = mChallenge.getOpponentUser1Or2();
+        CommonUtils.sendChallengeNotification(Constants.CloudCodeFunction.SendChallengeNotification.NotificationType.CHALLENGE_REQUEST,
+                challengeId, senderBaseUserId, receiverBaseUserId, user1Or2);
     }
 
     private void createComputerBoard() {
@@ -170,7 +181,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                 return null;
             }
         });
-}
+    }
 
     private void setChallengeAccepted(Challenge challenge) {
         challenge.setAccepted(true);

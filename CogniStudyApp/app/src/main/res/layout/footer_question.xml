@@ -61,41 +61,39 @@
             </io.github.kexanie.library.MathView>
         </RelativeLayout>
 
+        <!--android:layout_centerHorizontal="true"-->
         <com.cognitutor.cognistudyapp.Custom.BookmarkButton
             android:id="@+id/cbBookmark"
             android:layout_below="@id/rlExplanation"
-            android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="@string/bookmark_button_bookmark"
             android:drawableLeft="@drawable/ic_action_icon_bookmark"/>
 
-    </RelativeLayout>
-
-    <ViewSwitcher
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/vgPostAnswer"
-        android:id="@+id/viewSwitcher"
-        android:layout_marginTop="10dp"
-        android:layout_centerHorizontal="true" >
-
         <com.cognitutor.cognistudyapp.Custom.CogniButton
-            android:enabled="false"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Submit"
-            android:id="@+id/btnSubmit"
-            android:onClick="showAnswerAndIncrementAnalytics" />
-
-        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:id="@+id/btnContinue"
+            android:layout_toRightOf="@id/cbBookmark"
+            android:layout_alignTop="@id/cbBookmark"
+            android:layout_alignBottom="@id/cbBookmark"
+            android:layout_marginLeft="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Continue"
-            android:id="@+id/btnContinue"
             android:onClick="navigateToNextActivity" />
-    </ViewSwitcher>
+
+    </RelativeLayout>
+
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
+        android:enabled="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vgPostAnswer"
+        android:text="Submit"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/btnSubmit"
+        android:onClick="showAnswerAndIncrementAnalytics" />
 
     <EditText
         android:visibility="gone"
