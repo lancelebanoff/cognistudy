@@ -28,10 +28,12 @@ public class PeopleFragment extends CogniFragment {
 //    private ListView listView;
     private CogniRecyclerView recyclerView;
     private SearchView searchView;
+    private boolean mIgnoreTutors;
 
-    public static final PeopleFragment newInstance(PeopleListOnClickHandler onClickHandler) {
+    public static final PeopleFragment newInstance(PeopleListOnClickHandler onClickHandler, boolean ignoreTutors) {
         PeopleFragment peopleFragment = new PeopleFragment();
         peopleFragment.onClickHandler = onClickHandler;
+        peopleFragment.mIgnoreTutors = ignoreTutors;
         return peopleFragment;
     }
 
@@ -83,7 +85,7 @@ public class PeopleFragment extends CogniFragment {
             }
         });
 
-        peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler);
+        peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler, mIgnoreTutors);
 
         recyclerView = (CogniRecyclerView) rootView.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

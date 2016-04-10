@@ -190,7 +190,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
             @Override
             public Void then(Task<PrivateStudentData> task) throws Exception {
-                task.getResult().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                task.getResult().fetchInBackground(new GetCallback<ParseObject>() {
                     @Override
                     public void done(ParseObject object, ParseException e) {
                         PrivateStudentData privateStudentData = (PrivateStudentData) object;

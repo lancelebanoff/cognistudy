@@ -42,6 +42,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     private Lock mLock;
     private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
     private List<PublicUserData> cachedPublicUserDataList;
+    private boolean mIgnoreTutors;
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
@@ -61,16 +62,17 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         return holder;
     }
 
-    public PeopleQueryAdapter(Activity activity, PeopleListOnClickHandler onClickHandler) {
+    public PeopleQueryAdapter(Activity activity, PeopleListOnClickHandler onClickHandler, final boolean ignoreTutors) {
         super(activity, new ParseQueryAdapter.QueryFactory<PublicUserData>() {
             public ParseQuery create() {
-                return getDefaultQuery();
+                return getDefaultQuery(ignoreTutors);
             }
         }, true); //TODO: Try true for hasStableIds
         mOnClickHandler = onClickHandler;
         mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mLock = new ReentrantLock();
-        getDefaultQuery().findInBackground().continueWith(new Continuation<List<PublicUserData>, Object>() {
+        mIgnoreTutors = ignoreTutors;
+        getDefaultQuery(ignoreTutors).findInBackground().continueWith(new Continuation<List<PublicUserData>, Object>() {
 //        getImportantCachedPublicUserDatas().continueWith(new Continuation<List<PublicUserData>, Object>() {
             @Override
             public Object then(Task<List<PublicUserData>> task) throws Exception {
@@ -97,9 +99,9 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         currentQuery = "";
     }
 
-    private static ParseQuery<PublicUserData> getDefaultQuery() {
+    private static ParseQuery<PublicUserData> getDefaultQuery(boolean ignoreTutors) {
 
-        return PublicUserData.getNonCurrentUserQuery()
+        return PublicUserData.getNonCurrentUserQuery(ignoreTutors)
                 .fromLocalDatastore();
 //                .whereContainedIn(PublicUserData.Columns.objectId, PrivateStudentData.getFriendPublicUserIds())
 //                .whereEqualTo(PublicUserData.Columns.fbLinked, true);
@@ -107,10 +109,10 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         //.whereNotEqualTo(PublicUserData.Columns.baseUserId, ParseUser.getCurrentUser().getObjectId());
     }
 
-    private static Task<ParseQuery<PublicUserData>> getImportantCachedPublicUserDataQuery() {
+    private static Task<ParseQuery<PublicUserData>> getImportantCachedPublicUserDataQuery(boolean ignoreTutors) {
 
         final List<ParseQuery<PublicUserData>> queries = new ArrayList<>();
-        queries.add(PublicUserData.getNonCurrentUserQuery().fromPin(Constants.PinNames.CurrentUser));
+        queries.add(PublicUserData.getNonCurrentUserQuery(ignoreTutors).fromPin(Constants.PinNames.CurrentUser));
 
         return Challenge.getQuery()
                 .fromLocalDatastore()
@@ -125,8 +127,8 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                 });
     }
 
-    private static Task<List<PublicUserData>> getImportantCachedPublicUserDatas() {
-        return getImportantCachedPublicUserDataQuery()
+    private static Task<List<PublicUserData>> getImportantCachedPublicUserDatas(boolean ignoreTutors) {
+        return getImportantCachedPublicUserDataQuery(ignoreTutors)
                 .continueWithTask(new Continuation<ParseQuery<PublicUserData>, Task<List<PublicUserData>>>() {
                     @Override
                     public Task<List<PublicUserData>> then(Task<ParseQuery<PublicUserData>> task) throws Exception {
@@ -166,6 +168,10 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         return newObjects;
     }
 
+    private static ParseQuery<PublicUserData> ignoreTutors(ParseQuery<PublicUserData> query) {
+        return query.whereEqualTo(PublicUserData.Columns.userType, Constants.UserType.STUDENT);
+    }
+
     public void search(final String queryText) {
 
         final String q = convertToSearchable(queryText);
@@ -181,7 +187,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                 false, thisAdapter, new QueryUtils.ParseQueryBuilder <PublicUserData> () {
                     @Override
                     public ParseQuery<PublicUserData> buildQuery() {
-                        return PublicUserData.getNonCurrentUserQuery()
+                        return PublicUserData.getNonCurrentUserQuery(mIgnoreTutors)
                                 .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
                     }
         })
@@ -195,7 +201,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                         false, thisAdapter, new QueryUtils.ParseQueryBuilder<PublicUserData>() {
                             @Override
                             public ParseQuery<PublicUserData> buildQuery() {
-                                return PublicUserData.getNonCurrentUserQuery()
+                                return PublicUserData.getNonCurrentUserQuery(mIgnoreTutors)
                                         .whereContains(PublicUserData.Columns.searchableDisplayName, q);
                             }
                 });

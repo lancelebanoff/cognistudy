@@ -43,6 +43,11 @@ public class ChooseOpponentActivity extends PeopleFragmentActivity {
         };
     }
 
+    @Override
+    protected boolean getIgnoreTutors() {
+        return true;
+    }
+
     public void chooseOpponent(PublicUserData publicUserData) {
         saveOpponent(publicUserData);
 

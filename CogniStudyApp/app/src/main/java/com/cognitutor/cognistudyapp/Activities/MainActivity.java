@@ -192,7 +192,7 @@ public class MainActivity extends AuthenticationActivity {
                         intent.putExtra(Constants.IntentExtra.PUBLICUSERDATA_ID, publicUserData.getObjectId());
                         mActivity.startActivity(intent);
                     }
-                });
+                }, false);
                 return mPeopleFragment;
             }
             if(position == Fragments.Messages.ordinal())

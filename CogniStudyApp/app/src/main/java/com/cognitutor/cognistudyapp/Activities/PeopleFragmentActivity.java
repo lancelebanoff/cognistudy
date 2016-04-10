@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.R;
@@ -16,6 +17,7 @@ public abstract class PeopleFragmentActivity extends CogniActivity {
     protected Intent mIntent;
 
     protected abstract PeopleListOnClickHandler getPeopleListOnClickHandler();
+    protected abstract boolean getIgnoreTutors();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +29,7 @@ public abstract class PeopleFragmentActivity extends CogniActivity {
     }
 
     private void createPeopleFragment() {
-        PeopleFragment fragment = PeopleFragment.newInstance(getPeopleListOnClickHandler());
+        PeopleFragment fragment = PeopleFragment.newInstance(getPeopleListOnClickHandler(), getIgnoreTutors());
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
