@@ -614,6 +614,7 @@ public class Constants {
         public static final String ADD_STUDENT = "addStudent";
         public static final String REMOVE_STUDENT = "removeStudent";
         public static final String SEND_MESSAGE_NOTIFICATION = "sendMessageNotification";
+        public static final String GET_RANDOM_OPPONENT = "getRandomOpponent";
 
         public static class SendMessageNotification {
             public static final String senderBaseUserId = "senderBaseUserId";

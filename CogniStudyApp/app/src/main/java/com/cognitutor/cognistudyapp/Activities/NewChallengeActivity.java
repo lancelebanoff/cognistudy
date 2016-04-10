@@ -20,6 +20,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 
@@ -30,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -406,6 +408,21 @@ public class NewChallengeActivity extends CogniActivity {
                         return null;
                     }
                 });
+            }
+        });
+    }
+
+    private void chooseRandomOpponent() {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("baseUserId", PublicUserData.getPublicUserData().getBaseUserId());
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.GET_RANDOM_OPPONENT, params).continueWith(new Continuation<Object, Object>() {
+            @Override
+            public Object then(Task<Object> task) throws Exception {
+                if (task.isFaulted()) {
+                    task.getError().printStackTrace();
+                }
+                PublicUserData opponentPublicUserData = (PublicUserData) task.getResult();
+                return null;
             }
         });
     }
