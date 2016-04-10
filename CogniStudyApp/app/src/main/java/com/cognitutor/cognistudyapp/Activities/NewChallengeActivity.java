@@ -56,8 +56,8 @@ public class NewChallengeActivity extends CogniActivity {
     private String mSelectedOpponent;
     private HashMap<CheckBox, String> mCategoryCheckboxToCategory;
 
-    private final String DEFAULT_TEST = Constants.Test.BOTH;
-    private final String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
+    private String DEFAULT_TEST = Constants.Test.BOTH;
+    private String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +81,14 @@ public class NewChallengeActivity extends CogniActivity {
         displayTests();
         displaySubjects();
         drawCategories();
+
+        boolean firstTime = showTutorialDialogIfNeeded(Constants.Tutorial.NEW_CHALLENGE, null);
+        if (firstTime) {
+            DEFAULT_OPPONENT = Constants.OpponentType.COMPUTER;
+        }
+
         displayOpponent();
         setDefaults();
-        showTutorialDialogIfNeeded(Constants.Tutorial.NEW_CHALLENGE, null);
     }
 
     private void displayTests() {
@@ -369,8 +374,8 @@ public class NewChallengeActivity extends CogniActivity {
             @Override
             public Task<Object> then(Task<PublicUserData> task) throws Exception {
                 final PublicUserData user1PublicUserData = task.getResult();
-                ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData,
-                        new ArrayList<String>(mSelectedSubjects), new ArrayList<String>(mSelectedCategories));
+                ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, // TODO:1 use mSelectedCategories
+                        new ArrayList<String>(Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS})), new ArrayList<String>(mSelectedCategories));
                 user1Data.saveInBackground();
 
                 final String challengeType = getChallengeType();
@@ -427,7 +432,7 @@ public class NewChallengeActivity extends CogniActivity {
                         Challenge challenge = task.getResult();
                         ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
                         user2Data.setSubjects(new ArrayList<String>(mSelectedSubjects));
-                        user2Data.setCategories(new ArrayList<String>(mSelectedCategories));
+                        user2Data.setCategories(Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS}));
                         user2Data.saveInBackground();
 
                         navigateToChooseBoardConfigurationActivity(challengeId, 2);

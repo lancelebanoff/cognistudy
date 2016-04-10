@@ -76,7 +76,8 @@
                     android:layout_height="wrap_content"
                     android:text="Auto Create User"
                     android:id="@+id/btnAutoCreateUser"
-                    android:onClick="autoCreateUser"/>
+                    android:onClick="autoCreateUser"
+                    android:visibility="gone"/>
             </LinearLayout>
 
         </RelativeLayout>
