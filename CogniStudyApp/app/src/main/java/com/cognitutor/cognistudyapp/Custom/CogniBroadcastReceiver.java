@@ -9,8 +9,10 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.ChatActivity;
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
+import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseBroadcastReceiver;
@@ -96,6 +98,8 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
                 return ChatActivity.class;
             case Constants.NotificationData.Activity.SUGGESTED_QUESTIONS_LIST_ACTIVITY:
                 return SuggestedQuestionsListActivity.class;
+            case Constants.NotificationData.Activity.CHALLENGE_ACTIVITY:
+                return ChallengeActivity.class;
             default:
                 return MainActivity.class;
         }

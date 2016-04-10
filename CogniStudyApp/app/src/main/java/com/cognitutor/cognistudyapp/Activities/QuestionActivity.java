@@ -17,7 +17,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
@@ -328,14 +327,14 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
 
     private Task<Object> loadBookmark() {
         return Bookmark.getQueryWithResponseId(getResponseId())
-            .getFirstInBackground()
-            .continueWith(new Continuation<Bookmark, Object>() {
-                @Override
-                public Object then(Task<Bookmark> task) throws Exception {
-                    mBookmark = task.getResult();
-                    return null;
-                }
-            });
+                .getFirstInBackground()
+                .continueWith(new Continuation<Bookmark, Object>() {
+                    @Override
+                    public Object then(Task<Bookmark> task) throws Exception {
+                        mBookmark = task.getResult();
+                        return null;
+                    }
+                });
     }
 
     private void setBookmarkComponents() {
@@ -393,12 +392,9 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.red));
             setResponseStatusIcon(avh.ivCorrectIncorrect, Constants.ResponseStatusType.INCORRECT);
         }
+        avh.btnSubmit.setVisibility(View.GONE);
         avh.vgPostAnswer.setVisibility(View.VISIBLE);
         ClickableListItem.setQuestionAnswered(true);
-
-        // Switch Submit button to Continue button
-        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        viewSwitcher.setVisibility(View.INVISIBLE);
 
         new Thread(new Runnable() {
             @Override
@@ -475,7 +471,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         String css = null;
         try { css = IOUtils.toString(getAssets().open("css/question.css")); }
         catch (Exception e) {e.printStackTrace();}
-        
+
         html = html.replace("$CSS$", css);
 
         return html.replace("$BODY$", body);

@@ -39,6 +39,7 @@ public class Challenge extends ParseObject {
         public static final String hasEnded = "hasEnded";
         public static final String thisTurnQuestionIds = "thisTurnQuestionIds";
         public static final String correctAnsThisTurn = "correctAnsThisTurn";
+        public static final String loserHasSeenLost = "loserHasSeenLost";
     }
 
     public Challenge(ChallengeUserData user1Data, String challengeType) {
@@ -235,6 +236,10 @@ public class Challenge extends ParseObject {
         put(Columns.hasEnded, hasEnded);
     }
 
+    public boolean getLoserHasSeenLost() { return getBoolean(Columns.loserHasSeenLost); }
+
+    public void setLoserHasSeenLost() { put(Columns.loserHasSeenLost, true); }
+
     public List<String> getThisTurnQuestionIds() {
         return (List<String>) get(Columns.thisTurnQuestionIds);
     }
@@ -276,6 +281,14 @@ public class Challenge extends ParseObject {
         }
     }
 
+    public int getOpponentUser1Or2() {
+        int user1Or2 = getUser1Or2();
+        if(user1Or2 == 1)
+            return 2;
+        else
+            return 1;
+    }
+
     private Task<Object> getChallengeUserDataBaseUserId(ChallengeUserData challengeUserData, final Capture<String> baseUserId) {
         return challengeUserData.fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, Object>() {
             @Override
@@ -302,6 +315,13 @@ public class Challenge extends ParseObject {
             default:
                 return null;
         }
+    }
+
+    public String getOpponentBaseUserId() {
+        String curTurnUserId = getCurTurnUserId();
+        if(curTurnUserId.equals(UserUtils.getCurrentUserId()))
+            return getOtherTurnUserId();
+        return curTurnUserId;
     }
 
     @Override

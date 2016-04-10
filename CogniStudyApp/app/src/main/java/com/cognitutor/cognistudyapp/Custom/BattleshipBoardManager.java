@@ -16,16 +16,19 @@ import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.GetCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -576,9 +579,20 @@ public class BattleshipBoardManager {
                     opponentGameBoard.setShouldDisplayLastMove(false);
                     opponentGameBoard.resetIsLastMove();
                     opponentGameBoard.saveInBackground();
+                    if(!mChallenge.getHasEnded()) {
+                        sendChallengeNotification(Constants.CloudCodeFunction.SendChallengeNotification.NotificationType.YOUR_TURN);
+                    }
                 }
             });
         }
+    }
+
+    private void sendChallengeNotification(String type) {
+        String challengeId = mChallenge.getObjectId();
+        String senderBaseUserId = UserUtils.getCurrentUserId();
+        String receiverBaseUserId = mChallenge.getOpponentBaseUserId();
+        int user1Or2 = mChallenge.getOpponentUser1Or2();
+        CommonUtils.sendChallengeNotification(type, challengeId, senderBaseUserId, receiverBaseUserId, user1Or2);
     }
 
     private void endChallenge() {
@@ -588,6 +602,7 @@ public class BattleshipBoardManager {
         mChallenge.setEndDate(new Date());
         mChallenge.setWinner(mCurrentUserData.getPublicUserData().getBaseUserId());
         mChallenge.saveInBackground();
+        sendChallengeNotification(Constants.CloudCodeFunction.SendChallengeNotification.NotificationType.GAME_OVER);
 
         new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.title_dialog_won_challenge)
@@ -602,7 +617,7 @@ public class BattleshipBoardManager {
                 .create().show();
     }
 
-    private void alertLostChallenge() {
+    public void alertLostChallenge() {
         new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.title_dialog_lost_challenge)
                 .setMessage(R.string.message_dialog_lost_challenge)
