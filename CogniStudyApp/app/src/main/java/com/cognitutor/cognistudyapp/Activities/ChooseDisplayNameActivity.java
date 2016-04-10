@@ -26,6 +26,7 @@ import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.Random;
 
 public class ChooseDisplayNameActivity extends AuthenticationActivity {
 
@@ -76,8 +77,31 @@ public class ChooseDisplayNameActivity extends AuthenticationActivity {
     }
 
     public ParseFile getDefaultProfilePic() {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),
-                R.drawable.default_profile_pic);
+        Bitmap bitmap;
+        int randomNum = new Random().nextInt(7);
+        switch (randomNum) {
+            case 0:
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_profile_pic1);
+                break;
+            case 1:
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_profile_pic2);
+                break;
+            case 2:
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_profile_pic3);
+                break;
+            case 3:
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_profile_pic4);
+                break;
+            case 4:
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_profile_pic5);
+                break;
+            case 5:
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_profile_pic6);
+                break;
+            default:
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_profile_pic7);
+                break;
+        }
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] image = stream.toByteArray();
