@@ -623,8 +623,8 @@ public class Constants {
 
         public static class SendYourTurnNotification {
             public static final String challengeId = "challengeId";
-            public static final String senderBaseUserId = "senderBaseUserId";
             public static final String receiverBaseUserId = "receiverBaseUserId";
+            public static final String senderBaseUserId = "senderBaseUserId";
             public static final String user1Or2 = "user1Or2";
         }
 

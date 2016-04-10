@@ -27,11 +27,13 @@ import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.CogniImageButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -70,20 +72,33 @@ public class ChallengeActivity extends CogniPushListenerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenge);
         hideActionBar();
-        mIntent = getIntent();
         initializeBroadcastReceiver();
+        initChallenge();
+    }
+
+    private void initChallenge() {
+        mIntent = getIntent();
 
         mChallengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        mCurrentUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        getCurrentUser1or2();
         mViewingUser1or2 = mCurrentUser1or2;
         mScoresHaveBeenLoaded = false;
 
         mChallenge = Challenge.getChallenge(mChallengeId);
         mIsComputerOpponent = mChallenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER);
-        String currentUserId = ParseUser.getCurrentUser().getObjectId();
-        mIsCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
+        mIsCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(UserUtils.getCurrentUserId());
 
         initializeBoard(mViewingUser1or2);
+    }
+
+    private void getCurrentUser1or2() {
+        mCurrentUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        //If intent came from notification, the intExtra will actually be a string extra
+        if(mCurrentUser1or2 == -1) {
+            String stringUser1Or2 = mIntent.getStringExtra(Constants.IntentExtra.USER1OR2);
+            if(stringUser1Or2 != null)
+                mCurrentUser1or2 = Integer.valueOf(stringUser1Or2);
+        }
     }
 
     @Override
@@ -178,13 +193,28 @@ public class ChallengeActivity extends CogniPushListenerActivity {
         }
 
         int opponentUser1or2 = mCurrentUser1or2 == 1 ? 2 : 1;
-        ChallengeUserData opponentUserData = mChallenge.getChallengeUserData(opponentUser1or2);
-        if (opponentUserData == null || opponentUserData.getGameBoard() == null) {
-            CogniImageButton btnQuestionHistory = (CogniImageButton) findViewById(R.id.btnQuestionHistory);
-            btnQuestionHistory.setVisibility(View.INVISIBLE);
-            CogniImageButton btnChallengeAnalytics = (CogniImageButton) findViewById(R.id.btnChallengeAnalytics);
-            btnChallengeAnalytics.setVisibility(View.INVISIBLE);
-        }
+        final ChallengeUserData opponentUserData = mChallenge.getChallengeUserData(opponentUser1or2);
+
+        final CogniImageButton btnQuestionHistory = (CogniImageButton) findViewById(R.id.btnQuestionHistory);
+        btnQuestionHistory.setVisibility(View.INVISIBLE);
+        final CogniImageButton btnChallengeAnalytics = (CogniImageButton) findViewById(R.id.btnChallengeAnalytics);
+        btnChallengeAnalytics.setVisibility(View.INVISIBLE);
+
+        opponentUserData.fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, Object>() {
+            @Override
+            public Object then(Task<ParseObject> task) throws Exception {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (opponentUserData != null && opponentUserData.getGameBoard() != null) {
+                            btnQuestionHistory.setVisibility(View.VISIBLE);
+                            btnChallengeAnalytics.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+                return null;
+            }
+        });
     }
 
     private void initializeGridLayouts(final int viewingUser1or2) {
@@ -346,8 +376,8 @@ public class ChallengeActivity extends CogniPushListenerActivity {
     private void navigateToChallengeQuestionActivity(String questionId) {
         Intent intent = new Intent(this, ChallengeQuestionActivity.class);
         intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
-        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mChallengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, mCurrentUser1or2);
         intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
         startActivity(intent);
     }
@@ -410,8 +440,8 @@ public class ChallengeActivity extends CogniPushListenerActivity {
 
     @Override
     public void onReceiveHandler() {
-        mScoresHaveBeenLoaded = false;
-        initializeBoard(mViewingUser1or2);
+        initChallenge();
+        showOrHideButtons();
     }
 
     @Override
