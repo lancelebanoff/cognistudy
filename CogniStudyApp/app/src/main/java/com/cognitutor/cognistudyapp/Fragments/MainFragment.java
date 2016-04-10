@@ -408,6 +408,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             @Override
             public void run() {
                 SystemClock.sleep(Constants.Loading.CHALLENGE_ARROW_WAIT_TIME);
+                while (!allAdaptersExist()) {
+
+                }
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -421,6 +424,11 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     }
 
     private void showArrowGif() {
+        RelativeLayout rlContent = (RelativeLayout) getActivity().findViewById(R.id.rlContentMain);
+        if (mGifArrow != null) {
+            rlContent.removeView(mGifArrow);
+        }
+
         mGifArrow = new GifImageView(getActivity());
         mGifArrow.setImageResource(R.drawable.animation_bouncing_arrow);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
@@ -431,8 +439,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         layoutParams.addRule(RelativeLayout.BELOW, R.id.btnStartChallenge);
         mGifArrow.setLayoutParams(layoutParams);
 
-        RelativeLayout rlContent = (RelativeLayout) getActivity().findViewById(R.id.rlContentMain);
         rlContent.addView(mGifArrow);
+    }
+
+    private boolean allAdaptersExist() {
+        return challengeRequestQueryAdapter != null &&
+                yourTurnChallengeQueryAdapter != null &&
+                theirTurnChallengeQueryAdapter != null &&
+                pastChallengeQueryAdapter != null;
     }
 
     private boolean allAdaptersAreEmpty() {

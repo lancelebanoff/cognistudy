@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.CogniImageButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
@@ -79,7 +80,6 @@ public class ChallengeActivity extends CogniActivity {
         String currentUserId = ParseUser.getCurrentUser().getObjectId();
         mIsCurrentUsersTurn = mChallenge.getCurTurnUserId().equals(currentUserId);
 
-        handleTutorial();
         initializeBoard(mViewingUser1or2);
     }
 
@@ -110,6 +110,7 @@ public class ChallengeActivity extends CogniActivity {
                                     showProfilePictures();
                                     mScoresHaveBeenLoaded = true;
                                 }
+                                handleTutorial();
                             }
                         });
 
@@ -122,7 +123,7 @@ public class ChallengeActivity extends CogniActivity {
         if (mIsCurrentUsersTurn) {
             showTutorialDialogIfNeeded(Constants.Tutorial.YOUR_TURN, null);
         } else if (mIsComputerOpponent) {
-            showTutorialDialogIfNeeded(Constants.Tutorial.COMPUTERS_TURN, new Runnable() {
+            boolean dialogShown = showTutorialDialogIfNeeded(Constants.Tutorial.COMPUTERS_TURN, new Runnable() {
                 @Override
                 public void run() {
                     mBattleshipBoardManager.takeComputerTurn();
@@ -130,6 +131,11 @@ public class ChallengeActivity extends CogniActivity {
                     showOrHideButtons();
                 }
             });
+            if (!dialogShown) {
+                mBattleshipBoardManager.takeComputerTurn();
+                mIsCurrentUsersTurn = true;
+                showOrHideButtons();
+            }
         }
     }
 
@@ -153,6 +159,9 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     private void showOrHideButtons() {
+        ProgressBar progressBarYourTurn = (ProgressBar) findViewById(R.id.progressBarYourTurn);
+        progressBarYourTurn.setVisibility(View.GONE);
+
         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
         if (mIsCurrentUsersTurn && !mChallenge.getHasEnded()) {
             btnYourTurn.setVisibility(View.VISIBLE);
@@ -297,6 +306,11 @@ public class ChallengeActivity extends CogniActivity {
     }
 
     public void onClick_btnYourTurn(View view) {
+        CogniButton btnYourTurn = (CogniButton) findViewById(R.id.btnYourTurn);
+        btnYourTurn.setVisibility(View.INVISIBLE);
+        ProgressBar progressBarYourTurn = (ProgressBar) findViewById(R.id.progressBarYourTurn);
+        progressBarYourTurn.setVisibility(View.VISIBLE);
+
         int quesAnsThisTurn = mChallenge.getQuesAnsThisTurn();
         if (quesAnsThisTurn == Constants.Questions.NUM_QUESTIONS_PER_TURN) { // All questions have been answered
             navigateToBattleshipAttackActivity();
