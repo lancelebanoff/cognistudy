@@ -32,6 +32,7 @@ var l9 = require('cloud/queryAllQuestions.js');
 var l10 = require('cloud/oldestPendingQuestion.js');
 var l11 = require('cloud/tutorAlreadyRequestedStudent.js');
 var l12 = require('cloud/questionsByTutor.js');
+var l13 = require('cloud/assignedQuestionsToStudent.js');
 
 var a1 = require('cloud/assignQuestion.js');
 
