@@ -7,8 +7,10 @@
         android:id="@+id/ivIcon"
         android:paddingLeft="0dp"
         android:paddingRight="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_width="@dimen/challenge_stats_icon_size"
+        android:layout_height="@dimen/challenge_stats_icon_size"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"/>
 
     <TextView
         android:id="@+id/txtLabel"
