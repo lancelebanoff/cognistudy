@@ -126,14 +126,13 @@
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/llPlayNow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/cvOpponent"
                 android:layout_marginTop="20dp"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:gravity="center">
 
                 <ViewFlipper
                     android:id="@+id/viewSwitcher"
@@ -156,7 +155,14 @@
                         android:text="You must select at least one subject."
                         android:textColor="@color/red"/>
                 </ViewFlipper>
-            </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progressBarPlayNow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:visibility="gone"/>
+            </RelativeLayout>
 
         </RelativeLayout>
 
