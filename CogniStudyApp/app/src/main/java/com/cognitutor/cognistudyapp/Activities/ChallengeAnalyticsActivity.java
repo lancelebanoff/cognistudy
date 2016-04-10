@@ -306,20 +306,11 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
             for (String category : allCategories) {
                 if (selectedCategories.contains(category) && categoriesInSubject.contains(category)) {
                     final TextView txtCategory = new TextView(this);
-                    txtCategory.setText(category);
                     mLlSubjects.addView(txtCategory);
-                    final ImageView ivSubject = (ImageView) listItem.findViewById(R.id.ivIcon);
-
-                    ViewTreeObserver observer = ivSubject.getViewTreeObserver();
-                    observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) txtCategory.getLayoutParams();
-                            layoutParams.setMargins(ivSubject.getWidth(), 0, 0, 0);
-                            txtCategory.setLayoutParams(layoutParams);
-                            removeOnGlobalLayoutListener(listItem, this);
-                        }
-                    });
+                    txtCategory.setText(category);
+                    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) txtCategory.getLayoutParams();
+                    layoutParams.setMargins((int) getResources().getDimension(R.dimen.challenge_stats_icon_size), 0, 0, 0);
+                    txtCategory.setLayoutParams(layoutParams);
                 }
             }
         }
