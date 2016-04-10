@@ -35,15 +35,17 @@ Parse.Cloud.afterSave("Question", function(request) {
 						subStats.increment("count", 1);
 					}
 
-					var amount = 0;
-					if(question.get("isActive"))
-						amount = 1;
-					else
-						amount = -1;
-					catStats.increment("numActive", amount);
-					subStats.increment("numActive", amount);
-					if(!question.get("inBundle")) {
-						catStats.increment("numActiveNotInBundle", amount);
+					if( isActiveChanged || (isNew && question.get("isActive")) ) {
+						var amount = 0;
+						if(question.get("isActive"))
+							amount = 1;
+						else
+							amount = -1;
+						catStats.increment("numActive", amount);
+						subStats.increment("numActive", amount);
+						if(!question.get("inBundle")) {
+							catStats.increment("numActiveNotInBundle", amount);
+						}
 					}
 
 					question.set("isActiveChanged", false);
