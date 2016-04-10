@@ -461,27 +461,11 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnStartChallenge:
-                chooseRandomOpponent();
                 navigateToNewChallengeActivity();
                 break;
 //            case R.id.btnViewLocalDatastore:
 //                ParseObjectUtils.logPinnedObjects(false);
         }
-    }
-
-    private void chooseRandomOpponent() {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("baseUserId", PublicUserData.getPublicUserData().getBaseUserId());
-        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.GET_RANDOM_OPPONENT, params).continueWith(new Continuation<Object, Object>() {
-            @Override
-            public Object then(Task<Object> task) throws Exception {
-                if (task.isFaulted()) {
-                    task.getError().printStackTrace();
-                }
-                PublicUserData opponentPublicUserData = (PublicUserData) task.getResult();
-                return null;
-            }
-        });
     }
 
     private void navigateToNewChallengeActivity() {

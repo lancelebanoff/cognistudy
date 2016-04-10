@@ -9,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.ViewFlipper;
 
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.CogniCheckBox;
 import com.cognitutor.cognistudyapp.Custom.CogniRadioButton;
 import com.cognitutor.cognistudyapp.Custom.CogniRadioGroup;
@@ -358,6 +360,11 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     public void onClick_btnPlayNow(View view) {
+        CogniButton btnPlayNow = (CogniButton) findViewById(R.id.btnPlayNow);
+        btnPlayNow.setVisibility(View.INVISIBLE);
+        ProgressBar progressBarPlayNow = (ProgressBar) findViewById(R.id.progressBarPlayNow);
+        progressBarPlayNow.setVisibility(View.VISIBLE);
+
         saveChallenge();
     }
 
@@ -377,7 +384,7 @@ public class NewChallengeActivity extends CogniActivity {
             public Task<Object> then(Task<PublicUserData> task) throws Exception {
                 final PublicUserData user1PublicUserData = task.getResult();
                 ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, // TODO:1 use mSelectedCategories
-                        new ArrayList<String>(Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS})), new ArrayList<String>(mSelectedCategories));
+                        new ArrayList<String>(mSelectedSubjects), new ArrayList<String>(Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS})));
                 user1Data.saveInBackground();
 
                 final String challengeType = getChallengeType();
@@ -387,6 +394,9 @@ public class NewChallengeActivity extends CogniActivity {
                     ChallengeUserData user2Data = new ChallengeUserData(PublicUserData.getComputerPublicUserData());
                     user2Data.saveInBackground();
                     challenge.setUser2Data(user2Data);
+                } else if (mSelectedOpponent.equals(Constants.OpponentType.RANDOM)) {
+                    chooseRandomOpponentAndNavigate(challenge);
+                    return null;
                 }
                 return challenge.saveInBackground().continueWith(new Continuation<Void, Object>() {
                     @Override
@@ -412,16 +422,27 @@ public class NewChallengeActivity extends CogniActivity {
         });
     }
 
-    private void chooseRandomOpponent() {
+    private void chooseRandomOpponentAndNavigate(final Challenge challenge) {
+        final String baseUserId = PublicUserData.getPublicUserData().getBaseUserId();
         Map<String, String> params = new HashMap<String, String>();
-        params.put("baseUserId", PublicUserData.getPublicUserData().getBaseUserId());
-        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.GET_RANDOM_OPPONENT, params).continueWith(new Continuation<Object, Object>() {
+        params.put("baseUserId", baseUserId);
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.GET_RANDOM_OPPONENT, params).continueWithTask(new Continuation<Object, Task<Void>>() {
             @Override
-            public Object then(Task<Object> task) throws Exception {
+            public Task<Void> then(Task<Object> task) throws Exception {
                 if (task.isFaulted()) {
                     task.getError().printStackTrace();
                 }
                 PublicUserData opponentPublicUserData = (PublicUserData) task.getResult();
+                ChallengeUserData opponentChallengeUserData = new ChallengeUserData(opponentPublicUserData);
+                challenge.setUser2Data(opponentChallengeUserData);
+                challenge.setCurTurnUserId(opponentPublicUserData.getBaseUserId());
+                challenge.setOtherTurnUserId(baseUserId);
+                return challenge.saveInBackground();
+            }
+        }).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
                 return null;
             }
         });

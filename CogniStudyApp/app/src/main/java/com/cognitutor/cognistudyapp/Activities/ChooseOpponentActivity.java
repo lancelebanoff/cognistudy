@@ -94,7 +94,7 @@ public class ChooseOpponentActivity extends PeopleFragmentActivity {
                             public void done(Challenge challenge, ParseException e) {
                                 if (e == null) {
                                     final HashMap<String, Object> params = new HashMap<>();
-                                    params.put("challengeId", challenge.getObjectId());
+                                    params.put("objectId", challenge.getObjectId());
                                     ParseCloud.callFunctionInBackground(
                                             Constants.CloudCodeFunction.DELETE_CHALLENGE,
                                             params, new FunctionCallback<Object>() {
