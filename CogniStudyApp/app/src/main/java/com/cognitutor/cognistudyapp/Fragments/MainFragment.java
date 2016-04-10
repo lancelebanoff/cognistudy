@@ -27,7 +27,6 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Adapters.TutorRequestAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -73,6 +72,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public static ArrayAdapter<ParseObject> answeredQuestionIdAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private BroadcastReceiver mBroadcastReceiver;
+    private GifImageView mGifArrow;
 
     public static final MainFragment newInstance() {
         return new MainFragment();
@@ -90,9 +90,6 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);
-        b.setOnClickListener(this);
-
-        b = (Button) rootView.findViewById(R.id.btnViewLocalDatastore);
         b.setOnClickListener(this);
 
         return rootView;
@@ -349,11 +346,18 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    public static void setListViewHeightBasedOnChildren(ListView listView) {
+    public void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
             // pre-condition
             return;
+        }
+
+        if (listAdapter.getCount() > 0) {
+            if (mGifArrow != null) {
+                RelativeLayout rlContent = (RelativeLayout) getActivity().findViewById(R.id.rlContentMain);
+                rlContent.removeView(mGifArrow);
+            }
         }
 
         View parentCardView = (View) listView.getParent().getParent();
@@ -404,6 +408,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             @Override
             public void run() {
                 SystemClock.sleep(Constants.Loading.CHALLENGE_ARROW_WAIT_TIME);
+                while (!allAdaptersExist()) {
+
+                }
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -417,15 +424,29 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     }
 
     private void showArrowGif() {
-        final GifImageView gifImageView = new GifImageView(getActivity());
-        gifImageView.setImageResource(R.drawable.animation_bouncing_arrow);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(426, 600);
-        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        layoutParams.addRule(RelativeLayout.BELOW, R.id.btnViewLocalDatastore);
-        gifImageView.setLayoutParams(layoutParams);
-
         RelativeLayout rlContent = (RelativeLayout) getActivity().findViewById(R.id.rlContentMain);
-        rlContent.addView(gifImageView);
+        if (mGifArrow != null) {
+            rlContent.removeView(mGifArrow);
+        }
+
+        mGifArrow = new GifImageView(getActivity());
+        mGifArrow.setImageResource(R.drawable.animation_bouncing_arrow);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                (int) getResources().getDimension(R.dimen.start_challenge_arrow_width),
+                (int) getResources().getDimension(R.dimen.start_challenge_arrow_height)
+        );
+        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        layoutParams.addRule(RelativeLayout.BELOW, R.id.btnStartChallenge);
+        mGifArrow.setLayoutParams(layoutParams);
+
+        rlContent.addView(mGifArrow);
+    }
+
+    private boolean allAdaptersExist() {
+        return challengeRequestQueryAdapter != null &&
+                yourTurnChallengeQueryAdapter != null &&
+                theirTurnChallengeQueryAdapter != null &&
+                pastChallengeQueryAdapter != null;
     }
 
     private boolean allAdaptersAreEmpty() {
@@ -441,8 +462,8 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             case R.id.btnStartChallenge:
                 navigateToNewChallengeActivity();
                 break;
-            case R.id.btnViewLocalDatastore:
-                ParseObjectUtils.logPinnedObjects(false);
+//            case R.id.btnViewLocalDatastore:
+//                ParseObjectUtils.logPinnedObjects(false);
         }
     }
 
@@ -477,6 +498,16 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         };
         IntentFilter filter = new IntentFilter(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
         getActivity().registerReceiver(mBroadcastReceiver, filter);
+    }
+
+    @Override
+    public void onPause() {
+        if (mGifArrow != null) {
+            RelativeLayout rlContent = (RelativeLayout) getActivity().findViewById(R.id.rlContentMain);
+            rlContent.removeView(mGifArrow);
+        }
+
+        super.onPause();
     }
 
     @Override

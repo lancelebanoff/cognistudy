@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -747,7 +750,7 @@ public class BattleshipBoardManager {
         }
     }
 
-    private void drawAttackGif(int row, int col, int height, int width, int gifDrawableId, final ImageView imgSpace, final String boardPositionStatus) {
+    private void drawAttackGif(final int row, final int col, final int height, final int width, int gifDrawableId, final ImageView imgSpace, final String boardPositionStatus) {
         final GifImageView gifImageView = new GifImageView(mActivity);
         gifImageView.setImageResource(gifDrawableId);
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
@@ -764,6 +767,13 @@ public class BattleshipBoardManager {
             public void onAnimationCompleted(int loopNumber) {
                 gifImageView.setVisibility(View.GONE);
                 setTargetImageResource(imgSpace, boardPositionStatus);
+                int textRow = row == 0 ? 1 : row - 1;
+                int textCol = col == 0 ? 1 : col - 1;
+                if (boardPositionStatus.equals(Constants.GameBoardPositionStatus.HIT)) {
+                    drawFadingOutText(textRow, textCol, 2, 2, R.drawable.text_hit);
+                } else {
+                    drawFadingOutText(textRow, textCol, 2, 2, R.drawable.text_miss);
+                }
             }
         });
     }
@@ -799,6 +809,37 @@ public class BattleshipBoardManager {
                 }
             }
         });
+    }
+
+    private void drawFadingOutText(final int row, final int col, final int height, final int width, final int drawableId) {
+        final ImageView ivHitText = new ImageView(mActivity);
+        ivHitText.setImageResource(drawableId);
+        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+        layoutParams.rowSpec = GridLayout.spec(row, 1);
+        layoutParams.columnSpec = GridLayout.spec(col, 1);
+        layoutParams.height = mAnimationsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * height;
+        layoutParams.width = mAnimationsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * width;
+        ivHitText.setLayoutParams(layoutParams);
+        mAnimationsGridLayout.addView(ivHitText);
+
+        Animation fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setInterpolator(new AccelerateInterpolator());
+        fadeOut.setDuration(1000);
+
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            public void onAnimationEnd(Animation animation) {
+                ivHitText.setVisibility(View.GONE);
+                mAnimationsGridLayout.removeView(ivHitText);
+            }
+
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            public void onAnimationStart(Animation animation) {
+            }
+        });
+
+        ivHitText.startAnimation(fadeOut);
     }
 
     private void retrieveBoardPositionStatus() {

@@ -70,36 +70,43 @@ public class Question extends ParseObject {
     }
 
     public static Task<List<String>> chooseThreeQuestionIds(final Challenge challenge, int user1or2) {
-        Task<List<String>> task = challenge.getChallengeUserData(user1or2).fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, List<String>>() {
-                    @Override
-                    public List<String> then(Task<ParseObject> task) throws Exception {
-                        ChallengeUserData challengeUserData = (ChallengeUserData) task.getResult();
+        Task<List<String>> task = challenge.getChallengeUserData(user1or2).fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<List<Question>>>() {
+            @Override
+            public Task<List<Question>> then(Task<ParseObject> task) throws Exception {
+                ChallengeUserData challengeUserData = (ChallengeUserData) task.getResult();
 
-                        Map<String, String> params = new HashMap<String, String>();
-                        params.put("challengeUserDataId", challengeUserData.getObjectId());
-                        params.put("challengeId", challenge.getObjectId());
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("challengeUserDataId", challengeUserData.getObjectId());
+                params.put("challengeId", challenge.getObjectId());
 
-                        List<String> categories = challengeUserData.getCategories();
-                        int randomIndex = new Random().nextInt(categories.size());
-                        params.put("category", categories.get(randomIndex));
+                List<String> categories = challengeUserData.getCategories();
+                int randomIndex = new Random().nextInt(categories.size());
+                params.put("category", categories.get(randomIndex));
 
-                        List<Question> questions = ParseCloud.callFunction(Constants.CloudCodeFunction.CHOOSE_THREE_QUESTIONS, params);
-                        try {
-                            ParseObject.pinAllInBackground(challenge.getObjectId(), questions).waitForCompletion();
-                        } catch (InterruptedException e) { e.printStackTrace(); }
-                        List<String> questionIds = new ArrayList<String>();
-                        for (Question question : questions) {
-                            questionIds.add(question.getObjectId());
-                        }
-                        challenge.setThisTurnQuestionIds(questionIds);
-                        try {
-                            challenge.save();
-                        } catch (ParseException e1) {
-                            e1.printStackTrace();
-                        }
-                        return questionIds;
-                    }
-                });
+                return ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.CHOOSE_THREE_QUESTIONS, params);
+            }
+        }).continueWith(new Continuation<List<Question>, List<String>>() {
+            @Override
+            public List<String> then(Task<List<Question>> task) throws Exception {
+                if(task.getError() != null) { task.getError().printStackTrace(); }
+
+                List<Question> questions = task.getResult();
+                try {
+                    ParseObject.pinAllInBackground(challenge.getObjectId(), questions).waitForCompletion();
+                } catch (InterruptedException e) { e.printStackTrace(); }
+                List<String> questionIds = new ArrayList<String>();
+                for (Question question : questions) {
+                    questionIds.add(question.getObjectId());
+                }
+                challenge.setThisTurnQuestionIds(questionIds);
+                try {
+                    challenge.save();
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
+                return questionIds;
+            }
+        });
         return task;
     }
 
