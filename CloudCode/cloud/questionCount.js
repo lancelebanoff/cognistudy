@@ -35,7 +35,7 @@ Parse.Cloud.afterSave("Question", function(request) {
 						subStats.increment("count", 1);
 					}
 
-					if( isActiveChanged || (isNew && question.get("isActive")) ) {
+					if( (!isNew && isActiveChanged) || (isNew && question.get("isActive")) ) {
 						var amount = 0;
 						if(question.get("isActive"))
 							amount = 1;
