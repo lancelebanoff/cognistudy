@@ -477,13 +477,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public JSONObject getConditions() {
         JSONObject conditions = new JSONObject();
         try {
-            conditions.put(Constants.NotificationData.ACTIVITY, Constants.NotificationData.Activity.MAIN_ACTIVITY);
+            conditions.put(Constants.NotificationData.FRAGMENT, Constants.NotificationData.Fragment.MAIN_FRAGMENT);
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
     }
 
     @Override
     public void onReceiveHandler() {
+        refresh();
     }
 
     // Refreshes challenge list when other activity finishes
