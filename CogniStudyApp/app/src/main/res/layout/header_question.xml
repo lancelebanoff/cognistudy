@@ -1,29 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:auto="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/rlQuestionHeader">
 
-    <TextView
-        android:id="@+id/txtSubject"
-        android:textSize="24sp"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingBottom="5dp"/>
+    <RelativeLayout
+        android:id="@+id/rlSubject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/txtSubject"
+            android:textSize="24sp"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingBottom="5dp"/>
+
+        <ImageView
+            android:id="@+id/ivSubject"
+            android:layout_toLeftOf="@id/txtSubject"
+            android:layout_toStartOf="@id/txtSubject"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:paddingBottom="5dp"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/txtCategory"
         android:textSize="16sp"
-        android:layout_gravity="center_horizontal"
+        android:layout_below="@id/rlSubject"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="20dp"/>
 
     <WebView
         android:id="@+id/wvPassage"
+        android:layout_below="@id/txtCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </WebView>
@@ -40,4 +58,4 @@
     <!--auto:engine="MathJax">-->
     <!--</com.cognitutor.cognistudyapp.Custom.CogniMathView>-->
 
-</LinearLayout>
+</RelativeLayout>

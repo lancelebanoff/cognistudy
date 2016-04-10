@@ -98,8 +98,6 @@ class AuthenticationActivity extends CogniActivity {
         //TODO: Remove this
         finalizeUser(user, publicUserData, fbLinked);
 
-        final ParseInstallation installation = setUpInstallation(user.getObjectId());
-
         //TODO: This does not add a PinnedObject instance for current user since the user has not been saved to Parse yet
         privateStudentData.pinInBackground(Constants.PinNames.CurrentUser)
 //        ParseObjectUtils.pinInBackground(Constants.PinNames.CurrentUser, privateStudentData) //Only privateStudentData is needed for FB
@@ -118,12 +116,12 @@ class AuthenticationActivity extends CogniActivity {
                                             if (task.isFaulted()) {
                                                 Log.e("getFriendsInBackground", task.getError().getMessage());
                                             }
-                                            saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
+                                            saveObjects(privateStudentData, student, publicUserData, user, callback);
                                             return null;
                                         }
                                     });
                                 } else {
-                                    saveObjects(privateStudentData, student, publicUserData, user, installation, callback);
+                                    saveObjects(privateStudentData, student, publicUserData, user, callback);
                                 }
                                 return null;
                             }
@@ -131,27 +129,15 @@ class AuthenticationActivity extends CogniActivity {
     }
 
     private void saveObjects(PrivateStudentData privateStudentData, Student student, PublicUserData publicUserData,
-                             ParseUser user, ParseInstallation installation, SaveCallback callback) {
+                             ParseUser user, SaveCallback callback) {
         ArrayList < ParseObject > objects = new ArrayList<ParseObject>();
         objects.add(privateStudentData);
         objects.add(student);
         objects.add(publicUserData);
         objects.add(user);
-        objects.add(installation);
         ParseObject.saveAllInBackground(objects, callback);
     }
     
-    private ParseInstallation setUpInstallation(String baseUserId) {
-
-        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        List<String> userIds = installation.getList("userIds");
-        if(userIds == null || userIds.isEmpty())
-            userIds = new ArrayList<String>();
-        userIds.add(baseUserId);
-        installation.put("userIds", userIds);
-        return installation;
-    }
-
     private void finalizeUser(ParseUser user, PublicUserData publicUserData, boolean fbLinked) {
 
         user.put("publicUserData", publicUserData);
