@@ -12,14 +12,15 @@ Parse.Cloud.define("assignedQuestionsToStudent", function(request, response) {
 
 	var query = new Parse.Query("PublicUserData")
 		.include("student.privateStudentData");
-	query.get(publicStudentDataId, {
-	  success: function(publicStudentData) {
-  		var privateStudentData = publicStudentData.get("student").get("privateStudentData");
+	query.get(studentPublicDataId, {
+	  success: function(studentPublicData) {
+  		var privateStudentData = studentPublicData.get("student").get("privateStudentData");
   		var allAssignedQuestionsRelation = privateStudentData.get("assignedQuestions");
 
 	  	// Main code
-		var query = new allAssignedQuestionsRelation.query();
-		query.equalTo("tutor", tutorPublicDataObject).descending("createdAt").include("question").include("question.questionContents").include("question.questionData");
+		var query = allAssignedQuestionsRelation.query();
+		query.equalTo("tutor", tutorPublicDataObject).descending("createdAt").include("question")
+		.include("question.questionContents").include("question.questionData").include("response");
 		query.find({
 		  success: function(assignedQuestions) {
 		  	response.success(assignedQuestions);
@@ -29,8 +30,8 @@ Parse.Cloud.define("assignedQuestionsToStudent", function(request, response) {
 		  }
 		});
 	  },
-	  error: function(publicStudentData, error) {
-	    response.error('Failed to get publicStudentData, with error code: ' + error.message);
+	  error: function(studentPublicData, error) {
+	    response.error('Failed to get studentPublicData, with error code: ' + error.message);
 	  }
 	});
 });
