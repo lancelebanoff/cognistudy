@@ -17,7 +17,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
@@ -393,12 +392,9 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.red));
             setResponseStatusIcon(avh.ivCorrectIncorrect, Constants.ResponseStatusType.INCORRECT);
         }
+        avh.btnSubmit.setVisibility(View.GONE);
         avh.vgPostAnswer.setVisibility(View.VISIBLE);
         ClickableListItem.setQuestionAnswered(true);
-
-        // Switch Submit button to Continue button
-        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        viewSwitcher.setVisibility(View.INVISIBLE);
 
         new Thread(new Runnable() {
             @Override

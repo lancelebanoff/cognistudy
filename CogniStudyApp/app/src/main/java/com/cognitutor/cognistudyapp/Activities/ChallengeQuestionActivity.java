@@ -124,16 +124,16 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Switch Submit button to Continue button
-                ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-                viewSwitcher.setVisibility(View.VISIBLE);
-                viewSwitcher.showNext();
-            }
-        });
+//
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                // Switch Submit button to Continue button
+//                ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+//                viewSwitcher.setVisibility(View.VISIBLE);
+//                viewSwitcher.showNext();
+//            }
+//        });
     }
 
     private void navigateToBattleshipAttackActivity() {

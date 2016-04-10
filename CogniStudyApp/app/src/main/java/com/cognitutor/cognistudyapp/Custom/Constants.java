@@ -216,6 +216,7 @@ public class Constants {
             public static final String CHAT_ACTIVITY = "CHAT_ACTIVITY";
             public static final String SUGGESTED_QUESTIONS_LIST_ACTIVITY = "SUGGESTED_QUESTIONS_LIST_ACTIVITY";
             public static final String CHALLENGE_ACTIVITY = "CHALLENGE_ACTIVITY";
+            public static final String NEW_CHALLENGE_ACTIVITY = "NEW_CHALLENGE_ACTIVITY";
         }
         public static class Fragment {
             public static final String SUGGESTED_QUESTIONS_LIST_FRAGMENT = "SUGGESTED_QUESTIONS_LIST_FRAGMENT";
@@ -618,12 +619,19 @@ public class Constants {
         public static final String REMOVE_STUDENT = "removeStudent";
         public static final String SEND_MESSAGE_NOTIFICATION = "sendMessageNotification";
         public static final String SEND_YOUR_TURN_NOTIFICATION = "sendYourTurnNotification";
+        public static final String SEND_CHALLENGE_REQUEST_NOTIFICATION = "sendChallengeRequestNotification";
 
         public static class SendYourTurnNotification {
             public static final String challengeId = "challengeId";
             public static final String senderBaseUserId = "senderBaseUserId";
             public static final String receiverBaseUserId = "receiverBaseUserId";
             public static final String user1Or2 = "user1Or2";
+        }
+
+        public static class SendChallengeRequestNotification {
+            public static final String challengeId = "challengeId";
+            public static final String senderBaseUserId = "senderBaseUserId";
+            public static final String receiverBaseUserId = "receiverBaseUserId";
         }
 
         public static class SendMessageNotification {
