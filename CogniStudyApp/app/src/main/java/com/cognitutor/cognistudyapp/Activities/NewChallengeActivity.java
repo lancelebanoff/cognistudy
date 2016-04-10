@@ -384,7 +384,8 @@ public class NewChallengeActivity extends CogniActivity {
             public Task<Object> then(Task<PublicUserData> task) throws Exception {
                 final PublicUserData user1PublicUserData = task.getResult();
                 ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, // TODO:1 use mSelectedCategories
-                        new ArrayList<String>(mSelectedSubjects), new ArrayList<String>(Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS})));
+                        Arrays.asList(new String[] {Constants.Subject.ENGLISH}),
+                        Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS}));
                 user1Data.saveInBackground();
 
                 final String challengeType = getChallengeType();
@@ -469,7 +470,7 @@ public class NewChallengeActivity extends CogniActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
-                        user2Data.setSubjects(new ArrayList<String>(mSelectedSubjects));
+                        user2Data.setSubjects(Arrays.asList(new String[] {Constants.Subject.ENGLISH}));
                         user2Data.setCategories(Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS}));
                         user2Data.saveInBackground();
 
