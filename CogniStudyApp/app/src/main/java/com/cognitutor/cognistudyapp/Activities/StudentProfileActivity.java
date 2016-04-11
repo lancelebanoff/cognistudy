@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -41,19 +42,24 @@ public class StudentProfileActivity extends CogniActivity {
         holder = createViewHolder();
         mIntent = getIntent();
 
-        mPublicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra(Constants.IntentExtra.PUBLICUSERDATA_ID)); //TODO: Change this
-        if(mPublicUserData == null) { return; } //TODO: Handle this?
-        holder.txtName.setText(mPublicUserData.getDisplayName());
-        holder.imgProfile.setParseFile(mPublicUserData.getProfilePic());
-        holder.imgProfile.loadInBackground();
-
-        showOrHideButtonsAndTutorialDialog();
-
         try {
             mCurrPrivateStudentData = PublicUserData.getPublicUserData().getStudent().getPrivateStudentData();
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        mPublicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra(Constants.IntentExtra.PUBLICUSERDATA_ID)); //TODO: Change this
+        if(mPublicUserData == null) { return; } //TODO: Handle this?
+        holder.txtName.setText(mPublicUserData.getDisplayName());
+        holder.imgProfile.setParseFile(mPublicUserData.getProfilePic());
+        holder.imgProfile.loadInBackground();
+        if (mCurrPrivateStudentData.isFriendsWith(mPublicUserData)) {
+            holder.imgFollowedStudent.setVisibility(View.VISIBLE);
+        } else {
+            holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
+        }
+
+        showOrHideButtonsAndTutorialDialog();
         mViewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         if (mCurrPrivateStudentData.isFriendsWith(mPublicUserData)) {
             mViewSwitcher.showNext();
@@ -127,12 +133,14 @@ public class StudentProfileActivity extends CogniActivity {
         ViewHolder holder = new ViewHolder();
         holder.txtName = (TextView) findViewById(R.id.txtName);
         holder.imgProfile = (ParseImageView) findViewById(R.id.imgProfile);
+        holder.imgFollowedStudent = (ImageView) findViewById(R.id.imgFollowedStudent);
         return holder;
     }
 
     private static class ViewHolder {
         public TextView txtName;
         public ParseImageView imgProfile;
+        public ImageView imgFollowedStudent;
     }
 
     @Override

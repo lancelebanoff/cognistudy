@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -15,6 +16,7 @@ import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseObject;
@@ -41,21 +43,35 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     private Lock mLock;
     private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
     private List<PublicUserData> cachedPublicUserDataList;
+    private PrivateStudentData mPrivateStudentData;
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
 
         final PublicUserData publicUserData = mItems.get(position);
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtName.setText(publicUserData.getDisplayName());
+
         switch (publicUserData.getUserType()) {
             case Constants.UserType.TUTOR:
             case Constants.UserType.ADMIN:
                 holder.txtTutor.setVisibility(View.VISIBLE);
+                holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
+                if (mPrivateStudentData.hasTutor(publicUserData)) {
+                    holder.imgLinkedTutor.setVisibility(View.VISIBLE);
+                } else {
+                    holder.imgLinkedTutor.setVisibility(View.INVISIBLE);
+                }
                 break;
-            default:
+            default: // student
                 holder.txtTutor.setVisibility(View.INVISIBLE);
+                holder.imgLinkedTutor.setVisibility(View.INVISIBLE);
+                if (mPrivateStudentData.isFriendsWith(publicUserData)) {
+                    holder.imgFollowedStudent.setVisibility(View.VISIBLE);
+                } else {
+                    holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
+                }
                 break;
         }
 
@@ -69,7 +85,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         return holder;
     }
 
-    public PeopleQueryAdapter(Activity activity, PeopleListOnClickHandler onClickHandler) {
+    public PeopleQueryAdapter(Activity activity, PeopleListOnClickHandler onClickHandler, PrivateStudentData privateStudentData) {
         super(activity, new ParseQueryAdapter.QueryFactory<PublicUserData>() {
             public ParseQuery create() {
                 return getDefaultQuery();
@@ -78,6 +94,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         mOnClickHandler = onClickHandler;
         mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mLock = new ReentrantLock();
+        mPrivateStudentData = privateStudentData;
         getDefaultQuery().findInBackground().continueWith(new Continuation<List<PublicUserData>, Object>() {
 //        getImportantCachedPublicUserDatas().continueWith(new Continuation<List<PublicUserData>, Object>() {
             @Override
@@ -148,6 +165,8 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         public RoundedImageView imgProfile;
         public TextView txtTutor;
         private View itemView;
+        private ImageView imgLinkedTutor;
+        private ImageView imgFollowedStudent;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -155,6 +174,8 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
             txtName = (TextView) itemView.findViewById(R.id.txtName);
             imgProfile = (RoundedImageView) itemView.findViewById(R.id.imgProfileRounded);
             txtTutor = (TextView) itemView.findViewById(R.id.txtTutor);
+            imgLinkedTutor = (ImageView) itemView.findViewById(R.id.imgLinkedTutor);
+            imgFollowedStudent = (ImageView) itemView.findViewById(R.id.imgFollowedStudent);
         }
 
         public void setOnClickListener(final PublicUserData publicUserData) {
