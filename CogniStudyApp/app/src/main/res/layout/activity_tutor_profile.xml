@@ -56,8 +56,8 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/txtStudent">
 
-                    <ViewSwitcher
-                        android:id="@+id/viewSwitcher"
+                    <ViewFlipper
+                        android:id="@+id/viewFlipper"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1">
@@ -73,11 +73,19 @@
                         <com.cognitutor.cognistudyapp.Custom.CogniButton
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:text="Pending Request"
+                            android:id="@+id/btnPendingRequest"
+                            android:enabled="false"
+                            android:layout_gravity="center_horizontal" />
+
+                        <com.cognitutor.cognistudyapp.Custom.CogniButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:text="Unlink Tutor"
                             android:id="@+id/btnUnfollow"
                             android:onClick="onClick_btnRemoveTutor"
                             android:layout_gravity="center_horizontal" />
-                    </ViewSwitcher>
+                    </ViewFlipper>
 
                     <com.cognitutor.cognistudyapp.Custom.CogniButton
                         android:layout_width="0dp"

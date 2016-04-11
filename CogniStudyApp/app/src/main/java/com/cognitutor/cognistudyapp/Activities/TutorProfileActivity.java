@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewSwitcher;
+import android.widget.ViewFlipper;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
@@ -28,7 +28,7 @@ public class TutorProfileActivity extends CogniActivity {
      *      PUBLICUSERDATA_ID: String
      */
     private ViewHolder holder;
-    private ViewSwitcher mViewSwitcher;
+    private ViewFlipper mViewFlipper;
     private Intent mIntent;
     private PrivateStudentData mCurrPrivateStudentData;
     private PublicUserData publicUserData;
@@ -60,9 +60,12 @@ public class TutorProfileActivity extends CogniActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        mViewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        if (mCurrPrivateStudentData.hasTutorOrRequestedTutor(publicUserData)) {
-            mViewSwitcher.showNext();
+        mViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        if (mCurrPrivateStudentData.hasRequestedTutor(publicUserData)) {
+            mViewFlipper.setDisplayedChild(1);
+        }
+        else if(mCurrPrivateStudentData.hasTutor(publicUserData)) {
+            mViewFlipper.setDisplayedChild(2);
         }
 
         showTutorialDialogIfNeeded(Constants.Tutorial.LINK_TUTOR, null);
@@ -85,8 +88,8 @@ public class TutorProfileActivity extends CogniActivity {
             }
         });
 
-        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        viewSwitcher.showNext();
+        ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        viewFlipper.showNext();
 
         Toast.makeText(this, "Request sent to tutor.", Toast.LENGTH_LONG).show();
     }
@@ -108,8 +111,8 @@ public class TutorProfileActivity extends CogniActivity {
             }
         });
 
-        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        viewSwitcher.showNext();
+        ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        viewFlipper.showNext();
 
         Toast.makeText(this, "Unlinked from tutor.", Toast.LENGTH_LONG).show();
     }
