@@ -54,6 +54,9 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
             case Constants.UserType.ADMIN:
                 holder.txtTutor.setVisibility(View.VISIBLE);
                 break;
+            default:
+                holder.txtTutor.setVisibility(View.INVISIBLE);
+                break;
         }
 
         holder.setOnClickListener(publicUserData);

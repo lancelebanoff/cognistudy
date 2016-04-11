@@ -31,7 +31,7 @@ public class TutorProfileActivity extends CogniActivity {
     private ViewSwitcher mViewSwitcher;
     private Intent mIntent;
     private PrivateStudentData mCurrPrivateStudentData;
-    private PublicUserData publicUserData;
+    private PublicUserData mPublicUserData;
     private Tutor mTutor;
 
     @Override
@@ -42,16 +42,16 @@ public class TutorProfileActivity extends CogniActivity {
         holder = createViewHolder();
         mIntent = getIntent();
 
-        publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra(Constants.IntentExtra.PUBLICUSERDATA_ID)); //TODO: Change this
-        if(publicUserData == null) { return; } //TODO: Handle this?
+        mPublicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra(Constants.IntentExtra.PUBLICUSERDATA_ID)); //TODO: Change this
+        if(mPublicUserData == null) { return; } //TODO: Handle this?
         try {
-            mTutor = publicUserData.getTutor();
+            mTutor = mPublicUserData.getTutor();
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        holder.txtName.setText(publicUserData.getDisplayName());
-        holder.imgProfile.setParseFile(publicUserData.getProfilePic());
+        holder.txtName.setText(mPublicUserData.getDisplayName());
+        holder.imgProfile.setParseFile(mPublicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtBiography.setText(mTutor.getBiography());
 
@@ -61,7 +61,7 @@ public class TutorProfileActivity extends CogniActivity {
             e.printStackTrace();
         }
         mViewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        if (mCurrPrivateStudentData.hasTutorOrRequestedTutor(publicUserData)) {
+        if (mCurrPrivateStudentData.hasTutorOrRequestedTutor(mPublicUserData)) {
             mViewSwitcher.showNext();
         }
 
@@ -69,12 +69,12 @@ public class TutorProfileActivity extends CogniActivity {
     }
 
     public void onClick_btnAddTutor(View view) {
-        mCurrPrivateStudentData.addRequestToTutor(publicUserData);
+        mCurrPrivateStudentData.addRequestToTutor(mPublicUserData);
         mCurrPrivateStudentData.saveInBackground();
 
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("publicStudentDataId", PublicUserData.getPublicUserData().getObjectId());
-        params.put("publicTutorDataId", publicUserData.getObjectId());
+        params.put("publicTutorDataId", mPublicUserData.getObjectId());
         ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.STUDENT_REQUEST_TO_TUTOR, params).continueWith(new Continuation<Object, Void>() {
             @Override
             public Void then(Task<Object> task) throws Exception {
@@ -92,12 +92,12 @@ public class TutorProfileActivity extends CogniActivity {
     }
 
     public void onClick_btnRemoveTutor(View view) {
-        mCurrPrivateStudentData.removeTutor(publicUserData);
+        mCurrPrivateStudentData.removeTutor(mPublicUserData);
         mCurrPrivateStudentData.saveInBackground();
 
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("studentPublicDataId", PublicUserData.getPublicUserData().getObjectId());
-        params.put("tutorPublicDataId", publicUserData.getObjectId());
+        params.put("tutorPublicDataId", mPublicUserData.getObjectId());
         ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.REMOVE_STUDENT, params).continueWith(new Continuation<Object, Void>() {
             @Override
             public Void then(Task<Object> task) throws Exception {
@@ -130,5 +130,11 @@ public class TutorProfileActivity extends CogniActivity {
         public TextView txtName;
         public ParseImageView imgProfile;
         public TextView txtBiography;
+    }
+
+    @Override
+    protected void onDestroy() {
+        mPublicUserData.unpinInBackground();
+        super.onDestroy();
     }
 }
