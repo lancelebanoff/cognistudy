@@ -3,8 +3,8 @@ package com.cognitutor.cognistudyapp.Fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +12,17 @@ import android.widget.SearchView;
 
 import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.Activities.TutorProfileActivity;
+import com.cognitutor.cognistudyapp.Adapters.PeopleQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Adapters.PeopleQueryAdapter;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.R;
 
-import java.util.List;
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -83,7 +86,7 @@ public class PeopleFragment extends CogniFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_people, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_people, container, false);
 
         searchView = (SearchView) rootView.findViewById(R.id.searchView);
         searchView.setQueryHint("Find users");
@@ -96,7 +99,7 @@ public class PeopleFragment extends CogniFragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(newText.length() == 0) {
+                if (newText.length() == 0) {
                     resetResultsToDefault();
                     return true;
                 }
@@ -105,12 +108,20 @@ public class PeopleFragment extends CogniFragment {
             }
         });
 
-        peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler, mIgnoreTutors);
+        final Fragment fragment = this;
+        PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
+            @Override
+            public Void then(Task<PrivateStudentData> task) throws Exception {
+                PrivateStudentData privateStudentData = task.getResult();
+                peopleQueryAdapter = new PeopleQueryAdapter(fragment.getActivity(), onClickHandler, privateStudentData, mIgnoreTutors);
 
-        recyclerView = (CogniRecyclerView) rootView.findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(peopleQueryAdapter);
-        peopleQueryAdapter.loadObjects();
+                recyclerView = (CogniRecyclerView) rootView.findViewById(R.id.recyclerView);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                recyclerView.setAdapter(peopleQueryAdapter);
+                peopleQueryAdapter.loadObjects();
+                return null;
+            }
+        });
 
         return rootView;
     }

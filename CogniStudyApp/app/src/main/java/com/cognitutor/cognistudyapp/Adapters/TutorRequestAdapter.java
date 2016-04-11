@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
@@ -99,6 +100,7 @@ public class TutorRequestAdapter extends ArrayAdapter<PublicUserData> {
         mPrivateStudentData.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
+                ((MainActivity) mActivity).updatePeopleFragment();
                 mFragment.refresh();
             }
         });

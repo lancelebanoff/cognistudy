@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -50,6 +51,7 @@ public class TutorProfileActivity extends CogniActivity {
         if(mPublicUserData == null) { return; } //TODO: Handle this?
         try {
             mTutor = mPublicUserData.getTutor();
+            mCurrPrivateStudentData = PublicUserData.getPublicUserData().getStudent().getPrivateStudentData();
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -58,11 +60,10 @@ public class TutorProfileActivity extends CogniActivity {
         holder.imgProfile.setParseFile(mPublicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtBiography.setText(mTutor.getBiography());
-
-        try {
-            mCurrPrivateStudentData = PublicUserData.getPublicUserData().getStudent().getPrivateStudentData();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (mCurrPrivateStudentData.hasTutor(mPublicUserData)) {
+            holder.imgLinkedTutor.setVisibility(View.VISIBLE);
+        } else {
+            holder.imgLinkedTutor.setVisibility(View.INVISIBLE);
         }
         mViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         ((CogniButton) mViewFlipper.getChildAt(1)).setColor(this, R.color.grey);
@@ -150,6 +151,7 @@ public class TutorProfileActivity extends CogniActivity {
         holder.txtName = (TextView) findViewById(R.id.txtName);
         holder.imgProfile = (ParseImageView) findViewById(R.id.imgProfile);
         holder.txtBiography = (TextView) findViewById(R.id.txtBiography);
+        holder.imgLinkedTutor = (ImageView) findViewById(R.id.imgLinkedTutor);
         return holder;
     }
 
@@ -157,6 +159,7 @@ public class TutorProfileActivity extends CogniActivity {
         public TextView txtName;
         public ParseImageView imgProfile;
         public TextView txtBiography;
+        public ImageView imgLinkedTutor;
     }
 
     @Override
