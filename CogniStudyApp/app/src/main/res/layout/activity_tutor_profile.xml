@@ -73,7 +73,7 @@
                         <com.cognitutor.cognistudyapp.Custom.CogniButton
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Pending Request"
+                            android:text="Request Sent"
                             android:id="@+id/btnPendingRequest"
                             android:enabled="false"
                             android:layout_gravity="center_horizontal" />

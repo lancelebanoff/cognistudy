@@ -14,6 +14,7 @@ import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
+import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
@@ -80,6 +81,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mLock = new ReentrantLock();
         mIgnoreTutors = ignoreTutors;
+        mActivity = activity;
         getDefaultQuery(ignoreTutors).findInBackground().continueWith(new Continuation<List<PublicUserData>, Object>() {
 //        getImportantCachedPublicUserDatas().continueWith(new Continuation<List<PublicUserData>, Object>() {
             @Override
@@ -163,7 +165,12 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mOnClickHandler.onListItemClick(publicUserData);
+                    if(mOnClickHandler != null) {
+                        mOnClickHandler.onListItemClick(publicUserData);
+                    }
+                    else { //App crashed once when mOnClickHandler was null. Not sure why so added this as a default behavior.
+                        PeopleFragment.getNavigateToProfileHandler(mActivity).onListItemClick(publicUserData);
+                    }
                 }
             });
         }

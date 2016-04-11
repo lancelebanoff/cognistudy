@@ -179,20 +179,7 @@ public class MainActivity extends AuthenticationActivity {
             if(position == Fragments.Main.ordinal())
                 return MainFragment.newInstance();
             if(position == Fragments.People.ordinal()) {
-                mPeopleFragment = PeopleFragment.newInstance(new PeopleListOnClickHandler() {
-                    @Override
-                    public void onListItemClick(PublicUserData publicUserData) {
-                        Class destination;
-                        if (publicUserData.getUserType().equals(Constants.UserType.STUDENT)) {
-                            destination = StudentProfileActivity.class;
-                        } else {
-                            destination = TutorProfileActivity.class;
-                        }
-                        Intent intent = new Intent(mActivity, destination);
-                        intent.putExtra(Constants.IntentExtra.PUBLICUSERDATA_ID, publicUserData.getObjectId());
-                        mActivity.startActivity(intent);
-                    }
-                }, false);
+                mPeopleFragment = PeopleFragment.newInstance(PeopleFragment.getNavigateToProfileHandler(mActivity), false);
                 return mPeopleFragment;
             }
             if(position == Fragments.Messages.ordinal())

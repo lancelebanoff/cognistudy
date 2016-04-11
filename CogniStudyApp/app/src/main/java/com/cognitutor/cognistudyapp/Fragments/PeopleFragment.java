@@ -1,5 +1,6 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,8 +13,10 @@ import android.widget.SearchView;
 import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.Activities.TutorProfileActivity;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Adapters.PeopleQueryAdapter;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 
 import java.util.List;
@@ -35,6 +38,23 @@ public class PeopleFragment extends CogniFragment {
         peopleFragment.onClickHandler = onClickHandler;
         peopleFragment.mIgnoreTutors = ignoreTutors;
         return peopleFragment;
+    }
+
+    public static PeopleListOnClickHandler getNavigateToProfileHandler(final Activity activity) {
+        return new PeopleListOnClickHandler() {
+            @Override
+            public void onListItemClick(PublicUserData publicUserData) {
+                Class destination;
+                if (publicUserData.getUserType().equals(Constants.UserType.STUDENT)) {
+                    destination = StudentProfileActivity.class;
+                } else {
+                    destination = TutorProfileActivity.class;
+                }
+                Intent intent = new Intent(activity, destination);
+                intent.putExtra(Constants.IntentExtra.PUBLICUSERDATA_ID, publicUserData.getObjectId());
+                activity.startActivity(intent);
+            }
+        };
     }
 
     //Used when a challenge finishes loading and being pinned so that the opponent shows up in the people list

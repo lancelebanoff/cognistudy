@@ -1,5 +1,8 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -61,6 +65,7 @@ public class TutorProfileActivity extends CogniActivity {
             e.printStackTrace();
         }
         mViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        ((CogniButton) mViewFlipper.getChildAt(1)).setColor(this, R.color.grey);
         if (mCurrPrivateStudentData.hasRequestedTutor(mPublicUserData)) {
             mViewFlipper.setDisplayedChild(1);
         }
@@ -95,6 +100,25 @@ public class TutorProfileActivity extends CogniActivity {
     }
 
     public void onClick_btnRemoveTutor(View view) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.title_dialog_unlink_from_tutor)
+                .setMessage(R.string.message_dialog_unlink_from_tutor)
+                .setPositiveButton(R.string.yes_dialog_unlink_from_tutor, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        unlinkTutor();
+                    }
+                })
+                .setNegativeButton(R.string.no_dialog_unlink_from_tutor, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Do nothing
+                    }
+                })
+                .create().show();
+    }
+
+    private void unlinkTutor() {
         mCurrPrivateStudentData.removeTutor(mPublicUserData);
         mCurrPrivateStudentData.saveInBackground();
 
