@@ -509,11 +509,12 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         }
 
         super.onPause();
+        getActivity().unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
     public void onDestroyView() {
-        getActivity().unregisterReceiver(mBroadcastReceiver);
+//        getActivity().unregisterReceiver(mBroadcastReceiver);
         super.onDestroyView();
     }
 }
