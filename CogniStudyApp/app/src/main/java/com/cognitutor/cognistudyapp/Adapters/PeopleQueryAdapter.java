@@ -22,7 +22,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -51,6 +50,15 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         holder.imgProfile.setParseFile(publicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtName.setText(publicUserData.getDisplayName());
+        switch (publicUserData.getUserType()) {
+            case Constants.UserType.TUTOR:
+            case Constants.UserType.ADMIN:
+                holder.txtTutor.setVisibility(View.VISIBLE);
+                break;
+            default:
+                holder.txtTutor.setVisibility(View.INVISIBLE);
+                break;
+        }
 
         holder.setOnClickListener(publicUserData);
     }
@@ -140,6 +148,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     class ViewHolder extends RecyclerView.ViewHolder {
         public TextView txtName;
         public RoundedImageView imgProfile;
+        public TextView txtTutor;
         private View itemView;
 
         public ViewHolder(View itemView) {
@@ -147,6 +156,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
             this.itemView = itemView;
             txtName = (TextView) itemView.findViewById(R.id.txtName);
             imgProfile = (RoundedImageView) itemView.findViewById(R.id.imgProfileRounded);
+            txtTutor = (TextView) itemView.findViewById(R.id.txtTutor);
         }
 
         public void setOnClickListener(final PublicUserData publicUserData) {
