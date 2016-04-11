@@ -21,6 +21,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.R;
 
+import java.util.concurrent.Callable;
+
 import bolts.Continuation;
 import bolts.Task;
 
@@ -41,6 +43,26 @@ public class PeopleFragment extends CogniFragment {
         peopleFragment.onClickHandler = onClickHandler;
         peopleFragment.mIgnoreTutors = ignoreTutors;
         return peopleFragment;
+    }
+
+    interface WaitForPeopleQueryAdapterInterface {
+        void onPeopleQueryAdapterNotNull();
+    }
+
+    private void runWhenPeopleQueryAdapterInitialized(final Activity activity, final WaitForPeopleQueryAdapterInterface inter) {
+        Task.callInBackground(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                while(peopleQueryAdapter == null) { Thread.sleep(10); }
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        inter.onPeopleQueryAdapterNotNull();
+                    }
+                });
+                return null;
+            }
+        });
     }
 
     public static PeopleListOnClickHandler getNavigateToProfileHandler(final Activity activity) {
@@ -64,7 +86,12 @@ public class PeopleFragment extends CogniFragment {
     public void updateList() {
         String q = searchView.getQuery().toString();
         if(q.length() == 0) {
-            peopleQueryAdapter.resetResultsToDefault();
+            runWhenPeopleQueryAdapterInitialized(getActivity(), new WaitForPeopleQueryAdapterInterface() {
+                @Override
+                public void onPeopleQueryAdapterNotNull() {
+                    peopleQueryAdapter.resetResultsToDefault();
+                }
+            });
         }
     }
 
@@ -147,16 +174,31 @@ public class PeopleFragment extends CogniFragment {
         startActivity(intent);
     }
 
-    private void search(String q) {
-        peopleQueryAdapter.search(q);
+    private void search(final String q) {
+        runWhenPeopleQueryAdapterInitialized(getActivity(), new WaitForPeopleQueryAdapterInterface() {
+            @Override
+            public void onPeopleQueryAdapterNotNull() {
+                peopleQueryAdapter.search(q);
+            }
+        });
     }
 
-    private void filter(String q) {
-        peopleQueryAdapter.getFilter().filter(q);
+    private void filter(final String q) {
+        runWhenPeopleQueryAdapterInitialized(getActivity(), new WaitForPeopleQueryAdapterInterface() {
+            @Override
+            public void onPeopleQueryAdapterNotNull() {
+                peopleQueryAdapter.getFilter().filter(q);
+            }
+        });
     }
 
     private void resetResultsToDefault() {
-        peopleQueryAdapter.resetResultsToDefault();
+        runWhenPeopleQueryAdapterInitialized(getActivity(), new WaitForPeopleQueryAdapterInterface() {
+            @Override
+            public void onPeopleQueryAdapterNotNull() {
+                peopleQueryAdapter.resetResultsToDefault();
+            }
+        });
     }
 }
 

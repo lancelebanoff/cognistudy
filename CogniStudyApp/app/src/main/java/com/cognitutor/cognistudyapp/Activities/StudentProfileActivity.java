@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
@@ -83,6 +82,7 @@ public class StudentProfileActivity extends CogniActivity {
         mViewSwitcher.showNext();
         final CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnUnfollow);
         btnUnfollow.setClickable(false);
+        holder.imgFollowedStudent.setVisibility(View.VISIBLE);
 
         mCurrPrivateStudentData.addFriend(mPublicUserData);
         mCurrPrivateStudentData.saveInBackground().continueWith(new Continuation<Void, Void>() {
@@ -93,14 +93,13 @@ public class StudentProfileActivity extends CogniActivity {
                 return null;
             }
         });
-
-        Toast.makeText(this, "You are now following " + mPublicUserData.getDisplayName(), Toast.LENGTH_LONG).show();
     }
 
     public void onClick_btnUnfollow(View view) {
         mViewSwitcher.showNext();
         final CogniButton btnFollow = (CogniButton) findViewById(R.id.btnUnfollow);
         btnFollow.setClickable(false);
+        holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
 
         mCurrPrivateStudentData.removeFriend(mPublicUserData);
         mCurrPrivateStudentData.saveInBackground().continueWith(new Continuation<Void, Void>() {
@@ -111,8 +110,6 @@ public class StudentProfileActivity extends CogniActivity {
                 return null;
             }
         });
-
-        Toast.makeText(this, "You are no longer following " + mPublicUserData.getDisplayName(), Toast.LENGTH_LONG).show();
     }
 
     public void onClick_btnMessage(View view) {
