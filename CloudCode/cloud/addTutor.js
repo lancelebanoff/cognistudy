@@ -19,7 +19,15 @@ Parse.Cloud.define("addTutor", function(request, response) {
 			privateStudentData.save(null, {
 			  success: function(privateStudentData) {
 			    // Execute any logic that should take place after the object is saved.
-			    response.success('Tutor added to tutors in PrivateStudentData with objectId: ' + tutorPublicData.id);
+			  	var successStr = 'Tutor added to tutors in PrivateStudentData with objectId: ' + tutorPublicData.id;
+			  	sendTutorAcceptNotification(tutorPublicData.get("baseUserId"), privateStudentData.get("baseUserId")).then(
+			  		function(success) {
+			  			console.log("tutor accept notification sent successfully");
+			    		response.success(successStr);
+			  		}, function(error) { 
+			  			console.error("error sending tutor accept notification");
+			    		response.success(successStr);
+			  	});
 			  },
 			  error: function(privateStudentData, error) {
 			    // Execute any logic that should take place if the save fails.
@@ -42,3 +50,33 @@ Parse.Cloud.define("addTutor", function(request, response) {
 	  }
 	});
 });
+
+function sendTutorAcceptNotification(senderBaseUserId, receiverBaseUserId) {
+
+	Parse.Cloud.useMasterKey();
+
+	var promise = new Parse.Promise();
+	var query = new Parse.Query("PublicUserData")
+											.equalTo("baseUserId", senderBaseUserId);
+
+	query.first({
+		success: function(publicUserData) {
+
+			var senderName = publicUserData.get("displayName");
+
+			var data = {};
+			data.title = "Tutor Request Accepted!";
+			data.alert = senderName.toString() + " accepted your tutor request";
+			data.ACTIVITY = "MAIN_ACTIVITY";
+			//Don't include fragment because we don't want MainFragment to refresh
+
+			common.sendPushNotification(receiverBaseUserId, data).then(
+				function(success) {
+					promise.resolve();
+				}, function(error) {
+					promise.reject(error);
+				});
+		}, error: function(error) { promise.reject(error); }
+	});
+	return promise;
+}
