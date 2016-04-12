@@ -85,3 +85,7 @@ exports.sendPushNotification = function(baseUserId, notiData) {
 		}
 	});
 }
+
+exports.getStudentTutorRoleName = function(studentBaseUserId) {
+	return "Tutor_" + studentBaseUserId;
+}

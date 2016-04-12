@@ -1,6 +1,9 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import com.cognitutor.cognistudyapp.Custom.ACLUtils;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseClassName;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -18,12 +21,12 @@ public class Response extends QuestionMetaObject {
 
     @Override
     public String getSubject() {
-        return getQuestion().getSubject();
+        return getString(Columns.subject);
     }
 
     @Override
     public String getCategory() {
-        return getQuestion().getCategory();
+        return getString(Columns.category);
     }
 
     @Override
@@ -42,6 +45,8 @@ public class Response extends QuestionMetaObject {
         public static final String correct = "correct";
         public static final String selectedAnswer = "selectedAnswer";
         public static final String rating = "rating";
+        public static final String category = "category";
+        public static final String subject = "subject";
     }
 
     public Response() {}
@@ -49,6 +54,8 @@ public class Response extends QuestionMetaObject {
     public Response(Question question, boolean correct, int selectedAnswer, String rating) {
         put(Columns.baseUserID, ParseUser.getCurrentUser().getObjectId());
         put(Columns.question, question);
+        put(Columns.category, question.getCategory());
+        put(Columns.subject, question.getSubject());
         put(Columns.correct, correct);
         put(Columns.selectedAnswer, selectedAnswer);
         put(Columns.rating, rating);
