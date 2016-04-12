@@ -3,7 +3,9 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.ACLUtils;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.parse.ParseClassName;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -15,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import bolts.Continuation;
@@ -183,10 +186,33 @@ public class PrivateStudentData extends ParseObject{
         return getList(Columns.requestsFromTutors);
     }
 
+    public boolean tutorHasSentRequest(PublicUserData tutor) {
+        return getTutorRequests().contains(tutor);
+    }
+
     public void removeTutorRequest(PublicUserData tutor) {
         ArrayList<PublicUserData> tutorToRemove = new ArrayList<>();
         tutorToRemove.add(tutor);
         removeAll(Columns.requestsFromTutors, tutorToRemove);
+    }
+
+    public void linkTutor(PublicUserData tutor) {
+        removeTutorRequest(tutor);
+        addTutor(tutor);
+        saveInBackground();
+
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("studentPublicDataId", PublicUserData.getPublicUserData().getObjectId());
+        params.put("tutorPublicDataId", tutor.getObjectId());
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.ADD_STUDENT, params).continueWith(new Continuation<Object, Void>() {
+            @Override
+            public Void then(Task<Object> task) throws Exception {
+                if (task.getError() != null) {
+                    task.getError().printStackTrace();
+                }
+                return null;
+            }
+        });
     }
 
     @Override

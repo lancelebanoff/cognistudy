@@ -1,6 +1,5 @@
 package com.cognitutor.cognistudyapp.Activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
@@ -20,6 +18,7 @@ import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
+import com.parse.ParseObject;
 
 import java.util.HashMap;
 
@@ -60,6 +59,24 @@ public class TutorProfileActivity extends CogniActivity {
         holder.imgProfile.setParseFile(mPublicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtBiography.setText(mTutor.getBiography());
+        showCorrectDisplay();
+        mCurrPrivateStudentData.fetchInBackground().continueWith(new Continuation<ParseObject, Object>() {
+            @Override
+            public Object then(Task<ParseObject> task) throws Exception {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showCorrectDisplay();
+                    }
+                });
+                return null;
+            }
+        });
+
+        showTutorialDialogIfNeeded(Constants.Tutorial.LINK_TUTOR, null);
+    }
+
+    private void showCorrectDisplay() {
         if (mCurrPrivateStudentData.hasTutor(mPublicUserData)) {
             holder.imgLinkedTutor.setVisibility(View.VISIBLE);
         } else {
@@ -73,8 +90,12 @@ public class TutorProfileActivity extends CogniActivity {
         else if(mCurrPrivateStudentData.hasTutor(mPublicUserData)) {
             mViewFlipper.setDisplayedChild(2);
         }
-
-        showTutorialDialogIfNeeded(Constants.Tutorial.LINK_TUTOR, null);
+        else if (mCurrPrivateStudentData.tutorHasSentRequest(mPublicUserData)) {
+            mViewFlipper.setDisplayedChild(3);
+        }
+        else {
+            mViewFlipper.setDisplayedChild(0);
+        }
     }
 
     public void onClick_btnAddTutor(View view) {
@@ -96,8 +117,14 @@ public class TutorProfileActivity extends CogniActivity {
 
         ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         viewFlipper.showNext();
+    }
 
-        Toast.makeText(this, "Request sent to tutor.", Toast.LENGTH_LONG).show();
+    public void onClick_btnAcceptRequest(View view) {
+        mCurrPrivateStudentData.linkTutor(mPublicUserData);
+
+        holder.imgLinkedTutor.setVisibility(View.VISIBLE);
+        ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        viewFlipper.setDisplayedChild(2);
     }
 
     public void onClick_btnRemoveTutor(View view) {
@@ -136,10 +163,9 @@ public class TutorProfileActivity extends CogniActivity {
             }
         });
 
+        holder.imgLinkedTutor.setVisibility(View.INVISIBLE);
         ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-        viewFlipper.showNext();
-
-        Toast.makeText(this, "Unlinked from tutor.", Toast.LENGTH_LONG).show();
+        viewFlipper.setDisplayedChild(0);
     }
 
     public void onClick_btnMessage(View view) {

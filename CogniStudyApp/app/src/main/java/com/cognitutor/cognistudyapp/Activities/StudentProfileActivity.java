@@ -88,7 +88,7 @@ public class StudentProfileActivity extends CogniActivity {
         mCurrPrivateStudentData.saveInBackground().continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                mPublicUserData.pinInBackground();
+                mPublicUserData.pinInBackground(Constants.PinNames.CurrentUser);
                 btnUnfollow.setClickable(true);
                 return null;
             }
@@ -106,6 +106,7 @@ public class StudentProfileActivity extends CogniActivity {
             @Override
             public Void then(Task<Void> task) throws Exception {
                 mPublicUserData.unpinInBackground();
+                mPublicUserData.unpinInBackground(Constants.PinNames.CurrentUser);
                 btnFollow.setClickable(true);
                 return null;
             }

@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
@@ -221,7 +220,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 
         mCacheThenNetworkHelper.cancelAllQueries();
 
-        mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(Constants.PinNames.PeopleSearch,
+        mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(null,
                 false, thisAdapter, new QueryUtils.ParseQueryBuilder <PublicUserData> () {
                     @Override
                     public ParseQuery<PublicUserData> buildQuery() {
@@ -235,7 +234,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                 //If the user cancelled the search, the previous task will return null
                 if (task.getResult() == null)
                     return null;
-                return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(Constants.PinNames.PeopleSearch,
+                return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(null,
                         false, thisAdapter, new QueryUtils.ParseQueryBuilder<PublicUserData>() {
                             @Override
                             public ParseQuery<PublicUserData> buildQuery() {
@@ -244,12 +243,12 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                             }
                 });
             }
-        }).continueWith(new Continuation<List<PublicUserData>, Object>() {
-            @Override
-            public Object then(Task<List<PublicUserData>> task) throws Exception {
-                ParseObjectUtils.unpinAllInBackground(Constants.PinNames.PeopleSearch);
-                return null;
-            }
+//        }).continueWith(new Continuation<List<PublicUserData>, Object>() {
+//            @Override
+//            public Object then(Task<List<PublicUserData>> task) throws Exception {
+//                ParseObjectUtils.unpinAllInBackground(Constants.PinNames.PeopleSearch);
+//                return null;
+//            }
         });
     }
 
