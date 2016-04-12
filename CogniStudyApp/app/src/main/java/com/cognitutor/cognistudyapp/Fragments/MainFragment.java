@@ -27,6 +27,7 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Adapters.TutorRequestAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -460,6 +461,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnStartChallenge:
+                ParseObjectUtils.logPinnedObjects(false);
                 navigateToNewChallengeActivity();
                 break;
 //            case R.id.btnViewLocalDatastore:

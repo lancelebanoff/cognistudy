@@ -94,6 +94,14 @@
                             android:id="@+id/btnUnfollow"
                             android:onClick="onClick_btnRemoveTutor"
                             android:layout_gravity="center_horizontal" />
+
+                        <com.cognitutor.cognistudyapp.Custom.CogniButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Accept Request"
+                            android:id="@+id/btnAcceptRequest"
+                            android:onClick="onClick_btnAcceptRequest"
+                            android:layout_gravity="center_horizontal"/>
                     </ViewFlipper>
 
                     <com.cognitutor.cognistudyapp.Custom.CogniButton
