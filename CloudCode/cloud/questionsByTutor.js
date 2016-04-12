@@ -12,7 +12,7 @@ Parse.Cloud.define("questionsByTutor", function(request, response) {
 	var query = new Parse.Query("Question")
 		.descending("createdAt")
 		.matchesKeyInQuery("questionContents", "objectId", contentsQuery)
-		.include("questionContents").include("questionData").include("bundle");
+		.include("questionContents").include("questionData.reviews").include("bundle");
 	query.find({ useMasterKey: true,
 		success: function(questions) {
 			response.success(questions);
