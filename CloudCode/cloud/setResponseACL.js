@@ -12,23 +12,19 @@ Parse.Cloud.afterSave("Response", function(request) {
 		return;
 
 	var query = new Parse.Query(Parse.User);
-	query.equalTo("objectId", baseUserId);
-	query.first({
+	query.get(baseUserId, {
 		success: function(user) {
 
 			var acl = new Parse.ACL(user);
-			var roleName = common.getStudentTutorRoleName(baseUserId);
-			var query = new Parse.Query(Parse.Role);
-			query.equalTo("name", roleName);
-			query.first({
-				success: function(role) {
+			common.getStudentTutorRole(baseUserId).then(
+				function(role) {
 
 					acl.setRoleReadAccess(role, true);
 					response.setACL(acl);
 					response.save();
 
-				}, function(error) { console.error(error); }
+				}, function(error) { console.error(error);
 			});
-		}, error: function(error) { response.error(error); }
+		}, error: function(error) { console.error(error); }
 	});
 });

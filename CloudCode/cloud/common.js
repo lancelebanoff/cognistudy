@@ -89,3 +89,37 @@ exports.sendPushNotification = function(baseUserId, notiData) {
 exports.getStudentTutorRoleName = function(studentBaseUserId) {
 	return "Tutor_" + studentBaseUserId;
 }
+
+exports.getStudentTutorRole = function(studentBaseUserId) {
+	var roleName = getStudentTutorRoleName(studentBaseUserId);
+	var query = new Parse.Query(Parse.Role);
+	query.equalTo("name", roleName);
+	return query.first();
+}
+
+exports.addOrRemoveTutorFromRole = function(tutorBaseUserId, studentBaseUserId, inRole) {
+
+	Parse.Cloud.useMasterKey();
+
+	var promise = new Parse.Promise();
+
+	common.getStudentTutorRole(studentBaseUserId).then(
+		function(role) {
+			var userQuery = new Parse.Query(Parse.User);
+			userQuery.get(tutorBaseUserId, {
+				success: function(user) {
+					if(inRole)
+						role.getUsers().add(user);
+					else
+						role.getUsers().remove(user);
+					role.save().then(
+						function(success) {
+							promise.resolve();
+						}, function(error) { promise.reject(error);
+					});
+				}, error: function(error) { promise.reject(error); }
+			});
+		}, function(error) { promise.reject(error);
+	});	
+	return promise;
+}
