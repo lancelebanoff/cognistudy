@@ -34,7 +34,6 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -206,13 +205,18 @@ public class ChallengeActivity extends CogniPushListenerActivity {
         progressBarYourTurn.setVisibility(View.GONE);
 
         Button btnYourTurn = (Button) findViewById(R.id.btnYourTurn);
+        CogniButton btnWaitingForOpponent = (CogniButton) findViewById(R.id.btnWaitingForOpponent);
         if (mIsCurrentUsersTurn && !mChallenge.getHasEnded()) {
             btnYourTurn.setVisibility(View.VISIBLE);
+            btnWaitingForOpponent.setVisibility(View.INVISIBLE);
         } else {
+            btnWaitingForOpponent.setColor(this, R.color.grey);
+            btnWaitingForOpponent.setVisibility(View.VISIBLE);
             btnYourTurn.setVisibility(View.INVISIBLE);
         }
 
         if (mChallenge.getHasEnded()) {
+            btnWaitingForOpponent.setVisibility(View.INVISIBLE);
             CogniImageButton btnResign = (CogniImageButton) findViewById(R.id.btnResign);
             btnResign.setVisibility(View.INVISIBLE);
         }

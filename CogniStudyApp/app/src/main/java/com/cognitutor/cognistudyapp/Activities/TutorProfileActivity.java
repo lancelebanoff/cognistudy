@@ -131,4 +131,10 @@ public class TutorProfileActivity extends CogniActivity {
         public ParseImageView imgProfile;
         public TextView txtBiography;
     }
+
+    @Override
+    protected void onDestroy() {
+        publicUserData.unpinInBackground();
+        super.onDestroy();
+    }
 }
