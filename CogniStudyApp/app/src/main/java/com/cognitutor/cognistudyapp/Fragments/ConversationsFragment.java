@@ -51,7 +51,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mConversationAdapter);
         mConversationAdapter.loadObjects();
-        showOrHideNoMessagesText();
+        waitAndShowOrHideNoMessagesText();
 
         FloatingActionButton fabNewConversation = (FloatingActionButton) rootView.findViewById(R.id.fabNewConversation);
         fabNewConversation.setOnClickListener(this);
@@ -74,22 +74,30 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
         });
     }
 
-    private void showOrHideNoMessagesText() {
+    private void waitAndShowOrHideNoMessagesText() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 SystemClock.sleep(Constants.Loading.CHALLENGE_ARROW_WAIT_TIME);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mConversationAdapter.getItemCount() == 0) {
-                            TextView txtNoMessages = (TextView) getActivity().findViewById(R.id.txtNoMessages);
-                            txtNoMessages.setVisibility(View.VISIBLE);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showOrHideNoMessagesText();
                         }
-                    }
-                });
+                    });
+                }
             }
         }).start();
+    }
+
+    private void showOrHideNoMessagesText() {
+        TextView txtNoMessages = (TextView) getActivity().findViewById(R.id.txtNoMessages);
+        if (mConversationAdapter.getItemCount() == 0) {
+            txtNoMessages.setVisibility(View.VISIBLE);
+        } else {
+            txtNoMessages.setVisibility(View.GONE);
+        }
     }
 
     @Override

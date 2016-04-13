@@ -67,4 +67,8 @@
     <string name="bookmark_button_bookmark">BOOKMARK</string>
     <string name="bookmark_button_bookmarked">BOOKMARKED</string>
     <string name="yes_dialog_tutorial">Ok</string>
+    <string name="title_dialog_unlink_from_tutor">Unlink from Tutor?</string>
+    <string name="message_dialog_unlink_from_tutor">Are you sure you want to unlink from this tutor?</string>
+    <string name="yes_dialog_unlink_from_tutor">Yes</string>
+    <string name="no_dialog_unlink_from_tutor">No</string>
 </resources>

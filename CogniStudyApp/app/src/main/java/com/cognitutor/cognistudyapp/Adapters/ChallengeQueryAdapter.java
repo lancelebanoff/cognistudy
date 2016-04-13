@@ -55,7 +55,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         });
     }
     */
-    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<Pair> keyValuePairs) {
+    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<Pair> keyValuePairs, final String orderByDateColumn) {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 ParseQuery query = Challenge.getQuery();
@@ -63,7 +63,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                 for (Pair pair : keyValuePairs) {
                     query = query.whereEqualTo((String) pair.first, pair.second);
                 }
-                return query;
+                return query.orderByDescending(orderByDateColumn);
             }
         });
         mActivity = (Activity) context;
@@ -71,7 +71,8 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
     }
 
     // Use this constructor for past challenges, which uses an "or" query
-    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
+    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<List<Pair>> keyValuePairsList, final String orderByDateColumn,
+                                 boolean pastChallenges) {
         super(context, new QueryFactory<ParseObject>() {
             public ParseQuery create() {
                 List<ParseQuery<Challenge>> queries = new ArrayList<>();
@@ -83,7 +84,7 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                     }
                     queries.add(query);
                 }
-                return ParseQuery.or(queries);
+                return ParseQuery.or(queries).orderByDescending(orderByDateColumn);
             }
         });
         mActivity = (Activity) context;

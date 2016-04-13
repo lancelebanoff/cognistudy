@@ -92,10 +92,13 @@ public class PublicUserData extends ParseObject{
         return ParseQuery.getQuery(PublicUserData.class);
     }
 
-    public static ParseQuery<PublicUserData> getNonCurrentUserQuery() {
-        return ParseQuery.getQuery(PublicUserData.class)
+    public static ParseQuery<PublicUserData> getNonCurrentUserQuery(boolean ignoreTutors) {
+        ParseQuery<PublicUserData> query = ParseQuery.getQuery(PublicUserData.class)
                 .whereNotEqualTo(PublicUserData.Columns.baseUserId, UserUtils.getCurrentUserId())
                 .whereContainedIn(PublicUserData.Columns.userType, Arrays.asList(Constants.UserType.nonComputerUserTypes));
+        if(ignoreTutors)
+            return query.whereEqualTo(Columns.userType, Constants.UserType.STUDENT);
+        return query;
     }
 
     public static PublicUserData getPublicUserData() {

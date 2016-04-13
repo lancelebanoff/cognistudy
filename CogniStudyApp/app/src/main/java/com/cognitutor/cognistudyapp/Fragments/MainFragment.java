@@ -27,6 +27,7 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Adapters.TutorRequestAdapter;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -189,7 +190,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
             @Override
             public Void then(Task<PrivateStudentData> task) throws Exception {
-                task.getResult().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                task.getResult().fetchInBackground(new GetCallback<ParseObject>() {
                     @Override
                     public void done(ParseObject object, ParseException e) {
                         PrivateStudentData privateStudentData = (PrivateStudentData) object;
@@ -224,7 +225,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
-        challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
+        challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs, Constants.ParseObjectColumns.updatedAt);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -255,7 +256,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
-        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
+        yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs, Constants.ParseObjectColumns.updatedAt);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -285,7 +286,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
-        theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
+        theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs, Constants.ParseObjectColumns.updatedAt);
 
 
         getActivity().runOnUiThread(new Runnable() {
@@ -323,7 +324,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         List<List<Pair>> keyValuePairsList = new ArrayList<>();
         keyValuePairsList.add(keyValuePairs1);
         keyValuePairsList.add(keyValuePairs2);
-        pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairsList, true);
+        pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairsList, Challenge.Columns.endDate, true);
 
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
@@ -460,6 +461,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnStartChallenge:
+                ParseObjectUtils.logPinnedObjects(false);
                 navigateToNewChallengeActivity();
                 break;
 //            case R.id.btnViewLocalDatastore:
@@ -509,11 +511,12 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         }
 
         super.onPause();
+        getActivity().unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
     public void onDestroyView() {
-        getActivity().unregisterReceiver(mBroadcastReceiver);
+//        getActivity().unregisterReceiver(mBroadcastReceiver);
         super.onDestroyView();
     }
 }
