@@ -7,6 +7,7 @@ Parse.Cloud.beforeSave("Student", function(request, response) {
         student.set("randomEnabledChanged", true);
     else
         student.set("randomEnabledChanged", false);
+
     response.success();
 });
 
@@ -21,9 +22,11 @@ Parse.Cloud.afterSave("Student", function(request) {
     }
     getUserCount()
         .then(function(userCount) {
+            var promises = [];
             if(isNew) {
                 userCount.increment("numStudents");
                 userCount.increment("totalUsers");
+                promises.push(createNewTutorRole(student));
             }
             if(randomEnabledChanged) {
                 var amount;
@@ -36,9 +39,8 @@ Parse.Cloud.afterSave("Student", function(request) {
                 userCount.increment("numStudentsRandom", amount);
             }
             student.set("randomEnabledChanged", false);
-            var promises = [];
-            promises.add(student.save());
-            promises.add(userCount.save());
+            promises.push(student.save());
+            promises.push(userCount.save());
             Parse.Promise.when(promises).then(
                 function(success) {
                     return;
@@ -79,4 +81,11 @@ function getUserCount() {
         }
     });
     return promise;
+}
+
+function createNewTutorRole(student) {
+
+    var name = common.getStudentTutorRoleName(student.get("baseUserId"));
+    var role = new Parse.Role(name, new Parse.ACL());
+    return role.save();
 }

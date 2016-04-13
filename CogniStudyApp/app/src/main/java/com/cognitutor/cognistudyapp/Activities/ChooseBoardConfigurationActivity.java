@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
+import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
@@ -16,6 +17,7 @@ import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FunctionCallback;
@@ -40,6 +42,8 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     private Intent mIntent;
     private String mChallengeId;
     private int mUser1or2;
+    private Challenge mChallenge;
+    private boolean mIsComputerOpponent;
 
     private GridLayout mShipsGridLayout;
     private GridLayout mTargetsGridLayout;
@@ -50,14 +54,16 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_board_configuration);
         mIntent = getIntent();
+        mChallengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
+        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
+        mChallenge = Challenge.getChallenge(mChallengeId);
+        mIsComputerOpponent = mChallenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER);
 
         initializeBoard();
+        showTutorialDialogIfNeeded(Constants.Tutorial.CHOOSE_BOARD_CONFIGURATION, null);
     }
 
     private void initializeBoard() {
-        mChallengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
-        mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
-
         ChallengeUtils.initializeNewBattleshipBoardManager(this, mChallengeId, mUser1or2, false)
                 .continueWith(new Continuation<BattleshipBoardManager, Void>() {
                     @Override
@@ -114,27 +120,41 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
 
     public void onClick_btnStartChallenge(View view) {
         mBattleshipBoardManager.saveNewGameBoard();
-        Challenge.getChallengeInBackground(mChallengeId)
-                .onSuccess(new Continuation<Challenge, Void>() {
-                    @Override
-                    public Void then(Task<Challenge> task) throws Exception {
-                        Challenge challenge = task.getResult();
-                        if (challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER)) {
-                            createComputerBoard();
-                            challenge.setActivated(true);
-                            challenge.setOtherTurnUserId(PublicUserData.getComputerPublicUserData().getBaseUserId());
-                            setChallengeAccepted(challenge);
-                            navigateToChallengeActivity();
-                        } else if (mUser1or2 == 1) {
-                            setChallengeActivated(challenge);
-                        } else {
-                            setChallengeAccepted(challenge);
-                            navigateToChallengeActivity();
-                        }
-                        finish();
-                        return null;
-                    }
-                });
+        if (mIsComputerOpponent) {
+            createComputerBoard();
+            mChallenge.setActivated(true);
+            mChallenge.setOtherTurnUserId(PublicUserData.getComputerPublicUserData().getBaseUserId());
+            setChallengeAccepted(mChallenge);
+            navigateToChallengeActivity();
+            finish();
+        } else if (mUser1or2 == 1) {
+            setChallengeActivated(mChallenge);
+            sendChallengeRequestNotification();
+            boolean dialogShown = showTutorialDialogIfNeeded(Constants.Tutorial.CHALLENGE_REQUEST_SENT, new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            });
+
+            if (!dialogShown) {
+                Toast.makeText(this, "Challenge request sent", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        } else {
+            setChallengeAccepted(mChallenge);
+            navigateToChallengeActivity();
+            finish();
+        }
+    }
+
+    private void sendChallengeRequestNotification() {
+        String challengeId = mChallenge.getObjectId();
+        String senderBaseUserId = UserUtils.getCurrentUserId();
+        String receiverBaseUserId = mChallenge.getOpponentBaseUserId();
+        int user1Or2 = mChallenge.getOpponentUser1Or2();
+        CommonUtils.sendChallengeNotification(Constants.CloudCodeFunction.SendChallengeNotification.NotificationType.CHALLENGE_REQUEST,
+                challengeId, senderBaseUserId, receiverBaseUserId, user1Or2);
     }
 
     private void createComputerBoard() {
@@ -161,7 +181,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                 return null;
             }
         });
-}
+    }
 
     private void setChallengeAccepted(Challenge challenge) {
         challenge.setAccepted(true);

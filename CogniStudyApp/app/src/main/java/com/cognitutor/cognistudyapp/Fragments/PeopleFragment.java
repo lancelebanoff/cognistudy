@@ -1,9 +1,10 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +12,19 @@ import android.widget.SearchView;
 
 import com.cognitutor.cognistudyapp.Activities.StudentProfileActivity;
 import com.cognitutor.cognistudyapp.Activities.TutorProfileActivity;
+import com.cognitutor.cognistudyapp.Adapters.PeopleQueryAdapter;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Adapters.PeopleQueryAdapter;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.R;
 
-import java.util.List;
+import java.util.concurrent.Callable;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -28,18 +36,62 @@ public class PeopleFragment extends CogniFragment {
 //    private ListView listView;
     private CogniRecyclerView recyclerView;
     private SearchView searchView;
+    private boolean mIgnoreTutors;
 
-    public static final PeopleFragment newInstance(PeopleListOnClickHandler onClickHandler) {
+    public static final PeopleFragment newInstance(PeopleListOnClickHandler onClickHandler, boolean ignoreTutors) {
         PeopleFragment peopleFragment = new PeopleFragment();
         peopleFragment.onClickHandler = onClickHandler;
+        peopleFragment.mIgnoreTutors = ignoreTutors;
         return peopleFragment;
+    }
+
+    interface WaitForPeopleQueryAdapterInterface {
+        void onPeopleQueryAdapterNotNull();
+    }
+
+    private void runWhenPeopleQueryAdapterInitialized(final Activity activity, final WaitForPeopleQueryAdapterInterface inter) {
+        Task.callInBackground(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                while(peopleQueryAdapter == null) { Thread.sleep(10); }
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        inter.onPeopleQueryAdapterNotNull();
+                    }
+                });
+                return null;
+            }
+        });
+    }
+
+    public static PeopleListOnClickHandler getNavigateToProfileHandler(final Activity activity) {
+        return new PeopleListOnClickHandler() {
+            @Override
+            public void onListItemClick(PublicUserData publicUserData) {
+                Class destination;
+                if (publicUserData.getUserType().equals(Constants.UserType.STUDENT)) {
+                    destination = StudentProfileActivity.class;
+                } else {
+                    destination = TutorProfileActivity.class;
+                }
+                Intent intent = new Intent(activity, destination);
+                intent.putExtra(Constants.IntentExtra.PUBLICUSERDATA_ID, publicUserData.getObjectId());
+                activity.startActivity(intent);
+            }
+        };
     }
 
     //Used when a challenge finishes loading and being pinned so that the opponent shows up in the people list
     public void updateList() {
         String q = searchView.getQuery().toString();
         if(q.length() == 0) {
-            peopleQueryAdapter.resetResultsToDefault();
+            runWhenPeopleQueryAdapterInitialized(getActivity(), new WaitForPeopleQueryAdapterInterface() {
+                @Override
+                public void onPeopleQueryAdapterNotNull() {
+                    peopleQueryAdapter.resetResultsToDefault();
+                }
+            });
         }
     }
 
@@ -61,7 +113,7 @@ public class PeopleFragment extends CogniFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_people, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_people, container, false);
 
         searchView = (SearchView) rootView.findViewById(R.id.searchView);
         searchView.setQueryHint("Find users");
@@ -74,7 +126,7 @@ public class PeopleFragment extends CogniFragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(newText.length() == 0) {
+                if (newText.length() == 0) {
                     resetResultsToDefault();
                     return true;
                 }
@@ -83,12 +135,26 @@ public class PeopleFragment extends CogniFragment {
             }
         });
 
-        peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler);
-
         recyclerView = (CogniRecyclerView) rootView.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler, mIgnoreTutors);
         recyclerView.setAdapter(peopleQueryAdapter);
         peopleQueryAdapter.loadObjects();
+
+        final Fragment fragment = this;
+        PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
+            @Override
+            public Void then(Task<PrivateStudentData> task) throws Exception {
+                final PrivateStudentData privateStudentData = task.getResult();
+                fragment.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        peopleQueryAdapter.setPrivateStudentData(privateStudentData);
+                    }
+                });
+                return null;
+            }
+        });
 
         return rootView;
     }
@@ -114,16 +180,31 @@ public class PeopleFragment extends CogniFragment {
         startActivity(intent);
     }
 
-    private void search(String q) {
-        peopleQueryAdapter.search(q);
+    private void search(final String q) {
+        runWhenPeopleQueryAdapterInitialized(getActivity(), new WaitForPeopleQueryAdapterInterface() {
+            @Override
+            public void onPeopleQueryAdapterNotNull() {
+                peopleQueryAdapter.search(q);
+            }
+        });
     }
 
-    private void filter(String q) {
-        peopleQueryAdapter.getFilter().filter(q);
+    private void filter(final String q) {
+        runWhenPeopleQueryAdapterInitialized(getActivity(), new WaitForPeopleQueryAdapterInterface() {
+            @Override
+            public void onPeopleQueryAdapterNotNull() {
+                peopleQueryAdapter.getFilter().filter(q);
+            }
+        });
     }
 
     private void resetResultsToDefault() {
-        peopleQueryAdapter.resetResultsToDefault();
+        runWhenPeopleQueryAdapterInitialized(getActivity(), new WaitForPeopleQueryAdapterInterface() {
+            @Override
+            public void onPeopleQueryAdapterNotNull() {
+                peopleQueryAdapter.resetResultsToDefault();
+            }
+        });
     }
 }
 

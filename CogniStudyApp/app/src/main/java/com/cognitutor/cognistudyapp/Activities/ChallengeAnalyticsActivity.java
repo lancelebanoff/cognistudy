@@ -1,8 +1,11 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -23,6 +26,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ChallengeAnalyticsActivity extends CogniActivity {
@@ -40,6 +44,7 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
     private GameBoard mOpponentGameBoard;
     private LinearLayout mLlSubjectStats;
     private LinearLayout mLlBattleshipStats;
+    private LinearLayout mLlSubjects;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,13 +85,14 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
         for (int i = 0; i < subjects.length; i++) {
             String subject = subjects[i];
             View listItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
-            fillListItemForSubject(listItem, subject);
+            fillListItemForSubjectStats(listItem, subject);
             if (i == subjects.length - 1) {
                 removeDividerLine(listItem);
             }
             mLlSubjectStats.addView(listItem);
         }
         fillBattleshipListItems();
+        showSubjectsAndCategories();
     }
 
     private void addHeaderListItem() {
@@ -103,7 +109,7 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
         mLlSubjectStats.addView(listItem);
     }
 
-    private void fillListItemForSubject(View listItem, String subject) {
+    private void fillListItemForSubjectStats(View listItem, String subject) {
         setSubjectIcon(listItem, subject);
         TextView txtLabel = (TextView) listItem.findViewById(R.id.txtLabel);
         txtLabel.setText(subject);
@@ -284,6 +290,42 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
         txtTurns.setText("" + numTurns);
     }
 
+    private void showSubjectsAndCategories() {
+        mLlSubjects = (LinearLayout) findViewById(R.id.llSubjects);
+        List<String> selectedSubjects = mCurrUserData.getSubjects();
+        List<String> selectedCategories = mCurrUserData.getCategories();
+        String[] allCategories = Constants.Category.getCategories();
+
+        for (String subject : selectedSubjects) {
+            final View listItem = View.inflate(this, R.layout.list_item_challenge_stat, null);
+            fillListItemForSubject(listItem, subject);
+            removeDividerLine(listItem);
+            mLlSubjects.addView(listItem);
+
+            List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
+            for (String category : allCategories) {
+                if (selectedCategories.contains(category) && categoriesInSubject.contains(category)) {
+                    final TextView txtCategory = new TextView(this);
+                    mLlSubjects.addView(txtCategory);
+                    txtCategory.setText(category);
+                    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) txtCategory.getLayoutParams();
+                    layoutParams.setMargins((int) getResources().getDimension(R.dimen.challenge_stats_icon_size), 0, 0, 0);
+                    txtCategory.setLayoutParams(layoutParams);
+                }
+            }
+        }
+    }
+
+    private void fillListItemForSubject(View listItem, String subject) {
+        setSubjectIcon(listItem, subject);
+        TextView txtLabel = (TextView) listItem.findViewById(R.id.txtLabel);
+        txtLabel.setText(subject);
+        TextView txtCurrentValue = (TextView) listItem.findViewById(R.id.txtCurrentValue);
+        txtCurrentValue.setText("");
+        TextView txtOpponentValue = (TextView) listItem.findViewById(R.id.txtOpponentValue);
+        txtOpponentValue.setText("");
+    }
+
     private void enlargeDividerLine(View listItem) {
         View dividerLine = listItem.findViewById(R.id.dividerLine);
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) dividerLine.getLayoutParams();
@@ -301,5 +343,14 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
         progressBar.setVisibility(View.GONE);
         RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
         rlContent.setVisibility(View.VISIBLE);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public static void removeOnGlobalLayoutListener(View v, ViewTreeObserver.OnGlobalLayoutListener listener){
+        if (Build.VERSION.SDK_INT < 16) {
+            v.getViewTreeObserver().removeGlobalOnLayoutListener(listener);
+        } else {
+            v.getViewTreeObserver().removeOnGlobalLayoutListener(listener);
+        }
     }
 }

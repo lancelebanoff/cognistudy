@@ -9,21 +9,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
+import com.cognitutor.cognistudyapp.Fragments.ConversationsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
-import com.cognitutor.cognistudyapp.Fragments.ConversationsFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseInstallation;
 
 public class MainActivity extends AuthenticationActivity {
 
@@ -181,20 +179,7 @@ public class MainActivity extends AuthenticationActivity {
             if(position == Fragments.Main.ordinal())
                 return MainFragment.newInstance();
             if(position == Fragments.People.ordinal()) {
-                mPeopleFragment = PeopleFragment.newInstance(new PeopleListOnClickHandler() {
-                    @Override
-                    public void onListItemClick(PublicUserData publicUserData) {
-                        Class destination;
-                        if (publicUserData.getUserType().equals(Constants.UserType.STUDENT)) {
-                            destination = StudentProfileActivity.class;
-                        } else {
-                            destination = TutorProfileActivity.class;
-                        }
-                        Intent intent = new Intent(mActivity, destination);
-                        intent.putExtra(Constants.IntentExtra.PUBLICUSERDATA_ID, publicUserData.getObjectId());
-                        mActivity.startActivity(intent);
-                    }
-                });
+                mPeopleFragment = PeopleFragment.newInstance(PeopleFragment.getNavigateToProfileHandler(mActivity), false);
                 return mPeopleFragment;
             }
             if(position == Fragments.Messages.ordinal())
@@ -234,7 +219,7 @@ public class MainActivity extends AuthenticationActivity {
     }
 
     private void onResumeTest() {
-        Log.d("InstallationId", ParseInstallation.getCurrentInstallation().getObjectId());
+//        Log.d("InstallationId", ParseInstallation.getCurrentInstallation().getObjectId());
 //        DateUtils.test(true);
 //        QueryUtils.testCacheThenNetwork();
 //        ParseObjectUtils.testPins(false);

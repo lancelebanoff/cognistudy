@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.Fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -8,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -125,6 +129,22 @@ public class AnalyticsFragment extends CogniFragment {
         mSpSubjects.setAnimation(null);
         mSpDateRange.setOnItemSelectedListener(listener);
         mSpDateRange.setAnimation(null);
+    }
+
+    private void showHelp() {
+        ImageView image = new ImageView(getActivity());
+        image.setImageResource(R.drawable.analytics_help);
+
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(getActivity())
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setView(image);
+        builder.create().show();
     }
 
     private void getAndDisplayAnalytics() {
@@ -621,7 +641,18 @@ public class AnalyticsFragment extends CogniFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_analytics, container, false);
+        setHelpButtonListener(rootView);
         return rootView;
+    }
+
+    private void setHelpButtonListener(View rootView) {
+        ImageButton b = (ImageButton) rootView.findViewById(R.id.btnAnalyticsHelp);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showHelp();
+            }
+        });
     }
 
     private class AnalyticsData {

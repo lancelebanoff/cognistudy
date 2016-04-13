@@ -310,6 +310,11 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
         }
 
         public void setTxtDaysLeft(Challenge challenge) {
+            if (challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER)) {
+                txtDaysLeft.setVisibility(View.GONE);
+                return;
+            }
+
             Calendar calendarEndDate = Calendar.getInstance();
             if (challenge.getHasEnded()) {
                 calendarEndDate.setTime(challenge.getEndDate());
@@ -323,7 +328,7 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
             Calendar calendarCurrentDate = Calendar.getInstance();
             calendarCurrentDate.setTime(currentDate);
 
-            if(calendarCurrentDate.compareTo(calendarEndDate) < 0) { // If the end date hasn't come yet
+            if (calendarCurrentDate.compareTo(calendarEndDate) < 0) { // If the end date hasn't come yet
                 String timeBetween = DateUtils.getTimeBetween(currentDate, endDate);
                 txtDaysLeft.setText(timeBetween + " left to play");
             } else {

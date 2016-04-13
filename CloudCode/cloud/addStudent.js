@@ -22,15 +22,42 @@ Parse.Cloud.define("addStudent", function(request, response) {
 						    // The object was retrieved successfully.
 							privateTutorData.addUnique("students", studentPublicData);
 
-							privateTutorData.save(null, {
-							  success: function(privateTutorData) {
-							    // Execute any logic that should take place after the object is saved.
-							    response.success('Student added to students in PrivateTutorData with objectId: ' + studentPublicData.id);
+						  	// Notification to tutor
+						  	var NotificationTutor = Parse.Object.extend("NotificationTutor");
+							var notificationTutor = new NotificationTutor();
+							notificationTutor.set("tutorFor", publicTutorData);
+							notificationTutor.set("userFrom", studentPublicData);
+							notificationTutor.set("type", "ACCEPT_FROM_STUDENT");
+							notificationTutor.set("firstSeenAt", null);
+
+							notificationTutor.save(null, {
+							  success: function(notificationTutor) {
+
+							  	// Add to tutor's notication relation
+								var notificationsRelation = privateTutorData.relation("notifications");
+								notificationsRelation.add(notificationTutor);
+
+								privateTutorData.save(null, {
+								  success: function(privateTutorData) {
+								    // Execute any logic that should take place after the object is saved.
+								    console.log('Student added to students in PrivateTutorData with objectId: ' + privateTutorData.id);
+								    var tutorBaseUserId = privateTutorData.get("baseUserId");
+			    					var studentBaseUserId = studentPublicData.get("baseUserId");
+								    common.addOrRemoveTutorFromRole(tutorBaseUserId, studentBaseUserId, true).then(
+								    	function(success) {
+								    		response.success('Tutor added to tutor role for student with baseUserId ' + studentBaseUserId);
+								    	}, function(error) { response.error(error);
+							    	});
+								  },
+								  error: function(privateTutorData, error) {
+								    // Execute any logic that should take place if the save fails.
+								    // error is a Parse.Error with an error code and message.
+								    response.error('Failed to save when adding student to students in PrivateTutorData, with error code: ' + error.message);
+								  }
+								});
 							  },
-							  error: function(privateTutorData, error) {
-							    // Execute any logic that should take place if the save fails.
-							    // error is a Parse.Error with an error code and message.
-							    response.error('Failed to save when adding student to students in PrivateTutorData, with error code: ' + error.message);
+							  error: function(notificationTutor, error) {
+						    	response.error('Failed to save new NotificationTutor, with error code: ' + error.message);
 							  }
 							});
 						  },

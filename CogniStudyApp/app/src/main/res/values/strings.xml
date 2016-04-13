@@ -26,11 +26,12 @@
     <string name="title_activity_battleship_attack">Attack</string>
     <string name="title_activity_question_history">Question History</string>
     <string name="title_activity_past_question">Question</string>
+    <string name="title_activity_suggested_question">Assigned Question</string>
     <string name="title_activity_challenge_analytics">Challenge Stats</string>
     <string name="title_activity_student_profile">Student Profile</string>
     <string name="title_activity_tutor_profile">Tutor Profile</string>
     <string name="title_activity_conversation">*Other persons name*</string>
-    <string name="title_activity_suggested_questions">Suggested Questions</string>
+    <string name="title_activity_suggested_questions">Assigned Questions</string>
     <string name="title_activity_bookmarks">Bookmarks</string>
     <string name="title_activity_achievements">Achievements</string>
     <string name="title_activity_shop">Shop</string>
@@ -65,4 +66,9 @@
     <string name="num_shots_remaining">Shots remaining: </string>
     <string name="bookmark_button_bookmark">BOOKMARK</string>
     <string name="bookmark_button_bookmarked">BOOKMARKED</string>
+    <string name="yes_dialog_tutorial">Ok</string>
+    <string name="title_dialog_unlink_from_tutor">Unlink from Tutor?</string>
+    <string name="message_dialog_unlink_from_tutor">Are you sure you want to unlink from this tutor?</string>
+    <string name="yes_dialog_unlink_from_tutor">Yes</string>
+    <string name="no_dialog_unlink_from_tutor">No</string>
 </resources>

@@ -11,65 +11,89 @@
         android:layout_marginTop="20dp"
         android:visibility="gone" >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtCorrectIncorrect"
-            android:textSize="30sp"
-            android:layout_centerHorizontal="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtExplanationLabel"
-            android:text="Explanation"
-            android:layout_below="@id/txtCorrectIncorrect"
-            android:layout_marginLeft="5dp"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <io.github.kexanie.library.MathView
-            android:id="@+id/mvExplanation"
-            android:layout_below="@id/txtExplanationLabel"
+        <RelativeLayout
+            android:id="@+id/rlCorrectIncorrect"
+            android:layout_marginBottom="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            auto:text="explanation here" >
-        </io.github.kexanie.library.MathView>
+            android:layout_height="wrap_content">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtCorrectIncorrect"
+                android:textSize="30sp"
+                android:paddingLeft="10dp"
+                android:layout_centerInParent="true" />
+
+            <ImageView
+                android:id="@+id/ivCorrectIncorrect"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/txtCorrectIncorrect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlExplanation"
+            android:layout_below="@id/rlCorrectIncorrect"
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            android:layout_marginBottom="20dp"
+            android:padding="5dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtExplanationLabel"
+                android:text="Explanation"
+                android:layout_marginLeft="5dp"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <io.github.kexanie.library.MathView
+                android:id="@+id/mvExplanation"
+                android:layout_below="@id/txtExplanationLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                auto:text="explanation here" >
+            </io.github.kexanie.library.MathView>
+        </RelativeLayout>
+
+        <!--android:layout_centerHorizontal="true"-->
         <com.cognitutor.cognistudyapp.Custom.BookmarkButton
             android:id="@+id/cbBookmark"
-            android:layout_below="@id/mvExplanation"
+            android:layout_below="@id/rlExplanation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="@string/bookmark_button_bookmark"
             android:drawableLeft="@drawable/ic_action_icon_bookmark"/>
 
-    </RelativeLayout>
-
-    <ViewSwitcher
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/vgPostAnswer"
-        android:id="@+id/viewSwitcher"
-        android:layout_marginTop="10dp"
-        android:layout_centerHorizontal="true" >
-
         <com.cognitutor.cognistudyapp.Custom.CogniButton
-            android:enabled="false"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Submit"
-            android:id="@+id/btnSubmit"
-            android:onClick="showAnswerAndIncrementAnalytics" />
-
-        <com.cognitutor.cognistudyapp.Custom.CogniButton
+            android:id="@+id/btnContinue"
+            android:layout_toRightOf="@id/cbBookmark"
+            android:layout_alignTop="@id/cbBookmark"
+            android:layout_alignBottom="@id/cbBookmark"
+            android:layout_marginLeft="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Continue"
-            android:id="@+id/btnContinue"
             android:onClick="navigateToNextActivity" />
-    </ViewSwitcher>
+
+    </RelativeLayout>
+
+    <com.cognitutor.cognistudyapp.Custom.CogniButton
+        android:enabled="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vgPostAnswer"
+        android:text="Submit"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/btnSubmit"
+        android:onClick="showAnswerAndIncrementAnalytics" />
 
     <EditText
         android:visibility="gone"
@@ -78,7 +102,7 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="Modify"
-        android:background="@color/grey"/>
+        android:background="@color/light_grey"/>
 
     <com.cognitutor.cognistudyapp.Custom.CogniButton
         android:visibility="gone"

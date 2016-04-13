@@ -45,6 +45,7 @@ public class BattleshipAttackActivity extends CogniActivity {
         sendBroadcast(finishActivityIntent);
 
         initializeBoard();
+        showTutorialDialogIfNeeded(Constants.Tutorial.ATTACK, null);
     }
 
     private void initializeBoard() {
@@ -130,8 +131,24 @@ public class BattleshipAttackActivity extends CogniActivity {
                 boolean isComputerOpponent = challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER);
                 if (isComputerOpponent) {
                     navigateToChallengeActivity();
+                    finish();
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean dialogShown = showTutorialDialogIfNeeded(Constants.Tutorial.OPPONENTS_TURN, new Runnable() {
+                                @Override
+                                public void run() {
+                                    finish();
+                                }
+                            });
+
+                            if (!dialogShown) {
+                                finish();
+                            }
+                        }
+                    });
                 }
-                finish();
                 return null;
             }
         });

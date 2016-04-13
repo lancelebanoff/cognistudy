@@ -81,40 +81,6 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
             });
         }
 
-        private void setSubjectIcon(String subject) {
-            int icon;
-            switch (subject) {
-                case Constants.Subject.ENGLISH:
-                    icon = R.drawable.icon_english;
-                    break;
-                case Constants.Subject.MATH:
-                    icon = R.drawable.icon_math;
-                    break;
-                case Constants.Subject.SCIENCE:
-                    icon = R.drawable.icon_science;
-                    break;
-                default:
-                    icon = R.drawable.icon_reading;
-                    break;
-            }
-            ivSubject.setImageResource(icon);
-        }
-
-        private void setResponseStatusIcon(String responseStatus) {
-            switch (responseStatus) {
-                case Constants.ResponseStatusType.CORRECT:
-                    ivResponseStatus.setImageResource(R.drawable.ic_icon_correct);
-                    ivResponseStatus.setVisibility(View.VISIBLE);
-                    break;
-                case Constants.ResponseStatusType.INCORRECT:
-                    ivResponseStatus.setImageResource(R.drawable.ic_icon_incorrect);
-                    ivResponseStatus.setVisibility(View.VISIBLE);
-                    break;
-                default:
-                    ivResponseStatus.setVisibility(View.INVISIBLE);
-                    break;
-            }
-        }
     }
 
     @Override
@@ -127,11 +93,11 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
     public void onBindViewHolder(ViewHolder holder, int position) {
 
         final QuestionMetaObject meta = getItem(position);
-        holder.setSubjectIcon(meta.getSubject());
+        QuestionActivity.setSubjectIcon(meta.getSubject(), holder.ivSubject);
         holder.txtCategory.setText(meta.getCategory());
         holder.txtCategory.setTypeface(null, Typeface.BOLD);
         holder.txtDate.setText(getDateToDisplay(meta));
-        holder.setResponseStatusIcon(meta.getResponseStatus());
+        QuestionActivity.setResponseStatusIcon(holder.ivResponseStatus, meta.getResponseStatus());
 
         holder.setOnClickListener(meta.getObjectId(), meta.getQuestionId(), meta.getResponseId());
     }

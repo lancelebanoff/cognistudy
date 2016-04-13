@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.os.Bundle;
+
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
@@ -9,12 +11,14 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.parse.ParseQuery;
 
-import java.util.List;
-
-import bolts.Continuation;
-import bolts.Task;
-
 public class SuggestedQuestionsListActivity extends QuestionListActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        showTutorialDialogIfNeeded(Constants.Tutorial.ASSIGNED_QUESTIONS, null);
+    }
 
     @Override
     protected Class<? extends QuestionActivity> getTargetQuestionActivityClass() {

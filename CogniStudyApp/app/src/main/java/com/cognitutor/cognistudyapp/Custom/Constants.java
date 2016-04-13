@@ -126,11 +126,13 @@ public class Constants {
 
     public static class Loading {
         public static final int QUESTION_LOADING_TIME = 2000;
+        public static final int QUESTION_TUTORIAL_WAIT_TIME = 500;
+        public static final int CHALLENGE_ARROW_WAIT_TIME = 2000;
     }
 
     public static class MenuItem {
         public static final String MY_PROFILE = "My Profile";
-        public static final String SUGGESTED_QUESTIONS = "Suggested Questions";
+        public static final String SUGGESTED_QUESTIONS = "Assigned Questions";
         public static final String BOOKMARKS = "Bookmarks";
         public static final String ACHIEVEMENTS = "Achievements";
         public static final String SHOP = "Shop";
@@ -144,6 +146,55 @@ public class Constants {
         }
     }
 
+    public static class Tutorial {
+        public static final String NEW_CHALLENGE = "NEW_CHALLENGE";
+        public static final String CHOOSE_OPPONENT = "CHOOSE_OPPONENT";
+        public static final String CHOOSE_BOARD_CONFIGURATION = "CHOOSE_BOARD_CONFIGURATION";
+        public static final String YOUR_TURN = "YOUR_TURN";
+        public static final String QUESTION = "QUESTION";
+        public static final String ATTACK = "ATTACK";
+        public static final String OPPONENTS_TURN = "OPPONENTS_TURN";
+        public static final String COMPUTERS_TURN = "COMPUTERS_TURN";
+        public static final String CHALLENGE_REQUEST_SENT = "CHALLENGE_REQUEST_SENT";
+        public static final String ADDING_BOOKMARKS = "ADDING_BOOKMARKS";
+        public static final String VIEWING_BOOKMARKS = "VIEWING_BOOKMARKS";
+        public static final String ASSIGNED_QUESTIONS = "ASSIGNED_QUESTIONS";
+        public static final String FOLLOW_STUDENT = "FOLLOW_STUDENT";
+        public static final String LINK_TUTOR = "LINK_TUTOR";
+
+        public static HashMap<String, String[]> dialogLabelToContents = new HashMap<>();
+        static {
+            dialogLabelToContents.put(NEW_CHALLENGE, new String[]{ "Choose what to practice",
+                    "Here you can choose which subjects to practice for this challenge." });
+            dialogLabelToContents.put(CHOOSE_OPPONENT, new String[]{ "Choose your opponent",
+                    "Choose to play against one of your friends, or search for someone to play against." });
+            dialogLabelToContents.put(CHOOSE_BOARD_CONFIGURATION, new String[]{ "Set up your game board",
+                    "You and your opponent will take turns answering practice questions and playing a battleship-style game. Here you can choose they layout of your game board." });
+            dialogLabelToContents.put(YOUR_TURN, new String[]{ "It's your turn!",
+                    "Tap the button at the bottom of the screen to take your turn." });
+            dialogLabelToContents.put(QUESTION, new String[]{ "Answer practice questions",
+                    "You'll answer 3 practice questions and then attack your opponent's board in the battleship-style game." });
+            dialogLabelToContents.put(ATTACK, new String[]{ "Attack!",
+                    "Tap any available bubble to fire at that position." });
+            dialogLabelToContents.put(OPPONENTS_TURN, new String[]{ "It's your opponent's turn",
+                    "Now you need to wait for your opponent to take his/her turn. While you're waiting, you can play against a computer opponent or start a practice challenge!" });
+            dialogLabelToContents.put(COMPUTERS_TURN, new String[]{ "It's the computer's turn",
+                    "The computer will take its turn attacking your board, and then it will be your turn again." });
+            dialogLabelToContents.put(CHALLENGE_REQUEST_SENT, new String[]{ "Challenge request sent",
+                    "Now you need to wait for your opponent to accept your challenge request. While you're waiting, you can play against a computer opponent or start a practice challenge!" });
+            dialogLabelToContents.put(ADDING_BOOKMARKS, new String[]{ "Bookmarks",
+                    "If you want to save this question for later, you can add it to your bookmarks. Then, you'll be able to see it in your bookmarks list." });
+            dialogLabelToContents.put(VIEWING_BOOKMARKS, new String[]{ "Bookmarks",
+                    "Here's your bookmarks list. Bookmarked questions can be viewed whether or not you have an internet connection." });
+            dialogLabelToContents.put(ASSIGNED_QUESTIONS, new String[]{ "Assigned questions",
+                    "Here are the questions that your tutor assigned to you. If you haven't connected to your tutor, you can search for your tutor's name and tap the \"Link Tutor\" button." });
+            dialogLabelToContents.put(FOLLOW_STUDENT, new String[]{ "Student profile",
+                    "You can tap the \"Follow\" button to add other students to your friends list, or \"Unfollow\" to remove them." });
+            dialogLabelToContents.put(LINK_TUTOR, new String[]{ "Link tutor",
+                    "If you want this tutor to keep track of your progress and assign questions to you, tap the \"Link Tutor\" button to send a student request to the tutor." });
+        }
+    }
+
     public static class TutorRequest {
         public static class Attribute {
             public static final String NAME = "NAME";
@@ -152,9 +203,11 @@ public class Constants {
     }
 
     public static class NotificationData {
+        public static final String baseUserId = "baseUserId";
         public static final String title = "title";
         public static final String alert = "alert";
         public static final String conversantBaseUserId = "conversantBaseUserId";
+        public static final String challengeId = "challengeId";
         public static final String intentExtras = "intentExtras";
         public static final String ACTIVITY = "ACTIVITY";
         public static final String FRAGMENT = "FRAGMENT";
@@ -162,10 +215,12 @@ public class Constants {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String CHAT_ACTIVITY = "CHAT_ACTIVITY";
             public static final String SUGGESTED_QUESTIONS_LIST_ACTIVITY = "SUGGESTED_QUESTIONS_LIST_ACTIVITY";
+            public static final String CHALLENGE_ACTIVITY = "CHALLENGE_ACTIVITY";
         }
         public static class Fragment {
             public static final String SUGGESTED_QUESTIONS_LIST_FRAGMENT = "SUGGESTED_QUESTIONS_LIST_FRAGMENT";
             public static final String CONVERSATIONS_FRAGMENT = "CONVERSATIONS_FRAGMENT";
+            public static final String MAIN_FRAGMENT = "MAIN_FRAGMENT";
         }
     }
 
@@ -562,6 +617,22 @@ public class Constants {
         public static final String ADD_STUDENT = "addStudent";
         public static final String REMOVE_STUDENT = "removeStudent";
         public static final String SEND_MESSAGE_NOTIFICATION = "sendMessageNotification";
+        public static final String GET_RANDOM_OPPONENT = "getRandomOpponent";
+        public static final String SEND_CHALLENGE_NOTIFICATION = "sendChallengeNotification";
+
+        public static class SendChallengeNotification {
+            public static final String challengeId = "challengeId";
+            public static final String receiverBaseUserId = "receiverBaseUserId";
+            public static final String senderBaseUserId = "senderBaseUserId";
+            public static final String user1Or2 = "user1Or2";
+            public static final String notificationType = "notificationType";
+
+            public static class NotificationType {
+                public static final String CHALLENGE_REQUEST = "CHALLENGE_REQUEST";
+                public static final String YOUR_TURN = "YOUR_TURN";
+                public static final String GAME_OVER = "GAME_OVER";
+            }
+        }
 
         public static class SendMessageNotification {
             public static final String senderBaseUserId = "senderBaseUserId";

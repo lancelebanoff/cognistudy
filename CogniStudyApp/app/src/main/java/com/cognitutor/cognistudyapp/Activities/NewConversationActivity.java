@@ -30,6 +30,11 @@ public class NewConversationActivity extends PeopleFragmentActivity {
         };
     }
 
+    @Override
+    protected boolean getIgnoreTutors() {
+        return false;
+    }
+
     private void navigateToChatActivity(PublicUserData publicUserData) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(Constants.IntentExtra.BASEUSERID, publicUserData.getBaseUserId());

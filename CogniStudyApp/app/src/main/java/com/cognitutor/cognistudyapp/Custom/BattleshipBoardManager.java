@@ -7,22 +7,28 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.GetCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -573,9 +579,20 @@ public class BattleshipBoardManager {
                     opponentGameBoard.setShouldDisplayLastMove(false);
                     opponentGameBoard.resetIsLastMove();
                     opponentGameBoard.saveInBackground();
+                    if(!mChallenge.getHasEnded()) {
+                        sendChallengeNotification(Constants.CloudCodeFunction.SendChallengeNotification.NotificationType.YOUR_TURN);
+                    }
                 }
             });
         }
+    }
+
+    private void sendChallengeNotification(String type) {
+        String challengeId = mChallenge.getObjectId();
+        String senderBaseUserId = UserUtils.getCurrentUserId();
+        String receiverBaseUserId = mChallenge.getOpponentBaseUserId();
+        int user1Or2 = mChallenge.getOpponentUser1Or2();
+        CommonUtils.sendChallengeNotification(type, challengeId, senderBaseUserId, receiverBaseUserId, user1Or2);
     }
 
     private void endChallenge() {
@@ -585,6 +602,7 @@ public class BattleshipBoardManager {
         mChallenge.setEndDate(new Date());
         mChallenge.setWinner(mCurrentUserData.getPublicUserData().getBaseUserId());
         mChallenge.saveInBackground();
+        sendChallengeNotification(Constants.CloudCodeFunction.SendChallengeNotification.NotificationType.GAME_OVER);
 
         new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.title_dialog_won_challenge)
@@ -599,7 +617,7 @@ public class BattleshipBoardManager {
                 .create().show();
     }
 
-    private void alertLostChallenge() {
+    public void alertLostChallenge() {
         new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.title_dialog_lost_challenge)
                 .setMessage(R.string.message_dialog_lost_challenge)
@@ -726,7 +744,7 @@ public class BattleshipBoardManager {
         }
     }
 
-    private void drawAttackGif(int row, int col, int height, int width, int gifDrawableId, final ImageView imgSpace, final String boardPositionStatus) {
+    private void drawAttackGif(final int row, final int col, final int height, final int width, int gifDrawableId, final ImageView imgSpace, final String boardPositionStatus) {
         final GifImageView gifImageView = new GifImageView(mActivity);
         gifImageView.setImageResource(gifDrawableId);
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
@@ -743,6 +761,13 @@ public class BattleshipBoardManager {
             public void onAnimationCompleted(int loopNumber) {
                 gifImageView.setVisibility(View.GONE);
                 setTargetImageResource(imgSpace, boardPositionStatus);
+                int textRow = row == 0 ? 1 : row - 1;
+                int textCol = col == 0 ? 1 : col - 1;
+                if (boardPositionStatus.equals(Constants.GameBoardPositionStatus.HIT)) {
+                    drawFadingOutText(textRow, textCol, 2, 2, R.drawable.text_hit);
+                } else {
+                    drawFadingOutText(textRow, textCol, 2, 2, R.drawable.text_miss);
+                }
             }
         });
     }
@@ -778,6 +803,37 @@ public class BattleshipBoardManager {
                 }
             }
         });
+    }
+
+    private void drawFadingOutText(final int row, final int col, final int height, final int width, final int drawableId) {
+        final ImageView ivHitText = new ImageView(mActivity);
+        ivHitText.setImageResource(drawableId);
+        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+        layoutParams.rowSpec = GridLayout.spec(row, 1);
+        layoutParams.columnSpec = GridLayout.spec(col, 1);
+        layoutParams.height = mAnimationsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * height;
+        layoutParams.width = mAnimationsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * width;
+        ivHitText.setLayoutParams(layoutParams);
+        mAnimationsGridLayout.addView(ivHitText);
+
+        Animation fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setInterpolator(new AccelerateInterpolator());
+        fadeOut.setDuration(1000);
+
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            public void onAnimationEnd(Animation animation) {
+                ivHitText.setVisibility(View.GONE);
+                mAnimationsGridLayout.removeView(ivHitText);
+            }
+
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            public void onAnimationStart(Animation animation) {
+            }
+        });
+
+        ivHitText.startAnimation(fadeOut);
     }
 
     private void retrieveBoardPositionStatus() {

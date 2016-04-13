@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.os.Bundle;
+
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Fragments.CogniFragment;
 import com.cognitutor.cognistudyapp.Fragments.BookmarkAndQuestionHistoryListFragment;
@@ -8,6 +10,13 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
 import com.parse.ParseQuery;
 
 public class BookmarksListActivity extends QuestionListActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        showTutorialDialogIfNeeded(Constants.Tutorial.VIEWING_BOOKMARKS, null);
+    }
 
     @Override
     protected Class<? extends QuestionActivity> getTargetQuestionActivityClass() {

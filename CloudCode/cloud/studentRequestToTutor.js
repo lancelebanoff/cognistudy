@@ -17,14 +17,35 @@ Parse.Cloud.define("studentRequestToTutor", function(request, response) {
 		  success: function(publicStudentData) {
 			privateTutorData.addUnique("requestsFromStudents", publicStudentData);
 
-			privateTutorData.save(null, {
-			  success: function(privateTutorData) {
-			    response.success('Student added to RequestsFromStudents in PrivateTutorData with objectId: ' + publicStudentData.id);
+		  	// Notification to tutor
+		  	var NotificationTutor = Parse.Object.extend("NotificationTutor");
+			var notificationTutor = new NotificationTutor();
+			notificationTutor.set("tutorFor", publicTutorData);
+			notificationTutor.set("userFrom", publicStudentData);
+			notificationTutor.set("type", "REQUEST_FROM_STUDENT");
+			notificationTutor.set("firstSeenAt", null);
+
+			notificationTutor.save(null, {
+			  success: function(notificationTutor) {
+
+			  	// Add to tutor's notication relation
+				var notificationsRelation = privateTutorData.relation("notifications");
+				notificationsRelation.add(notificationTutor);
+
+				privateTutorData.save(null, {
+				  success: function(privateTutorData) {
+			    	response.success('Student added to RequestsFromStudents in PrivateTutorData with objectId: ' + publicStudentData.id);
+				  },
+				  error: function(privateTutorData, error) {
+				    response.error('Failed to save when adding student to RequestsFromStudents in PrivateTutorData, with error code: ' + error.message);
+				  }
+				});
 			  },
-			  error: function(privateTutorData, error) {
-			    response.error('Failed to save when adding student to RequestsFromStudents in PrivateTutorData, with error code: ' + error.message);
+			  error: function(notificationTutor, error) {
+		    	response.error('Failed to save new NotificationTutor, with error code: ' + error.message);
 			  }
 			});
+
 		  },
 		  error: function(publicStudentData, error) {
 		    response.error('Failed to get student, with error code: ' + error.message);

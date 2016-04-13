@@ -338,7 +338,7 @@ public class DateUtils {
         return getMinutesInMilli() * 60;
     }
     private static long getDaysInMilli() {
-        return getHoursInMilli() * 60;
+        return getHoursInMilli() * 24;
     }
     private static long getDays(long milli) {
         return milli / getDaysInMilli();

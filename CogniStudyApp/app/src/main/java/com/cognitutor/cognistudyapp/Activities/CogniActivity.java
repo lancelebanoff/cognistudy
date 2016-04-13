@@ -1,6 +1,8 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
@@ -11,9 +13,11 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ErrorHandler;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -49,6 +53,49 @@ public class CogniActivity extends AppCompatActivity {
                 return true;
         }
         return(super.onOptionsItemSelected(item));
+    }
+
+    // Shows the tutorial dialog only if it hasn't been seen yet.
+    // Returns true if the dialog was shown, otherwise returns false
+    public boolean showTutorialDialogIfNeeded(String label, Runnable onDismiss) {
+        try {
+            Student student = UserUtils.getStudent();
+            if (!student.tutorialProgressContains(label)) {
+                showTutorialDialog(student, label, onDismiss);
+                return true;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Shows the dialog, and marks that it has been seen
+    public void showTutorialDialog(Student student, String label, final Runnable onDismiss) {
+        String[] contents = Constants.Tutorial.dialogLabelToContents.get(label);
+        new AlertDialog.Builder(this)
+                .setTitle(contents[0])
+                .setMessage(contents[1])
+                .setPositiveButton(R.string.yes_dialog_tutorial, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (onDismiss != null) {
+                            onDismiss.run();
+                        }
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        if (onDismiss != null) {
+                            onDismiss.run();
+                        }
+                    }
+                })
+                .create().show();
+
+        student.addToTutorialProgress(label);
+        student.saveInBackground();
     }
 
     // <editor-fold desc="Error handling">

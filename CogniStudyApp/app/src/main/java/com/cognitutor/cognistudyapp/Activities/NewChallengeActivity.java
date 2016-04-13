@@ -9,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.ViewFlipper;
 
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.CogniCheckBox;
 import com.cognitutor.cognistudyapp.Custom.CogniRadioButton;
 import com.cognitutor.cognistudyapp.Custom.CogniRadioGroup;
@@ -20,6 +22,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 
@@ -30,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -56,8 +60,8 @@ public class NewChallengeActivity extends CogniActivity {
     private String mSelectedOpponent;
     private HashMap<CheckBox, String> mCategoryCheckboxToCategory;
 
-    private final String DEFAULT_TEST = Constants.Test.BOTH;
-    private final String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
+    private String DEFAULT_TEST = Constants.Test.BOTH;
+    private String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +85,12 @@ public class NewChallengeActivity extends CogniActivity {
         displayTests();
         displaySubjects();
         drawCategories();
+
+        boolean firstTime = showTutorialDialogIfNeeded(Constants.Tutorial.NEW_CHALLENGE, null);
+        if (firstTime) {
+            DEFAULT_OPPONENT = Constants.OpponentType.COMPUTER;
+        }
+
         displayOpponent();
         setDefaults();
     }
@@ -350,6 +360,11 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     public void onClick_btnPlayNow(View view) {
+        CogniButton btnPlayNow = (CogniButton) findViewById(R.id.btnPlayNow);
+        btnPlayNow.setVisibility(View.INVISIBLE);
+        ProgressBar progressBarPlayNow = (ProgressBar) findViewById(R.id.progressBarPlayNow);
+        progressBarPlayNow.setVisibility(View.VISIBLE);
+
         saveChallenge();
     }
 
@@ -368,8 +383,9 @@ public class NewChallengeActivity extends CogniActivity {
             @Override
             public Task<Object> then(Task<PublicUserData> task) throws Exception {
                 final PublicUserData user1PublicUserData = task.getResult();
-                ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData,
-                        new ArrayList<String>(mSelectedSubjects), new ArrayList<String>(mSelectedCategories));
+                ChallengeUserData user1Data = new ChallengeUserData(user1PublicUserData, // TODO:1 use mSelectedCategories
+                        Arrays.asList(new String[] {Constants.Subject.ENGLISH}),
+                        Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS}));
                 user1Data.saveInBackground();
 
                 final String challengeType = getChallengeType();
@@ -379,6 +395,9 @@ public class NewChallengeActivity extends CogniActivity {
                     ChallengeUserData user2Data = new ChallengeUserData(PublicUserData.getComputerPublicUserData());
                     user2Data.saveInBackground();
                     challenge.setUser2Data(user2Data);
+                } else if (mSelectedOpponent.equals(Constants.OpponentType.RANDOM)) {
+                    chooseRandomOpponentAndNavigate(challenge);
+                    return null;
                 }
                 return challenge.saveInBackground().continueWith(new Continuation<Void, Object>() {
                     @Override
@@ -404,6 +423,32 @@ public class NewChallengeActivity extends CogniActivity {
         });
     }
 
+    private void chooseRandomOpponentAndNavigate(final Challenge challenge) {
+        final String baseUserId = PublicUserData.getPublicUserData().getBaseUserId();
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("baseUserId", baseUserId);
+        ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.GET_RANDOM_OPPONENT, params).continueWithTask(new Continuation<Object, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Object> task) throws Exception {
+                if (task.isFaulted()) {
+                    task.getError().printStackTrace();
+                }
+                PublicUserData opponentPublicUserData = (PublicUserData) task.getResult();
+                ChallengeUserData opponentChallengeUserData = new ChallengeUserData(opponentPublicUserData);
+                challenge.setUser2Data(opponentChallengeUserData);
+                challenge.setCurTurnUserId(opponentPublicUserData.getBaseUserId());
+                challenge.setOtherTurnUserId(baseUserId);
+                return challenge.saveInBackground();
+            }
+        }).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
+                return null;
+            }
+        });
+    }
+
     private void savePracticeChallenge(final Challenge challenge, PublicUserData publicUserData) {
         challenge.setCurTurnUserId(publicUserData.getBaseUserId());
         challenge.setActivated(true);
@@ -425,8 +470,8 @@ public class NewChallengeActivity extends CogniActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         Challenge challenge = task.getResult();
                         ChallengeUserData user2Data = challenge.getUser2Data().fetchIfNeeded();
-                        user2Data.setSubjects(new ArrayList<String>(mSelectedSubjects));
-                        user2Data.setCategories(new ArrayList<String>(mSelectedCategories));
+                        user2Data.setSubjects(Arrays.asList(new String[] {Constants.Subject.ENGLISH}));
+                        user2Data.setCategories(Arrays.asList(new String[] {Constants.Category.RHETORICAL_SKILLS, Constants.Category.USAGE_AND_MECHANICS}));
                         user2Data.saveInBackground();
 
                         navigateToChooseBoardConfigurationActivity(challengeId, 2);

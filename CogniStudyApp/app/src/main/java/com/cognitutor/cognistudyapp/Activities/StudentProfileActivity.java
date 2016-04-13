@@ -3,8 +3,8 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
@@ -29,7 +29,7 @@ public class StudentProfileActivity extends CogniActivity {
      */
     private ViewHolder holder;
     private Intent mIntent;
-    private PublicUserData publicUserData;
+    private PublicUserData mPublicUserData;
     private ViewSwitcher mViewSwitcher;
     private PrivateStudentData mCurrPrivateStudentData;
 
@@ -41,33 +41,40 @@ public class StudentProfileActivity extends CogniActivity {
         holder = createViewHolder();
         mIntent = getIntent();
 
-        publicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra(Constants.IntentExtra.PUBLICUSERDATA_ID)); //TODO: Change this
-        if(publicUserData == null) { return; } //TODO: Handle this?
-        holder.txtName.setText(publicUserData.getDisplayName());
-        holder.imgProfile.setParseFile(publicUserData.getProfilePic());
-        holder.imgProfile.loadInBackground();
-
-        showOrHideButtons();
-
         try {
             mCurrPrivateStudentData = PublicUserData.getPublicUserData().getStudent().getPrivateStudentData();
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        mPublicUserData = PublicUserData.getPublicUserData(mIntent.getStringExtra(Constants.IntentExtra.PUBLICUSERDATA_ID)); //TODO: Change this
+        if(mPublicUserData == null) { return; } //TODO: Handle this?
+        holder.txtName.setText(mPublicUserData.getDisplayName());
+        holder.imgProfile.setParseFile(mPublicUserData.getProfilePic());
+        holder.imgProfile.loadInBackground();
+        if (mCurrPrivateStudentData.isFriendsWith(mPublicUserData)) {
+            holder.imgFollowedStudent.setVisibility(View.VISIBLE);
+        } else {
+            holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
+        }
+
+        showOrHideButtonsAndTutorialDialog();
         mViewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        if (mCurrPrivateStudentData.isFriendsWith(publicUserData)) {
+        if (mCurrPrivateStudentData.isFriendsWith(mPublicUserData)) {
             mViewSwitcher.showNext();
         }
     }
 
-    private void showOrHideButtons() {
-        if (publicUserData.getObjectId().equals(PublicUserData.getPublicUserData().getObjectId())) {
+    private void showOrHideButtonsAndTutorialDialog() {
+        if (mPublicUserData.getObjectId().equals(PublicUserData.getPublicUserData().getObjectId())) {
             CogniButton btnFollow = (CogniButton) findViewById(R.id.btnFollow);
             btnFollow.setVisibility(View.GONE);
             CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnUnfollow);
             btnUnfollow.setVisibility(View.GONE);
             CogniButton btnMessage = (CogniButton) findViewById(R.id.btnMessage);
             btnMessage.setVisibility(View.GONE);
+        } else {
+            showTutorialDialogIfNeeded(Constants.Tutorial.FOLLOW_STUDENT, null);
         }
     }
 
@@ -75,36 +82,35 @@ public class StudentProfileActivity extends CogniActivity {
         mViewSwitcher.showNext();
         final CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnUnfollow);
         btnUnfollow.setClickable(false);
+        holder.imgFollowedStudent.setVisibility(View.VISIBLE);
 
-        mCurrPrivateStudentData.addFriend(publicUserData);
+        mCurrPrivateStudentData.addFriend(mPublicUserData);
         mCurrPrivateStudentData.saveInBackground().continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                publicUserData.pinInBackground();
+                mPublicUserData.pinInBackground(Constants.PinNames.CurrentUser);
                 btnUnfollow.setClickable(true);
                 return null;
             }
         });
-
-        Toast.makeText(this, "You are now following " + publicUserData.getDisplayName(), Toast.LENGTH_LONG).show();
     }
 
     public void onClick_btnUnfollow(View view) {
         mViewSwitcher.showNext();
         final CogniButton btnFollow = (CogniButton) findViewById(R.id.btnUnfollow);
         btnFollow.setClickable(false);
+        holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
 
-        mCurrPrivateStudentData.removeFriend(publicUserData);
+        mCurrPrivateStudentData.removeFriend(mPublicUserData);
         mCurrPrivateStudentData.saveInBackground().continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                publicUserData.unpinInBackground();
+                mPublicUserData.unpinInBackground();
+                mPublicUserData.unpinInBackground(Constants.PinNames.CurrentUser);
                 btnFollow.setClickable(true);
                 return null;
             }
         });
-
-        Toast.makeText(this, "You are no longer following " + publicUserData.getDisplayName(), Toast.LENGTH_LONG).show();
     }
 
     public void onClick_btnMessage(View view) {
@@ -113,7 +119,7 @@ public class StudentProfileActivity extends CogniActivity {
 
     public void navigateToNewChallengeActivity(View view) {
         HashMap<String, Object> pushParams = new HashMap<String, Object>();
-        pushParams.put("baseUserId", publicUserData.getBaseUserId());
+        pushParams.put("baseUserId", mPublicUserData.getBaseUserId());
         ParseCloud.callFunctionInBackground("sendPush", pushParams);
 
         Intent intent = new Intent(this, NewChallengeActivity.class);
@@ -125,11 +131,19 @@ public class StudentProfileActivity extends CogniActivity {
         ViewHolder holder = new ViewHolder();
         holder.txtName = (TextView) findViewById(R.id.txtName);
         holder.imgProfile = (ParseImageView) findViewById(R.id.imgProfile);
+        holder.imgFollowedStudent = (ImageView) findViewById(R.id.imgFollowedStudent);
         return holder;
     }
 
     private static class ViewHolder {
         public TextView txtName;
         public ParseImageView imgProfile;
+        public ImageView imgFollowedStudent;
+    }
+
+    @Override
+    protected void onDestroy() {
+        mPublicUserData.unpinInBackground();
+        super.onDestroy();
     }
 }

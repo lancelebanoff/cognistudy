@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
@@ -54,6 +56,7 @@ import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
+import pl.droidsonroids.gif.GifImageView;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -76,6 +79,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private BroadcastReceiver mBroadcastReceiver;
     private ArrayList<ChallengeQueryAdapter> adapterList;
+    private GifImageView mGifArrow;
 
     public static final MainFragment newInstance() {
         return new MainFragment();
@@ -96,10 +100,6 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);
         b.setOnClickListener(this);
 
-        b = (Button) rootView.findViewById(R.id.btnViewLocalDatastore);
-        b.setOnClickListener(this);
-
-        createAllListViews(rootView);
         return rootView;
     }
 
@@ -124,8 +124,9 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 break;
         }
 
-//        createAllListViews(getView());
+        createAllListViews(getView());
         loadChallengesFromNetwork(); //TODO: Is this ok?
+        showOrHideArrow();
         setSwipeRefreshLayout(getView());
         initializeBroadcastReceiver();
     }
@@ -193,7 +194,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
             @Override
             public Void then(Task<PrivateStudentData> task) throws Exception {
-                task.getResult().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                task.getResult().fetchInBackground(new GetCallback<ParseObject>() {
                     @Override
                     public void done(ParseObject object, ParseException e) {
                         final PrivateStudentData privateStudentData = (PrivateStudentData) object;
@@ -266,6 +267,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         List<List<Pair>> keyValuePairsList = new ArrayList<>();
         keyValuePairsList.add(keyValuePairs1);
         keyValuePairsList.add(keyValuePairs2);
+
         pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairsList, true);
         pastChallengeListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listPastChallenges);
         createListView(pastChallengeListView, pastChallengeQueryAdapter);
@@ -347,14 +349,70 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         }
     }
 
+    private void showOrHideArrow() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(Constants.Loading.CHALLENGE_ARROW_WAIT_TIME);
+                while (!allAdaptersExist()) {
+
+                }
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (allAdaptersAreEmpty()) {
+                                showArrowGif();
+                            }
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    private void showArrowGif() {
+        RelativeLayout rlContent = (RelativeLayout) getActivity().findViewById(R.id.rlContentMain);
+        if (mGifArrow != null) {
+            rlContent.removeView(mGifArrow);
+        }
+
+        mGifArrow = new GifImageView(getActivity());
+        mGifArrow.setImageResource(R.drawable.animation_bouncing_arrow);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                (int) getResources().getDimension(R.dimen.start_challenge_arrow_width),
+                (int) getResources().getDimension(R.dimen.start_challenge_arrow_height)
+        );
+        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        layoutParams.addRule(RelativeLayout.BELOW, R.id.btnStartChallenge);
+        mGifArrow.setLayoutParams(layoutParams);
+
+        rlContent.addView(mGifArrow);
+    }
+
+    private boolean allAdaptersExist() {
+        return challengeRequestQueryAdapter != null &&
+                yourTurnChallengeQueryAdapter != null &&
+                theirTurnChallengeQueryAdapter != null &&
+                pastChallengeQueryAdapter != null;
+    }
+
+    private boolean allAdaptersAreEmpty() {
+        return challengeRequestQueryAdapter.getItemCount() == 0 &&
+                yourTurnChallengeQueryAdapter.getItemCount() == 0 &&
+                theirTurnChallengeQueryAdapter.getItemCount() == 0 &&
+                pastChallengeQueryAdapter.getItemCount() == 0;
+    }
+
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.btnStartChallenge:
+                ParseObjectUtils.logPinnedObjects(false);
                 navigateToNewChallengeActivity();
                 break;
-            case R.id.btnViewLocalDatastore:
-                ParseObjectUtils.logPinnedObjects(false);
+//            case R.id.btnViewLocalDatastore:
+//                ParseObjectUtils.logPinnedObjects(false);
         }
     }
 
@@ -368,13 +426,14 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public JSONObject getConditions() {
         JSONObject conditions = new JSONObject();
         try {
-            conditions.put(Constants.NotificationData.ACTIVITY, Constants.NotificationData.Activity.MAIN_ACTIVITY);
+            conditions.put(Constants.NotificationData.FRAGMENT, Constants.NotificationData.Fragment.MAIN_FRAGMENT);
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
     }
 
     @Override
     public void onReceiveHandler() {
+        refresh();
     }
 
     // Refreshes challenge list when other activity finishes
@@ -395,8 +454,19 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     }
 
     @Override
-    public void onDestroyView() {
+    public void onPause() {
+        if (mGifArrow != null) {
+            RelativeLayout rlContent = (RelativeLayout) getActivity().findViewById(R.id.rlContentMain);
+            rlContent.removeView(mGifArrow);
+        }
+
+        super.onPause();
         getActivity().unregisterReceiver(mBroadcastReceiver);
+    }
+
+    @Override
+    public void onDestroyView() {
+//        getActivity().unregisterReceiver(mBroadcastReceiver);
         super.onDestroyView();
     }
 }

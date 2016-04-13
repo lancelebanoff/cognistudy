@@ -11,11 +11,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
@@ -69,7 +70,40 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         DO_NOTHING, DO_BOOKMARK, UNDO_BOOKMARK
     }
 
-//    protected abstract void addComponents();
+    public static void setSubjectIcon(String subject, ImageView iv) {
+        int icon;
+        switch (subject) {
+            case Constants.Subject.ENGLISH:
+                icon = R.drawable.icon_english;
+                break;
+            case Constants.Subject.MATH:
+                icon = R.drawable.icon_math;
+                break;
+            case Constants.Subject.SCIENCE:
+                icon = R.drawable.icon_science;
+                break;
+            default:
+                icon = R.drawable.icon_reading;
+                break;
+        }
+        iv.setImageResource(icon);
+    }
+
+    public static void setResponseStatusIcon(ImageView ivResponseStatus, String responseStatus) {
+        switch (responseStatus) {
+            case Constants.ResponseStatusType.CORRECT:
+                ivResponseStatus.setImageResource(R.drawable.ic_icon_correct);
+                ivResponseStatus.setVisibility(View.VISIBLE);
+                break;
+            case Constants.ResponseStatusType.INCORRECT:
+                ivResponseStatus.setImageResource(R.drawable.ic_icon_incorrect);
+                ivResponseStatus.setVisibility(View.VISIBLE);
+                break;
+            default:
+                ivResponseStatus.setVisibility(View.INVISIBLE);
+                break;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +175,8 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
 
         TextView txtSubject = (TextView) findViewById(R.id.txtSubject);
         txtSubject.setText(mQuestion.getSubject());
+        ImageView ivSubject = (ImageView) findViewById(R.id.ivSubject);
+        setSubjectIcon(mQuestion.getSubject(), ivSubject);
         TextView txtCategory = (TextView) findViewById(R.id.txtCategory);
         txtCategory.setText(mQuestion.getCategory());
         avh.mvQuestion.setText(mQuestionContents.getQuestionText());
@@ -207,10 +243,10 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             @Override
             public Bookmark call() throws Exception {
                 int count = 0;
-                while(mResponse == null) {
+                while (mResponse == null) {
                     Thread.sleep(100);
                     count++;
-                    if(count > 100) {
+                    if (count > 100) {
                         Log.e("doBookmark", "TIMEOUT");
                         return null;
                     }
@@ -291,14 +327,14 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
 
     private Task<Object> loadBookmark() {
         return Bookmark.getQueryWithResponseId(getResponseId())
-            .getFirstInBackground()
-            .continueWith(new Continuation<Bookmark, Object>() {
-                @Override
-                public Object then(Task<Bookmark> task) throws Exception {
-                    mBookmark = task.getResult();
-                    return null;
-                }
-            });
+                .getFirstInBackground()
+                .continueWith(new Continuation<Bookmark, Object>() {
+                    @Override
+                    public Object then(Task<Bookmark> task) throws Exception {
+                        mBookmark = task.getResult();
+                        return null;
+                    }
+                });
     }
 
     private void setBookmarkComponents() {
@@ -349,17 +385,29 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         if(isSelectedAnswerCorrect) {
             avh.txtCorrectIncorrect.setText("Correct!");
             avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.green));
+            setResponseStatusIcon(avh.ivCorrectIncorrect, Constants.ResponseStatusType.CORRECT);
         }
         else {
             avh.txtCorrectIncorrect.setText("Incorrect!");
             avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.red));
+            setResponseStatusIcon(avh.ivCorrectIncorrect, Constants.ResponseStatusType.INCORRECT);
         }
+        avh.btnSubmit.setVisibility(View.GONE);
         avh.vgPostAnswer.setVisibility(View.VISIBLE);
         ClickableListItem.setQuestionAnswered(true);
 
-        // Switch Submit button to Continue button
-        ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        viewSwitcher.setVisibility(View.INVISIBLE);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(Constants.Loading.QUESTION_TUTORIAL_WAIT_TIME);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showTutorialDialogIfNeeded(Constants.Tutorial.ADDING_BOOKMARKS, null);
+                    }
+                });
+            }
+        }).start();
     }
 
     protected void navigateToParentActivity() {
@@ -373,7 +421,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     }
 
     private class ActivityViewHolder {
-        private LinearLayout rlQuestionHeader;
+        private RelativeLayout rlQuestionHeader;
         private ProgressBar progressBar;
         private WebView wvPassage;
         private CogniMathView mvQuestion;
@@ -382,11 +430,12 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         private MathView mvExplanation;
         private ViewGroup vgPostAnswer;
         private TextView txtCorrectIncorrect;
+        private ImageView ivCorrectIncorrect;
         private Button btnSubmit;
         private BookmarkButton cbBookmark;
 
         private ActivityViewHolder() {
-            rlQuestionHeader = (LinearLayout) findViewById(R.id.rlQuestionHeader);
+            rlQuestionHeader = (RelativeLayout) findViewById(R.id.rlQuestionHeader);
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
             wvPassage = (WebView) findViewById(R.id.wvPassage);
             mvQuestion = (CogniMathView) findViewById(R.id.mvQuestion);
@@ -395,6 +444,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             mvExplanation = (MathView) findViewById(R.id.mvExplanation);
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
+            ivCorrectIncorrect = (ImageView) findViewById(R.id.ivCorrectIncorrect);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
             cbBookmark = (BookmarkButton) findViewById(R.id.cbBookmark);
         }
@@ -421,7 +471,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         String css = null;
         try { css = IOUtils.toString(getAssets().open("css/question.css")); }
         catch (Exception e) {e.printStackTrace();}
-        
+
         html = html.replace("$CSS$", css);
 
         return html.replace("$BODY$", body);

@@ -3,11 +3,12 @@ package com.cognitutor.cognistudyapp.Fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Activities.NewConversationActivity;
 import com.cognitutor.cognistudyapp.Adapters.ConversationAdapter;
@@ -46,9 +47,10 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
         mConversationAdapter = new ConversationAdapter(getActivity(), this);
 
         mRecyclerView = (CogniRecyclerView) rootView.findViewById(R.id.rvConversations);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext())); // we set the layout manager in the constructor instead
         mRecyclerView.setAdapter(mConversationAdapter);
         mConversationAdapter.loadObjects();
+        waitAndShowOrHideNoMessagesText();
 
         FloatingActionButton fabNewConversation = (FloatingActionButton) rootView.findViewById(R.id.fabNewConversation);
         fabNewConversation.setOnClickListener(this);
@@ -69,6 +71,32 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
                 return Conversation.getQueryForCurrentUserConversations();
             }
         });
+    }
+
+    private void waitAndShowOrHideNoMessagesText() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(Constants.Loading.CHALLENGE_ARROW_WAIT_TIME);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showOrHideNoMessagesText();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    private void showOrHideNoMessagesText() {
+        TextView txtNoMessages = (TextView) getActivity().findViewById(R.id.txtNoMessages);
+        if (mConversationAdapter.getItemCount() == 0) {
+            txtNoMessages.setVisibility(View.VISIBLE);
+        } else {
+            txtNoMessages.setVisibility(View.GONE);
+        }
     }
 
     @Override

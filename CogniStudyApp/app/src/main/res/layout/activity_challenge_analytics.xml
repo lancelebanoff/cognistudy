@@ -30,9 +30,47 @@
                 android:paddingBottom="@dimen/activity_vertical_margin">
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/cvSubjectStats"
+                    android:id="@+id/cvSubjects"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/activity_vertical_margin"
+                        android:paddingLeft="@dimen/activity_horizontal_margin"
+                        android:paddingRight="@dimen/activity_horizontal_margin"
+                        android:paddingBottom="@dimen/activity_vertical_margin">
+
+                        <TextView
+                            android:id="@+id/txtSubjectsTitle"
+                            android:text="Subjects and Categories You Chose"
+                            android:textStyle="bold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                        <LinearLayout
+                            android:id="@+id/llSubjects"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/txtSubjects"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@id/txtSubjectsTitle"
+                                android:layout_marginTop="10dp"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/cvSubjectStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/cvSubjects"
+                    android:layout_marginTop="10dp">
 
                     <LinearLayout
                         android:id="@+id/llSubjectStats"

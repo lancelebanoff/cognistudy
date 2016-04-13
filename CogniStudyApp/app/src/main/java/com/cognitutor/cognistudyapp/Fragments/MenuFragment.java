@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-import com.cognitutor.cognistudyapp.Activities.AchievementsActivity;
 import com.cognitutor.cognistudyapp.Activities.BookmarksListActivity;
 import com.cognitutor.cognistudyapp.Activities.HelpActivity;
 import com.cognitutor.cognistudyapp.Activities.SettingsActivity;
@@ -87,7 +86,6 @@ public class MenuFragment extends CogniFragment {
         menuItems.add(new MenuItem(Constants.MenuItem.MY_PROFILE, R.drawable.icon_my_profile));
         menuItems.add(new MenuItem(Constants.MenuItem.SUGGESTED_QUESTIONS, R.drawable.icon_suggested_questions));
         menuItems.add(new MenuItem(Constants.MenuItem.BOOKMARKS, R.drawable.icon_bookmarks));
-        menuItems.add(new MenuItem(Constants.MenuItem.ACHIEVEMENTS, R.drawable.icon_achievements));
         menuItems.add(new MenuItem(Constants.MenuItem.SETTINGS, R.drawable.icon_settings));
         menuItems.add(new MenuItem(Constants.MenuItem.HELP, R.drawable.icon_help));
         menuItems.add(new MenuItem(Constants.MenuItem.SIGN_OUT, R.drawable.icon_sign_out));
@@ -106,9 +104,6 @@ public class MenuFragment extends CogniFragment {
                 break;
             case Constants.MenuItem.BOOKMARKS:
                 navigateToActivity(BookmarksListActivity.class);
-                break;
-            case Constants.MenuItem.ACHIEVEMENTS:
-                navigateToActivity(AchievementsActivity.class);
                 break;
             case Constants.MenuItem.SHOP:
                 navigateToActivity(ShopActivity.class);

@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ViewSwitcher;
 
-import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
@@ -78,6 +76,15 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
                     public Void then(Task<Challenge> task) throws Exception {
                         mChallenge = task.getResult();
 
+                        if (!mChallenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showTutorialDialogIfNeeded(Constants.Tutorial.QUESTION, null);
+                                }
+                            });
+                        }
+
                         return null;
                     }
                 });
@@ -122,16 +129,16 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Switch Submit button to Continue button
-                ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-                viewSwitcher.setVisibility(View.VISIBLE);
-                viewSwitcher.showNext();
-            }
-        });
+//
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                // Switch Submit button to Continue button
+//                ViewSwitcher viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+//                viewSwitcher.setVisibility(View.VISIBLE);
+//                viewSwitcher.showNext();
+//            }
+//        });
     }
 
     private void navigateToBattleshipAttackActivity() {

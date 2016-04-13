@@ -9,11 +9,14 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.ChatActivity;
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
+import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseBroadcastReceiver;
+import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,11 +35,18 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if(ParseUser.getCurrentUser() == null) {
+            return;
+        }
         Log.i("onReceive", "got Notification");
         JSONObject data = getData(intent);
         final Map<String, String> intentExtras = getIntentExtras(data); //intentExtras will not always be given
         //Title, alert, and activityConstant are required
         try {
+            final String baseUserId = data.getString(Constants.NotificationData.baseUserId);
+            if(!UserUtils.getCurrentUserId().equals(baseUserId)) {
+                return;
+            }
             final String title = data.getString(Constants.NotificationData.title);
             final String alert = data.getString(Constants.NotificationData.alert);
             final String activityConstant = data.getString(Constants.NotificationData.ACTIVITY);
@@ -88,6 +98,8 @@ public class CogniBroadcastReceiver extends ParseBroadcastReceiver {
                 return ChatActivity.class;
             case Constants.NotificationData.Activity.SUGGESTED_QUESTIONS_LIST_ACTIVITY:
                 return SuggestedQuestionsListActivity.class;
+            case Constants.NotificationData.Activity.CHALLENGE_ACTIVITY:
+                return ChallengeActivity.class;
             default:
                 return MainActivity.class;
         }
