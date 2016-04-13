@@ -31,13 +31,13 @@ public abstract class AnswerableQuestionActivity extends QuestionActivity {
         });
     }
 
-    protected Task<Response> doCreateResponse(boolean isSelectedAnswerCorrect, final String pinName) {
+    protected Task<Response> doCreateResponse(final boolean isSelectedAnswerCorrect, final String pinName) {
         //TODO: Pin related objects
         //TODO: Implement rating
-        final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
-        return response.getQuestion().fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Response>>() {
+        return mQuestion.fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<Response>>() {
             @Override
             public Task<Response> then(Task<ParseObject> task) throws Exception {
+                final Response response = new Response(mQuestion, isSelectedAnswerCorrect, getSelectedAnswer(), Constants.QuestionRating.NOT_RATED);
                 return ParseObjectUtils.pinThenSaveInBackground(pinName, response)
                         .continueWith(new Continuation<Void, Response>() {
                             @Override
