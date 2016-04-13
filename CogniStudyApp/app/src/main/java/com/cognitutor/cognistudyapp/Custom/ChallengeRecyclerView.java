@@ -31,8 +31,8 @@ public class ChallengeRecyclerView extends CogniRecyclerView{
     }
 
     private void init() {
-        ChallengeLayoutManager layoutManager = new ChallengeLayoutManager(getContext());
-        setLayoutManager(layoutManager);
+//        ChallengeLayoutManager layoutManager = new ChallengeLayoutManager(getContext());
+//        setLayoutManager(layoutManager);
     }
 
     public class ChallengeLayoutManager extends LinearLayoutManager {

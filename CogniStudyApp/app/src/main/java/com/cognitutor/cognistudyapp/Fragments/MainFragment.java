@@ -30,6 +30,7 @@ import com.cognitutor.cognistudyapp.Custom.ChallengeRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -130,33 +131,20 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     }
 
     private void createAllListViews(final View rootView) {
-        PublicUserData.getPublicUserDataInBackground().continueWith(new Continuation<PublicUserData, Void>() {
-            @Override
-            public Void then(Task<PublicUserData> task) throws Exception {
-                final PublicUserData publicUserData = task.getResult();
-                endChallengesThatRanOutOfTime(publicUserData);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        createTutorRequestListView(rootView);
-                        createChallengeRequestListView(rootView, publicUserData);
-                        createYourTurnListView(rootView, publicUserData);
-                        createTheirTurnListView(rootView, publicUserData);
-                        createPastChallengeListView(rootView, publicUserData);
-                    }
-                });
-                ((MainActivity) getActivity()).challengesFinishedLoading = true;
-                return null;
-            }
-        });
+        endChallengesThatRanOutOfTime();
+        createTutorRequestListView(rootView);
+        createChallengeRequestListView(rootView);
+        createYourTurnListView(rootView);
+        createTheirTurnListView(rootView);
+        createPastChallengeListView(rootView);
     }
 
-    private void endChallengesThatRanOutOfTime(PublicUserData publicUserData) { //TODO: Where should this go if not in refresh?
+    private void endChallengesThatRanOutOfTime() { //TODO: Where should this go if not in refresh?
         List<ParseQuery<Challenge>> queries = new ArrayList<ParseQuery<Challenge>>();
         queries.add(Challenge.getQuery()
-                .whereEqualTo(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+                .whereEqualTo(Challenge.Columns.curTurnUserId, UserUtils.getCurrentUserId()));
         queries.add(Challenge.getQuery()
-                .whereEqualTo(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
+                .whereEqualTo(Challenge.Columns.otherTurnUserId, UserUtils.getCurrentUserId()));
         ParseQuery.or(queries).findInBackground(new FindCallback<Challenge>() {
             @Override
             public void done(List<Challenge> challenges, ParseException error) {
@@ -230,46 +218,46 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         });
     }
 
-    private void createChallengeRequestListView(final View rootView, PublicUserData publicUserData) {
+    private void createChallengeRequestListView(final View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, false));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, UserUtils.getCurrentUserId()));
         challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
         challengeRequestListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listChallengeRequests);
 //        createListView(challengeRequestListView, challengeRequestQueryAdapter);
     }
 
-    private void createYourTurnListView(final View rootView, PublicUserData publicUserData) {
+    private void createYourTurnListView(final View rootView) {
         final List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
         keyValuePairs.add(new Pair<>(Challenge.Columns.accepted, true));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.curTurnUserId, UserUtils.getCurrentUserId()));
         yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
         yourTurnListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listYourTurnChallenges);
 //        createListView(yourTurnListView, yourTurnChallengeQueryAdapter);
     }
 
-    private void createTheirTurnListView(final View rootView, PublicUserData publicUserData) {
+    private void createTheirTurnListView(final View rootView) {
         List<Pair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new Pair<>(Challenge.Columns.activated, true));
         keyValuePairs.add(new Pair<>(Challenge.Columns.hasEnded, false));
-        keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
+        keyValuePairs.add(new Pair<>(Challenge.Columns.otherTurnUserId, UserUtils.getCurrentUserId()));
         theirTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, keyValuePairs);
         theirTurnListView = (ChallengeRecyclerView) rootView.findViewById(R.id.listTheirTurnChallenges);
 //        createListView(theirTurnListView, theirTurnChallengeQueryAdapter);
     }
 
-    private void createPastChallengeListView(final View rootView, PublicUserData publicUserData) {
+    private void createPastChallengeListView(final View rootView) {
         List<Pair> keyValuePairs1 = new ArrayList<>();
         keyValuePairs1.add(new Pair<>(Challenge.Columns.hasEnded, true));
-        keyValuePairs1.add(new Pair<>(Challenge.Columns.curTurnUserId, publicUserData.getBaseUserId()));
+        keyValuePairs1.add(new Pair<>(Challenge.Columns.curTurnUserId, UserUtils.getCurrentUserId()));
 
         List<Pair> keyValuePairs2 = new ArrayList<>();
         keyValuePairs2.add(new Pair<>(Challenge.Columns.hasEnded, true));
-        keyValuePairs2.add(new Pair<>(Challenge.Columns.otherTurnUserId, publicUserData.getBaseUserId()));
+        keyValuePairs2.add(new Pair<>(Challenge.Columns.otherTurnUserId, UserUtils.getCurrentUserId()));
 
         List<List<Pair>> keyValuePairsList = new ArrayList<>();
         keyValuePairsList.add(keyValuePairs1);
