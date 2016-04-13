@@ -6,7 +6,7 @@ var m5 = require('cloud/testPush.js');
 var m6 = require('cloud/deletePinnedObjects.js');
 var m7 = require('cloud/changeUserId.js');
 var m8 = require('cloud/deleteStudentV2.js');
-var m9 = require('cloud/incrementCatAndSubStats.js');
+var m9 = require('cloud/incrementCatAndSubStats.js'); //deprecated
 var m10 = require('cloud/deleteOldBlockStats.js');
 var m11 = require('cloud/questionCount.js');
 var m12 = require('cloud/chooseRandomQuestionsV2.js');
@@ -20,6 +20,7 @@ var m19 = require('cloud/deleteAnalytics.js')
 var m20 = require('cloud/sendYourTurnNotification.js');
 var m21 = require('cloud/getRandomOpponent.js')
 var m22 = require('cloud/sendTutorRequestNotification.js')
+var m23 = require('cloud/Response.js')
 
 var l1 = require('cloud/getAllSubStats.js');
 var l2 = require('cloud/getSubStats.js');

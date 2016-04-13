@@ -11,14 +11,22 @@ Parse.Cloud.define("removeTutor", function(request, response) {
 	    // The object was retrieved successfully.
 		var tutorQuery = new Parse.Query("PublicUserData");
 		tutorQuery.get(tutorPublicDataId, {
-		  success: function(tutorPublicDataId) {
+		  success: function(tutorPublicData) {
 		    // The object was retrieved successfully.
-			privateStudentData.remove("tutors", tutorPublicDataId);
+			privateStudentData.remove("tutors", tutorPublicData);
 
 			privateStudentData.save(null, {
 			  success: function(privateStudentData) {
 			    // Execute any logic that should take place after the object is saved.
-			    response.success('Tutor removed from tutors in PrivateStudentData with objectId: ' + tutorPublicDataId.id);
+
+			    console.log('Tutor removed from tutors in PrivateStudentData with objectId: ' + tutorPublicData.id);
+			    var tutorBaseUserId = tutorPublicData.get("baseUserId");
+			    var studentBaseUserId = privateStudentData.get("baseUserId");
+			    common.addOrRemoveTutorFromRole(tutorBaseUserId, studentBaseUserId, false).then(
+			    	function(success) {
+			    		response.success('Tutor removed from role for student with baseUserId ' + studentBaseUserId);
+			    	}, function(error) { response.error(error);
+		    	});
 			  },
 			  error: function(privateStudentData, error) {
 			    // Execute any logic that should take place if the save fails.
@@ -27,7 +35,7 @@ Parse.Cloud.define("removeTutor", function(request, response) {
 			  }
 			});
 		  },
-		  error: function(tutorPublicDataId, error) {
+		  error: function(tutorPublicData, error) {
 		    // The object was not retrieved successfully.
 		    // error is a Parse.Error with an error code and message.
 		    response.error('Failed to get tutorPublicData, with error code: ' + error.message);

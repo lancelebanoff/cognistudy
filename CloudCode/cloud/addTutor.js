@@ -20,13 +20,19 @@ Parse.Cloud.define("addTutor", function(request, response) {
 			  success: function(privateStudentData) {
 			    // Execute any logic that should take place after the object is saved.
 			  	var successStr = 'Tutor added to tutors in PrivateStudentData with objectId: ' + tutorPublicData.id;
-			  	sendTutorAcceptNotification(tutorPublicData.get("baseUserId"), privateStudentData.get("baseUserId")).then(
+
+			  	var tutorBaseUserId = tutorPublicData.get("baseUserId");
+			  	var studentBaseUserId = privateStudentData.get("baseUserId");
+
+			  	var promises = [];
+			  	promises.push(common.addOrRemoveTutorFromRole(tutorBaseUserId, studentBaseUserId, true));
+			  	promises.push(sendTutorAcceptNotification(tutorBaseUserId, studentBaseUserId));
+
+			  	Parse.Promise.when(promises).then(
 			  		function(success) {
-			  			console.log("tutor accept notification sent successfully");
 			    		response.success(successStr);
 			  		}, function(error) { 
-			  			console.error("error sending tutor accept notification");
-			    		response.success(successStr);
+			    		response.error(error);
 			  	});
 			  },
 			  error: function(privateStudentData, error) {
@@ -72,8 +78,10 @@ function sendTutorAcceptNotification(senderBaseUserId, receiverBaseUserId) {
 
 			common.sendPushNotification(receiverBaseUserId, data).then(
 				function(success) {
+			  	console.log("tutor accept notification sent successfully");
 					promise.resolve();
 				}, function(error) {
+			  	console.error("error sending tutor accept notification");
 					promise.reject(error);
 				});
 		}, error: function(error) { promise.reject(error); }

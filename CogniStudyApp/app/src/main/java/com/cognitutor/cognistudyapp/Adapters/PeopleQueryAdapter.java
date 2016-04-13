@@ -46,6 +46,11 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
     private boolean mIgnoreTutors;
     private PrivateStudentData mPrivateStudentData;
 
+    public void setPrivateStudentData(PrivateStudentData privateStudentData) {
+        mPrivateStudentData = privateStudentData;
+        notifyDataSetChanged();
+    }
+
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
@@ -59,7 +64,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
             case Constants.UserType.ADMIN:
                 holder.txtTutor.setVisibility(View.VISIBLE);
                 holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
-                if (mPrivateStudentData.hasTutor(publicUserData)) {
+                if (mPrivateStudentData != null && mPrivateStudentData.hasTutor(publicUserData)) {
                     holder.imgLinkedTutor.setVisibility(View.VISIBLE);
                 } else {
                     holder.imgLinkedTutor.setVisibility(View.INVISIBLE);
@@ -68,7 +73,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
             default: // student
                 holder.txtTutor.setVisibility(View.INVISIBLE);
                 holder.imgLinkedTutor.setVisibility(View.INVISIBLE);
-                if (mPrivateStudentData.isFriendsWith(publicUserData)) {
+                if (mPrivateStudentData != null && mPrivateStudentData.isFriendsWith(publicUserData)) {
                     holder.imgFollowedStudent.setVisibility(View.VISIBLE);
                 } else {
                     holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
@@ -86,7 +91,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         return holder;
     }
 
-    public PeopleQueryAdapter(Activity activity, PeopleListOnClickHandler onClickHandler, PrivateStudentData privateStudentData, final boolean ignoreTutors) {
+    public PeopleQueryAdapter(Activity activity, PeopleListOnClickHandler onClickHandler, final boolean ignoreTutors) {
         super(activity, new ParseQueryAdapter.QueryFactory<PublicUserData>() {
             public ParseQuery create() {
                 return getDefaultQuery(ignoreTutors);
@@ -97,7 +102,6 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         mLock = new ReentrantLock();
         mIgnoreTutors = ignoreTutors;
         mActivity = activity;
-        mPrivateStudentData = privateStudentData;
         getDefaultQuery(ignoreTutors).findInBackground().continueWith(new Continuation<List<PublicUserData>, Object>() {
 //        getImportantCachedPublicUserDatas().continueWith(new Continuation<List<PublicUserData>, Object>() {
             @Override
@@ -221,13 +225,13 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
         mCacheThenNetworkHelper.cancelAllQueries();
 
         mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleable(null,
-                false, thisAdapter, new QueryUtils.ParseQueryBuilder <PublicUserData> () {
+                false, thisAdapter, new QueryUtils.ParseQueryBuilder<PublicUserData>() {
                     @Override
                     public ParseQuery<PublicUserData> buildQuery() {
                         return PublicUserData.getNonCurrentUserQuery(mIgnoreTutors)
                                 .whereStartsWith(PublicUserData.Columns.searchableDisplayName, q);
                     }
-        })
+                })
         .continueWithTask(new Continuation<List<PublicUserData>, Task<List<PublicUserData>>>() {
             @Override
             public Task<List<PublicUserData>> then(Task<List<PublicUserData>> task) throws Exception {
@@ -241,7 +245,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                                 return PublicUserData.getNonCurrentUserQuery(mIgnoreTutors)
                                         .whereContains(PublicUserData.Columns.searchableDisplayName, q);
                             }
-                });
+                        });
             }
 //        }).continueWith(new Continuation<List<PublicUserData>, Object>() {
 //            @Override
