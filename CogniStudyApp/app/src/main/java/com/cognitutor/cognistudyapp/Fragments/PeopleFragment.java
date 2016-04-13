@@ -135,17 +135,23 @@ public class PeopleFragment extends CogniFragment {
             }
         });
 
+        recyclerView = (CogniRecyclerView) rootView.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler, mIgnoreTutors);
+        recyclerView.setAdapter(peopleQueryAdapter);
+        peopleQueryAdapter.loadObjects();
+
         final Fragment fragment = this;
         PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
             @Override
             public Void then(Task<PrivateStudentData> task) throws Exception {
-                PrivateStudentData privateStudentData = task.getResult();
-                peopleQueryAdapter = new PeopleQueryAdapter(fragment.getActivity(), onClickHandler, privateStudentData, mIgnoreTutors);
-
-                recyclerView = (CogniRecyclerView) rootView.findViewById(R.id.recyclerView);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(peopleQueryAdapter);
-                peopleQueryAdapter.loadObjects();
+                final PrivateStudentData privateStudentData = task.getResult();
+                fragment.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        peopleQueryAdapter.setPrivateStudentData(privateStudentData);
+                    }
+                });
                 return null;
             }
         });

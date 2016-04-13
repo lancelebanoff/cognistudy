@@ -412,14 +412,16 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 while (!allAdaptersExist()) {
 
                 }
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (allAdaptersAreEmpty()) {
-                            showArrowGif();
+                if(getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (allAdaptersAreEmpty()) {
+                                showArrowGif();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         }).start();
     }
