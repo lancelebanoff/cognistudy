@@ -87,23 +87,35 @@ exports.sendPushNotification = function(baseUserId, notiData) {
 }
 
 exports.getStudentTutorRoleName = function(studentBaseUserId) {
+	return doGetStudentTutorRoleName(studentBaseUserId);
+}
+
+function doGetStudentTutorRoleName(studentBaseUserId) {
 	return "Tutor_" + studentBaseUserId;
 }
 
 exports.getStudentTutorRole = function(studentBaseUserId) {
-	var roleName = getStudentTutorRoleName(studentBaseUserId);
+	return doGetStudentTutorRole(studentBaseUserId);
+}
+
+function doGetStudentTutorRole(studentBaseUserId) {
+	var roleName = doGetStudentTutorRoleName(studentBaseUserId);
 	var query = new Parse.Query(Parse.Role);
 	query.equalTo("name", roleName);
 	return query.first();
 }
 
 exports.addOrRemoveTutorFromRole = function(tutorBaseUserId, studentBaseUserId, inRole) {
+	return doAddOrRemoveTutorFromRole(tutorBaseUserId, studentBaseUserId, inRole);
+}
+
+function doAddOrRemoveTutorFromRole(tutorBaseUserId, studentBaseUserId, inRole) {
 
 	Parse.Cloud.useMasterKey();
 
 	var promise = new Parse.Promise();
 
-	common.getStudentTutorRole(studentBaseUserId).then(
+	doGetStudentTutorRole(studentBaseUserId).then(
 		function(role) {
 			var userQuery = new Parse.Query(Parse.User);
 			userQuery.get(tutorBaseUserId, {
@@ -123,3 +135,4 @@ exports.addOrRemoveTutorFromRole = function(tutorBaseUserId, studentBaseUserId, 
 	});	
 	return promise;
 }
+

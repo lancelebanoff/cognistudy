@@ -40,7 +40,14 @@ Parse.Cloud.define("addStudent", function(request, response) {
 								privateTutorData.save(null, {
 								  success: function(privateTutorData) {
 								    // Execute any logic that should take place after the object is saved.
-								    response.success('Student added to students in PrivateTutorData with objectId: ' + privateTutorData.id);
+								    console.log('Student added to students in PrivateTutorData with objectId: ' + privateTutorData.id);
+								    var tutorBaseUserId = privateTutorData.get("baseUserId");
+			    					var studentBaseUserId = studentPublicData.get("baseUserId");
+								    common.addOrRemoveTutorFromRole(tutorBaseUserId, studentBaseUserId, true).then(
+								    	function(success) {
+								    		response.success('Tutor added to tutor role for student with baseUserId ' + studentBaseUserId);
+								    	}, function(error) { response.error(error);
+							    	});
 								  },
 								  error: function(privateTutorData, error) {
 								    // Execute any logic that should take place if the save fails.
