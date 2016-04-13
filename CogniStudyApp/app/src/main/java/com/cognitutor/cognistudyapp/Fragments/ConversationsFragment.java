@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +47,7 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
         mConversationAdapter = new ConversationAdapter(getActivity(), this);
 
         mRecyclerView = (CogniRecyclerView) rootView.findViewById(R.id.rvConversations);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext())); // we set the layout manager in the constructor instead
         mRecyclerView.setAdapter(mConversationAdapter);
         mConversationAdapter.loadObjects();
         waitAndShowOrHideNoMessagesText();
