@@ -99,6 +99,7 @@ exports.getStudentTutorRole = function(studentBaseUserId) {
 }
 
 function doGetStudentTutorRole(studentBaseUserId) {
+	Parse.Cloud.useMasterKey();
 	var roleName = doGetStudentTutorRoleName(studentBaseUserId);
 	var query = new Parse.Query(Parse.Role);
 	query.equalTo("name", roleName);
