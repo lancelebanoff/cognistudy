@@ -39,7 +39,16 @@ public class TutorRequestAdapter extends ArrayAdapter<PublicUserData> {
         super(context, R.layout.list_item_tutor_request, tutorRequests);
         mActivity = (Activity) context;
         mFragment = fragment;
-        mPrivateStudentData = PrivateStudentData.getPrivateStudentData();
+    }
+
+    public TutorRequestAdapter(Context context, MainFragment fragment) {
+        super(context, R.layout.list_item_tutor_request);
+        mActivity = (Activity) context;
+        mFragment = fragment;
+    }
+
+    public void setPrivateStudentData(PrivateStudentData privateStudentData) {
+        mPrivateStudentData = privateStudentData;
     }
 
     @Override

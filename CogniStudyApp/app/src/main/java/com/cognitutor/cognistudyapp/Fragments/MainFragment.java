@@ -185,6 +185,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private void createTutorRequestListView(final View rootView) {
         final Activity activity = getActivity();
         final MainFragment fragment = this;
+        tutorRequestAdapter = new TutorRequestAdapter(activity, fragment);
+        tutorRequestListView = (ListView) rootView.findViewById(R.id.listTutorRequests);
+        tutorRequestListView.setFocusable(false);
+        tutorRequestListView.setAdapter(tutorRequestAdapter);
 
         PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
             @Override
@@ -192,15 +196,15 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 task.getResult().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
                     @Override
                     public void done(ParseObject object, ParseException e) {
-                        PrivateStudentData privateStudentData = (PrivateStudentData) object;
-                        List<PublicUserData> tutorRequests = privateStudentData.getTutorRequests();
-                        tutorRequestAdapter = new TutorRequestAdapter(activity, fragment, tutorRequests);
+                        final PrivateStudentData privateStudentData = (PrivateStudentData) object;
+                        final List<PublicUserData> tutorRequests = privateStudentData.getTutorRequests();
 
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                tutorRequestListView = (ListView) rootView.findViewById(R.id.listTutorRequests);
-                                tutorRequestListView.setFocusable(false);
+
+                                tutorRequestAdapter.setPrivateStudentData(privateStudentData);
+                                tutorRequestAdapter = new TutorRequestAdapter(activity, fragment, tutorRequests);
                                 tutorRequestListView.setAdapter(tutorRequestAdapter);
 
                                 View parentCardView = (View) tutorRequestListView.getParent().getParent();
