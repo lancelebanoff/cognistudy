@@ -3,6 +3,7 @@ package com.cognitutor.cognistudyapp.Custom;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Achievement;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
@@ -13,10 +14,10 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Conversation;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Message;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PinnedObject;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
@@ -37,6 +38,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalRollingSta
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTotalTridayStats;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Tutor;
+import com.cognitutor.cognistudyapp.R;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;

@@ -74,9 +74,6 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
                     holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
                 }
                 break;
-            default:
-                holder.txtTutor.setVisibility(View.INVISIBLE);
-                break;
         }
 
         holder.setOnClickListener(publicUserData);

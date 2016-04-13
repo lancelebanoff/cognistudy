@@ -193,10 +193,4 @@ public class TutorProfileActivity extends CogniActivity {
         mPublicUserData.unpinInBackground();
         super.onDestroy();
     }
-
-    @Override
-    protected void onDestroy() {
-        publicUserData.unpinInBackground();
-        super.onDestroy();
-    }
 }
