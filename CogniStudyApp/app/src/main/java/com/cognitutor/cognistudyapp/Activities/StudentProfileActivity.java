@@ -12,11 +12,8 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
-
-import java.util.HashMap;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -73,6 +70,8 @@ public class StudentProfileActivity extends CogniActivity {
             btnUnfollow.setVisibility(View.GONE);
             CogniButton btnMessage = (CogniButton) findViewById(R.id.btnMessage);
             btnMessage.setVisibility(View.GONE);
+            CogniButton btnChallenge = (CogniButton) findViewById(R.id.btnChallenge);
+            btnChallenge.setVisibility(View.GONE);
         } else {
             showTutorialDialogIfNeeded(Constants.Tutorial.FOLLOW_STUDENT, null);
         }
@@ -117,13 +116,11 @@ public class StudentProfileActivity extends CogniActivity {
 
     }
 
-    public void navigateToNewChallengeActivity(View view) {
-        HashMap<String, Object> pushParams = new HashMap<String, Object>();
-        pushParams.put("baseUserId", mPublicUserData.getBaseUserId());
-        ParseCloud.callFunctionInBackground("sendPush", pushParams);
-
+    public void onClick_btnChallenge(View view) {
         Intent intent = new Intent(this, NewChallengeActivity.class);
-        // TODO:2 put opponent's user id
+        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.STUDENT_PROFILE_ACTIVITY);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, 1);
+        intent.putExtra(Constants.IntentExtra.OPPONENT_BASEUSERID, mPublicUserData.getBaseUserId());
         startActivity(intent);
     }
 

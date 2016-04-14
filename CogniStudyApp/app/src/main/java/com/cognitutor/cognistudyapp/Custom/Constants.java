@@ -243,6 +243,7 @@ public class Constants {
         public static final String CHALLENGE_ID = "CHALLENGE_ID";
         public static final String RESPONSE_ID = "RESPONSE_ID";
         public static final String USER1OR2 = "USER1OR2";
+        public static final String OPPONENT_BASEUSERID = "OPPONENT_BASEUSERID";
         public static final String QUESTION_META_ID = "QUESTION_META_ID";
         public static final String UPDATE_OBJECT_ID_IN_LIST = "UPDATE_OBJECT_ID_IN_LIST";
         public static final String CONVERSATION_ID = "CONVERSATION_ID";
@@ -261,6 +262,7 @@ public class Constants {
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String QUESTION_HISTORY_ACTIVITY = "QUESTION_HISTORY_ACTIVITY";
             public static final String BOOKMARKS_LIST_ACTIVITY = "BOOKMARKS_LIST_ACTIVITY";
+            public static final String STUDENT_PROFILE_ACTIVITY = "STUDENT_PROFILE_ACTIVITY";
         }
     }
 

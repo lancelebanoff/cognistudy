@@ -24,6 +24,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
@@ -59,6 +60,8 @@ public class NewChallengeActivity extends CogniActivity {
     private HashSet<String> mSelectedCategories;
     private String mSelectedOpponent;
     private HashMap<CheckBox, String> mCategoryCheckboxToCategory;
+    private String mOpponentBaseUserId;
+    private ChallengeUserData mUser2Data;
 
     private String DEFAULT_TEST = Constants.Test.BOTH;
     private String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
@@ -81,6 +84,8 @@ public class NewChallengeActivity extends CogniActivity {
         mSelectedCategories = new HashSet<>();
         mSelectedOpponent = "";
         mCategoryCheckboxToCategory = new HashMap<>();
+        mOpponentBaseUserId = "";
+        mUser2Data = null;
 
         displayTests();
         displaySubjects();
@@ -186,15 +191,16 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void displayOpponent() {
+        mOpponentBaseUserId = mIntent.getStringExtra(Constants.IntentExtra.OPPONENT_BASEUSERID);
         int user1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
-        if(user1or2 == 1) {
+        if (user1or2 == 1 && (mOpponentBaseUserId == null || mOpponentBaseUserId.equals(""))) { // Creating new challenge and opponent has not already been chosen
             LinearLayout llOpponentsHolder = (LinearLayout) findViewById(R.id.llOpponentsHolder);
             LinearLayout llOpponentRow = null;
             CogniRadioGroup mRgOpponents = new CogniRadioGroup();
             int numColumns = 2;
 
             String[] opponentTypes = Constants.OpponentType.getOpponentTypes();
-            for(int i = 0; i < opponentTypes.length; i++) {
+            for (int i = 0; i < opponentTypes.length; i++) {
                 if (i % numColumns == 0) {
                     llOpponentRow = new LinearLayout(this);
                     llOpponentRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -219,10 +225,26 @@ public class NewChallengeActivity extends CogniActivity {
                     mRbDefaultOpponent = radioButton;
                 }
             }
-        }
-        else {
+        } else { // Opponent has already been chosen
             CardView cvOpponent = (CardView) findViewById(R.id.cvOpponent);
             cvOpponent.setVisibility(View.INVISIBLE);
+            mSelectedOpponent = Constants.OpponentType.FRIEND;
+
+            // Get opponent PublicUserData and create new ChallengeUserData
+            PublicUserData.getPublicUserDataFromBaseUserIdInBackground(mOpponentBaseUserId)
+                    .continueWith(new Continuation<PublicUserData, Void>() {
+                        @Override
+                        public Void then(Task<PublicUserData> task) throws Exception {
+                            if (task.isFaulted()) {
+                                task.getError().printStackTrace();
+                            }
+                            ;
+
+                            PublicUserData opponentPublicUserData = task.getResult();
+                            mUser2Data = new ChallengeUserData(opponentPublicUserData);
+                            return null;
+                        }
+                    });
 
 //            String challengeId = mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
 //            Challenge.getChallengeInBackground(challengeId)
@@ -398,7 +420,10 @@ public class NewChallengeActivity extends CogniActivity {
                 } else if (mSelectedOpponent.equals(Constants.OpponentType.RANDOM)) {
                     chooseRandomOpponentAndNavigate(challenge);
                     return null;
+                } else if (mOpponentBaseUserId != null && !mOpponentBaseUserId.equals("")) { // Opponent has already been chosen
+                    setOpponentInChallenge(challenge);
                 }
+
                 return challenge.saveInBackground().continueWith(new Continuation<Void, Object>() {
                     @Override
                     public Object then(Task<Void> task) throws Exception {
@@ -407,6 +432,8 @@ public class NewChallengeActivity extends CogniActivity {
                             if (challengeType.equals(Constants.ChallengeType.PRACTICE)) {
                                 savePracticeChallenge(challenge, user1PublicUserData);
                             } else if (challengeType.equals(Constants.ChallengeType.ONE_PLAYER)) {
+                                navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
+                            } else if (mOpponentBaseUserId != null && !mOpponentBaseUserId.equals("")) { // Opponent has already been chosen
                                 navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
                             } else if (mSelectedOpponent.equals(Constants.OpponentType.FRIEND)) {
                                 navigateToChooseOpponentActivity(challenge.getObjectId(), 1);
@@ -447,6 +474,14 @@ public class NewChallengeActivity extends CogniActivity {
                 return null;
             }
         });
+    }
+
+    private void setOpponentInChallenge(Challenge challenge) {
+        while(mUser2Data == null) {}
+        mUser2Data.saveInBackground();
+        challenge.setUser2Data(mUser2Data);
+        challenge.setCurTurnUserId(mOpponentBaseUserId);
+        challenge.setOtherTurnUserId(ParseUser.getCurrentUser().getObjectId());
     }
 
     private void savePracticeChallenge(final Challenge challenge, PublicUserData publicUserData) {
