@@ -327,10 +327,11 @@ public class QueryUtils {
 
         final long startTime = System.currentTimeMillis();
 
-        return Task.callInBackground(new Callable<List<T>>() {
+        return localDataQuery.findInBackground().continueWithTask(new Continuation<List<T>, Task<List<T>>>() {
             @Override
-            public List<T> call() throws Exception {
-                List<T> localResults = doLocalFindQuery(localDataQuery);
+            public Task<List<T>> then(Task<List<T>> task) throws Exception {
+
+                final List<T> localResults = task.getResult();
                 if (isCancelled(helper, startTime))
                     return null;
                 if (listener != null)
@@ -346,35 +347,41 @@ public class QueryUtils {
                     }
                 }
 
-                List<T> networkResults = doNetworkFindQuery(networkQuery);
-                final List<T> combined = new ArrayList<T>();
-                for (T fromNetwork : networkResults) {
-                    addFromLocalOrNetwork(fromNetwork, localResults, combined);
-                }
+                return networkQuery.findInBackground().continueWith(new Continuation<List<T>, List<T>>() {
+                    @Override
+                    public List<T> then(Task<List<T>> task) throws Exception {
+                        List<T> networkResults = task.getResult();
 
-                if (localResults.size() > 0)
-                    Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
-                if (isCancelled(helper, startTime))
-                    return null;
+                        final List<T> combined = new ArrayList<T>();
+                        for (T fromNetwork : networkResults) {
+                            addFromLocalOrNetwork(fromNetwork, localResults, combined);
+                        }
 
-                List<T> newObjectsToPin = combined;
-                if (listener != null)
-                    newObjectsToPin = listener.onDataLoaded(combined);
+                        if (localResults.size() > 0)
+                            Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
+                        if (isCancelled(helper, startTime))
+                            return null;
 
-                if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
-                    if (deleteOldPinnedResults) {
-                        ParseObject.pinAllInBackground(pinName, combined).waitForCompletion();
-                    } else {
-                        ParseObject.pinAllInBackground(pinName, newObjectsToPin).waitForCompletion();
+                        List<T> newObjectsToPin = combined;
+                        if (listener != null)
+                            newObjectsToPin = listener.onDataLoaded(combined);
+
+                        if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
+                            if (deleteOldPinnedResults) {
+                                ParseObject.pinAllInBackground(pinName, combined).waitForCompletion();
+                            } else {
+                                ParseObject.pinAllInBackground(pinName, newObjectsToPin).waitForCompletion();
+                            }
+                        } else if (pinNameOption == PinNameOption.OBJECT_ID) {
+                            for (T obj : newObjectsToPin) {
+                                obj.pinInBackground(obj.getObjectId()).waitForCompletion(); //TODO: Why wait for completion?
+                            }
+                        } else if (pinNameOption == PinNameOption.NO_NAME) { //deleteOldPinnedResults not implemented for this case
+                            ParseObject.pinAllInBackground(newObjectsToPin).waitForCompletion();
+                        }
+                        return combined;
                     }
-                } else if (pinNameOption == PinNameOption.OBJECT_ID) {
-                    for (T obj : newObjectsToPin) {
-                        obj.pinInBackground(obj.getObjectId()).waitForCompletion(); //TODO: Why wait for completion?
-                    }
-                } else if (pinNameOption == PinNameOption.NO_NAME) { //deleteOldPinnedResults not implemented for this case
-                    ParseObject.pinAllInBackground(newObjectsToPin).waitForCompletion();
-                }
-                return combined;
+                });
             }
         });
     }
