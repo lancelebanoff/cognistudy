@@ -440,10 +440,11 @@ public class Constants {
     public static class UserType {
         public static final String STUDENT = "STUDENT";
         public static final String TUTOR = "TUTOR";
+        public static final String MODERATOR = "MODERATOR";
         public static final String ADMIN = "ADMIN";
         public static final String COMPUTER = "COMPUTER";
 
-        public static final String[] nonComputerUserTypes = new String[] {STUDENT, TUTOR, ADMIN};
+        public static final String[] nonComputerUserTypes = new String[] {STUDENT, TUTOR, MODERATOR, ADMIN};
     }
 
     public static class AchievementGroupType {

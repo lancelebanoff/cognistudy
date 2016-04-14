@@ -61,6 +61,7 @@ public class PeopleQueryAdapter extends CogniRecyclerAdapter<PublicUserData, Peo
 
         switch (publicUserData.getUserType()) {
             case Constants.UserType.TUTOR:
+            case Constants.UserType.MODERATOR:
             case Constants.UserType.ADMIN:
                 holder.txtTutor.setVisibility(View.VISIBLE);
                 holder.imgFollowedStudent.setVisibility(View.INVISIBLE);
