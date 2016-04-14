@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -339,10 +340,11 @@ public class QueryUtils {
 
                 if (deleteOldPinnedResults) { //TODO: && App.isNetworkConnected()
                     if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
-                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
+                        ParseObject.unpinAllInBackground(pinName);
                     } else if (pinNameOption == PinNameOption.OBJECT_ID) {
                         for (T obj : localResults) {
-                            ParseObject.unpinAllInBackground(obj.getObjectId()).waitForCompletion();
+                            if(validateUnpin(obj))
+                                ParseObject.unpinAllInBackground(obj.getObjectId());
                         }
                     }
                 }
@@ -368,22 +370,28 @@ public class QueryUtils {
 
                         if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
                             if (deleteOldPinnedResults) {
-                                ParseObject.pinAllInBackground(pinName, combined).waitForCompletion();
+                                ParseObject.pinAllInBackground(pinName, combined);
                             } else {
-                                ParseObject.pinAllInBackground(pinName, newObjectsToPin).waitForCompletion();
+                                ParseObject.pinAllInBackground(pinName, newObjectsToPin);
                             }
                         } else if (pinNameOption == PinNameOption.OBJECT_ID) {
                             for (T obj : newObjectsToPin) {
-                                obj.pinInBackground(obj.getObjectId()).waitForCompletion(); //TODO: Why wait for completion?
+                                obj.pinInBackground(obj.getObjectId()); //TODO: Why wait for completion?
                             }
                         } else if (pinNameOption == PinNameOption.NO_NAME) { //deleteOldPinnedResults not implemented for this case
-                            ParseObject.pinAllInBackground(newObjectsToPin).waitForCompletion();
+                            ParseObject.pinAllInBackground(newObjectsToPin);
                         }
                         return combined;
                     }
                 });
             }
         });
+    }
+
+    private <T extends ParseObject> boolean validateUnpin(T obj) {
+        //For challenges, only unpin the object if it has ended (Otherwise, it may be the other user's turn so it would
+        // need to show up in another recyclerview.
+        return !obj.getClass().equals(Challenge.class) || ((Challenge) obj).getHasEnded();
     }
 
     /**

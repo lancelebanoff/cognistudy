@@ -100,6 +100,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);
         b.setOnClickListener(this);
 
+        createAllListViews(rootView);
         return rootView;
     }
 
@@ -124,7 +125,6 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 break;
         }
 
-        createAllListViews(getView());
         loadChallengesFromNetwork(); //TODO: Is this ok?
         showOrHideArrow();
         setSwipeRefreshLayout(getView());
