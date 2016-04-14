@@ -93,12 +93,14 @@ public class AnalyticsFragment extends CogniFragment {
                     }
                 }
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getAndDisplayAnalytics();
-                    }
-                });
+                if(getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getAndDisplayAnalytics();
+                        }
+                    });
+                }
             }
         }).start();
     }
