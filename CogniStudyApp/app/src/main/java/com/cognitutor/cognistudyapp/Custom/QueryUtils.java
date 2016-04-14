@@ -391,7 +391,8 @@ public class QueryUtils {
     private <T extends ParseObject> boolean validateUnpin(T obj) {
         //For challenges, only unpin the object if it has ended (Otherwise, it may be the other user's turn so it would
         // need to show up in another recyclerview.
-        return !obj.getClass().equals(Challenge.class) || ((Challenge) obj).getHasEnded();
+//        return !obj.getClass().equals(Challenge.class) || ((Challenge) obj).getHasEnded();
+        return !obj.getClass().equals(Challenge.class);
     }
 
     /**
