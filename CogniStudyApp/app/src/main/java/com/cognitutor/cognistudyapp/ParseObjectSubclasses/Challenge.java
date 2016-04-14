@@ -317,6 +317,21 @@ public class Challenge extends ParseObject {
         }
     }
 
+    public ChallengeUserData getOtherUserChallengeUserData() {
+        switch (getUser1Or2()) {
+            case 1:
+                return getUser2Data();
+            case 2:
+                return getUser1Data();
+            default:
+                return null;
+        }
+    }
+
+    public boolean isCurUsersTurn() {
+        return getCurTurnUserId().equals(UserUtils.getCurrentUserId());
+    }
+
     public String getOpponentBaseUserId() {
         String curTurnUserId = getCurTurnUserId();
         if(curTurnUserId.equals(UserUtils.getCurrentUserId()))
