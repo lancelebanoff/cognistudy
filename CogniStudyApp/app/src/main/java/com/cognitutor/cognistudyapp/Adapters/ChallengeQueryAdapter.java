@@ -2,7 +2,6 @@ package com.cognitutor.cognistudyapp.Adapters;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +15,7 @@ import android.widget.TextView;
 import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.PracticeChallengeActivity;
+import com.cognitutor.cognistudyapp.Custom.ChallengeRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
@@ -24,11 +24,8 @@ import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.GetCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 import com.parse.SaveCallback;
@@ -38,6 +35,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import bolts.Task;
+
 /**
  * Created by Kevin on 1/14/2016.
  */
@@ -46,6 +45,7 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
     private MainFragment mFragment;
     private QueryUtils.ParseQueryBuilder<Challenge> mQueryBuilder;
     private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
+    private ChallengeRecyclerView mChallengeRecyclerView;
 
     /*
     public PeopleQueryAdapter(Context context) {
@@ -60,7 +60,7 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
         });
     }
     */
-    public ChallengeQueryAdapter(Activity activity, MainFragment fragment, final List<Pair> keyValuePairs) {
+    public ChallengeQueryAdapter(Activity activity, MainFragment fragment, ChallengeRecyclerView recyclerView, final List<Pair> keyValuePairs) {
         super(activity, new ParseQueryAdapter.QueryFactory<Challenge>() {
             public ParseQuery create() {
                 return getChallengeNonOrQuery(keyValuePairs).fromLocalDatastore();
@@ -74,10 +74,11 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
         };
         mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mFragment = fragment;
+        mChallengeRecyclerView = recyclerView;
     }
 
     // Use this constructor for past challenges, which uses an "or" query
-    public ChallengeQueryAdapter(Activity activity, MainFragment fragment, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
+    public ChallengeQueryAdapter(Activity activity, MainFragment fragment, ChallengeRecyclerView recyclerView, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
         super(activity, new ParseQueryAdapter.QueryFactory<Challenge>() {
             public ParseQuery create() {
                 return getChallengeOrQuery(keyValuePairsList).fromLocalDatastore();
@@ -91,6 +92,25 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
         };
         mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mFragment = fragment;
+        mChallengeRecyclerView = recyclerView;
+    }
+
+    @Override
+    public synchronized List<Challenge> onDataLoaded(List<Challenge> list) {
+        List<Challenge> newObjects = super.onDataLoaded(list);
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View parentCardView = mChallengeRecyclerView.getParentCardView();
+                if(getItemCount() == 0) {
+                    parentCardView.setVisibility(View.GONE);
+                }
+                else {
+                    parentCardView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        return newObjects;
     }
 
     private static ParseQuery<Challenge> getChallengeNonOrQuery(List<Pair> keyValuePairs) {
@@ -98,7 +118,7 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
         for (Pair pair : keyValuePairs) {
             query = query.whereEqualTo((String) pair.first, pair.second);
         }
-        return includeColumns(query);
+        return includeColumnsAndOrderBy(query);
     }
 
     private static ParseQuery<Challenge> getChallengeOrQuery(List<List<Pair>> keyValuePairsList) {
@@ -111,17 +131,18 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
             queries.add(query);
         }
         ParseQuery<Challenge> orQuery = ParseQuery.or(queries);
-        return includeColumns(orQuery);
+        return includeColumnsAndOrderBy(orQuery);
     }
 
-    private static ParseQuery<Challenge> includeColumns(ParseQuery<Challenge> query) {
+    private static ParseQuery<Challenge> includeColumnsAndOrderBy(ParseQuery<Challenge> query) {
         query.include(Challenge.Columns.user1Data + "." + ChallengeUserData.Columns.publicUserData);
         query.include(Challenge.Columns.user2Data + "." + ChallengeUserData.Columns.publicUserData);
+        query.orderByDescending(Challenge.Columns.timeLastPlayed);
         return query;
     }
 
-    public void loadFromNetwork() {
-        mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleablePinWithObjectId(true, this, mQueryBuilder);
+    public Task<List<Challenge>> loadFromNetwork() {
+        return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleablePinWithObjectId(true, this, mQueryBuilder);
     }
 
     private void navigateToChallengeActivity(String challengeId, int user1or2) {
