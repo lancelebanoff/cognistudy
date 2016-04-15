@@ -68,6 +68,7 @@
                         android:text="Message"
                         android:id="@+id/btnMessage"
                         android:onClick="onClick_btnMessage"
+                        android:drawableLeft="@drawable/ic_action_icon_message_profile"
                         android:layout_weight="1"/>
                 </LinearLayout>
 
