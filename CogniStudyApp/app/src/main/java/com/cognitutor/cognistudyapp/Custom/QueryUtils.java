@@ -338,17 +338,6 @@ public class QueryUtils {
                 if (listener != null)
                     listener.onDataLoaded(localResults);
 
-                if (deleteOldPinnedResults) { //TODO: && App.isNetworkConnected()
-                    if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
-                        ParseObject.unpinAllInBackground(pinName);
-                    } else if (pinNameOption == PinNameOption.OBJECT_ID) {
-                        for (T obj : localResults) {
-                            if(validateUnpin(obj))
-                                ParseObject.unpinAllInBackground(obj.getObjectId());
-                        }
-                    }
-                }
-
                 return networkQuery.findInBackground().continueWith(new Continuation<List<T>, List<T>>() {
                     @Override
                     public List<T> then(Task<List<T>> task) throws Exception {
@@ -361,12 +350,25 @@ public class QueryUtils {
 
                         if (localResults.size() > 0)
                             Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
+
                         if (isCancelled(helper, startTime))
                             return null;
 
                         List<T> newObjectsToPin = combined;
                         if (listener != null)
                             newObjectsToPin = listener.onDataLoaded(combined);
+
+                        //Delete old pinned objects that were not found on the network
+                        if (deleteOldPinnedResults) { //TODO: && App.isNetworkConnected()
+                            if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
+                                ParseObject.unpinAllInBackground(pinName);
+                            } else if (pinNameOption == PinNameOption.OBJECT_ID) {
+                                for (T obj : localResults) {
+                                    if(validateUnpin(obj))
+                                        ParseObject.unpinAllInBackground(obj.getObjectId());
+                                }
+                            }
+                        }
 
                         if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
                             if (deleteOldPinnedResults) {
@@ -391,8 +393,8 @@ public class QueryUtils {
     private <T extends ParseObject> boolean validateUnpin(T obj) {
         //For challenges, only unpin the object if it has ended (Otherwise, it may be the other user's turn so it would
         // need to show up in another recyclerview.
-//        return !obj.getClass().equals(Challenge.class) || ((Challenge) obj).getHasEnded();
-        return !obj.getClass().equals(Challenge.class);
+        return obj.getObjectId() != null &&
+                (!obj.getClass().equals(Challenge.class) || ((Challenge) obj).getHasEnded());
     }
 
     /**
