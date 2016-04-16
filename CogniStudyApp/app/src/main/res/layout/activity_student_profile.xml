@@ -89,6 +89,8 @@
                         android:text="Start Challenge"
                         android:id="@+id/btnChallenge"
                         android:onClick="onClick_btnChallenge"
+                        android:drawableStart="@drawable/ic_action_icon_start_challenge_up"
+                        android:drawableLeft="@drawable/ic_action_icon_start_challenge_up"
                         android:layout_weight="2"/>
 
                     <TextView

@@ -33,8 +33,8 @@ public class MainActivity extends AuthenticationActivity {
     private PeopleFragment mPeopleFragment;
 
     private static boolean cameFromChatActivity = false;
-    public static void notifyCameFromChatActivity() {
-        cameFromChatActivity = true;
+    public static void setCameFromChatActivity(boolean val) {
+        cameFromChatActivity = val;
     }
 
     @Override

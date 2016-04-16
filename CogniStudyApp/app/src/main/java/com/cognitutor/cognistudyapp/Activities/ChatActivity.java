@@ -79,8 +79,6 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
         loadConversationAndConversant()
             .continueWithTask(fetchConversation())
             .continueWithTask(loadMessages());
-
-        MainActivity.notifyCameFromChatActivity();
     }
 
     private View.OnLayoutChangeListener getOnLayoutChangeListener() {

@@ -11,6 +11,7 @@ import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.FollowButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
+import com.cognitutor.cognistudyapp.Custom.ProfileActivity;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
@@ -20,7 +21,7 @@ import com.parse.ParseImageView;
 import bolts.Continuation;
 import bolts.Task;
 
-public class StudentProfileActivity extends CogniActivity {
+public class StudentProfileActivity extends ProfileActivity {
 
     /**
      * Extras:
@@ -28,7 +29,6 @@ public class StudentProfileActivity extends CogniActivity {
      */
     private ViewHolder holder;
     private Intent mIntent;
-    private PublicUserData mPublicUserData;
     private PrivateStudentData mCurrPrivateStudentData;
 
     @Override
@@ -111,10 +111,6 @@ public class StudentProfileActivity extends CogniActivity {
                 return null;
             }
         });
-    }
-
-    public void onClick_btnMessage(View view) {
-
     }
 
     public void onClick_btnChallenge(View view) {

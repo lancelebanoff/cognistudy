@@ -50,7 +50,7 @@ public abstract class CogniIconCheckBox extends CogniCheckBox {
         }
     }
 
-    protected void setDrawableLeft(int resId) {
+    public void setDrawableLeft(int resId) {
         setCompoundDrawablesWithIntrinsicBounds(resId, 0, 0, 0);
     }
 }
