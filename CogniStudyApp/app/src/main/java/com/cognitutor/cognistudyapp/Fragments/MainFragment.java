@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
+import com.cognitutor.cognistudyapp.Activities.MainActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Adapters.TutorRequestAdapter;
@@ -31,11 +32,8 @@ import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.TutorRequestListView;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -49,6 +47,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -60,6 +59,8 @@ import pl.droidsonroids.gif.GifImageView;
 
 public class MainFragment extends CogniPushListenerFragment implements View.OnClickListener {
 
+    private final int NUM_ADAPTERS = 4;
+
     private TutorRequestAdapter tutorRequestAdapter;
     private ChallengeQueryAdapter challengeRequestQueryAdapter;
     private ChallengeQueryAdapter yourTurnChallengeQueryAdapter;
@@ -70,6 +71,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     private ChallengeRecyclerView yourTurnListView;
     private ChallengeRecyclerView theirTurnListView;
     private ChallengeRecyclerView pastChallengeListView;
+    private AtomicInteger mNumAdaptersLoaded;
 
     public static ArrayAdapter<ParseObject> answeredQuestionIdAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -85,6 +87,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapterList = new ArrayList<>();
+        mNumAdaptersLoaded = new AtomicInteger(0);
     }
 
     @Override
@@ -128,6 +131,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
     }
 
     private void loadChallengesAndTutorRequests() {
+        mNumAdaptersLoaded.set(0);
         loadChallengesFromNetwork();
         tutorRequestAdapter.loadTutorRequests(true);
     }
@@ -287,7 +291,16 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     private void loadChallengesFromNetwork() {
         for (ChallengeQueryAdapter adapter : adapterList) {
-            adapter.loadFromNetwork();
+            adapter.loadFromNetwork().continueWith(new Continuation<List<Challenge>, Void>() {
+                @Override
+                public Void then(Task<List<Challenge>> task) throws Exception {
+                    int numAdaptersLoaded = mNumAdaptersLoaded.incrementAndGet();
+                    if (numAdaptersLoaded == NUM_ADAPTERS) {
+                        ((MainActivity) getActivity()).challengesFinishedLoading = true;
+                    }
+                    return null;
+                }
+            });
         }
     }
 
