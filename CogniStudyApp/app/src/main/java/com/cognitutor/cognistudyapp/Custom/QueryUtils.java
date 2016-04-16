@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.AnsweredQuestionIds;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -327,47 +328,73 @@ public class QueryUtils {
 
         final long startTime = System.currentTimeMillis();
 
-        return Task.callInBackground(new Callable<List<T>>() {
+        return localDataQuery.findInBackground().continueWithTask(new Continuation<List<T>, Task<List<T>>>() {
             @Override
-            public List<T> call() throws Exception {
-                List<T> localResults = doLocalFindQuery(localDataQuery);
+            public Task<List<T>> then(Task<List<T>> task) throws Exception {
+
+                final List<T> localResults = task.getResult();
                 if (isCancelled(helper, startTime))
                     return null;
                 if (listener != null)
                     listener.onDataLoaded(localResults);
 
-                List<T> networkResults = doNetworkFindQuery(networkQuery);
-                final List<T> combined = new ArrayList<T>();
-                for (T fromNetwork : networkResults) {
-                    addFromLocalOrNetwork(fromNetwork, localResults, combined);
-                }
+                return networkQuery.findInBackground().continueWith(new Continuation<List<T>, List<T>>() {
+                    @Override
+                    public List<T> then(Task<List<T>> task) throws Exception {
+                        List<T> networkResults = task.getResult();
 
-                if (localResults.size() > 0)
-                    Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
-                if (isCancelled(helper, startTime))
-                    return null;
+                        final List<T> combined = new ArrayList<T>();
+                        for (T fromNetwork : networkResults) {
+                            addFromLocalOrNetwork(fromNetwork, localResults, combined);
+                        }
 
-                List<T> newObjectsToPin = combined;
-                if (listener != null)
-                    newObjectsToPin = listener.onDataLoaded(combined);
+                        if (localResults.size() > 0)
+                            Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
 
-                if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
-                    if (deleteOldPinnedResults) {
-                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
-                        ParseObject.pinAllInBackground(pinName, combined).waitForCompletion();
-                    } else {
-                        ParseObject.pinAllInBackground(pinName, newObjectsToPin).waitForCompletion();
+                        if (isCancelled(helper, startTime))
+                            return null;
+
+                        List<T> newObjectsToPin = combined;
+                        if (listener != null)
+                            newObjectsToPin = listener.onDataLoaded(combined);
+
+                        //Delete old pinned objects that were not found on the network
+                        if (deleteOldPinnedResults) { //TODO: && App.isNetworkConnected()
+                            if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
+                                ParseObject.unpinAllInBackground(pinName);
+                            } else if (pinNameOption == PinNameOption.OBJECT_ID) {
+                                for (T obj : localResults) {
+                                    if(validateUnpin(obj))
+                                        ParseObject.unpinAllInBackground(obj.getObjectId());
+                                }
+                            }
+                        }
+
+                        if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
+                            if (deleteOldPinnedResults) {
+                                ParseObject.pinAllInBackground(pinName, combined);
+                            } else {
+                                ParseObject.pinAllInBackground(pinName, newObjectsToPin);
+                            }
+                        } else if (pinNameOption == PinNameOption.OBJECT_ID) {
+                            for (T obj : newObjectsToPin) {
+                                obj.pinInBackground(obj.getObjectId()); //TODO: Why wait for completion?
+                            }
+                        } else if (pinNameOption == PinNameOption.NO_NAME) { //deleteOldPinnedResults not implemented for this case
+                            ParseObject.pinAllInBackground(newObjectsToPin);
+                        }
+                        return combined;
                     }
-                } else if (pinNameOption == PinNameOption.OBJECT_ID) {
-                    for (T obj : newObjectsToPin) {
-                        obj.pinInBackground(obj.getObjectId()).waitForCompletion(); //TODO: Why wait for completion?
-                    }
-                } else if (pinNameOption == PinNameOption.NO_NAME) { //if (deleteOldPinnedResults) {
-                    ParseObject.pinAllInBackground(newObjectsToPin).waitForCompletion();
-                }
-                return combined;
+                });
             }
         });
+    }
+
+    private <T extends ParseObject> boolean validateUnpin(T obj) {
+        //For challenges, only unpin the object if it has ended (Otherwise, it may be the other user's turn so it would
+        // need to show up in another recyclerview.
+        return obj.getObjectId() != null &&
+                (!obj.getClass().equals(Challenge.class) || ((Challenge) obj).getHasEnded());
     }
 
     /**

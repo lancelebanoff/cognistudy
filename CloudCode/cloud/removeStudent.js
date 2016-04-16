@@ -25,7 +25,15 @@ Parse.Cloud.define("removeStudent", function(request, response) {
 							privateTutorData.save(null, {
 							  success: function(privateTutorData) {
 							    // Execute any logic that should take place after the object is saved.
-							    response.success('student removed from students in PrivateTutorData with objectId: ' + studentPublicData.id);
+							    
+							    console.log('student removed from students in PrivateTutorData with objectId: ' + studentPublicData.id);
+							    var tutorBaseUserId = privateTutorData.get("baseUserId");
+							    var studentBaseUserId = studentPublicData.get("baseUserId");
+							    common.addOrRemoveTutorFromRole(tutorBaseUserId, studentBaseUserId, false).then(
+							    	function(success) {
+							    		response.success('Tutor removed from role for student with baseUserId ' + studentBaseUserId);
+							    	}, function(error) { response.error(error);
+							    });
 							  },
 							  error: function(privateTutorData, error) {
 							    // Execute any logic that should take place if the save fails.

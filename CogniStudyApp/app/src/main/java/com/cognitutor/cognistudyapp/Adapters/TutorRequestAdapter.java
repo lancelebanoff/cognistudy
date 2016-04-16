@@ -11,14 +11,20 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
+import com.cognitutor.cognistudyapp.Custom.TutorRequestListView;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
+import java.util.HashSet;
 import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Kevin on 1/14/2016.
@@ -28,12 +34,89 @@ public class TutorRequestAdapter extends ArrayAdapter<PublicUserData> {
     private Activity mActivity;
     private MainFragment mFragment;
     private PrivateStudentData mPrivateStudentData;
+    private TutorRequestListView mListView;
 
-    public TutorRequestAdapter(Context context, MainFragment fragment, List<PublicUserData> tutorRequests) {
+    public TutorRequestAdapter(Context context, MainFragment fragment, TutorRequestListView listView, List<PublicUserData> tutorRequests) {
         super(context, R.layout.list_item_tutor_request, tutorRequests);
         mActivity = (Activity) context;
         mFragment = fragment;
-        mPrivateStudentData = PrivateStudentData.getPrivateStudentData();
+        mListView = listView;
+    }
+
+    public TutorRequestAdapter(Context context, MainFragment fragment, TutorRequestListView listView) {
+        super(context, R.layout.list_item_tutor_request);
+        mActivity = (Activity) context;
+        mFragment = fragment;
+        mListView = listView;
+    }
+
+    public void loadTutorRequests(final boolean getFromNetwork) {
+        if(mPrivateStudentData == null) {
+            PrivateStudentData.getPrivateStudentDataInBackground().continueWith(new Continuation<PrivateStudentData, Void>() {
+                @Override
+                public Void then(Task<PrivateStudentData> task) throws Exception {
+                    mPrivateStudentData = task.getResult();
+                    doLoadTutorRequests(getFromNetwork);
+                    return null;
+                }
+            });
+        }
+        else {
+            doLoadTutorRequests(getFromNetwork);
+        }
+    }
+
+    private void doLoadTutorRequests(boolean getFromNetwork) {
+
+        doGetTutorRequests();
+        if(getFromNetwork) {
+            mPrivateStudentData.fetchInBackground().continueWith(new Continuation<ParseObject, Object>() {
+                @Override
+                public Object then(Task<ParseObject> task) throws Exception {
+                    doGetTutorRequests();
+                    return null;
+                }
+            });
+        }
+    }
+
+    private void doGetTutorRequests() {
+        final List<PublicUserData> tutorRequests = mPrivateStudentData.getTutorRequests();
+
+        boolean update = false;
+        HashSet<String> oldIds = new HashSet<>();
+        for(int i=0; i<getCount(); i++) {
+            oldIds.add(getItem(i).getObjectId());
+        }
+        for(PublicUserData newPud : tutorRequests) {
+            String newId = newPud.getObjectId();
+            if(!oldIds.contains(newId)) {
+                update = true;
+                break;
+            }
+            oldIds.remove(newId);
+        }
+        if(oldIds.size() != 0)
+            update = true;
+
+        if(update) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    clear();
+                    for(PublicUserData pud : tutorRequests) {
+                        add(pud);
+                    }
+                    notifyDataSetChanged();
+
+                    if(getCount() == 0) {
+                        mListView.getParentCardView().setVisibility(View.GONE);
+                    } else {
+                        mListView.getParentCardView().setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -89,6 +172,7 @@ public class TutorRequestAdapter extends ArrayAdapter<PublicUserData> {
 
     private void acceptRequest(PublicUserData tutorPublicUserData) {
         mPrivateStudentData.linkTutor(tutorPublicUserData);
+        loadTutorRequests(false);
     }
 
     private void rejectRequest(PublicUserData tutorPublicUserData) {
@@ -96,7 +180,7 @@ public class TutorRequestAdapter extends ArrayAdapter<PublicUserData> {
         mPrivateStudentData.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                mFragment.refresh();
+                loadTutorRequests(false);
             }
         });
     }

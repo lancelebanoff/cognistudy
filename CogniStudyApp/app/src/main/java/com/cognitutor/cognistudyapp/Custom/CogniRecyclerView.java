@@ -28,7 +28,7 @@ public class CogniRecyclerView extends RecyclerView{
     }
 
     private void init(Context context) {
-        setLayoutManager(new WrapContentLinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+        setLayoutManager(new WrapContentLinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
     }
 
     @Override

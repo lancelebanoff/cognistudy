@@ -12,15 +12,14 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
-import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.BookmarkButton;
+import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
@@ -391,6 +390,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             avh.txtCorrectIncorrect.setText("Incorrect!");
             avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.red));
             setResponseStatusIcon(avh.ivCorrectIncorrect, Constants.ResponseStatusType.INCORRECT);
+            setCorrectAnswerText();
         }
         avh.btnSubmit.setVisibility(View.GONE);
         avh.vgPostAnswer.setVisibility(View.VISIBLE);
@@ -408,6 +408,11 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
                 });
             }
         }).start();
+    }
+
+    private void setCorrectAnswerText() {
+        char correctLetter = (char) ('A' + mQuestionContents.getCorrectIdx());
+        avh.txtCorrectAnswer.setText("Correct Answer: " + correctLetter);
     }
 
     protected void navigateToParentActivity() {
@@ -431,6 +436,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         private ViewGroup vgPostAnswer;
         private TextView txtCorrectIncorrect;
         private ImageView ivCorrectIncorrect;
+        private TextView txtCorrectAnswer;
         private Button btnSubmit;
         private BookmarkButton cbBookmark;
 
@@ -445,6 +451,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             vgPostAnswer = (ViewGroup) findViewById(R.id.vgPostAnswer);
             txtCorrectIncorrect = (TextView) findViewById(R.id.txtCorrectIncorrect);
             ivCorrectIncorrect = (ImageView) findViewById(R.id.ivCorrectIncorrect);
+            txtCorrectAnswer = (TextView) findViewById(R.id.txtCorrectAnswer);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
             cbBookmark = (BookmarkButton) findViewById(R.id.cbBookmark);
         }

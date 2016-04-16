@@ -2,11 +2,12 @@ package com.cognitutor.cognistudyapp.Adapters;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -14,17 +15,17 @@ import android.widget.TextView;
 import com.cognitutor.cognistudyapp.Activities.ChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Activities.PracticeChallengeActivity;
+import com.cognitutor.cognistudyapp.Custom.ChallengeRecyclerView;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
+import com.cognitutor.cognistudyapp.Custom.QueryUtils;
+import com.cognitutor.cognistudyapp.Custom.QueryUtilsCacheThenNetworkHelper;
 import com.cognitutor.cognistudyapp.Custom.RoundedImageView;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.R;
-import com.parse.GetCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 import com.parse.SaveCallback;
@@ -34,13 +35,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import bolts.Task;
+
 /**
  * Created by Kevin on 1/14/2016.
  */
-public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
+public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, ChallengeQueryAdapter.ViewHolder> {
 
-    private Activity mActivity;
     private MainFragment mFragment;
+    private QueryUtils.ParseQueryBuilder<Challenge> mQueryBuilder;
+    private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
+    private ChallengeRecyclerView mChallengeRecyclerView;
 
     /*
     public PeopleQueryAdapter(Context context) {
@@ -55,118 +60,89 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         });
     }
     */
-    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<Pair> keyValuePairs, final String orderByDateColumn) {
-        super(context, new QueryFactory<ParseObject>() {
+    public ChallengeQueryAdapter(Activity activity, MainFragment fragment, ChallengeRecyclerView recyclerView, final List<Pair> keyValuePairs) {
+        super(activity, new ParseQueryAdapter.QueryFactory<Challenge>() {
             public ParseQuery create() {
-                ParseQuery query = Challenge.getQuery();
-//                        .fromLocalDatastore()
-                for (Pair pair : keyValuePairs) {
-                    query = query.whereEqualTo((String) pair.first, pair.second);
-                }
-                return query.orderByDescending(orderByDateColumn);
+                return getChallengeNonOrQuery(keyValuePairs).fromLocalDatastore();
             }
-        });
-        mActivity = (Activity) context;
+        }, true);
+        mQueryBuilder = new QueryUtils.ParseQueryBuilder<Challenge>() {
+            @Override
+            public ParseQuery<Challenge> buildQuery() {
+                return getChallengeNonOrQuery(keyValuePairs);
+            }
+        };
+        mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mFragment = fragment;
+        mChallengeRecyclerView = recyclerView;
     }
 
     // Use this constructor for past challenges, which uses an "or" query
-    public ChallengeQueryAdapter(Context context, MainFragment fragment, final List<List<Pair>> keyValuePairsList, final String orderByDateColumn,
-                                 boolean pastChallenges) {
-        super(context, new QueryFactory<ParseObject>() {
+    public ChallengeQueryAdapter(Activity activity, MainFragment fragment, ChallengeRecyclerView recyclerView, final List<List<Pair>> keyValuePairsList, boolean pastChallenges) {
+        super(activity, new ParseQueryAdapter.QueryFactory<Challenge>() {
             public ParseQuery create() {
-                List<ParseQuery<Challenge>> queries = new ArrayList<>();
-                for (List<Pair> keyValuePairs : keyValuePairsList) {
-                    ParseQuery query = Challenge.getQuery();
-//                        .fromLocalDatastore()
-                    for (Pair pair : keyValuePairs) {
-                        query = query.whereEqualTo((String) pair.first, pair.second);
-                    }
-                    queries.add(query);
-                }
-                return ParseQuery.or(queries).orderByDescending(orderByDateColumn);
+                return getChallengeOrQuery(keyValuePairsList).fromLocalDatastore();
             }
-        });
-        mActivity = (Activity) context;
+        }, true);
+        mQueryBuilder = new QueryUtils.ParseQueryBuilder<Challenge>() {
+            @Override
+            public ParseQuery<Challenge> buildQuery() {
+                return getChallengeOrQuery(keyValuePairsList);
+            }
+        };
+        mCacheThenNetworkHelper = new QueryUtilsCacheThenNetworkHelper();
         mFragment = fragment;
+        mChallengeRecyclerView = recyclerView;
     }
 
     @Override
-    public View getItemView(ParseObject object, View view, ViewGroup parent) {
-        final ViewHolder holder;
-        final View finalView;
-        if(view == null) {
-            finalView = View.inflate(getContext(), R.layout.list_item_challenge, null);
-            holder = createViewHolder(finalView);
-            finalView.setTag(holder);
-        }
-        else {
-            holder = (ViewHolder) view.getTag();
-            return view;
-        }
-
-        super.getItemView(object, view, parent);
-
-        final Challenge challenge = (Challenge) object;
-        if(challenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
-            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject object, ParseException e) {
-                    ChallengeUserData challengeUserData = (ChallengeUserData) object;
-                    setItemViewContentsForPractice(holder, challengeUserData);
-
-                    finalView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            navigateToPracticeChallengeActivity(challenge.getObjectId(), 1);
-                        }
-                    });
+    public synchronized List<Challenge> onDataLoaded(List<Challenge> list) {
+        List<Challenge> newObjects = super.onDataLoaded(list);
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View parentCardView = mChallengeRecyclerView.getParentCardView();
+                if(getItemCount() == 0) {
+                    parentCardView.setVisibility(View.GONE);
                 }
-            });
-        }
-        else {
-            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject object, ParseException e) {
-                    final ChallengeUserData user1Data = (ChallengeUserData) object;
-                    challenge.getUser2Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-                        @Override
-                        public void done(ParseObject object, ParseException e) {
-                            final ChallengeUserData user2Data = (ChallengeUserData) object;
-
-                            String user1BaseUserId = user1Data.getPublicUserData().getBaseUserId();
-                            String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
-                            ChallengeUserData currentChallengeUserData, opponentChallengeUserData;
-                            final int user1or2;
-                            if (user1BaseUserId.equals(currentUserBaseUserId)) {
-                                currentChallengeUserData = user1Data;
-                                opponentChallengeUserData = user2Data;
-                                user1or2 = 1;
-                            } else {
-                                currentChallengeUserData = user2Data;
-                                opponentChallengeUserData = user1Data;
-                                user1or2 = 2;
-                            }
-                            setItemViewContents(holder, challenge, currentChallengeUserData, opponentChallengeUserData);
-
-                            finalView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    String userId = PublicUserData.getPublicUserData().getBaseUserId();
-                                    if (!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId) && !challenge.getHasEnded()) {
-                                        promptAcceptChallenge(challenge, user1or2);
-                                    } else {
-                                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
-                                    }
-                                }
-                            });
-                        }
-                    });
+                else {
+                    parentCardView.setVisibility(View.VISIBLE);
                 }
-            });
-        }
+            }
+        });
+        return newObjects;
+    }
 
-        return finalView;
+    private static ParseQuery<Challenge> getChallengeNonOrQuery(List<Pair> keyValuePairs) {
+        ParseQuery query = Challenge.getQuery();
+        for (Pair pair : keyValuePairs) {
+            query = query.whereEqualTo((String) pair.first, pair.second);
+        }
+        return includeColumnsAndOrderBy(query);
+    }
+
+    private static ParseQuery<Challenge> getChallengeOrQuery(List<List<Pair>> keyValuePairsList) {
+        List<ParseQuery<Challenge>> queries = new ArrayList<>();
+        for (List<Pair> keyValuePairs : keyValuePairsList) {
+            ParseQuery query = Challenge.getQuery();
+            for (Pair pair : keyValuePairs) {
+                query = query.whereEqualTo((String) pair.first, pair.second);
+            }
+            queries.add(query);
+        }
+        ParseQuery<Challenge> orQuery = ParseQuery.or(queries);
+        return includeColumnsAndOrderBy(orQuery);
+    }
+
+    private static ParseQuery<Challenge> includeColumnsAndOrderBy(ParseQuery<Challenge> query) {
+        query.include(Challenge.Columns.user1Data + "." + ChallengeUserData.Columns.publicUserData);
+        query.include(Challenge.Columns.user2Data + "." + ChallengeUserData.Columns.publicUserData);
+        query.orderByDescending(Challenge.Columns.timeLastPlayed);
+        return query;
+    }
+
+    public Task<List<Challenge>> loadFromNetwork() {
+        return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleablePinWithObjectId(true, this, mQueryBuilder);
     }
 
     private void navigateToChallengeActivity(String challengeId, int user1or2) {
@@ -219,15 +195,6 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
                 }).create().show();
     }
 
-    private ViewHolder createViewHolder(View v) {
-        ViewHolder holder = new ViewHolder();
-        holder.txtName = (TextView) v.findViewById(R.id.txtName);
-        holder.imgProfile = (RoundedImageView) v.findViewById(R.id.imgProfileRounded);
-        holder.txtScore = (TextView) v.findViewById(R.id.txtScore);
-        holder.txtDaysLeft = (TextView) v.findViewById(R.id.txtDaysLeftToPlay);
-        return holder;
-    }
-
     private void setItemViewContents(ViewHolder holder, Challenge challenge, ChallengeUserData currentUserData, ChallengeUserData opponentUserData) {
         holder.imgProfile.setParseFile(opponentUserData.getPublicUserData().getProfilePic());
         holder.imgProfile.loadInBackground();
@@ -250,11 +217,118 @@ public class ChallengeQueryAdapter extends ParseQueryAdapter<ParseObject> {
         holder.txtScore.setVisibility(View.GONE);
     }
 
-    private static class ViewHolder {
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_challenge, null);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        final Challenge challenge = getItem(position);
+        final View finalView = holder.itemView;
+        if(challenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
+            setItemViewContentsForPractice(holder, challenge.getUser1Data());
+            finalView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    navigateToPracticeChallengeActivity(challenge.getObjectId(), 1);
+                }
+            });
+        }
+        else {
+            final int user1or2 = challenge.getUser1Or2();
+            setItemViewContents(holder, challenge, challenge.getCurUserChallengeUserData(), challenge.getOtherUserChallengeUserData());
+            finalView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!challenge.getAccepted() && challenge.isCurUsersTurn() && !challenge.getHasEnded()) {
+                        promptAcceptChallenge(challenge, user1or2);
+                    } else {
+                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+                    }
+                }
+            });
+        }
+    }
+
+//    @Override
+//    public void onBindViewHolder(ViewHolder holder, int position) {
+//        final ViewHolder finalHolder = holder;
+//        final Challenge challenge = getItem(position);
+//        final View finalView = holder.itemView;
+//        if(challenge.getChallengeType().equals(Constants.ChallengeType.PRACTICE)) {
+//            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+//                @Override
+//                public void done(ParseObject object, ParseException e) {
+//                    ChallengeUserData challengeUserData = (ChallengeUserData) object;
+//                    setItemViewContentsForPractice(finalHolder, challengeUserData);
+//
+//                    finalView.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            navigateToPracticeChallengeActivity(challenge.getObjectId(), 1);
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//        else {
+//            challenge.getUser1Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+//                @Override
+//                public void done(ParseObject object, ParseException e) {
+//                    final ChallengeUserData user1Data = (ChallengeUserData) object;
+//                    challenge.getUser2Data().fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+//                        @Override
+//                        public void done(ParseObject object, ParseException e) {
+//                            final ChallengeUserData user2Data = (ChallengeUserData) object;
+//
+//                            String user1BaseUserId = user1Data.getPublicUserData().getBaseUserId();
+//                            String currentUserBaseUserId = PublicUserData.getPublicUserData().getBaseUserId();
+//                            ChallengeUserData currentChallengeUserData, opponentChallengeUserData;
+//                            final int user1or2;
+//                            if (user1BaseUserId.equals(currentUserBaseUserId)) {
+//                                currentChallengeUserData = user1Data;
+//                                opponentChallengeUserData = user2Data;
+//                                user1or2 = 1;
+//                            } else {
+//                                currentChallengeUserData = user2Data;
+//                                opponentChallengeUserData = user1Data;
+//                                user1or2 = 2;
+//                            }
+//                            setItemViewContents(finalHolder, challenge, currentChallengeUserData, opponentChallengeUserData);
+//
+//                            finalView.setOnClickListener(new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    String userId = PublicUserData.getPublicUserData().getBaseUserId();
+//                                    if (!challenge.getAccepted() && challenge.getCurTurnUserId().equals(userId) && !challenge.getHasEnded()) {
+//                                        promptAcceptChallenge(challenge, user1or2);
+//                                    } else {
+//                                        navigateToChallengeActivity(challenge.getObjectId(), user1or2);
+//                                    }
+//                                }
+//                            });
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView txtName;
         public RoundedImageView imgProfile;
         public TextView txtScore;
         public TextView txtDaysLeft;
+
+        public ViewHolder(View v) {
+            super(v);
+            txtName = (TextView) v.findViewById(R.id.txtName);
+            imgProfile = (RoundedImageView) v.findViewById(R.id.imgProfileRounded);
+            txtScore = (TextView) v.findViewById(R.id.txtScore);
+            txtDaysLeft = (TextView) v.findViewById(R.id.txtDaysLeftToPlay);
+        }
 
         public void setTxtDaysLeft(Challenge challenge) {
             if (challenge.getChallengeType().equals(Constants.ChallengeType.ONE_PLAYER)) {

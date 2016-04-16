@@ -35,6 +35,8 @@ import com.parse.ParseQueryAdapter.QueryFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import bolts.Capture;
+
 
 /**
  *  NEARLY IDENTICAL REPLACEMENT FOR ParseQueryAdapter ON ListView.
@@ -122,11 +124,19 @@ public abstract class ParseRecyclerQueryAdapter<T extends ParseObject, U extends
         dispatchOnLoading();
         final ParseQuery<T> query = mFactory.create();
         onFilterQuery(query);
-        query.findInBackground(new FindCallback<T>() {;
+        final Capture<Boolean> isChallenge = new Capture<>(false);
+        if(getClass().equals(ChallengeQueryAdapter.class)) {
+            isChallenge.set(true);
+        }
+        query.findInBackground(new FindCallback<T>() {
 
             @Override public void done(
                     List<T> queriedItems,
                     ParseException e) {
+                if(isChallenge.get()) {
+                    int a = 0;
+                    a = 5;
+                }
                 if (e == null) {
                     mItems.clear();
                     mItems.addAll(queriedItems);

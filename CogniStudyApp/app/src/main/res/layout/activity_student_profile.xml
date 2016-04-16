@@ -94,6 +94,31 @@
                         android:layout_weight="1"/>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/llButtons2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/llButtons">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"/>
+
+                    <com.cognitutor.cognistudyapp.Custom.CogniButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start Challenge"
+                        android:id="@+id/btnChallenge"
+                        android:onClick="onClick_btnChallenge"
+                        android:layout_weight="2"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
