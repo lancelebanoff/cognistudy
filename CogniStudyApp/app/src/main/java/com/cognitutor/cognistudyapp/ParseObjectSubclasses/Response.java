@@ -21,12 +21,14 @@ public class Response extends QuestionMetaObject {
 
     @Override
     public String getSubject() {
-        return getString(Columns.subject);
+//        return getString(Columns.subject); //This column was added to Response after some Responses were already made
+        return getQuestion().getString(Question.Columns.subject);
     }
 
     @Override
     public String getCategory() {
-        return getString(Columns.category);
+//        return getString(Columns.category); //This column was added to Response after some Responses were already made
+        return getQuestion().getString(Question.Columns.category);
     }
 
     @Override

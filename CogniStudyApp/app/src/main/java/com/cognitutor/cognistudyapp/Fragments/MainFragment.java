@@ -26,6 +26,7 @@ import com.cognitutor.cognistudyapp.Activities.NewChallengeActivity;
 import com.cognitutor.cognistudyapp.Adapters.ChallengeQueryAdapter;
 import com.cognitutor.cognistudyapp.Adapters.TutorRequestAdapter;
 import com.cognitutor.cognistudyapp.Custom.ChallengeRecyclerView;
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.TutorRequestListView;
@@ -95,7 +96,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         // TODO:2 Don't reload every time
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        Button b = (Button) rootView.findViewById(R.id.btnStartChallenge);
+        CogniButton b = (CogniButton) rootView.findViewById(R.id.btnStartChallenge);
         b.setOnClickListener(this);
 
         createAllListViews(rootView);

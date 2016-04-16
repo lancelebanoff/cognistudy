@@ -42,4 +42,8 @@ public class CogniButton extends Button {
         getBackground().setColorFilter(ContextCompat.getColor(context, color), PorterDuff.Mode.MULTIPLY);
         setTextColor(ContextCompat.getColor(context, R.color.white));
     }
+
+    public void setDrawableLeft(int resId) {
+        setCompoundDrawablesWithIntrinsicBounds(resId, 0, 0, 0);
+    }
 }

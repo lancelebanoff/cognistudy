@@ -11,6 +11,7 @@ import android.widget.ViewFlipper;
 
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.ProfileActivity;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Tutor;
@@ -25,7 +26,7 @@ import java.util.HashMap;
 import bolts.Continuation;
 import bolts.Task;
 
-public class TutorProfileActivity extends CogniActivity {
+public class TutorProfileActivity extends ProfileActivity {
 
     /**
      * Extras:
@@ -35,7 +36,6 @@ public class TutorProfileActivity extends CogniActivity {
     private ViewFlipper mViewFlipper;
     private Intent mIntent;
     private PrivateStudentData mCurrPrivateStudentData;
-    private PublicUserData mPublicUserData;
     private Tutor mTutor;
 
     @Override
@@ -59,6 +59,8 @@ public class TutorProfileActivity extends CogniActivity {
         holder.imgProfile.setParseFile(mPublicUserData.getProfilePic());
         holder.imgProfile.loadInBackground();
         holder.txtBiography.setText(mTutor.getBiography());
+
+        initButtons();
         showCorrectDisplay();
         mCurrPrivateStudentData.fetchInBackground().continueWith(new Continuation<ParseObject, Object>() {
             @Override
@@ -76,12 +78,12 @@ public class TutorProfileActivity extends CogniActivity {
         showTutorialDialogIfNeeded(Constants.Tutorial.LINK_TUTOR, null);
     }
 
+    private void initButtons() {
+        CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnUnfollow);
+        btnUnfollow.setColor(this, R.color.green);
+    }
+
     private void showCorrectDisplay() {
-        if (mCurrPrivateStudentData.hasTutor(mPublicUserData)) {
-            holder.imgLinkedTutor.setVisibility(View.VISIBLE);
-        } else {
-            holder.imgLinkedTutor.setVisibility(View.INVISIBLE);
-        }
         mViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         ((CogniButton) mViewFlipper.getChildAt(1)).setColor(this, R.color.grey);
         if (mCurrPrivateStudentData.hasRequestedTutor(mPublicUserData)) {
@@ -122,7 +124,6 @@ public class TutorProfileActivity extends CogniActivity {
     public void onClick_btnAcceptRequest(View view) {
         mCurrPrivateStudentData.linkTutor(mPublicUserData);
 
-        holder.imgLinkedTutor.setVisibility(View.VISIBLE);
         ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         viewFlipper.setDisplayedChild(2);
     }
@@ -163,13 +164,8 @@ public class TutorProfileActivity extends CogniActivity {
             }
         });
 
-        holder.imgLinkedTutor.setVisibility(View.INVISIBLE);
         ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         viewFlipper.setDisplayedChild(0);
-    }
-
-    public void onClick_btnMessage(View view) {
-
     }
 
     private ViewHolder createViewHolder() {
@@ -177,7 +173,6 @@ public class TutorProfileActivity extends CogniActivity {
         holder.txtName = (TextView) findViewById(R.id.txtName);
         holder.imgProfile = (ParseImageView) findViewById(R.id.imgProfile);
         holder.txtBiography = (TextView) findViewById(R.id.txtBiography);
-        holder.imgLinkedTutor = (ImageView) findViewById(R.id.imgLinkedTutor);
         return holder;
     }
 
@@ -185,7 +180,6 @@ public class TutorProfileActivity extends CogniActivity {
         public TextView txtName;
         public ParseImageView imgProfile;
         public TextView txtBiography;
-        public ImageView imgLinkedTutor;
     }
 
     @Override
