@@ -21,14 +21,12 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.GetCallback;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -381,9 +379,11 @@ public class BattleshipBoardManager {
     private Location findPreviousHit() {
         for (int row = 0; row < Constants.GameBoard.NUM_ROWS; row++) {
             for (int col = 0; col < Constants.GameBoard.NUM_COLUMNS; col++) {
+                Ship shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
                 boolean hitAtPosition = mBoardPositionStatus.get(row).get(col).equals(Constants.GameBoardPositionStatus.HIT);
                 boolean hasShotAllAroundPosition = hasShotAllAroundPosition(row, col);
-                if (hitAtPosition && !hasShotAllAroundPosition) {
+                boolean isOnDeadShip = shipThatOccupiesPosition != null && shipThatOccupiesPosition.getHitsRemaining() == 0;
+                if (hitAtPosition && !hasShotAllAroundPosition && !isOnDeadShip) {
                     return new Location(row, col);
                 }
             }
@@ -624,7 +624,7 @@ public class BattleshipBoardManager {
                 .setPositiveButton(R.string.yes_dialog_lost_challenge, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mActivity.finish();
+
                     }
                 })
                 .create().show();
