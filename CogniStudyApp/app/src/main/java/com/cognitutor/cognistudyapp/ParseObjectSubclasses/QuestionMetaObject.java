@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -26,6 +27,7 @@ public abstract class QuestionMetaObject extends ParseObject{
         public static final String createdAt = "createdAt";
         public static final String response = "response";
         public static final String question = "question";
+        public static final String baseUserId = "baseUserId";
     }
 
     public static ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(Class<? extends QuestionMetaObject> clazz,

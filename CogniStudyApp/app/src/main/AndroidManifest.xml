@@ -112,6 +112,12 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".Activities.RecentQuestionsListActivity"
+            android:label="@string/title_activity_recent_questions"
+            android:parentActivityName=".Activities.RecentQuestionsListActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".Activities.SuggestedQuestionActivity"
             android:label="@string/title_activity_past_question"
             android:parentActivityName=".Activities.SuggestedQuestionsListActivity"

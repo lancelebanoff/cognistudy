@@ -71,7 +71,6 @@ public class ChatActivity extends CogniPushListenerActivity implements View.OnCl
 
         mRecyclerView = (CogniRecyclerView) findViewById(R.id.rvChatMessages);
         mChatAdapter = new ChatAdapter(this, mConversantPud, getConversantBaseUserId());
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mChatAdapter);
         mRecyclerView.addOnLayoutChangeListener(getOnLayoutChangeListener());
 

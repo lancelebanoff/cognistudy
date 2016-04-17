@@ -33,6 +33,7 @@
     <string name="title_activity_conversation">*Other persons name*</string>
     <string name="title_activity_suggested_questions">Assigned Questions</string>
     <string name="title_activity_bookmarks">Bookmarks</string>
+    <string name="title_activity_recent_questions">Recent Questions</string>
     <string name="title_activity_achievements">Achievements</string>
     <string name="title_activity_shop">Shop</string>
     <string name="title_activity_settings">Settings</string>
