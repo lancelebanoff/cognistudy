@@ -1,6 +1,7 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -66,6 +67,8 @@ public class ChallengeActivity extends CogniPushListenerActivity {
     private BroadcastReceiver mBroadcastReceiver;
 
     private BattleshipBoardManager mBattleshipBoardManager;
+
+    public static final int numQuestionsInTurn = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -391,7 +394,7 @@ public class ChallengeActivity extends CogniPushListenerActivity {
         } else {
             List<String> questionIds = mChallenge.getThisTurnQuestionIds();
             if (questionIds != null && questionIds.size() > 0) {
-                navigateToChallengeQuestionActivity(questionIds.get(quesAnsThisTurn));
+                navigateToChallengeQuestionActivity(questionIds.get(quesAnsThisTurn), quesAnsThisTurn + 1);
             } else {
                 chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?
             }
@@ -399,6 +402,7 @@ public class ChallengeActivity extends CogniPushListenerActivity {
     }
 
     private void chooseThreeQuestionIdsThenNavigate() {
+        final Activity thisActivity = this;
         Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).continueWith(new Continuation<List<String>, Void>() {
             @Override
             public Void then(Task<List<String>> task) throws Exception {
@@ -408,19 +412,15 @@ public class ChallengeActivity extends CogniPushListenerActivity {
                     return null;
                 }
                 List<String> questionIds = task.getResult();
-                navigateToChallengeQuestionActivity(questionIds.get(0));
+                navigateToChallengeQuestionActivity(questionIds.get(0), 1);
                 return null;
             }
         });
     }
 
-    private void navigateToChallengeQuestionActivity(String questionId) {
-        Intent intent = new Intent(this, ChallengeQuestionActivity.class);
-        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
-        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mChallengeId);
-        intent.putExtra(Constants.IntentExtra.USER1OR2, mCurrentUser1or2);
-        intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
-        startActivity(intent);
+    private void navigateToChallengeQuestionActivity(String questionId, int questionNumber) {
+        ChallengeQuestionActivity.navigateToChallengeQuestionActivity(this, questionId, mChallengeId,
+                mCurrentUser1or2, questionNumber);
     }
 
     private void navigateToBattleshipAttackActivity() {

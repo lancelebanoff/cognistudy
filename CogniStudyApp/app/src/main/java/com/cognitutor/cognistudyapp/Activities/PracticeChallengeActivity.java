@@ -141,12 +141,8 @@ public class PracticeChallengeActivity extends CogniActivity {
     }
 
     private void navigateToChallengeQuestionActivity(String questionId) {
-        Intent intent = new Intent(this, ChallengeQuestionActivity.class);
-        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
-        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
-        startActivity(intent);
+        ChallengeQuestionActivity.navigateToChallengeQuestionActivity(this, questionId,
+                mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID), mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1), -1);
     }
 
     public void navigateToQuestionHistoryActivity(View view) {

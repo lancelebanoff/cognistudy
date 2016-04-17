@@ -25,7 +25,7 @@
     <string name="title_activity_challenge">Challenge</string>
     <string name="title_activity_battleship_attack">Attack</string>
     <string name="title_activity_question_history">Question History</string>
-    <string name="title_activity_past_question">Question</string>
+    <string name="title_activity_past_question">Past Question</string>
     <string name="title_activity_suggested_question">Assigned Question</string>
     <string name="title_activity_challenge_analytics">Challenge Stats</string>
     <string name="title_activity_student_profile">Student Profile</string>
@@ -73,4 +73,13 @@
     <string name="no_dialog_unlink_from_tutor">No</string>
     <string name="follow">FOLLOW</string>
     <string name="unfollow">UNFOLLOW</string>
+    <string name="title_activity_bookmarked_question">Bookmarked Question</string>
+    <string name="menu_report_question">Report Question</string>
+    <string name="title_dialog_report_question">Report Question</string>
+    <string name="dialog_report_question_prompt">Please enter some information to help us fix this question!</string>
+    <string name="dialog_report_option_submit">Submit</string>
+    <string name="dialog_report_option_cancel">Cancel</string>
+    <string name="toast_report_question_submitted">Thank you for your feedback!</string>
+    <string name="toast_report_question_error_too_many_reports">Sorry, please wait a while before reporting any more questions.</string>
+    <string name="toast_report_question_error_already_reported">Sorry, you have already reported this question.</string>
 </resources>
