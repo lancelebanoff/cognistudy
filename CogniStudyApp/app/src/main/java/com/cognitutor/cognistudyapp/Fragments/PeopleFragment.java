@@ -136,7 +136,6 @@ public class PeopleFragment extends CogniFragment {
         });
 
         recyclerView = (CogniRecyclerView) rootView.findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         peopleQueryAdapter = new PeopleQueryAdapter(getActivity(), onClickHandler, mIgnoreTutors);
         recyclerView.setAdapter(peopleQueryAdapter);
         peopleQueryAdapter.loadObjects();

@@ -71,7 +71,6 @@ public abstract class QuestionListActivity extends CogniActivity {
         if(mAdapter == null) {
             mIntent = getIntent();
             mQuestionList = (CogniRecyclerView) findViewById(R.id.rvQuestionList);
-            mQuestionList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
             mSpCategories = (Spinner) findViewById(R.id.spCategoriesQL);
             initializeSpinners();
 

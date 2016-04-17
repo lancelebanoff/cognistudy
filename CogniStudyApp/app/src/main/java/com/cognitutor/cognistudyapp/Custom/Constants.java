@@ -134,6 +134,7 @@ public class Constants {
         public static final String MY_PROFILE = "My Profile";
         public static final String SUGGESTED_QUESTIONS = "Assigned Questions";
         public static final String BOOKMARKS = "Bookmarks";
+        public static final String RECENT_QUESTIONS = "Recent Questions";
         public static final String ACHIEVEMENTS = "Achievements";
         public static final String SHOP = "Shop";
         public static final String SETTINGS = "Settings";
@@ -159,6 +160,7 @@ public class Constants {
         public static final String ADDING_BOOKMARKS = "ADDING_BOOKMARKS";
         public static final String VIEWING_BOOKMARKS = "VIEWING_BOOKMARKS";
         public static final String ASSIGNED_QUESTIONS = "ASSIGNED_QUESTIONS";
+        public static final String RECENT_QUESTIONS = "RECENT_QUESTIONS";
         public static final String FOLLOW_STUDENT = "FOLLOW_STUDENT";
         public static final String LINK_TUTOR = "LINK_TUTOR";
 
@@ -186,6 +188,8 @@ public class Constants {
                     "If you want to save this question for later, you can add it to your bookmarks. Then, you'll be able to see it in your bookmarks list." });
             dialogLabelToContents.put(VIEWING_BOOKMARKS, new String[]{ "Bookmarks",
                     "Here's your bookmarks list. Bookmarked questions can be viewed whether or not you have an internet connection." });
+            dialogLabelToContents.put(RECENT_QUESTIONS, new String[]{ "Recent Questions",
+                    "Here is a list of questions that you have answered recently. Questions that were answered a long time ago will be removed from this list, so make sure to bookmark questions that you wish to return to later!" });
             dialogLabelToContents.put(ASSIGNED_QUESTIONS, new String[]{ "Assigned questions",
                     "Here are the questions that your tutor assigned to you. If you haven't connected to your tutor, you can search for your tutor's name and tap the \"Link Tutor\" button." });
             dialogLabelToContents.put(FOLLOW_STUDENT, new String[]{ "Student profile",
@@ -264,6 +268,7 @@ public class Constants {
             public static final String SUGGESTED_QUESTIONS_ACTIVITY = "SUGGESTED_QUESTIONS_ACTIVITY";
             public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
             public static final String QUESTION_HISTORY_ACTIVITY = "QUESTION_HISTORY_ACTIVITY";
+            public static final String RECENT_QUESTIONS_LIST_ACTIVITY = "RECENT_QUESTIONS_LIST_ACTIVITY";
             public static final String BOOKMARKS_LIST_ACTIVITY = "BOOKMARKS_LIST_ACTIVITY";
             public static final String STUDENT_PROFILE_ACTIVITY = "STUDENT_PROFILE_ACTIVITY";
         }

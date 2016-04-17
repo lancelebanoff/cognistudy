@@ -28,25 +28,22 @@ public class ChallengeRecyclerView extends CogniRecyclerView{
 
     public ChallengeRecyclerView(Context context) {
         super(context);
-        init();
     }
 
     public ChallengeRecyclerView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public ChallengeRecyclerView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
     }
 
-    private void init() {
-        ChallengeLayoutManager layoutManager = new ChallengeLayoutManager(getContext());
-        setLayoutManager(layoutManager);
+    @Override
+    protected void init(Context context) {
+        setLayoutManager(new ChallengeLayoutManager(context, LinearLayoutManager.VERTICAL, false));
     }
 
-    public class ChallengeLayoutManager extends LinearLayoutManager {
+    public class ChallengeLayoutManager extends CogniLinearLayoutManager {
         public ChallengeLayoutManager(Context context) {
             super(context, LinearLayoutManager.VERTICAL, false);
         }
