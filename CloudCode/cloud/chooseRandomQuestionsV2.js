@@ -8,7 +8,7 @@ Parse.Cloud.define("chooseThreeQuestionsV2", function(request, response) {
 	var challengeId = request.params.challengeId;
 	var category = request.params.category;
 
-	var questionKeys = ["questionContents", "subject", "category", "inBundle"];
+	var questionKeys = ["questionContents", "subject", "category", "inBundle", "numberInBundle"];
 	var questionContentsKeys = ["questionText", "image", "author", "answers", "correctAnswer", "explanation"];
 	var bundleKeys = ["bundle", "passageText", "image"];
 
@@ -67,6 +67,7 @@ Parse.Cloud.define("chooseThreeQuestionsV2", function(request, response) {
 																			.include("questionContents")
 																			.select(questionContentsKeys)
 																			.include("bundle")
+																			.ascending("numberInBundle")
 																			.select(bundleKeys);
 														query.find({
 															success: function(results) {

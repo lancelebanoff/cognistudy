@@ -49,13 +49,6 @@
                 android:text="Show Answer"
                 android:id="@+id/btnSubmit"
                 android:onClick="showAnswer" />
-
-            <com.cognitutor.cognistudyapp.Custom.CogniButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Continue"
-                android:id="@+id/btnContinue"
-                android:onClick="navigateToPreviousActivity" />
         </ViewSwitcher>
     </RelativeLayout>
 </RelativeLayout>

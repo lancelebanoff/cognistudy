@@ -48,6 +48,7 @@ import io.github.kexanie.library.MathView;
 public abstract class QuestionActivity extends CogniActivity implements View.OnClickListener {
 
     protected abstract String getQuestionAndResponsePinName();
+    protected abstract String getQuestionTitle();
 
     /**
      * Extras:
@@ -120,6 +121,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         } catch (InterruptedException e) { e.printStackTrace(); }
         loadQuestion();
         setBookmarkComponents();
+        setTitle(getQuestionTitle());
     }
 
     @Override
@@ -183,6 +185,10 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
 
         if(mQuestion.inBundle()) {
+            int numInBundle = mQuestion.getNumberInBundle();
+            avh.txtNumberInBundle.setText("Question " + numInBundle);
+            avh.txtNumberInBundle.setVisibility(View.VISIBLE);
+
             QuestionBundle bundle = mQuestion.getQuestionBundle();
             try {
                 bundle.fetchFromLocalDatastore();
@@ -196,6 +202,9 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
                 }
             }
             avh.wvPassage.loadData(buildPassageHtml(bundle.getPassageText()), "text/html", "UTF-8");
+        }
+        else {
+            avh.txtNumberInBundle.setVisibility(View.INVISIBLE);
         }
 
         if(mResponse != null) {
@@ -439,6 +448,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         private TextView txtCorrectAnswer;
         private Button btnSubmit;
         private BookmarkButton cbBookmark;
+        private TextView txtNumberInBundle;
 
         private ActivityViewHolder() {
             rlQuestionHeader = (RelativeLayout) findViewById(R.id.rlQuestionHeader);
@@ -454,6 +464,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             txtCorrectAnswer = (TextView) findViewById(R.id.txtCorrectAnswer);
             btnSubmit = (Button) findViewById(R.id.btnSubmit);
             cbBookmark = (BookmarkButton) findViewById(R.id.cbBookmark);
+            txtNumberInBundle = (TextView) findViewById(R.id.txtNumberInBundle);
         }
 
         private void showLoading() {

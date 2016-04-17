@@ -1,9 +1,9 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
@@ -26,9 +26,25 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     private Challenge mChallenge = null;
     private int mQuesAnsThisTurn = -1;
 
+    public static void navigateToChallengeQuestionActivity(Activity parentActivity, String questionId,
+                                                           String challengeId, int user1Or2, int questionNumber) {
+        Intent intent = new Intent(parentActivity, ChallengeQuestionActivity.class);
+        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
+        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, challengeId);
+        intent.putExtra(Constants.IntentExtra.USER1OR2, user1Or2);
+        intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
+        intent.putExtra(Constants.IntentExtra.QUESTION_NUMBER, questionNumber);
+        parentActivity.startActivity(intent);
+    }
+
     @Override
     protected String getQuestionAndResponsePinName() {
         return getChallengeId();
+    }
+
+    @Override
+    protected String getQuestionTitle() {
+        return getResources().getString(R.string.title_activity_bookmarked_question);
     }
 
     @Override
@@ -36,6 +52,15 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
         super.onCreate(savedInstanceState);
         mUser1or2 = mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1);
         loadChallenge();
+
+        int questionNumber = mIntent.getIntExtra(Constants.IntentExtra.QUESTION_NUMBER, -1);
+        if(questionNumber == -1) {
+            setTitle(R.string.title_activity_challenge_question);
+        }
+        else {
+            String title = "Question " + String.valueOf(questionNumber) + "/" + String.valueOf(ChallengeActivity.numQuestionsInTurn);
+            setTitle(title);
+        }
     }
 
     @Override
@@ -94,6 +119,10 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
         return mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID);
     }
 
+    private int getQuestionNumber() {
+        return mIntent.getIntExtra(Constants.IntentExtra.QUESTION_NUMBER, 1);
+    }
+
     private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {
         new Thread(new Runnable() {
             @Override
@@ -150,12 +179,9 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     }
 
     private void navigateToNextQuestionActivity(String questionId) {
-        Intent intent = new Intent(this, ChallengeQuestionActivity.class);
-        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, Constants.IntentExtra.ParentActivity.CHALLENGE_ACTIVITY);
-        intent.putExtra(Constants.IntentExtra.CHALLENGE_ID, mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID));
-        intent.putExtra(Constants.IntentExtra.USER1OR2, mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1));
-        intent.putExtra(Constants.IntentExtra.QUESTION_ID, questionId);
-        startActivity(intent);
+        ChallengeQuestionActivity.navigateToChallengeQuestionActivity(this, questionId,
+                mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID), mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1),
+                getQuestionNumber() + 1);
         finish();
     }
 }
