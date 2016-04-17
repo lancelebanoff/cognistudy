@@ -19,6 +19,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionReport;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Ship;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
@@ -124,6 +125,7 @@ public class App extends Application {
         ParseObject.registerSubclass(Tutor.class);
         ParseObject.registerSubclass(Message.class);
         ParseObject.registerSubclass(Conversation.class);
+        ParseObject.registerSubclass(QuestionReport.class);
     }
 }
 

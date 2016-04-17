@@ -73,5 +73,13 @@
     <string name="no_dialog_unlink_from_tutor">No</string>
     <string name="follow">FOLLOW</string>
     <string name="unfollow">UNFOLLOW</string>
-    <string name="title_activity_bookmarked_question">Bookmared Question</string>
+    <string name="title_activity_bookmarked_question">Bookmarked Question</string>
+    <string name="menu_report_question">Report Question</string>
+    <string name="title_dialog_report_question">Report Question</string>
+    <string name="dialog_report_question_prompt">Please enter some information to help us fix this question!</string>
+    <string name="dialog_report_option_submit">Submit</string>
+    <string name="dialog_report_option_cancel">Cancel</string>
+    <string name="toast_report_question_submitted">Thank you for your feedback!</string>
+    <string name="toast_report_question_error_too_many_reports">Sorry, please wait a while before reporting any more questions.</string>
+    <string name="toast_report_question_error_already_reported">Sorry, you have already reported this question.</string>
 </resources>

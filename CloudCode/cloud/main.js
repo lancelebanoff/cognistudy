@@ -21,6 +21,7 @@ var m20 = require('cloud/sendYourTurnNotification.js');
 var m21 = require('cloud/getRandomOpponent.js')
 var m22 = require('cloud/sendTutorRequestNotification.js')
 var m23 = require('cloud/Response.js')
+var m24 = require('cloud/QuestionReport.js')
 
 var l1 = require('cloud/getAllSubStats.js');
 var l2 = require('cloud/getSubStats.js');

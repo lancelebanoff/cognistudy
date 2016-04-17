@@ -1,10 +1,15 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -16,6 +21,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.BookmarkButton;
@@ -30,6 +36,7 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionBundle;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionContents;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionReport;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
@@ -128,6 +135,23 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     protected void onPause() {
         super.onPause();
         doOrUndoBookmark();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_question, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_report:
+                onClick_menuReport();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public String getQuestionId() {
@@ -494,4 +518,64 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
 
         return html.replace("$BODY$", body);
     }
+
+    private void onClick_menuReport() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResourcesString(R.string.title_dialog_report_question));
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.dialog_report_question, null);
+
+        builder.setView(view);
+
+        final EditText editTextMessage = (EditText) view.findViewById(R.id.editTxtMessage);
+
+        builder.setPositiveButton(getResourcesString(R.string.dialog_report_option_submit), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String message = editTextMessage.getText().toString();
+                QuestionReport report = new QuestionReport(mQuestion.getObjectId(), message);
+                report.saveInBackground().continueWith(new Continuation<Void, Object>() {
+                    @Override
+                    public Object then(Task<Void> task) throws Exception {
+                        if(task.isFaulted()) {
+                            String errorMsg = task.getError().getMessage();
+                            if(errorMsg.equals("Too many reports in one day")) {
+                                makeToast(getResourcesString(R.string.toast_report_question_error_too_many_reports));
+                            }
+                            else if(errorMsg.equals("User already reported this question")) {
+                                makeToast(getResourcesString(R.string.toast_report_question_error_already_reported));
+                            }
+                        }
+                        else {
+                            makeToast(getResourcesString(R.string.toast_report_question_submitted));
+                        }
+                        return null;
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton(getResourcesString(R.string.dialog_report_option_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        builder.show();
+    }
+
+    private void makeToast(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private String getResourcesString(int id) {
+        return getResources().getString(id);
+    }
+
 }
