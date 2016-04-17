@@ -365,6 +365,26 @@ public class ChallengeActivity extends CogniPushListenerActivity {
         }
     }
 
+    public void onClick_btnChallengeHelp(View view) {
+        showHelp();
+    }
+
+    private void showHelp() {
+        ImageView image = new ImageView(this);
+        image.setImageResource(R.drawable.challenge_help);
+
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(this)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setView(image);
+        builder.create().show();
+    }
+
     public void onClick_imgBack(View view) {
         finish();
     }
