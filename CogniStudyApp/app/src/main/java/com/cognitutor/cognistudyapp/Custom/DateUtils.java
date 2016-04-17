@@ -361,7 +361,7 @@ public class DateUtils {
         long days = getDays(milliseconds);
 
         SimpleDateFormat formatter;
-        if (days > 1) {
+        if (days >= 1) {
             formatter = new SimpleDateFormat("M/d/yyyy", Locale.US);
         }
         else {

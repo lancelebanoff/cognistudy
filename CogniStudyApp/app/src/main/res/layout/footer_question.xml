@@ -89,6 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Continue"
+            android:drawableRight="@drawable/ic_action_icon_continue_arrow"
             android:onClick="navigateToNextActivity" />
 
     </RelativeLayout>

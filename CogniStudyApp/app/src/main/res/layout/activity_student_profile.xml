@@ -39,15 +39,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
-                <ImageView
-                    android:id="@+id/imgFollowedStudent"
-                    android:src="@drawable/icon_star"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignBottom="@+id/txtName"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@+id/txtName"/>
-
                 <TextView
                     android:id="@+id/txtStudent"
                     android:text="Student"
@@ -64,26 +55,12 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/txtStudent">
 
-                    <ViewSwitcher
-                        android:id="@+id/viewSwitcher"
-                        android:layout_width="0dp"
+                    <com.cognitutor.cognistudyapp.Custom.FollowButton
                         android:layout_height="wrap_content"
-                        android:layout_weight="1">
-
-                        <com.cognitutor.cognistudyapp.Custom.CogniButton
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Follow"
-                            android:id="@+id/btnFollow"
-                            android:onClick="onClick_btnFollow"/>
-
-                        <com.cognitutor.cognistudyapp.Custom.CogniButton
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Unfollow"
-                            android:id="@+id/btnUnfollow"
-                            android:onClick="onClick_btnUnfollow" />
-                    </ViewSwitcher>
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="Follow"
+                        android:id="@+id/btnFollow" />
 
                     <com.cognitutor.cognistudyapp.Custom.CogniButton
                         android:layout_width="0dp"
@@ -91,6 +68,7 @@
                         android:text="Message"
                         android:id="@+id/btnMessage"
                         android:onClick="onClick_btnMessage"
+                        android:drawableLeft="@drawable/ic_action_icon_message_profile"
                         android:layout_weight="1"/>
                 </LinearLayout>
 
@@ -111,6 +89,8 @@
                         android:text="Start Challenge"
                         android:id="@+id/btnChallenge"
                         android:onClick="onClick_btnChallenge"
+                        android:drawableStart="@drawable/ic_action_icon_start_challenge_up"
+                        android:drawableLeft="@drawable/ic_action_icon_start_challenge_up"
                         android:layout_weight="2"/>
 
                     <TextView

@@ -8,6 +8,7 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Adapters.QuestionListAdapter;
 import com.cognitutor.cognistudyapp.Custom.CogniRecyclerView;
@@ -19,6 +20,9 @@ import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseQuery;
 import com.rey.material.widget.Spinner;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import bolts.Continuation;
@@ -37,6 +41,7 @@ public abstract class QuestionListActivity extends CogniActivity {
     protected CogniRecyclerView mQuestionList;
     protected Intent mIntent;
     protected Fragment mFragment;
+    private TextView mTxtNoResults;
 
     protected abstract Class<? extends QuestionActivity> getTargetQuestionActivityClass();
     protected abstract String getActivityName();
@@ -126,10 +131,21 @@ public abstract class QuestionListActivity extends CogniActivity {
                 .continueWith(new Continuation<List<QuestionMetaObject>, Object>() {
                     @Override
                     public Object then(Task<List<QuestionMetaObject>> task) throws Exception {
-                        final List<QuestionMetaObject> list = task.getResult();
+                        final List<QuestionMetaObject> list;
+                        List<QuestionMetaObject> result = task.getResult();
+                        if(result == null)
+                            list = new ArrayList<>();
+                        else
+                            list = result;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                if(mTxtNoResults == null)
+                                    mTxtNoResults = (TextView) findViewById(R.id.txtNoResults);
+                                if(list.size() == 0)
+                                    mTxtNoResults.setVisibility(View.VISIBLE);
+                                else
+                                    mTxtNoResults.setVisibility(View.GONE);
                                 mAdapter.onDataLoaded(list);
                             }
                         });

@@ -30,6 +30,17 @@ public class CogniActivity extends AppCompatActivity {
     private static ConnectivityManager cMgr = null;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if(this instanceof ChatActivity) {
+            MainActivity.setCameFromChatActivity(true);
+        }
+        else {
+            MainActivity.setCameFromChatActivity(false);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cogni);
