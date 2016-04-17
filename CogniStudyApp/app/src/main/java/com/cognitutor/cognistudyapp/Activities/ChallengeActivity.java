@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -134,6 +135,10 @@ public class ChallengeActivity extends CogniPushListenerActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                mShipsGridLayout = (GridLayout) findViewById(R.id.shipsGridLayout);
+                                if (mShipsGridLayout == null) {
+                                    return;
+                                }
                                 initializeGridLayouts(viewingUser1or2);
                                 showLoadingDone();
                                 if (!mScoresHaveBeenLoaded) {
@@ -165,19 +170,26 @@ public class ChallengeActivity extends CogniPushListenerActivity {
         if (mIsCurrentUsersTurn) {
             showTutorialDialogIfNeeded(Constants.Tutorial.YOUR_TURN, null);
         } else if (mIsComputerOpponent) {
-            boolean dialogShown = showTutorialDialogIfNeeded(Constants.Tutorial.COMPUTERS_TURN, new Runnable() {
-                @Override
-                public void run() {
-                    mBattleshipBoardManager.takeComputerTurn();
-                    mIsCurrentUsersTurn = true;
-                    showOrHideButtons();
-                }
-            });
-            if (!dialogShown) {
-                mBattleshipBoardManager.takeComputerTurn();
-                mIsCurrentUsersTurn = true;
-                showOrHideButtons();
-            }
+            new AlertDialog.Builder(this)
+                    .setTitle("CogniBot's Turn")
+                    .setMessage("CogniBot is taking its turn.")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            mBattleshipBoardManager.takeComputerTurn();
+                            mIsCurrentUsersTurn = true;
+                            showOrHideButtons();
+                            mBattleshipBoardManager.showPreviousTurn();
+                        }
+                    })
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            mBattleshipBoardManager.takeComputerTurn();
+                            mIsCurrentUsersTurn = true;
+                            showOrHideButtons();
+                            mBattleshipBoardManager.showPreviousTurn();
+                        }
+                    }).create().show();
         }
     }
 
@@ -465,6 +477,8 @@ public class ChallengeActivity extends CogniPushListenerActivity {
     protected void onDestroy() {
         unregisterReceiver(mBroadcastReceiver);
         super.onDestroy();
+        unbindDrawables(findViewById(R.id.rootView));
+        System.gc();
     }
 
     @Override
@@ -481,5 +495,17 @@ public class ChallengeActivity extends CogniPushListenerActivity {
             conditions.put(Constants.NotificationData.challengeId, mChallengeId);
         } catch (JSONException e) { e.printStackTrace(); }
         return conditions;
+    }
+
+    private void unbindDrawables(View view) {
+        if (view.getBackground() != null) {
+            view.getBackground().setCallback(null);
+        }
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                unbindDrawables(((ViewGroup) view).getChildAt(i));
+            }
+            ((ViewGroup) view).removeAllViews();
+        }
     }
 }
