@@ -28,4 +28,8 @@ public class CogniRadioGroup {
             }
         }
     }
+
+    public List<CogniRadioButton> getRadioButtons() {
+        return buttons;
+    }
 }

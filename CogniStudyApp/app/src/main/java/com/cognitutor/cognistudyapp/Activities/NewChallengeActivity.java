@@ -48,6 +48,7 @@ public class NewChallengeActivity extends CogniActivity {
      *      CHALLENGE_ID: string
      */
     private Intent mIntent;
+    private CogniRadioGroup mRgTests;
     private ArrayList<CogniCheckBox> mSubjectCheckboxes;
     private ArrayList<CheckBox> mCategoryCheckboxes;
     private ScrollView mSvCategories;
@@ -102,7 +103,7 @@ public class NewChallengeActivity extends CogniActivity {
 
     private void displayTests() {
         LinearLayout llTestsHolder = (LinearLayout) findViewById(R.id.llTestsHolder);
-        CogniRadioGroup mRgTests = new CogniRadioGroup();
+        mRgTests = new CogniRadioGroup();
 
         String[] testNames = Constants.Test.getTests();
         for (String testName : testNames) {
@@ -275,6 +276,25 @@ public class NewChallengeActivity extends CogniActivity {
         mRbDefaultTest.performClick();
         if(mRbDefaultOpponent != null) {
             mRbDefaultOpponent.performClick();
+        }
+
+        // In Beta, only English is allowed
+        for (CogniCheckBox subjectCheckBox : mSubjectCheckboxes) {
+            String subject = subjectCheckBox.getText().toString();
+            if (!subject.equals(Constants.Subject.ENGLISH)) {
+                subjectCheckBox.performClick();
+                subjectCheckBox.setEnabled(false);
+                subjectCheckBox.setColor(this, R.color.grey);
+            }
+        }
+        for (CheckBox categoryCheckBox : mCategoryCheckboxes) {
+            if (!categoryCheckBox.isChecked()) {
+                categoryCheckBox.setEnabled(false);
+            }
+        }
+        for (CogniRadioButton testRadioButton : mRgTests.getRadioButtons()) {
+            testRadioButton.setEnabled(false);
+            testRadioButton.setColor(this, R.color.grey);
         }
     }
 

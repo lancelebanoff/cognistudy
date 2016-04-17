@@ -72,7 +72,7 @@ public class Constants {
             public static final String PAST_WEEK = "Past Week";
 
             public static String[] getRollingStatsTypes() {
-                return new String[]{ALL_TIME, PAST_MONTH, PAST_WEEK};
+                return new String[]{PAST_WEEK, PAST_MONTH, ALL_TIME};
             }
         }
 

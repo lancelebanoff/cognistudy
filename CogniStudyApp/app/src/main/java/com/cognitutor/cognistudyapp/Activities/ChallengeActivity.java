@@ -173,24 +173,28 @@ public class ChallengeActivity extends CogniPushListenerActivity {
         if (mIsCurrentUsersTurn) {
             showTutorialDialogIfNeeded(Constants.Tutorial.YOUR_TURN, null);
         } else if (mIsComputerOpponent) {
+            final Runnable onDismiss = new Runnable() {
+                @Override
+                public void run() {
+                    mBattleshipBoardManager.takeComputerTurn();
+                    mIsCurrentUsersTurn = true;
+                    showOrHideButtons();
+                    mBattleshipBoardManager.showPreviousTurn();
+                    showScores();
+                }
+            };
             new AlertDialog.Builder(this)
                     .setTitle("CogniBot's Turn")
                     .setMessage("CogniBot is taking its turn.")
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface arg0, int arg1) {
-                            mBattleshipBoardManager.takeComputerTurn();
-                            mIsCurrentUsersTurn = true;
-                            showOrHideButtons();
-                            mBattleshipBoardManager.showPreviousTurn();
+                            onDismiss.run();
                         }
                     })
                     .setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialog) {
-                            mBattleshipBoardManager.takeComputerTurn();
-                            mIsCurrentUsersTurn = true;
-                            showOrHideButtons();
-                            mBattleshipBoardManager.showPreviousTurn();
+                            onDismiss.run();
                         }
                     }).create().show();
         }
@@ -362,6 +366,26 @@ public class ChallengeActivity extends CogniPushListenerActivity {
             imgHalo1.setVisibility(View.INVISIBLE);
             imgHalo2.setVisibility(View.VISIBLE);
         }
+    }
+
+    public void onClick_btnChallengeHelp(View view) {
+        showHelp();
+    }
+
+    private void showHelp() {
+        ImageView image = new ImageView(this);
+        image.setImageResource(R.drawable.challenge_help);
+
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(this)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setView(image);
+        builder.create().show();
     }
 
     public void onClick_imgBack(View view) {

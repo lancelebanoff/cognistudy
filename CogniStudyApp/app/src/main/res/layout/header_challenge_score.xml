@@ -13,7 +13,7 @@
         android:background="@color/white"
         android:layout_alignParentTop="true"
         android:layout_alignLeft="@+id/imgProfile1"
-        android:layout_alignParentRight="true"
+        android:layout_alignRight="@+id/imgProfile2"
         />
 
     <com.cognitutor.cognistudyapp.Custom.RoundedImageView
@@ -57,7 +57,7 @@
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@+id/btnChallengeHelp"
         android:src="@drawable/default_profile_pic"
         android:onClick="onClick_imgProfile2" />
 
@@ -66,9 +66,23 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@+id/btnChallengeHelp"
         android:visibility="gone"
         android:src="@drawable/profile_pic_halo"
         android:onClick="onClick_imgProfile2" />
+
+    <ImageButton
+        android:id="@+id/btnChallengeHelp"
+        android:src="@drawable/icon_help_opaque"
+        android:background="@null"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="5dp"
+        android:onClick="onClick_btnChallengeHelp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"/>
 
 </RelativeLayout>
