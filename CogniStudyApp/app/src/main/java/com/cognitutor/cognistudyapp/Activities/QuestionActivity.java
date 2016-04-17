@@ -1,32 +1,29 @@
 package com.cognitutor.cognistudyapp.Activities;
 
-import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
+import com.cognitutor.cognistudyapp.Custom.AnswerListView;
 import com.cognitutor.cognistudyapp.Custom.BookmarkButton;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
@@ -67,7 +64,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
      *      USER1OR2: int
      */
     protected Intent mIntent;
-    private ListView listView;
+    private AnswerListView listView;
     private ActivityViewHolder avh;
     protected Question mQuestion;
     protected QuestionContents mQuestionContents;
@@ -121,7 +118,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         setContentView(R.layout.activity_question);
         mIntent = getIntent();
 
-        listView = (ListView) findViewById(R.id.listView);
+        listView = (AnswerListView) findViewById(R.id.listView);
         addComponents();
         setOnClickListeners();
         ClickableListItem.setQuestionAnswered(false);
@@ -421,6 +418,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
             avh.txtCorrectIncorrect.setText("Correct!");
             avh.txtCorrectIncorrect.setTextColor(ContextCompat.getColor(this, R.color.green));
             setResponseStatusIcon(avh.ivCorrectIncorrect, Constants.ResponseStatusType.CORRECT);
+            avh.txtCorrectAnswer.setVisibility(View.GONE);
         }
         else {
             avh.txtCorrectIncorrect.setText("Incorrect!");
@@ -435,7 +433,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         listView.post(new Runnable() {
             @Override
             public void run() {
-                listView.smoothScrollToPosition(listView.getAdapter().getCount() - 1);
+                listView.timedScrollToPosition(listView.getAdapter().getCount() - 1, 750);
             }
         });
 
@@ -456,6 +454,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     private void setCorrectAnswerText() {
         char correctLetter = (char) ('A' + mQuestionContents.getCorrectIdx());
         avh.txtCorrectAnswer.setText("Correct Answer: " + correctLetter);
+        avh.txtCorrectAnswer.setVisibility(View.VISIBLE);
     }
 
     protected void navigateToParentActivity() {

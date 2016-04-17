@@ -31,7 +31,20 @@ public abstract class QuestionMetaObject extends ParseObject{
     public static ParseQuery<QuestionMetaObject> getSubjectAndCategoryQuery(Class<? extends QuestionMetaObject> clazz,
                                                                             String subject, String category) {
         ParseQuery<QuestionMetaObject> query = getMetaQuery(clazz);
+
         query.orderByDescending(Columns.createdAt);
+
+//        if(clazz == SuggestedQuestion.class) {
+//            query.orderByAscending(SuggestedQuestion.Columns.answered);
+//        }
+//        query.orderByDescending(Columns.createdAt);
+
+//        if(clazz == SuggestedQuestion.class) {
+//            query.orderByDescending(SuggestedQuestion.Columns.answered + "," + Columns.createdAt);
+//        }
+//        else {
+//            query.orderByDescending(Columns.createdAt);
+//        }
 
 //        if(challengeId != null) {
 //            query.fromPin(challengeId);
