@@ -13,7 +13,7 @@
         android:layout_centerInParent="true"
         android:indeterminate="true"/>
 
-    <ListView
+    <com.cognitutor.cognistudyapp.Custom.AnswerListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -22,5 +22,5 @@
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:id="@+id/listView"
         tools:context=".Activities.QuestionActivity" >
-    </ListView>
+    </com.cognitutor.cognistudyapp.Custom.AnswerListView>
 </RelativeLayout>

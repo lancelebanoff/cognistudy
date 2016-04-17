@@ -44,10 +44,21 @@
         android:layout_height="wrap_content">
     </WebView>
 
+    <TextView
+        android:id="@+id/txtNumberInBundle"
+        android:layout_marginTop="15dp"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:layout_below="@id/wvPassage"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <!--<com.cognitutor.cognistudyapp.Custom.CogniMathView-->
     <com.cognitutor.cognistudyapp.Custom.CogniMathView
         android:id="@+id/mvQuestion"
-        android:layout_below="@id/wvPassage"
+        android:layout_below="@id/txtNumberInBundle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </com.cognitutor.cognistudyapp.Custom.CogniMathView>

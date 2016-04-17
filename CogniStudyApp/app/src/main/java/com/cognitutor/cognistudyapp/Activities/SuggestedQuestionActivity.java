@@ -3,11 +3,14 @@ package com.cognitutor.cognistudyapp.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.QueryUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
+import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseQuery;
 
 import bolts.Continuation;
@@ -27,9 +30,16 @@ public class SuggestedQuestionActivity extends AnswerableQuestionActivity{
     }
 
     @Override
+    protected String getQuestionTitle() {
+        return getResources().getString(R.string.title_activity_suggested_question);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadSuggestedQuestion();
+        CogniButton btnContinue = (CogniButton) findViewById(R.id.btnContinue);
+        btnContinue.setVisibility(View.GONE);
     }
 
     @Override

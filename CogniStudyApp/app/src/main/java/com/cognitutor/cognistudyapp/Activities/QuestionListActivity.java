@@ -50,12 +50,6 @@ public abstract class QuestionListActivity extends CogniActivity {
 
     private boolean onResumeFinished;
 
-    public void navigateToQuestionActivity(View view) {
-        Intent intent = new Intent(this, ChallengeQuestionActivity.class); //TODO: Change depending on type of question
-        intent.putExtra(Constants.IntentExtra.ParentActivity.PARENT_ACTIVITY, getActivityName());
-        startActivity(intent);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -35,6 +35,7 @@ public class Question extends ParseObject {
         public static final String questionContents = "questionContents";
         public static final String reviewStatus = "reviewStatus";
         public static final String bundle = "bundle";
+        public static final String numberInBundle = "numberInBundle";
     }
 
     public Question(String subject, String category, String reviewStatus, QuestionContents contents, QuestionData data) {
@@ -54,6 +55,7 @@ public class Question extends ParseObject {
     public Task<QuestionContents> getQuestionContentsInBackground() {
         return ((QuestionContents) getParseObject(Columns.questionContents)).fetchIfNeededInBackground();
     }
+    public int getNumberInBundle() { return getInt(Columns.numberInBundle); }
 
     public static ParseQuery<Question> getQuery() { return ParseQuery.getQuery(Question.class); }
 

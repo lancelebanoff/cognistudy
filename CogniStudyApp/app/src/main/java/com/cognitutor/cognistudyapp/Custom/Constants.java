@@ -169,7 +169,7 @@ public class Constants {
             dialogLabelToContents.put(CHOOSE_OPPONENT, new String[]{ "Choose your opponent",
                     "Choose to play against one of your friends, or search for someone to play against." });
             dialogLabelToContents.put(CHOOSE_BOARD_CONFIGURATION, new String[]{ "Set up your game board",
-                    "You and your opponent will take turns answering practice questions and playing a battleship-style game. Here you can choose they layout of your game board." });
+                    "You and your opponent will take turns answering practice questions and playing a battleship-style game. Here you can choose the layout of your game board." });
             dialogLabelToContents.put(YOUR_TURN, new String[]{ "It's your turn!",
                     "Tap the button at the bottom of the screen to take your turn." });
             dialogLabelToContents.put(QUESTION, new String[]{ "Answer practice questions",
@@ -252,6 +252,9 @@ public class Constants {
         public static final String CONVERSANT_PROFILE_PIC_DATA = "CONVERSANT_PROFILE_PIC_DATA";
 
         public static final String QUESTION_ID = "QUESTION_ID";
+        public static final String QUESTION_NUMBER = "QUESTION_NUMBER";
+        public static final String TOTAL_NUM_QUESTIONS = "TOTAL_NUM_QUESTIONS";
+        public static final String NUMBER_IN_BUNDLE = "NUMBER_IN_BUNDLE";
         public static final String PUBLICUSERDATA_ID = "PUBLICUSERDATA_ID";
 
         public static class ParentActivity {
