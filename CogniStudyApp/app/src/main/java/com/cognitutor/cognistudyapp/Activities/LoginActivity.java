@@ -4,8 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -37,6 +40,7 @@ import com.parse.LogInCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
@@ -396,6 +400,37 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
+    }
+
+    public void onClick_txtForgotPassword(View view) {
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        int padding = (int) getResources().getDimension(R.dimen.edit_text_in_alert_dialog_padding);
+        input.setPadding(padding, padding, padding, padding);
+        new AlertDialog.Builder(this)
+                .setTitle("Reset Password")
+                .setMessage("Enter your email address. We'll send you an email to reset your password.")
+                .setView(input)
+                .setCancelable(true)
+                .setPositiveButton("Enter", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        String email = input.getText().toString();
+                        sendResetPasswordEmail(email);
+                    }
+                }).create().show();
+    }
+
+    private void sendResetPasswordEmail(String email) {
+        ParseUser.requestPasswordResetInBackground(email, new RequestPasswordResetCallback() {
+            public void done(ParseException e) {
+                if (e == null) {
+                    Toast.makeText(LoginActivity.this, "An email has been sent to your address to reset your password.", Toast.LENGTH_LONG).show();
+                } else {
+                    e.printStackTrace();
+                    Toast.makeText(LoginActivity.this, "An error has occurred. Please try again.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 }
 
