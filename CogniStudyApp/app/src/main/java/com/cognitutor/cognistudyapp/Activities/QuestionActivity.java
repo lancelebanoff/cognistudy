@@ -1,16 +1,19 @@
 package com.cognitutor.cognistudyapp.Activities;
 
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -428,6 +431,13 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         avh.btnSubmit.setVisibility(View.GONE);
         avh.vgPostAnswer.setVisibility(View.VISIBLE);
         ClickableListItem.setQuestionAnswered(true);
+
+        listView.post(new Runnable() {
+            @Override
+            public void run() {
+                listView.smoothScrollToPosition(listView.getAdapter().getCount() - 1);
+            }
+        });
 
         new Thread(new Runnable() {
             @Override
