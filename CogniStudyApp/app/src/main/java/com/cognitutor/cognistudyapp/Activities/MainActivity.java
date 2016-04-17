@@ -1,7 +1,6 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -12,14 +11,11 @@ import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
-import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.PeopleListOnClickHandler;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.ConversationsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.R;
 
@@ -31,6 +27,7 @@ public class MainActivity extends AuthenticationActivity {
     private Activity mActivity = this;
     private CogniViewPager mViewPager;
     private PeopleFragment mPeopleFragment;
+    private AnalyticsFragment mAnalyticsFragment;
 
     private static boolean cameFromChatActivity = false;
     public static void setCameFromChatActivity(boolean val) {
@@ -121,7 +118,9 @@ public class MainActivity extends AuthenticationActivity {
     protected void onResume() {
         super.onResume();
         setFragment();
-        onResumeTest();
+        if (mAnalyticsFragment != null) {
+            mAnalyticsFragment.getAndDisplayAnalytics();
+        }
     }
 
     private void setFragment() {
@@ -184,8 +183,10 @@ public class MainActivity extends AuthenticationActivity {
             }
             if(position == Fragments.Messages.ordinal())
                 return ConversationsFragment.newInstance();
-            if(position == Fragments.Analytics.ordinal())
-                return AnalyticsFragment.newInstance();
+            if(position == Fragments.Analytics.ordinal()) {
+                mAnalyticsFragment = AnalyticsFragment.newInstance();
+                return mAnalyticsFragment;
+            }
             if(position == Fragments.Menu.ordinal())
                 return MenuFragment.newInstance();
             return null;
@@ -216,17 +217,6 @@ public class MainActivity extends AuthenticationActivity {
     //Used when a challenge finishes loading so that the opponent shows up in the people list
     public void updatePeopleFragment() {
         mPeopleFragment.updateList();
-    }
-
-    private void onResumeTest() {
-//        Log.d("InstallationId", ParseInstallation.getCurrentInstallation().getObjectId());
-//        DateUtils.test(true);
-//        QueryUtils.testCacheThenNetwork();
-//        ParseObjectUtils.testPins(false);
-//        try {
-//            UserUtils.getPinTest();
-//        }
-//        catch (ParseException e) { handleParseError(e); }
     }
 
     private static boolean onPauseFinished = false;

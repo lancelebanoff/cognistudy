@@ -149,7 +149,7 @@ public class AnalyticsFragment extends CogniFragment {
         builder.create().show();
     }
 
-    private void getAndDisplayAnalytics() {
+    public void getAndDisplayAnalytics() {
         String subject = mSpSubjects.getAdapter().getItem(mSpSubjects.getSelectedItemPosition()).toString();
         String rollingDateRange = mSpDateRange.getAdapter().getItem(mSpDateRange.getSelectedItemPosition()).toString();
 

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.cognitutor.cognistudyapp.Custom.BattleshipBoardManager;
 import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
+import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.R;
@@ -121,6 +122,11 @@ public class BattleshipAttackActivity extends CogniActivity {
     @Override
     public void onBackPressed() {
         onClick_btnDone(null);
+    }
+
+    public void showBtnDone() {
+        CogniButton btnDone = (CogniButton) findViewById(R.id.btnDone);
+        btnDone.setVisibility(View.VISIBLE);
     }
 
     public void onClick_btnDone(View view) {

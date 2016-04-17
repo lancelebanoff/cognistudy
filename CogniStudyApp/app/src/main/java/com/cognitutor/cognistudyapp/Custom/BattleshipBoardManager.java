@@ -14,6 +14,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.cognitutor.cognistudyapp.Activities.BattleshipAttackActivity;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
@@ -524,6 +525,7 @@ public class BattleshipBoardManager {
                 showNumShotsRemaining();
                 if(mNumShotsRemaining == 0) {
                     setOtherPlayerTurn(false);
+                    ((BattleshipAttackActivity) mActivity).showBtnDone();
                 } else {
                     mChallenge.setNumShotsRemaining(mNumShotsRemaining);
                     mChallenge.saveInBackground();

@@ -100,7 +100,8 @@
             android:id="@+id/btnDone"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:onClick="onClick_btnDone"/>
+            android:onClick="onClick_btnDone"
+            android:visibility="invisible"/>
     </RelativeLayout>
 
 </RelativeLayout>
