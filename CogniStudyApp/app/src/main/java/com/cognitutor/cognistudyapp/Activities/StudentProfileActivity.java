@@ -63,8 +63,6 @@ public class StudentProfileActivity extends ProfileActivity {
     private void showOrHideButtonsAndTutorialDialog() {
         if (mPublicUserData.getObjectId().equals(PublicUserData.getPublicUserData().getObjectId())) {
             holder.btnFollow.setVisibility(View.GONE);
-            CogniButton btnUnfollow = (CogniButton) findViewById(R.id.btnUnfollow);
-            btnUnfollow.setVisibility(View.GONE);
             CogniButton btnMessage = (CogniButton) findViewById(R.id.btnMessage);
             btnMessage.setVisibility(View.GONE);
             CogniButton btnChallenge = (CogniButton) findViewById(R.id.btnChallenge);
