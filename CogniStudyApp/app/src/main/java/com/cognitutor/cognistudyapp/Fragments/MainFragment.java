@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import com.cognitutor.cognistudyapp.Activities.MainActivity;
@@ -343,6 +342,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         mGifArrow.setLayoutParams(layoutParams);
 
         rlContent.addView(mGifArrow);
+        mGifArrow.invalidate();
     }
 
     private boolean allAdaptersExist() {

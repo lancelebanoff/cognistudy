@@ -3,7 +3,6 @@ package com.cognitutor.cognistudyapp.Fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +20,11 @@ import com.parse.ParseQuery;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Created by Lance on 12/27/2015.
@@ -50,7 +54,6 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
 //        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext())); // we set the layout manager in the constructor instead
         mRecyclerView.setAdapter(mConversationAdapter);
         mConversationAdapter.loadObjects();
-        waitAndShowOrHideNoMessagesText();
 
         FloatingActionButton fabNewConversation = (FloatingActionButton) rootView.findViewById(R.id.fabNewConversation);
         fabNewConversation.setOnClickListener(this);
@@ -70,24 +73,13 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
             public ParseQuery<Conversation> buildQuery() {
                 return Conversation.getQueryForCurrentUserConversations();
             }
-        });
-    }
-
-    private void waitAndShowOrHideNoMessagesText() {
-        new Thread(new Runnable() {
+        }).continueWith(new Continuation<List<Conversation>, Void>() {
             @Override
-            public void run() {
-                SystemClock.sleep(Constants.Loading.CHALLENGE_ARROW_WAIT_TIME);
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showOrHideNoMessagesText();
-                        }
-                    });
-                }
+            public Void then(Task<List<Conversation>> task) throws Exception {
+                showOrHideNoMessagesText();
+                return null;
             }
-        }).start();
+        });
     }
 
     private void showOrHideNoMessagesText() {
