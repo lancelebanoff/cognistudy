@@ -202,6 +202,7 @@ public abstract class QuestionListActivity extends CogniActivity {
         categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpCategories.setAdapter(categoriesAdapter);
         mSpCategories.applyStyle(R.style.Material_Widget_Spinner);
+        mSpCategories.setSelection(0);
     }
 
     private void getAndDisplaySubject() {

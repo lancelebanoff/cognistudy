@@ -1,6 +1,6 @@
 var common = require('cloud/common.js');
 
-Parse.Cloud.define("oldestPendingQuestion", function(request, response) {
+Parse.Cloud.define("oldestReportedQuestion", function(request, response) {
 
 	var author = request.params.author;
 	var alreadyVisited = request.params.alreadyVisited;
