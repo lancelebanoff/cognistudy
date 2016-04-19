@@ -7,6 +7,7 @@ Parse.Cloud.define("chooseThreeQuestionsV2", function(request, response) {
 	var challengeUserDataId = request.params.challengeUserDataId;
 	var challengeId = request.params.challengeId;
 	var category = request.params.category;
+	var skipBundles = request.params.skipBundles;
 
 	var questionKeys = ["questionContents", "subject", "category", "inBundle", "numberInBundle"];
 	var questionContentsKeys = ["questionText", "image", "author", "answers", "correctAnswer", "explanation"];
@@ -41,7 +42,7 @@ Parse.Cloud.define("chooseThreeQuestionsV2", function(request, response) {
 							var ansQuestionsToFetch = fetchedRollingStats.get("answeredQuestionIds");
 							ansQuestionsToFetch.fetch({
 								success: function(fetchedAnsQuesIds) {
-									getRandomQuestion(category, fetchedAnsQuesIds, [], false).then(
+									getRandomQuestion(category, fetchedAnsQuesIds, [], skipBundles).then(
 										function(firstQuestion) {
 											questionToString(firstQuestion, 1);
 

@@ -2,7 +2,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <CheckBoxPreference
         android:key="random_matching"
-        android:title="Random Match-making"
-        android:summary="Check this if you want to receive challenge requests from anyone, including students you aren't following."
+        android:title="Random Match-Making"
+        android:summary="Receive challenge requests from anyone, including students you aren't following."
         android:defaultValue="true" />
+    <CheckBoxPreference
+        android:key="skip_bundles"
+        android:title="Skip Passage-Based Questions"
+        android:summary="Only answer individual questions, rather than groups of questions based on passages, graphs, etc."
+        android:defaultValue="false" />
 </PreferenceScreen>

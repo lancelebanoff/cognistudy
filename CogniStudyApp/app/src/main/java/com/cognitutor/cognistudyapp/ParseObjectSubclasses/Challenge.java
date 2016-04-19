@@ -40,6 +40,7 @@ public class Challenge extends ParseObject {
         public static final String thisTurnQuestionIds = "thisTurnQuestionIds";
         public static final String correctAnsThisTurn = "correctAnsThisTurn";
         public static final String loserHasSeenLost = "loserHasSeenLost";
+        public static final String thisTurnQsAreBundle = "thisTurnQsAreBundle";
     }
 
     public Challenge(ChallengeUserData user1Data, String challengeType) {
@@ -53,6 +54,7 @@ public class Challenge extends ParseObject {
         setQuesAnsThisTurn(0);
         setCorrectAnsThisTurn(0);
         setNumShotsRemaining(0);
+        setThisTurnQsAreBundle(false);
     }
 
     public Challenge() {}
@@ -280,6 +282,10 @@ public class Challenge extends ParseObject {
             return -1;
         }
     }
+
+    public boolean getThisTurnQsAreBundle() { return getBoolean(Columns.thisTurnQsAreBundle); }
+
+    public void setThisTurnQsAreBundle(boolean thisTurnQsAreBundle) { put(Columns.thisTurnQsAreBundle, thisTurnQsAreBundle); }
 
     public int getOpponentUser1Or2() {
         int user1Or2 = getUser1Or2();

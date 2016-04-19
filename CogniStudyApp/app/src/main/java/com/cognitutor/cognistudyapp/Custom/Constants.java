@@ -58,6 +58,11 @@ public class Constants {
         } catch (IllegalAccessException e) { e.printStackTrace(); return null; }
     }
 
+    public static class Settings {
+        public static final String RANDOM_MATCHING = "random_matching";
+        public static final String SKIP_BUNDLES = "skip_bundles";
+    }
+
     public static class Analytics {
 
         public static class TestSectionType {

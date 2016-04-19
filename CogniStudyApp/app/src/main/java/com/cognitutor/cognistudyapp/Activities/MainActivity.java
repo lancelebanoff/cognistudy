@@ -1,8 +1,10 @@
 package com.cognitutor.cognistudyapp.Activities;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,13 +13,17 @@ import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 
 import com.cognitutor.cognistudyapp.Custom.CogniViewPager;
+import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Fragments.AnalyticsFragment;
 import com.cognitutor.cognistudyapp.Fragments.ConversationsFragment;
 import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.Fragments.MenuFragment;
 import com.cognitutor.cognistudyapp.Fragments.PeopleFragment;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.StudentTRollingStats;
 import com.cognitutor.cognistudyapp.R;
+import com.parse.ParseException;
 
 public class MainActivity extends AuthenticationActivity {
 
@@ -52,6 +58,17 @@ public class MainActivity extends AuthenticationActivity {
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
         setTabLayoutIconsAndColors(tabLayout);
+
+        // Set shared preferences based on database values
+        SharedPreferences.Editor prefsEditor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        try {
+            Student student = PublicUserData.getPublicUserData().getStudent();
+            prefsEditor.putBoolean(Constants.Settings.RANDOM_MATCHING, student.getRandomEnabled());
+            prefsEditor.putBoolean(Constants.Settings.SKIP_BUNDLES, student.getSkipBundles());
+            prefsEditor.apply();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setTabLayoutIconsAndColors(TabLayout tabLayout) {

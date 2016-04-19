@@ -9,11 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.cognitutor.cognistudyapp.Custom.Constants;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.cognitutor.cognistudyapp.R;
-
-import bolts.Continuation;
-import bolts.Task;
+import com.parse.ParseException;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -31,28 +31,24 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
 
-        Student.getStudentInBackground().continueWith(new Continuation<Student, Void>() {
-            @Override
-            public Void then(Task<Student> task) throws Exception {
-                mStudent = task.getResult();
-                return null;
-            }
-        });
+        try {
+            mStudent = PublicUserData.getPublicUserData().getStudent();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            case "random_matching":
-                final boolean enabled = sharedPreferences.getBoolean(key, false);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while(mStudent == null) {}
-                        mStudent.setRandomEnabled(enabled);
-                    }
-                }).start();
+            case Constants.Settings.RANDOM_MATCHING:
+                boolean enabled = sharedPreferences.getBoolean(key, false);
+                mStudent.setRandomEnabled(enabled);
             break;
+            case Constants.Settings.SKIP_BUNDLES:
+                boolean skipBundlesEnabled = sharedPreferences.getBoolean(key, false);
+                mStudent.setSkipBundles(skipBundlesEnabled);
+                break;
         }
     }
 

@@ -566,6 +566,7 @@ public class BattleshipBoardManager {
         mChallenge.setQuesAnsThisTurn(0);
         mChallenge.setCorrectAnsThisTurn(0);
         mChallenge.setThisTurnQuestionIds(new ArrayList<String>());
+        mChallenge.setThisTurnQsAreBundle(false);
         mChallenge.incrementNumTurns();
         mChallenge.setTimeLastPlayed(new Date());
         mChallenge.saveInBackground();

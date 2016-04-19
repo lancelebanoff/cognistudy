@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.CogniImageButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -122,15 +123,15 @@ public class PracticeChallengeActivity extends CogniActivity {
     public void onClick_btnYourTurn(View view) {
         int quesAnsThisTurn = mChallenge.getQuesAnsThisTurn();
         List<String> questionIds = mChallenge.getThisTurnQuestionIds();
-        if (questionIds != null && questionIds.size() > 0) {
-            navigateToChallengeQuestionActivity(questionIds.get(quesAnsThisTurn));
-        } else {
+        if (ChallengeUtils.needToChooseQuestions(questionIds, mChallenge, this)) {
             chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?
+        } else {
+            navigateToChallengeQuestionActivity(questionIds.get(quesAnsThisTurn));
         }
     }
 
     private void chooseThreeQuestionIdsThenNavigate() {
-        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).onSuccess(new Continuation<List<String>, Void>() {
+        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2, this).onSuccess(new Continuation<List<String>, Void>() {
             @Override
             public Void then(Task<List<String>> task) throws Exception {
                 List<String> questionIds = task.getResult();

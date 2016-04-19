@@ -417,17 +417,17 @@ public class ChallengeActivity extends CogniPushListenerActivity {
             navigateToBattleshipAttackActivity();
         } else {
             List<String> questionIds = mChallenge.getThisTurnQuestionIds();
-            if (questionIds != null && questionIds.size() > 0) {
-                navigateToChallengeQuestionActivity(questionIds.get(quesAnsThisTurn), quesAnsThisTurn + 1);
-            } else {
+            if (ChallengeUtils.needToChooseQuestions(questionIds, mChallenge, this)) {
                 chooseThreeQuestionIdsThenNavigate(); // TODO:2 do this during onCreate?
+            } else {
+                navigateToChallengeQuestionActivity(questionIds.get(quesAnsThisTurn), quesAnsThisTurn + 1);
             }
         }
     }
 
     private void chooseThreeQuestionIdsThenNavigate() {
         final Activity thisActivity = this;
-        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2).continueWith(new Continuation<List<String>, Void>() {
+        Question.chooseThreeQuestionIds(mChallenge, mCurrentUser1or2, this).continueWith(new Continuation<List<String>, Void>() {
             @Override
             public Void then(Task<List<String>> task) throws Exception {
                 if (task.isFaulted()) {

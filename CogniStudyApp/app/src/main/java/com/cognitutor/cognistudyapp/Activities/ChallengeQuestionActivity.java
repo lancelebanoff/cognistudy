@@ -124,6 +124,7 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     }
 
     private void incrementQuesAnsThisTurn(final boolean isSelectedAnswerCorrect) {
+        final Activity activity = this;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -137,7 +138,7 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
                         mChallenge.getQuesAnsThisTurn() == Constants.Questions.NUM_QUESTIONS_PER_TURN) {
                     mQuesAnsThisTurn = 0;
                     mChallenge.setQuesAnsThisTurn(0);
-                    Question.chooseThreeQuestionIds(mChallenge, mUser1or2).onSuccess(new Continuation<List<String>, Void>() {
+                    Question.chooseThreeQuestionIds(mChallenge, mUser1or2, activity).onSuccess(new Continuation<List<String>, Void>() {
                         @Override
                         public Void then(Task<List<String>> task) throws Exception {
                             saveChallengeAndShowButton();

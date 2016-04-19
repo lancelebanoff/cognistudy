@@ -16,7 +16,6 @@ import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.GameBoard;
-import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Question;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.CountCallback;
@@ -153,23 +152,21 @@ public class ChallengeAnalyticsActivity extends CogniActivity {
             return;
         }
 
-        final ParseQuery<Question> innerQuery = Question.getQuery().whereEqualTo(Question.Columns.subject, subject);
-        ParseQuery<Response> query = responses.getQuery()
-                .whereMatchesQuery(Response.Columns.question, innerQuery);
+        ParseQuery<Response> totalQuery = responses.getQuery()
+                .whereEqualTo(Response.Columns.subject, subject);
 
-        query.countInBackground(new CountCallback() {
+        totalQuery.countInBackground(new CountCallback() {
             @Override
             public void done(final int totalCount, ParseException e) {
-                ParseQuery<Response> query = responses.getQuery()
-                        .whereMatchesQuery(Response.Columns.question, innerQuery)
-                        .whereEqualTo(Response.Columns.correct, true);
 
                 if (totalCount == 0) {
                     txtPercentage.setText("-");
                     return;
                 }
 
-                query.countInBackground(new CountCallback() {
+                ParseQuery<Response> correctQuery = responses.getQuery()
+                        .whereEqualTo(Response.Columns.correct, true);
+                correctQuery.countInBackground(new CountCallback() {
                     @Override
                     public void done(int correctCount, ParseException e) {
                         int percentage = (int) (correctCount * 100.0 / totalCount);

@@ -1,6 +1,8 @@
 package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
+import android.content.Context;
+import android.preference.PreferenceManager;
 
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.ChallengeUserData;
@@ -63,7 +65,7 @@ public class ChallengeUtils {
 
                         GameBoard gameBoard = viewedUserData.getGameBoard();
                         List<Ship> ships = null;
-                        if(gameBoard != null) {
+                        if (gameBoard != null) {
                             gameBoard = gameBoard.fetch();
                             ships = ParseObject.fetchAll(gameBoard.getShips());
                         }
@@ -74,5 +76,13 @@ public class ChallengeUtils {
                 });
 
         return task;
+    }
+
+    public static boolean needToChooseQuestions(List<String> questionIds, Challenge challenge, Context context) {
+        boolean questionsAlreadyChosen = questionIds != null && questionIds.size() > 0;
+        boolean skipBundles = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.Settings.SKIP_BUNDLES, false);
+        boolean thisTurnQsAreBundle = challenge.getThisTurnQsAreBundle();
+        boolean questionsShouldBeRechosen = skipBundles && thisTurnQsAreBundle;
+        return !questionsAlreadyChosen || questionsShouldBeRechosen;
     }
 }

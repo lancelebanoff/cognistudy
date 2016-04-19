@@ -43,6 +43,7 @@ public class Student extends ParseObject{
         public static final String studentTotalTridayStats = "studentTotalTridayStats";
         public static final String studentTotalMonthStats = "studentTotalMonthStats";
         public static final String tutorialProgress = "tutorialProgress";
+        public static final String skipBundles = "skipBundles";
     }
 
     public Student() {}
@@ -62,6 +63,7 @@ public class Student extends ParseObject{
         createStudentSubjectRollingStats(baseUserId);
         createStudentCategoryRollingStats(baseUserId);
         createStudentTotalRollingStats(baseUserId);
+        setSkipBundles(false);
     }
 
     private void createStudentSubjectRollingStats(String baseUserId) {
@@ -104,6 +106,8 @@ public class Student extends ParseObject{
     public boolean tutorialProgressContains(String dialogLabel) { return getTutorialProgress().contains(dialogLabel); }
     public List<String> getTutorialProgress() { return getList(Columns.tutorialProgress); }
     public void addToTutorialProgress(String label) { add(Columns.tutorialProgress, label); }
+    public void setSkipBundles(boolean skipBundles) { put(Columns.skipBundles, skipBundles); }
+    public boolean getSkipBundles() { return getBoolean(Columns.skipBundles); }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);

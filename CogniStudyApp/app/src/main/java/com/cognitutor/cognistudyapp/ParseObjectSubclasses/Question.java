@@ -1,5 +1,7 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
+import android.content.Context;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -71,15 +73,16 @@ public class Question extends ParseObject {
         });
     }
 
-    public static Task<List<String>> chooseThreeQuestionIds(final Challenge challenge, int user1or2) {
+    public static Task<List<String>> chooseThreeQuestionIds(final Challenge challenge, int user1or2, final Context context) {
         Task<List<String>> task = challenge.getChallengeUserData(user1or2).fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<List<Question>>>() {
             @Override
             public Task<List<Question>> then(Task<ParseObject> task) throws Exception {
                 ChallengeUserData challengeUserData = (ChallengeUserData) task.getResult();
 
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, Object> params = new HashMap<String, Object>();
                 params.put("challengeUserDataId", challengeUserData.getObjectId());
                 params.put("challengeId", challenge.getObjectId());
+                params.put("skipBundles", PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.Settings.SKIP_BUNDLES, false));
 
                 List<String> categories = challengeUserData.getCategories();
                 int randomIndex = new Random().nextInt(categories.size());
@@ -101,6 +104,7 @@ public class Question extends ParseObject {
                     questionIds.add(question.getObjectId());
                 }
                 challenge.setThisTurnQuestionIds(questionIds);
+                challenge.setThisTurnQsAreBundle(questions.get(0).inBundle());
                 try {
                     challenge.save();
                 } catch (ParseException e1) {
