@@ -80,18 +80,32 @@
             android:text="@string/bookmark_button_bookmark"
             android:drawableLeft="@drawable/ic_action_icon_bookmark"/>
 
-        <com.cognitutor.cognistudyapp.Custom.CogniButton
-            android:id="@+id/btnContinue"
+        <ViewSwitcher
+            android:id="@+id/vsContinueOrBack"
             android:layout_toRightOf="@id/cbBookmark"
             android:layout_alignTop="@id/cbBookmark"
             android:layout_alignBottom="@id/cbBookmark"
             android:layout_marginLeft="10dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Continue"
-            android:drawableRight="@drawable/ic_action_icon_continue_arrow"
-            android:onClick="navigateToNextActivity" />
+            android:layout_height="wrap_content">
 
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
+                android:id="@+id/btnContinue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Continue"
+                android:drawableRight="@drawable/ic_action_icon_continue_arrow"
+                android:onClick="navigateToNextActivity" />
+
+            <com.cognitutor.cognistudyapp.Custom.CogniButton
+                android:id="@+id/btnBack"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Go Back"
+                android:drawableRight="@drawable/ic_action_icon_return_transparent"
+                android:onClick="navigateToParentActivity" />
+
+        </ViewSwitcher>
     </RelativeLayout>
 
     <com.cognitutor.cognistudyapp.Custom.CogniButton

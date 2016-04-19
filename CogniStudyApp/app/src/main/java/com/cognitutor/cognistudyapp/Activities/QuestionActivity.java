@@ -463,6 +463,10 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         finish();
     }
 
+    public void navigateToParentActivity(View v) {
+        navigateToParentActivity();
+    }
+
     public void setBtnSubmitEnabled(boolean val) {
         avh.btnSubmit.setEnabled(val);
     }

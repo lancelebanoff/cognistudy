@@ -2,6 +2,7 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Activities.QuestionActivity;
 import com.cognitutor.cognistudyapp.R;
@@ -14,7 +15,10 @@ public abstract class AnsweredQuestionActivity extends QuestionActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CogniButton btnContinue = (CogniButton) findViewById(R.id.btnContinue);
-        btnContinue.setVisibility(View.GONE);
+        ViewSwitcher vsContinueOrBack = (ViewSwitcher) findViewById(R.id.vsContinueOrBack);
+        vsContinueOrBack.showNext();
+//
+//        CogniButton btnBack = (CogniButton) findViewById(R.id.btnBack);
+//        btnBack.setOnClickListener(this);
     }
 }

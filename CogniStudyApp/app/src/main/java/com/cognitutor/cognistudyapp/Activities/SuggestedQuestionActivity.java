@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ViewSwitcher;
 
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
@@ -38,8 +39,8 @@ public class SuggestedQuestionActivity extends AnswerableQuestionActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadSuggestedQuestion();
-        CogniButton btnContinue = (CogniButton) findViewById(R.id.btnContinue);
-        btnContinue.setVisibility(View.GONE);
+        ViewSwitcher vsContinueOrBack = (ViewSwitcher) findViewById(R.id.vsContinueOrBack);
+        vsContinueOrBack.showNext();
     }
 
     @Override
