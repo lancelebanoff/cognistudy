@@ -65,6 +65,7 @@ public class MainActivity extends AuthenticationActivity {
             Student student = PublicUserData.getPublicUserData().getStudent();
             prefsEditor.putBoolean(Constants.Settings.RANDOM_MATCHING, student.getRandomEnabled());
             prefsEditor.putBoolean(Constants.Settings.SKIP_BUNDLES, student.getSkipBundles());
+            prefsEditor.putBoolean(Constants.Settings.ENABLE_NOTIFICATIONS, student.getNotificationsEnabled());
             prefsEditor.apply();
         } catch (ParseException e) {
             e.printStackTrace();

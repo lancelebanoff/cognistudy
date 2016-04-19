@@ -32,7 +32,7 @@ public class SuggestedQuestionsListFragment extends CogniPushListenerFragment {
 
     @Override
     public void onReceiveHandler() {
-        mParentActivity.getAndDisplayFromSelections();
+        mParentActivity.getAndDisplayFromSelections(false);
     }
 
     @Override

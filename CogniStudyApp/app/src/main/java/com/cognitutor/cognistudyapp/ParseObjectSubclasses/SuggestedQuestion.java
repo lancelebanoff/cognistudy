@@ -3,11 +3,11 @@ package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 import android.util.Log;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.parse.GetCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
+
+import java.util.Date;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -18,6 +18,10 @@ import bolts.Task;
 @ParseClassName("SuggestedQuestion")
 public class SuggestedQuestion extends QuestionMetaObject {
 
+
+    public static final int NOT_ANSWERED = 0;
+    public static final int ANSWERED = 1;
+
     @Override
     public String getResponseStatus() {
         Response response = getResponse();
@@ -25,6 +29,11 @@ public class SuggestedQuestion extends QuestionMetaObject {
             return Constants.ResponseStatusType.UNANSWERED;
         }
         return response.getResponseStatus();
+    }
+
+    @Override
+    public Date getDate() {
+        return getUpdatedAt();
     }
 
     @Override
@@ -58,7 +67,7 @@ public class SuggestedQuestion extends QuestionMetaObject {
         public static final String studentBaseUserId = "studentBaseUserId";
         public static final String question = "question";
         public static final String response = "response";
-        public static final String answered = "answered";
+        public static final String answeredInt = "answeredInt";
         public static final String tutor = "tutor";
     }
 
@@ -67,6 +76,7 @@ public class SuggestedQuestion extends QuestionMetaObject {
     //For testing only
     public SuggestedQuestion(final Question question) {
         put(Columns.question, question);
+        put(Columns.answeredInt, NOT_ANSWERED);
     }
     public static Task<Object> createSuggestedQuestion(final Question question) {
         final SuggestedQuestion suggestedQuestion = new SuggestedQuestion(question);
@@ -94,7 +104,7 @@ public class SuggestedQuestion extends QuestionMetaObject {
 
     public Question getQuestion() { return (Question) getParseObject(Columns.question); }
     public Response getResponse() { return (Response) getParseObject(Columns.response); }
-    public boolean isAnswered() { return getBoolean(Columns.answered); }
+    public boolean isAnswered() { return getInt(Columns.answeredInt) == 1; }
     public PublicUserData getTutor() { return (PublicUserData) getParseObject(Columns.tutor); }
 
     public String getTutorDisplayName() {
@@ -114,8 +124,8 @@ public class SuggestedQuestion extends QuestionMetaObject {
 
     public void addResponseAndPin(Response response) {
         put(Columns.response, response);
-        put(Columns.answered, true);
+        put(Columns.answeredInt, SuggestedQuestion.ANSWERED);
         response.pinInBackground(getObjectId());
-        saveEventually();
+        saveInBackground();
     }
 }

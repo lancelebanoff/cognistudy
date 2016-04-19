@@ -44,6 +44,7 @@ public class Student extends ParseObject{
         public static final String studentTotalMonthStats = "studentTotalMonthStats";
         public static final String tutorialProgress = "tutorialProgress";
         public static final String skipBundles = "skipBundles";
+        public static final String notificationsEnabled = "notificationsEnabled";
     }
 
     public Student() {}
@@ -64,6 +65,7 @@ public class Student extends ParseObject{
         createStudentCategoryRollingStats(baseUserId);
         createStudentTotalRollingStats(baseUserId);
         setSkipBundles(false);
+        setNotificationsEnabled(true);
     }
 
     private void createStudentSubjectRollingStats(String baseUserId) {
@@ -108,6 +110,8 @@ public class Student extends ParseObject{
     public void addToTutorialProgress(String label) { add(Columns.tutorialProgress, label); }
     public void setSkipBundles(boolean skipBundles) { put(Columns.skipBundles, skipBundles); }
     public boolean getSkipBundles() { return getBoolean(Columns.skipBundles); }
+    public void setNotificationsEnabled(boolean notificationsEnabled) { put(Columns.notificationsEnabled, notificationsEnabled); }
+    public boolean getNotificationsEnabled() { return getBoolean(Columns.notificationsEnabled); }
 
     public static ParseQuery<Student> getQuery() {
         return ParseQuery.getQuery(Student.class);

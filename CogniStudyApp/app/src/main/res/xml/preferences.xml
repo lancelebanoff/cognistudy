@@ -10,4 +10,8 @@
         android:title="Skip Passage-Based Questions"
         android:summary="Only answer individual questions, rather than groups of questions based on passages, graphs, etc."
         android:defaultValue="false" />
+    <CheckBoxPreference
+        android:key="enable_notifications"
+        android:title="Enable Notifications"
+        android:defaultValue="true" />
 </PreferenceScreen>

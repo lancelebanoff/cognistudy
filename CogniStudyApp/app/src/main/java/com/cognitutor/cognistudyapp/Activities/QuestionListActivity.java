@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -94,25 +95,34 @@ public abstract class QuestionListActivity extends CogniActivity {
     @Override
     public void onResume() {
         super.onResume();
-        getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
+        Log.d("onResume", "refreshInOnResume = " + refreshInOnResume);
+        if(refreshInOnResume) {
+            getAndDisplayFromSelections(true);
+//            getAndDisplay(Constants.Subject.ALL_SUBJECTS, Constants.Category.ALL_CATEGORIES);
+        }
+        refreshInOnResume = true;
         onResumeFinished = true;
     }
+
+    private boolean refreshInOnResume = true;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            refreshInOnResume = false;
             if(data.hasExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST)) {
                 String objectId = data.getStringExtra(Constants.IntentExtra.UPDATE_OBJECT_ID_IN_LIST);
                 mAdapter.notifyObjectIdChanged(objectId);
+                Log.d("onActivityResult", "refreshInOnResume set to false");
             }
         }
     }
 
-    public void getAndDisplayFromSelections() {
+    public void getAndDisplayFromSelections(boolean inOnResume) {
         //The category spinner's onItemSelected was getting called in initializeSpinners, before onResume(), where
         // getAndDisplay is called. This was causing the items to blink. No need to call getAndDisplay before onResume().
-        if(onResumeFinished)
+        if(inOnResume || onResumeFinished)
             getAndDisplay(getSelectedSubject(), getSelectedCategory());
     }
 
@@ -177,7 +187,7 @@ public abstract class QuestionListActivity extends CogniActivity {
         Spinner.OnItemSelectedListener categoriesListener = new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(Spinner parent, View view, int position, long id) {
-                getAndDisplayFromSelections();
+                getAndDisplayFromSelections(false);
             }
         };
         mSpCategories.setOnItemSelectedListener(categoriesListener);

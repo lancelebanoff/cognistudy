@@ -18,6 +18,7 @@ import com.cognitutor.cognistudyapp.Activities.SuggestedQuestionsListActivity;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.DateUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionMetaObject;
+import com.cognitutor.cognistudyapp.ParseObjectSubclasses.SuggestedQuestion;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
@@ -103,6 +104,13 @@ public class QuestionListAdapter extends CogniRecyclerAdapter<QuestionMetaObject
     }
 
     private String getDateToDisplay(QuestionMetaObject meta) {
+
+//        String prefix = "";
+//        if(meta.getClass() == SuggestedQuestion.class) {
+//            SuggestedQuestion suggestedQuestion = (SuggestedQuestion) meta;
+//            prefix = suggestedQuestion.isAnswered() ? "Answered " : "Assigned ";
+//        }
+//
         Date questionDate = meta.getDate();
         Date currentDate = new Date();
         String timeBetween = DateUtils.getTimeBetween(questionDate, currentDate);

@@ -44,10 +44,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             case Constants.Settings.RANDOM_MATCHING:
                 boolean enabled = sharedPreferences.getBoolean(key, false);
                 mStudent.setRandomEnabled(enabled);
-            break;
+                break;
             case Constants.Settings.SKIP_BUNDLES:
                 boolean skipBundlesEnabled = sharedPreferences.getBoolean(key, false);
                 mStudent.setSkipBundles(skipBundlesEnabled);
+                break;
+            case Constants.Settings.ENABLE_NOTIFICATIONS:
+                boolean notificationsEnabled = sharedPreferences.getBoolean(key, true);
+                mStudent.setNotificationsEnabled(notificationsEnabled);
                 break;
         }
     }

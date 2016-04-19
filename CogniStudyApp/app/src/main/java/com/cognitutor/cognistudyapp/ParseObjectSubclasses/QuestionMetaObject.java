@@ -1,7 +1,6 @@
 package com.cognitutor.cognistudyapp.ParseObjectSubclasses;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
-import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -35,7 +34,7 @@ public abstract class QuestionMetaObject extends ParseObject{
         ParseQuery<QuestionMetaObject> query = getMetaQuery(clazz);
 
         if(clazz == SuggestedQuestion.class) {
-            query.orderByAscending(SuggestedQuestion.Columns.answered);
+            query.orderByAscending(SuggestedQuestion.Columns.answeredInt);
         }
         query.addDescendingOrder(Columns.createdAt);
 

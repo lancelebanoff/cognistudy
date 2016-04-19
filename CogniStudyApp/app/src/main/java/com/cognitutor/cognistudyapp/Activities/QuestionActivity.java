@@ -459,7 +459,6 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
 
     protected void navigateToParentActivity() {
         Intent intent = new Intent();
-        setResult(RESULT_OK, intent);
         finish();
     }
 

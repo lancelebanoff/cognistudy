@@ -61,6 +61,7 @@ public class Constants {
     public static class Settings {
         public static final String RANDOM_MATCHING = "random_matching";
         public static final String SKIP_BUNDLES = "skip_bundles";
+        public static final String ENABLE_NOTIFICATIONS = "enable_notifications";
     }
 
     public static class Analytics {
