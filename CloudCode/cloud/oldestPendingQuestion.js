@@ -6,7 +6,7 @@ Parse.Cloud.define("oldestPendingQuestion", function(request, response) {
 	var alreadyVisited = request.params.alreadyVisited;
 	var isAdmin = request.params.isAdmin;
 
-	var contentsQuery = new Parse.Query("QuestionContents").equalTo("author", author);
+	var contentsQuery = new Parse.Query("QuestionContents").equalTo("authorId", author);
 	var dataQuery = new Parse.Query("QuestionData").equalTo("reviewStatus", "PENDING");
 	if(isAdmin) {
 		var query = new Parse.Query("Question").notContainedIn("objectId", alreadyVisited)

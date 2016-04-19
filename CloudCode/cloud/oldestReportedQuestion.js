@@ -6,7 +6,7 @@ Parse.Cloud.define("oldestReportedQuestion", function(request, response) {
 	var alreadyVisited = request.params.alreadyVisited;
 	var isAdmin = request.params.isAdmin;
 
-	var contentsQuery = new Parse.Query("QuestionContents").equalTo("author", author);
+	var contentsQuery = new Parse.Query("QuestionContents").equalTo("authorId", author);
 	var dataQuery1 = new Parse.Query("QuestionData").equalTo("reviewStatus", "REPORTED_APPROVED");
 	var dataQuery2 = new Parse.Query("QuestionData").equalTo("reviewStatus", "REPORTED_PENDING");
 	var dataQuery = Parse.Query.or(dataQuery1, dataQuery2);

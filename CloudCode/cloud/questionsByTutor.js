@@ -4,7 +4,7 @@ Parse.Cloud.define("questionsByTutor", function(request, response) {
 
 	var author = request.params.author;
 
-	var contentsQuery = new Parse.Query("QuestionContents").equalTo("author", author);
+	var contentsQuery = new Parse.Query("QuestionContents").equalTo("authorId", author);
 	var query = new Parse.Query("Question")
 		.descending("createdAt")
 		.matchesKeyInQuery("questionContents", "objectId", contentsQuery)
