@@ -19,6 +19,12 @@ public class CogniButton extends Button {
         setColor(context);
     }
 
+    public CogniButton(Context context, int drawableLeftId) {
+        super(context);
+        setColor(context);
+        setDrawableLeft(drawableLeftId);
+    }
+
     public CogniButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         setColor(context);

@@ -143,7 +143,7 @@ public class NewChallengeActivity extends CogniActivity {
                 llSubjectsHolder.addView(llSubjectRow);
             }
 
-            CogniCheckBox checkBox = new CogniCheckBox(this);
+            CogniCheckBox checkBox = new CogniCheckBox(this, getDrawableLeftResIdForSubject(subjectNames[i]));
             checkBox.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             checkBox.setText(subjectNames[i]);
             checkBox.setOnClickListener(new CogniCheckBox.OnClickListener() {
@@ -210,7 +210,7 @@ public class NewChallengeActivity extends CogniActivity {
                 }
 
                 String opponentType = opponentTypes[i];
-                CogniRadioButton radioButton = new CogniRadioButton(this);
+                CogniRadioButton radioButton = new CogniRadioButton(this, getDrawableLeftResIdForOpponent(opponentType));
                 radioButton.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
                 mRgOpponents.add(radioButton);
                 radioButton.setOnClickListener(new CogniRadioButton.OnClickListener() {
@@ -219,6 +219,7 @@ public class NewChallengeActivity extends CogniActivity {
                         mSelectedOpponent = ((CogniRadioButton) v).getText().toString();
                     }
                 });
+
                 radioButton.setText(opponentType);
                 llOpponentRow.addView(radioButton);
 
@@ -269,6 +270,36 @@ public class NewChallengeActivity extends CogniActivity {
 //                            return null;
 //                        }
 //                    });
+        }
+    }
+
+    private int getDrawableLeftResIdForSubject(String subject) {
+        switch (subject) {
+            case Constants.Subject.ENGLISH:
+                return R.drawable.ic_action_icon_english_transparent;
+            case Constants.Subject.MATH:
+                return R.drawable.ic_action_icon_math_transparent;
+            case Constants.Subject.SCIENCE:
+                return R.drawable.ic_action_icon_science_transparent;
+            case Constants.Subject.READING:
+                return R.drawable.ic_action_icon_reading_transparent;
+            default:
+                return 0;
+        }
+    }
+
+    private int getDrawableLeftResIdForOpponent(String opponentType) {
+        switch (opponentType) {
+            case Constants.OpponentType.COMPUTER:
+                return R.drawable.ic_action_icon_computer_opponent;
+            case Constants.OpponentType.FRIEND:
+                return R.drawable.ic_action_icon_friend_opponent;
+            case Constants.OpponentType.PRACTICE:
+                return R.drawable.ic_action_icon_practice;
+            case Constants.OpponentType.RANDOM:
+                return R.drawable.ic_action_icon_random_opponent;
+            default:
+                return 0;
         }
     }
 

@@ -17,6 +17,10 @@ public class CogniCheckBox extends CogniButton {
         super(context);
     }
 
+    public CogniCheckBox(Context context, int drawableLeftResId) {
+        super(context, drawableLeftResId);
+    }
+
     public CogniCheckBox(Context context, AttributeSet attrs) {
         super(context, attrs);
     }

@@ -18,6 +18,10 @@ public class CogniRadioButton extends CogniButton {
         super(context);
     }
 
+    public CogniRadioButton(Context context, int drawableLeftId) {
+        super(context, drawableLeftId);
+    }
+
     public CogniRadioButton(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
