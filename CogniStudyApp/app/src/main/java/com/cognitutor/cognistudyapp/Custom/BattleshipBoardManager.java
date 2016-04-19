@@ -530,6 +530,7 @@ public class BattleshipBoardManager {
                     mChallenge.setNumShotsRemaining(mNumShotsRemaining);
                     mChallenge.saveInBackground();
                 }
+                boolean destroyedShip = false;
                 Ship shipThatOccupiesPosition = findShipThatOccupiesPosition(row, col);
                 if(shipThatOccupiesPosition == null) {
                     mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.MISS);
@@ -538,18 +539,14 @@ public class BattleshipBoardManager {
                     mBoardPositionStatus.get(row).set(col, Constants.GameBoardPositionStatus.HIT);
                     shipThatOccupiesPosition.decrementHitsRemaining();
                     if(shipThatOccupiesPosition.getHitsRemaining() == 0) {
+                        destroyedShip = true;
                         shipThatOccupiesPosition.getShipDrawableData().shipIsAlive = false;
                         drawShip(shipThatOccupiesPosition.getShipDrawableData());
                         mCurrentUserData.incrementScore();
                         mCurrentUserData.saveInBackground();
-
-                        if(mCurrentUserData.getScore() == Constants.GameBoard.NUM_SHIPS) {
-                            endChallenge();
-                            setOtherPlayerTurn(false);
-                        }
                     }
                 }
-                drawAttackGif(row, col, 5, 5, R.drawable.animation_pencil_fill_in, imgSpace,
+                drawAttackGif(row, col, 5, 5, R.drawable.animation_pencil_fill_in, destroyedShip, imgSpace,
                         mBoardPositionStatus.get(row).get(col));
 
                 mGameBoard.setIsLastMoveAtPosition(row, col);
@@ -614,7 +611,6 @@ public class BattleshipBoardManager {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         saveGameBoard();
-                        mActivity.finish();
                     }
                 })
                 .create().show();
@@ -747,7 +743,7 @@ public class BattleshipBoardManager {
         }
     }
 
-    private void drawAttackGif(final int row, final int col, final int height, final int width, int gifDrawableId, final ImageView imgSpace, final String boardPositionStatus) {
+    private void drawAttackGif(final int row, final int col, final int height, final int width, int gifDrawableId, final boolean destroyedShip, final ImageView imgSpace, final String boardPositionStatus) {
         final GifImageView gifImageView = new GifImageView(mActivity);
         gifImageView.setImageResource(gifDrawableId);
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
@@ -766,7 +762,10 @@ public class BattleshipBoardManager {
                 setTargetImageResource(imgSpace, boardPositionStatus);
                 int textRow = row == 0 ? 1 : row - 1;
                 int textCol = col == 0 ? 1 : col - 1;
-                if (boardPositionStatus.equals(Constants.GameBoardPositionStatus.HIT)) {
+
+                if (destroyedShip) {
+                    drawFadingOutText(textRow, textCol, 2, 5, R.drawable.text_ship_destroyed);
+                } else if (boardPositionStatus.equals(Constants.GameBoardPositionStatus.HIT)) {
                     drawFadingOutText(textRow, textCol, 2, 2, R.drawable.text_hit);
                 } else {
                     drawFadingOutText(textRow, textCol, 2, 2, R.drawable.text_miss);
@@ -814,6 +813,12 @@ public class BattleshipBoardManager {
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
         layoutParams.rowSpec = GridLayout.spec(row, 1);
         layoutParams.columnSpec = GridLayout.spec(col, 1);
+        if (row + height >= Constants.GameBoard.NUM_ROWS) {
+            layoutParams.rowSpec = GridLayout.spec(Constants.GameBoard.NUM_ROWS - height);
+        }
+        if (col + width >= Constants.GameBoard.NUM_COLUMNS) {
+            layoutParams.columnSpec = GridLayout.spec(Constants.GameBoard.NUM_COLUMNS - width);
+        }
         layoutParams.height = mAnimationsGridLayout.getHeight() / Constants.GameBoard.NUM_ROWS * height;
         layoutParams.width = mAnimationsGridLayout.getWidth() / Constants.GameBoard.NUM_COLUMNS * width;
         ivHitText.setLayoutParams(layoutParams);
@@ -827,6 +832,11 @@ public class BattleshipBoardManager {
             public void onAnimationEnd(Animation animation) {
                 ivHitText.setVisibility(View.GONE);
                 mAnimationsGridLayout.removeView(ivHitText);
+
+                if(mCurrentUserData.getScore() == Constants.GameBoard.NUM_SHIPS) {
+                    endChallenge();
+                    setOtherPlayerTurn(false);
+                }
             }
 
             public void onAnimationRepeat(Animation animation) {
