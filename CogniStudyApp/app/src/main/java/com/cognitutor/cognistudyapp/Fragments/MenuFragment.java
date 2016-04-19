@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.cognitutor.cognistudyapp.Activities.BookmarksListActivity;
-import com.cognitutor.cognistudyapp.Activities.HelpActivity;
 import com.cognitutor.cognistudyapp.Activities.RecentQuestionsListActivity;
 import com.cognitutor.cognistudyapp.Activities.SettingsActivity;
 import com.cognitutor.cognistudyapp.Activities.ShopActivity;
@@ -89,7 +88,6 @@ public class MenuFragment extends CogniFragment {
         menuItems.add(new MenuItem(Constants.MenuItem.BOOKMARKS, R.drawable.icon_bookmarks));
         menuItems.add(new MenuItem(Constants.MenuItem.RECENT_QUESTIONS, R.drawable.icon_question_history_gray));
         menuItems.add(new MenuItem(Constants.MenuItem.SETTINGS, R.drawable.icon_settings));
-        menuItems.add(new MenuItem(Constants.MenuItem.HELP, R.drawable.icon_help));
         menuItems.add(new MenuItem(Constants.MenuItem.SIGN_OUT, R.drawable.icon_sign_out));
         return menuItems;
     }
@@ -115,9 +113,6 @@ public class MenuFragment extends CogniFragment {
                 break;
             case Constants.MenuItem.SETTINGS:
                 navigateToActivity(SettingsActivity.class);
-                break;
-            case Constants.MenuItem.HELP:
-                navigateToActivity(HelpActivity.class);
                 break;
             case Constants.MenuItem.SIGN_OUT:
                 promptLogout();
