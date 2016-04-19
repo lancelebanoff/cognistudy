@@ -18,7 +18,7 @@ Parse.Cloud.afterSave("Response", function(request) {
 			var subject = question.get("subject");
 			promises.push(incrementCatAndSubStats(category, subject, correct));
 			promises.push(addResponseToQuestionData(response, question, correct));
-			promises.push(setResponseACL(response, baseUserId));
+			promises.push(common.setPrivateWriteTutorReadACL(response, baseUserId));
 
 			Parse.Promise.when(promises)
 				.then(function(success) {
@@ -32,31 +32,6 @@ Parse.Cloud.afterSave("Response", function(request) {
 		}, error: function(error) { console.error("Error fetching question"); }
 	});
 });
-
-function setResponseACL(response, baseUserId) {
-
-	var promise = new Parse.Promise();
-	var query = new Parse.Query(Parse.User);
-	query.get(baseUserId, {
-		success: function(user) {
-
-			var acl = new Parse.ACL(user);
-			common.getStudentTutorRole(baseUserId).then(
-				function(role) {
-
-					acl.setRoleReadAccess(role, true);
-					response.setACL(acl);
-					response.save({
-						success: function(success) {
-							promise.resolve("Response ACL updated successfully");
-						}, error: function(error) { promise.reject(error); }
-					});
-				}, function(error) { promise.reject(error);
-			});
-		}, error: function(error) { promise.reject(error); }
-	});
-	return promise;
-}
 
 function addResponseToQuestionData(response, question, correct) {
 

@@ -398,15 +398,8 @@ public class ParseObjectUtils {
     //This will only be used when logging out
     public static Task<Void> unpinAllInBackground() {
 
-//        return PinnedObject.deleteAllPinnedObjectsInBackground().continueWith...
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("baseUserId", ParseUser.getCurrentUser().getObjectId());
-//        try {
-//            int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
-//                    .fromLocalDatastore()
-//                    .count();
-//            Log.d("unpinAllinBg", "PinnedObjects before unpinAll = " + numFromLocal);
-//        } catch (ParseException e) { e.printStackTrace(); }
         return ParseCloud.callFunctionInBackground("deletePinnedObjects", params)
                 .continueWith(new Continuation<Object, Void>() {
                     @Override
@@ -414,7 +407,6 @@ public class ParseObjectUtils {
                         if(task.isFaulted()) {
                             Log.e("deletePinnedObjects", task.getError().getMessage());
                         }
-//                    ParseObject.unpinAllInBackground().waitForCompletion();
                         ParseObject.unpinAllInBackground()
                                 .continueWith(new Continuation<Void, Object>() {
                                     @Override
@@ -425,10 +417,6 @@ public class ParseObjectUtils {
                                         return null;
                                     }
                                 });
-                        //Extra layer of assurance that everything will be unpinned that should be
-                        ParseObject.unpinAllInBackground(Constants.PinNames.CurrentUser).waitForCompletion();
-                        ParseObject.unpinAllInBackground(Constants.PinNames.BlockStats).waitForCompletion();
-//                    logPinnedObjects(true);
                         String[] constantPinNames = Constants.getAllConstants(Constants.PinNames.class);
                         final List<String> pinNames = new ArrayList<String>();
                         for(String constant : constantPinNames) {
@@ -451,19 +439,8 @@ public class ParseObjectUtils {
                                 }
                             }).waitForCompletion();
                         }
-//                        Challenge.getQuery().fromLocalDatastore().findInBackground().continueWith(new Continuation<List<Challenge>, Object>() {
-//                            @Override
-//                            public Object then(Task<List<Challenge>> task) throws Exception {
-//                                for(Challenge challenge : task.getResult()) {
-//                                    pinNames.add(challenge.getObjectId());
-//                                }
-//                                return null;
-//                            }
-//                        }).waitForCompletion();
                         for (String pinName : pinNames) {
                             Log.d("pinName: ", pinName);
-//                        ParseObject.unpinAllInBackground(pinName);
-//                        ParseObject.unpinAllInBackground(pinName).waitForCompletion();
                             ParseObject.unpinAllInBackground(pinName)
                                     .continueWith(new Continuation<Void, Object>() {
                                         @Override
@@ -475,7 +452,23 @@ public class ParseObjectUtils {
                                         }
                                     }).waitForCompletion();
                         }
-//                        ParseObjectUtils.logPinnedObjects(true);
+
+//                        List<Class<? extends ParseObject>> classesToUnpinNormally = new ArrayList<>();
+//                        classesToUnpinNormally.add(Response.class);
+//                        classesToUnpinNormally.add(Question.class);
+//                        classesToUnpinNormally.add(QuestionContents.class);
+//                        for(Class clazz : classesToUnpinNormally) {
+//                            ParseQuery.getQuery(clazz).fromLocalDatastore().findInBackground().continueWith(new Continuation<List<ParseObject>, Object>() {
+//                                @Override
+//                                public Object then(Task<List<ParseObject>> task) throws Exception {
+//                                    for(ParseObject obj : task.getResult()) {
+//                                        obj.unpinInBackground().waitForCompletion();
+//                                    }
+//                                    return null;
+//                                }
+//                            }).waitForCompletion();
+//                        }
+
                         try {
                             int numFromLocal = ParseQuery.getQuery(PinnedObject.class)
                                     .fromLocalDatastore()

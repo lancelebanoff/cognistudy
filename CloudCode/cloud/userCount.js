@@ -26,7 +26,6 @@ Parse.Cloud.afterSave("Student", function(request) {
             if(isNew) {
                 userCount.increment("numStudents");
                 userCount.increment("totalUsers");
-                promises.push(createNewTutorRole(student));
             }
             if(randomEnabledChanged) {
                 var amount;
@@ -83,9 +82,3 @@ function getUserCount() {
     return promise;
 }
 
-function createNewTutorRole(student) {
-
-    var name = common.getStudentTutorRoleName(student.get("baseUserId"));
-    var role = new Parse.Role(name, new Parse.ACL());
-    return role.save();
-}

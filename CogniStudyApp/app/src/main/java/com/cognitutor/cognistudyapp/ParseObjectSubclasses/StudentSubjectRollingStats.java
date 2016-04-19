@@ -26,7 +26,6 @@ public class StudentSubjectRollingStats extends StudentTRollingStats {
     public StudentSubjectRollingStats(String baseUserId, String subject) {
         super(baseUserId);
         put(Columns.subject, subject);
-        saveInBackground();
     }
 
     public static StudentSubjectRollingStats findBySubjectFromCache(final String subject, final String baseUserId) {

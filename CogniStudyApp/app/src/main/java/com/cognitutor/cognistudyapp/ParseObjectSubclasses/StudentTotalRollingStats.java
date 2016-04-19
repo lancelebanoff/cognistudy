@@ -22,7 +22,6 @@ public class StudentTotalRollingStats extends StudentTRollingStats {
      */
     public StudentTotalRollingStats(String baseUserId) {
         super(baseUserId);
-        saveInBackground();
     }
 
     public static StudentTotalRollingStats findByBaseUserIdFromCache(final String baseUserId) {

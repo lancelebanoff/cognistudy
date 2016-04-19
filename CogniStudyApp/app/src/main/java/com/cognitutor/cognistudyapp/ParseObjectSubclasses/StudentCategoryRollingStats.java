@@ -25,7 +25,6 @@ public class StudentCategoryRollingStats extends StudentTRollingStats {
         super(baseUserId);
         put(Columns.category, category);
         put(Columns.answeredQuestionIds, new AnsweredQuestionIds(category));
-        saveInBackground();
     }
 
     public AnsweredQuestionIds getAnsweredQuestionIds() { return (AnsweredQuestionIds) getParseObject(Columns.answeredQuestionIds); }

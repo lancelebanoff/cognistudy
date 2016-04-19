@@ -5,7 +5,6 @@ import android.view.View;
 
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.FacebookUtils;
-import com.cognitutor.cognistudyapp.Custom.ParseObjectUtils;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PrivateStudentData;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -13,13 +12,11 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Student;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
-import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -94,7 +91,7 @@ class AuthenticationActivity extends CogniActivity {
         final boolean fbLinked = facebookId != null;
         final PrivateStudentData privateStudentData = new PrivateStudentData(user);
         final Student student = new Student(user, privateStudentData);
-        final PublicUserData publicUserData = new PublicUserData(user, student, facebookId, displayName, profilePic, profilePicData);
+        final PublicUserData publicUserData = new PublicUserData(user, facebookId, displayName, profilePic, profilePicData);
         //TODO: Remove this
         finalizeUser(user, publicUserData, fbLinked);
 
@@ -116,28 +113,34 @@ class AuthenticationActivity extends CogniActivity {
                                             if (task.isFaulted()) {
                                                 Log.e("getFriendsInBackground", task.getError().getMessage());
                                             }
-                                            saveObjects(privateStudentData, student, publicUserData, user, callback);
+                                            user.saveInBackground().continueWith(new Continuation<Void, Object>() { //Saves user and publicUserData
+                                                @Override
+                                                public Object then(Task<Void> task) throws Exception {
+                                                    savePublicUserDataAgain(publicUserData, student, callback); //Saves publicUserData recursively
+                                                    return null;
+                                                }
+                                            });
                                             return null;
                                         }
                                     });
                                 } else {
-                                    saveObjects(privateStudentData, student, publicUserData, user, callback);
+                                    user.saveInBackground().continueWith(new Continuation<Void, Object>() { //Saves user and publicUserData
+                                        @Override
+                                        public Object then(Task<Void> task) throws Exception {
+                                            savePublicUserDataAgain(publicUserData, student, callback); //Saves publicUserData recursively
+                                            return null;
+                                        }
+                                    });
                                 }
                                 return null;
                             }
                         });
     }
-
-    private void saveObjects(PrivateStudentData privateStudentData, Student student, PublicUserData publicUserData,
-                             ParseUser user, SaveCallback callback) {
-        ArrayList < ParseObject > objects = new ArrayList<ParseObject>();
-        objects.add(privateStudentData);
-        objects.add(student);
-        objects.add(publicUserData);
-        objects.add(user);
-        ParseObject.saveAllInBackground(objects, callback);
+    private void savePublicUserDataAgain(PublicUserData publicUserData, Student student, SaveCallback callback) {
+        publicUserData.putStudent(student);
+        publicUserData.saveInBackground(callback);
     }
-    
+
     private void finalizeUser(ParseUser user, PublicUserData publicUserData, boolean fbLinked) {
 
         user.put("publicUserData", publicUserData);

@@ -68,6 +68,14 @@ public class Student extends ParseObject{
         setNotificationsEnabled(true);
     }
 
+    public Task<Void> saveAllRollingStats() {
+        List<Task<Void>> tasks = new ArrayList<>();
+        tasks.add(ParseObject.saveAllInBackground(getStudentCategoryRollingStats()));
+        tasks.add(ParseObject.saveAllInBackground(getStudentSubjectRollingStats()));
+        tasks.add(getStudentTotalRollingStats().saveInBackground());
+        return Task.whenAll(tasks);
+    }
+
     private void createStudentSubjectRollingStats(String baseUserId) {
         ArrayList<StudentSubjectRollingStats> array = new ArrayList<>();
         for(String subject : Constants.Subject.getSubjects()) {

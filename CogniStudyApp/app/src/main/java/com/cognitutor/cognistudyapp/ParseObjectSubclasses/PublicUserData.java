@@ -41,15 +41,11 @@ public class PublicUserData extends ParseObject{
 
     }
 
-    public PublicUserData(ParseUser user, Student student, String facebookId, String displayName, ParseFile profilePic, byte[] profilePicData) {
-//        //TODO: Remove this
-//        if(facebookId != null && facebookId.equals("1082622075081952")) {
-//            setObjectId("SJUOoOm3fi");
-//        }
+    //PublicUserData is initialized without student pointer so that the tutor role can be created before the analytics objects are saved
+    public PublicUserData(ParseUser user, String facebookId, String displayName, ParseFile profilePic, byte[] profilePicData) {
         setACL(ACLUtils.getPublicReadPrivateWriteACL());
         put(Columns.userType, Constants.UserType.STUDENT);
         put(Columns.baseUserId, user.getObjectId());
-        put(Columns.student, student);
         put(Columns.displayName, displayName);
         if(facebookId != null)
             put(Columns.facebookId, facebookId);
@@ -64,6 +60,10 @@ public class PublicUserData extends ParseObject{
         searchableDisplayName = searchableDisplayName.replaceAll("\\s+", "");
         searchableDisplayName = searchableDisplayName.toLowerCase();
         put(Columns.searchableDisplayName, searchableDisplayName);
+    }
+
+    public void putStudent(Student student) {
+        put(Columns.student, student);
     }
 
     public Student getStudent() throws ParseException {

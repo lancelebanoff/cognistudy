@@ -137,3 +137,29 @@ function doAddOrRemoveTutorFromRole(tutorBaseUserId, studentBaseUserId, inRole) 
 	return promise;
 }
 
+exports.setPrivateWriteTutorReadACL = function(obj, baseUserId) {
+
+	var promise = new Parse.Promise();
+	var query = new Parse.Query(Parse.User);
+	query.get(baseUserId, {
+		success: function(user) {
+
+			var acl = new Parse.ACL(user);
+			doGetStudentTutorRole(baseUserId).then(
+				function(role) {
+
+					console.log("Finding role for baseUserId " + baseUserId + ", role objectId is " + role.id);
+					acl.setRoleReadAccess(role, true);
+					obj.setACL(acl);
+					obj.save({
+						success: function(success) {
+							promise.resolve("ACL updated successfully");
+						}, error: function(error) { promise.reject(error); }
+					});
+				}, function(error) { promise.reject(error);
+			});
+		}, error: function(error) { promise.reject(error); }
+	});
+	return promise;
+}
+
