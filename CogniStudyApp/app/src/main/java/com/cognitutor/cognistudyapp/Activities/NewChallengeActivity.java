@@ -66,6 +66,19 @@ public class NewChallengeActivity extends CogniActivity {
 
     private String DEFAULT_TEST = Constants.Test.BOTH;
     private String DEFAULT_OPPONENT = Constants.OpponentType.FRIEND;
+    private final List<String> mEnabledSubjects = Arrays.asList(new String[] {
+            Constants.Subject.MATH,
+            Constants.Subject.ENGLISH,
+            Constants.Subject.SCIENCE
+    });
+    private final List<String> mEnabledCategories = Arrays.asList(new String[] {
+            Constants.Category.PRE_ALGEBRA,
+            Constants.Category.USAGE_AND_MECHANICS,
+            Constants.Category.RHETORICAL_SKILLS,
+            Constants.Category.DATA_REPRESENTATION,
+            Constants.Category.RESEARCH_SUMMARIES,
+            Constants.Category.CONFLICTING_VIEWPOINTS
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,7 +188,8 @@ public class NewChallengeActivity extends CogniActivity {
                 CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox);
                 mCategoryCheckboxToCategory.put(checkBox, category);
                 if(mSelectedCategories.contains(category)) {
-                    checkBox.setChecked(true);
+                    if(checkBox.isEnabled())
+                        checkBox.setChecked(true);
                 }
                 checkBox.setOnClickListener(new CheckBox.OnClickListener() {
                     @Override
@@ -304,28 +318,25 @@ public class NewChallengeActivity extends CogniActivity {
     }
 
     private void setDefaults() {
-        mRbDefaultTest.performClick();
-        if(mRbDefaultOpponent != null) {
-            mRbDefaultOpponent.performClick();
+        // In Beta, only some categories are enabled
+        for (CheckBox categoryCheckBox : mCategoryCheckboxes) {
+            String category = mCategoryCheckboxToCategory.get(categoryCheckBox);
+            if (mEnabledCategories.contains(category)) {
+                categoryCheckBox.performClick();
+            } else {
+                categoryCheckBox.setEnabled(false);
+            }
         }
-
-        // In Beta, only English is allowed
         for (CogniCheckBox subjectCheckBox : mSubjectCheckboxes) {
-            String subject = subjectCheckBox.getText().toString();
-            if (!subject.equals(Constants.Subject.ENGLISH)) {
-                subjectCheckBox.performClick();
+            if (!subjectCheckBox.isChecked()) {
                 subjectCheckBox.setEnabled(false);
                 subjectCheckBox.setColor(this, R.color.grey);
             }
         }
-        for (CheckBox categoryCheckBox : mCategoryCheckboxes) {
-            if (!categoryCheckBox.isChecked()) {
-                categoryCheckBox.setEnabled(false);
-            }
-        }
-        for (CogniRadioButton testRadioButton : mRgTests.getRadioButtons()) {
-            testRadioButton.setEnabled(false);
-            testRadioButton.setColor(this, R.color.grey);
+
+        mRbDefaultTest.performClick();
+        if(mRbDefaultOpponent != null) {
+            mRbDefaultOpponent.performClick();
         }
     }
 
@@ -334,21 +345,33 @@ public class NewChallengeActivity extends CogniActivity {
         mSelectedTest = rbTest.getText().toString();
         mSelectedSubjects.clear();
         List<String> subjectsInSelectedTest = Arrays.asList(Constants.TestToSubject.get(mSelectedTest));
-        mSelectedSubjects.addAll(subjectsInSelectedTest);
+        for (String subjectInSelectedTest : subjectsInSelectedTest) {
+            if (mEnabledSubjects.contains(subjectInSelectedTest)) {
+                mSelectedSubjects.add(subjectInSelectedTest);
+            }
+        }
         mSelectedCategories.clear();
         List<String> categoriesInSelectedTest = Arrays.asList(Constants.TestToCategory.get(mSelectedTest));
-        mSelectedCategories.addAll(categoriesInSelectedTest);
+        for (String categoryInSelectedTest : categoriesInSelectedTest) {
+            if (mEnabledCategories.contains(categoryInSelectedTest)) {
+                mSelectedCategories.add(categoryInSelectedTest);
+            }
+        }
         for(CogniCheckBox cbSubject : mSubjectCheckboxes) {
-            cbSubject.setChecked(false);
+            if(cbSubject.isEnabled())
+                cbSubject.setChecked(false);
             String subject = cbSubject.getText().toString();
             if (subjectsInSelectedTest.contains(subject)) {
-                cbSubject.setChecked(true);
+                if(cbSubject.isEnabled())
+                    cbSubject.setChecked(true);
             }
         }
         for(CheckBox cbCategory : mCategoryCheckboxes) {
-            cbCategory.setChecked(false);
+            if(cbCategory.isEnabled())
+                cbCategory.setChecked(false);
             if(categoriesInSelectedTest.contains(mCategoryCheckboxToCategory.get(cbCategory))) {
-                cbCategory.setChecked(true);
+                if(cbCategory.isEnabled())
+                    cbCategory.setChecked(true);
             }
         }
     }
@@ -364,7 +387,8 @@ public class NewChallengeActivity extends CogniActivity {
             for(CheckBox cbCategory : mCategoryCheckboxes) {
                 String category = mCategoryCheckboxToCategory.get(cbCategory);
                 if(categoriesInSelectedSubject.contains(category) && !cbCategory.isChecked()) {
-                    cbCategory.setChecked(true);
+                    if(cbCategory.isEnabled())
+                        cbCategory.setChecked(true);
                 }
             }
         }
@@ -376,7 +400,8 @@ public class NewChallengeActivity extends CogniActivity {
             for(CheckBox cbCategory : mCategoryCheckboxes) {
                 String category = mCategoryCheckboxToCategory.get(cbCategory);
                 if(categoriesInSelectedSubject.contains(category) && cbCategory.isChecked()) {
-                    cbCategory.setChecked(false);
+                    if(cbCategory.isEnabled())
+                        cbCategory.setChecked(false);
                 }
             }
         }
@@ -412,7 +437,8 @@ public class NewChallengeActivity extends CogniActivity {
                 String subject = cbSubject.getText().toString();
                 List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
                 if(categoriesInSubject.contains(category) && !mSelectedSubjects.contains(subject)) {
-                    cbSubject.setChecked(true);
+                    if(cbSubject.isEnabled())
+                        cbSubject.setChecked(true);
                     mSelectedSubjects.add(subject);
                 }
             }
@@ -425,7 +451,8 @@ public class NewChallengeActivity extends CogniActivity {
                 String subject = cbSubject.getText().toString();
                 List<String> categoriesInSubject = Arrays.asList(Constants.SubjectToCategory.get(subject));
                 if(categoriesInSubject.contains(category) && Collections.disjoint(mSelectedCategories, categoriesInSubject)) {
-                    cbSubject.setChecked(false);
+                    if(cbSubject.isEnabled())
+                        cbSubject.setChecked(false);
                     mSelectedSubjects.remove(subject);
                 }
             }
