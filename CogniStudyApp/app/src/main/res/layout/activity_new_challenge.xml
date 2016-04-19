@@ -81,7 +81,8 @@
 
                     <TextView
                         android:id="@+id/txtComingSoon"
-                        android:text="Reading, Math, and Science coming soon"
+                        android:text="More reading and math categories coming soon"
+                        android:layout_marginTop="5dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 

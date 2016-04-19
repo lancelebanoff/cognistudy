@@ -44,9 +44,11 @@ public class CogniCheckBox extends CogniButton {
         super.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchChecked();
-                if(givenListener != null)
-                    givenListener.onClick(v);
+                if (isEnabled()) {
+                    switchChecked();
+                    if (givenListener != null)
+                        givenListener.onClick(v);
+                }
             }
         });
     }
