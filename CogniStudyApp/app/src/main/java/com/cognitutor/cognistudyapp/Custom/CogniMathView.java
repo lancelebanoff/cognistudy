@@ -44,10 +44,14 @@ public class CogniMathView extends WebView {
 
         try { // the order of execution of setEngine() and setText() matters
             setEngine(mTypeArray.getInteger(R.styleable.MathView_engine, 0));
-            setText(mTypeArray.getString(R.styleable.MathView_text));
+//            setText(mTypeArray.getString(R.styleable.MathView_text)); //This was causing problems on Kevin's phone because it was trying to set the text to null
         } finally {
             mTypeArray.recycle();
         }
+    }
+
+    public static void resetNumRunning() {
+        numRunning.set(0);
     }
 
     private Chunk getChunk() {

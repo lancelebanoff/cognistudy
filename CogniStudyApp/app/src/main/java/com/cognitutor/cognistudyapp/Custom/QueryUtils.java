@@ -93,7 +93,7 @@ public class QueryUtils {
                     public List<TClass> then(Task<List<TClass>> task) throws Exception {
                         handleFault(task, QueryType.network);
                         List<TClass> results = task.getResult();
-                        if (pinName != null && pinResult.get()) {
+                        if (pinName != null && results != null && pinResult.get()) {
                             ParseObject.pinAllInBackground(pinName, results);
 //                            ParseObjectUtils.pinAllInBackground(pinName, results);
                         } else if (pinResult.get()) {
@@ -151,7 +151,7 @@ public class QueryUtils {
                     public TClass then(Task<TClass> task) throws Exception {
                         handleFault(task, QueryType.network);
                         TClass result = task.getResult();
-                        if (pinResult.get()) {
+                        if (pinResult.get() && result != null) {
                             if(pinNameOption == PinNameOption.CONSTANT && pinName != null)
                                 result.pinInBackground(pinName);
 //                                ParseObjectUtils.pinInBackground(pinName, result);

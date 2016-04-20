@@ -136,7 +136,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         setSwipeRefreshLayout(getView());
         initializeBroadcastReceiver();
     }
-    
+
     private void loadChallengesFromLocalDatastore() {
         for(ChallengeQueryAdapter adapter : adapterList) {
             adapter.loadFromLocalDatastore();
@@ -225,7 +225,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         CardView parentCardView = (CardView) rootView.findViewById(R.id.cvChallengeRequests);
         challengeRequestListView.setParentCardView(parentCardView);
         challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, challengeRequestListView, keyValuePairs);
-//        createListView(challengeRequestListView, challengeRequestQueryAdapter);
+        createListView(challengeRequestListView, challengeRequestQueryAdapter);
     }
 
     private void createYourTurnListView(final View rootView) {
@@ -238,7 +238,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         CardView parentCardView = (CardView) rootView.findViewById(R.id.cvYourTurnChallenges);
         yourTurnListView.setParentCardView(parentCardView);
         yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, yourTurnListView, keyValuePairs);
-//        createListView(yourTurnListView, yourTurnChallengeQueryAdapter);
+        createListView(yourTurnListView, yourTurnChallengeQueryAdapter);
     }
 
     private void createTheirTurnListView(final View rootView) {
@@ -270,7 +270,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         CardView parentCardView = (CardView) rootView.findViewById(R.id.cvPastChallenges);
         pastChallengeListView.setParentCardView(parentCardView);
         pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, pastChallengeListView, keyValuePairsList, true);
-//        createListView(pastChallengeListView, pastChallengeQueryAdapter);
+        createListView(pastChallengeListView, pastChallengeQueryAdapter);
     }
 
     private void createListView(final ChallengeRecyclerView recyclerView, final ChallengeQueryAdapter adapter) {
