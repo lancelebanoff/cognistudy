@@ -24,6 +24,7 @@ import com.parse.FunctionCallback;
 import com.parse.GetCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.Date;
@@ -224,6 +225,7 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
                                 @Override
                                 public void done(Challenge challenge, ParseException e) {
                                     if (e == null) {
+                                        ParseObject.unpinAllInBackground(challenge.getObjectId());
                                         final HashMap<String, Object> params = new HashMap<>();
                                         params.put(Challenge.Columns.objectId, challenge.getObjectId());
                                         ParseCloud.callFunctionInBackground(

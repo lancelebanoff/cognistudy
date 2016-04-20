@@ -123,7 +123,10 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 break;
         }
 
-        loadChallengesAndTutorRequests();
+        if(!avoidLoad) {
+            loadChallengesAndTutorRequests();
+        }
+        avoidLoad = false;
         showOrHideArrow();
         setSwipeRefreshLayout(getView());
         initializeBroadcastReceiver();
@@ -174,6 +177,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                             }
                             // Delete unaccepted challenges
                             if (!challenge.getAccepted()) {
+                                ParseObject.unpinAllInBackground(challenge.getObjectId());
                                 final HashMap<String, Object> params = new HashMap<>();
                                 params.put(Challenge.Columns.objectId, challenge.getObjectId());
                                 try {
@@ -210,7 +214,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         CardView parentCardView = (CardView) rootView.findViewById(R.id.cvChallengeRequests);
         challengeRequestListView.setParentCardView(parentCardView);
         challengeRequestQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, challengeRequestListView, keyValuePairs);
-        createListView(challengeRequestListView, challengeRequestQueryAdapter);
+//        createListView(challengeRequestListView, challengeRequestQueryAdapter);
     }
 
     private void createYourTurnListView(final View rootView) {
@@ -223,7 +227,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         CardView parentCardView = (CardView) rootView.findViewById(R.id.cvYourTurnChallenges);
         yourTurnListView.setParentCardView(parentCardView);
         yourTurnChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, yourTurnListView, keyValuePairs);
-        createListView(yourTurnListView, yourTurnChallengeQueryAdapter);
+//        createListView(yourTurnListView, yourTurnChallengeQueryAdapter);
     }
 
     private void createTheirTurnListView(final View rootView) {
@@ -255,7 +259,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         CardView parentCardView = (CardView) rootView.findViewById(R.id.cvPastChallenges);
         pastChallengeListView.setParentCardView(parentCardView);
         pastChallengeQueryAdapter = new ChallengeQueryAdapter(getActivity(), this, pastChallengeListView, keyValuePairsList, true);
-        createListView(pastChallengeListView, pastChallengeQueryAdapter);
+//        createListView(pastChallengeListView, pastChallengeQueryAdapter);
     }
 
     private void createListView(final ChallengeRecyclerView recyclerView, final ChallengeQueryAdapter adapter) {
@@ -389,15 +393,20 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         loadChallengesAndTutorRequests();
     }
 
+    private boolean avoidLoad = false;
+
     // Refreshes challenge list when other activity finishes
     private void initializeBroadcastReceiver() {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context arg0, Intent intent) {
                 if (intent.getExtras().containsKey(Constants.IntentExtra.REFRESH_CHALLENGE_LIST)) {
-                    for(ChallengeQueryAdapter adapter : adapterList) {
-                        adapter.loadObjects(); //TODO: Does this work?
-                    }
+//                    avoidLoad = true;
+//                    loadChallengesFromNetwork();
+
+//                    for(ChallengeQueryAdapter adapter : adapterList) {
+//                        adapter.loadObjects(); //TODO: Does this work?
+//                    }
                 }
             }
         };

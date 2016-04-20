@@ -43,7 +43,7 @@ import bolts.Task;
 public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, ChallengeQueryAdapter.ViewHolder> {
 
     private MainFragment mFragment;
-    private QueryUtils.ParseQueryBuilder<Challenge> mQueryBuilder;
+    public QueryUtils.ParseQueryBuilder<Challenge> mQueryBuilder;
     private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
     private ChallengeRecyclerView mChallengeRecyclerView;
 

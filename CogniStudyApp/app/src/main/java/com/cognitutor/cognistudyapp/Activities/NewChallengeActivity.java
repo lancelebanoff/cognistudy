@@ -507,6 +507,7 @@ public class NewChallengeActivity extends CogniActivity {
                     public Object then(Task<Void> task) throws Exception {
                         Exception e = task.getError();
                         if (e == null) {
+                            challenge.pinInBackground(challenge.getObjectId());
                             if (challengeType.equals(Constants.ChallengeType.PRACTICE)) {
                                 savePracticeChallenge(challenge, user1PublicUserData);
                             } else if (challengeType.equals(Constants.ChallengeType.ONE_PLAYER)) {

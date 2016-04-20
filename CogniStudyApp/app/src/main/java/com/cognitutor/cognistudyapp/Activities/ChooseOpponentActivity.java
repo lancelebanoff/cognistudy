@@ -15,6 +15,7 @@ import com.parse.FunctionCallback;
 import com.parse.GetCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -94,6 +95,7 @@ public class ChooseOpponentActivity extends PeopleFragmentActivity {
                         String challengeId = mIntent.getStringExtra(
                                 Constants.IntentExtra.CHALLENGE_ID);
                         ParseQuery<Challenge> query = Challenge.getQuery();
+                        ParseObject.unpinAllInBackground(challengeId);
                         query.getInBackground(challengeId, new GetCallback<Challenge>() {
                             @Override
                             public void done(Challenge challenge, ParseException e) {

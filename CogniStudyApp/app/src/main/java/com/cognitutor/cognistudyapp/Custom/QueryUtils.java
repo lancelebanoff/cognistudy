@@ -332,7 +332,13 @@ public class QueryUtils {
             @Override
             public Task<List<T>> then(Task<List<T>> task) throws Exception {
 
-                final List<T> localResults = task.getResult();
+                final List<T> localResults;
+                if(task.getResult() == null) {
+                    localResults = new ArrayList<T>();
+                }
+                else {
+                    localResults = task.getResult();
+                }
                 if (isCancelled(helper, startTime))
                     return null;
                 if (listener != null)
@@ -341,7 +347,13 @@ public class QueryUtils {
                 return networkQuery.findInBackground().continueWith(new Continuation<List<T>, List<T>>() {
                     @Override
                     public List<T> then(Task<List<T>> task) throws Exception {
-                        List<T> networkResults = task.getResult();
+                        final List<T> networkResults;
+                        if(task.getResult() == null) {
+                            networkResults = new ArrayList<T>();
+                        }
+                        else {
+                            networkResults = task.getResult();
+                        }
 
                         final List<T> combined = new ArrayList<T>();
                         for (T fromNetwork : networkResults) {
