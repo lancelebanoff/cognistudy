@@ -296,18 +296,18 @@ public class Challenge extends ParseObject {
     }
 
     private Task<Object> getChallengeUserDataBaseUserId(ChallengeUserData challengeUserData, final Capture<String> baseUserId) {
-        return challengeUserData.fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, Object>() {
+        return challengeUserData.fetchIfNeededInBackground().continueWithTask(new Continuation<ParseObject, Task<ParseObject>>() {
+            @Override
+            public Task<ParseObject> then(Task<ParseObject> task) throws Exception {
+                ChallengeUserData fetched = (ChallengeUserData) task.getResult();
+                return fetched.getPublicUserData().fetchIfNeededInBackground();
+            }
+        }).continueWith(new Continuation<ParseObject, Object>() {
             @Override
             public Object then(Task<ParseObject> task) throws Exception {
-                ChallengeUserData fetched = (ChallengeUserData) task.getResult();
-                return fetched.getPublicUserData().fetchIfNeededInBackground().continueWith(new Continuation<ParseObject, Object>() {
-                    @Override
-                    public Object then(Task<ParseObject> task) throws Exception {
-                        PublicUserData pud = (PublicUserData) task.getResult();
-                        baseUserId.set(pud.getBaseUserId());
-                        return null;
-                    }
-                });
+                PublicUserData pud = (PublicUserData) task.getResult();
+                baseUserId.set(pud.getBaseUserId());
+                return null;
             }
         });
     }

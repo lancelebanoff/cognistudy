@@ -383,12 +383,13 @@ public class NewChallengeActivity extends CogniActivity {
             mSelectedSubjects.add(subject);
 
             // Set subject's corresponding categories to be chosen
-            mSelectedCategories.addAll(categoriesInSelectedSubject);
             for(CheckBox cbCategory : mCategoryCheckboxes) {
                 String category = mCategoryCheckboxToCategory.get(cbCategory);
                 if(categoriesInSelectedSubject.contains(category) && !cbCategory.isChecked()) {
-                    if(cbCategory.isEnabled())
+                    if(cbCategory.isEnabled()) {
                         cbCategory.setChecked(true);
+                        mSelectedCategories.add(category);
+                    }
                 }
             }
         }
