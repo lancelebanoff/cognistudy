@@ -180,9 +180,16 @@ public class ChallengeQuestionActivity extends AnswerableQuestionActivity {
     }
 
     private void navigateToNextQuestionActivity(String questionId) {
+        int oldQuestionNumber = getQuestionNumber();
+        int newQuestionNumber;
+        if (oldQuestionNumber == -1) {
+            newQuestionNumber = -1;
+        } else {
+            newQuestionNumber = oldQuestionNumber + 1;
+        }
         ChallengeQuestionActivity.navigateToChallengeQuestionActivity(this, questionId,
                 mIntent.getStringExtra(Constants.IntentExtra.CHALLENGE_ID), mIntent.getIntExtra(Constants.IntentExtra.USER1OR2, -1),
-                getQuestionNumber() + 1);
+                newQuestionNumber);
         finish();
     }
 }

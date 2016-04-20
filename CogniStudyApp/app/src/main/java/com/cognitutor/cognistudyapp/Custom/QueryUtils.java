@@ -151,7 +151,7 @@ public class QueryUtils {
                     public TClass then(Task<TClass> task) throws Exception {
                         handleFault(task, QueryType.network);
                         TClass result = task.getResult();
-                        if (pinResult.get()) {
+                        if (pinResult.get() && result != null) {
                             if(pinNameOption == PinNameOption.CONSTANT && pinName != null)
                                 result.pinInBackground(pinName);
 //                                ParseObjectUtils.pinInBackground(pinName, result);
