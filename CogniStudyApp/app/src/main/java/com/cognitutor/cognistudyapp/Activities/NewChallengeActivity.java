@@ -505,9 +505,9 @@ public class NewChallengeActivity extends CogniActivity {
                 return challenge.saveInBackground().continueWith(new Continuation<Void, Object>() {
                     @Override
                     public Object then(Task<Void> task) throws Exception {
+                        challenge.pinInBackground(challenge.getObjectId());
                         Exception e = task.getError();
                         if (e == null) {
-                            challenge.pinInBackground(challenge.getObjectId());
                             if (challengeType.equals(Constants.ChallengeType.PRACTICE)) {
                                 savePracticeChallenge(challenge, user1PublicUserData);
                             } else if (challengeType.equals(Constants.ChallengeType.ONE_PLAYER)) {
@@ -549,6 +549,7 @@ public class NewChallengeActivity extends CogniActivity {
         }).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
+                challenge.pinInBackground(challenge.getObjectId());
                 navigateToChooseBoardConfigurationActivity(challenge.getObjectId(), 1);
                 return null;
             }

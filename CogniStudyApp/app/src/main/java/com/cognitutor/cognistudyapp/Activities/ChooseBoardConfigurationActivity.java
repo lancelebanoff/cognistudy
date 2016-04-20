@@ -16,6 +16,7 @@ import com.cognitutor.cognistudyapp.Custom.ChallengeUtils;
 import com.cognitutor.cognistudyapp.Custom.CogniButton;
 import com.cognitutor.cognistudyapp.Custom.Constants;
 import com.cognitutor.cognistudyapp.Custom.UserUtils;
+import com.cognitutor.cognistudyapp.Fragments.MainFragment;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Challenge;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.CommonUtils;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.PublicUserData;
@@ -172,16 +173,18 @@ public class ChooseBoardConfigurationActivity extends CogniActivity {
     private void setChallengeActivated(Challenge challenge) {
         challenge.setTimeLastPlayed(new Date());
         challenge.setActivated(true);
-        challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                // Refresh Challenge list
-                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
-                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
-                sendBroadcast(refreshIntent);
-                return null;
-            }
-        });
+        MainFragment.loadFromLocalDatastore = true;
+        challenge.saveInBackground();
+//        challenge.saveInBackground().continueWith(new Continuation<Void, Void>() {
+//            @Override
+//            public Void then(Task<Void> task) throws Exception {
+//                // Refresh Challenge list
+//                Intent refreshIntent = new Intent(Constants.IntentExtra.REFRESH_CHALLENGE_LIST);
+//                refreshIntent.putExtra(Constants.IntentExtra.REFRESH_CHALLENGE_LIST, true);
+//                sendBroadcast(refreshIntent);
+//                return null;
+//            }
+//        });
     }
 
     private void setChallengeAccepted(Challenge challenge) {

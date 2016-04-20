@@ -75,6 +75,7 @@ public class ChooseOpponentActivity extends PeopleFragmentActivity {
                     challenge.setUser2Data(user2Data);
                     challenge.setCurTurnUserId(user2Data.getPublicUserData().getBaseUserId());
                     challenge.setOtherTurnUserId(ParseUser.getCurrentUser().getObjectId());
+                    challenge.pinInBackground(challenge.getObjectId());
                     challenge.saveInBackground();
                 } else {
                     e.printStackTrace();
