@@ -37,9 +37,29 @@
         android:layout_height="wrap_content"
         android:paddingBottom="20dp"/>
 
+    <ScrollView
+        android:id="@+id/svImageFromQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtCategory">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.parse.ParseImageView
+                android:id="@+id/ivImageFromQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true" />
+        </RelativeLayout>
+    </ScrollView>
+
     <WebView
         android:id="@+id/wvPassage"
-        android:layout_below="@id/txtCategory"
+        android:layout_below="@id/svImageFromQuestion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </WebView>

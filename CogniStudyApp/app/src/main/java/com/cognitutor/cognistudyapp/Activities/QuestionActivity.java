@@ -40,6 +40,8 @@ import com.cognitutor.cognistudyapp.ParseObjectSubclasses.QuestionReport;
 import com.cognitutor.cognistudyapp.ParseObjectSubclasses.Response;
 import com.cognitutor.cognistudyapp.R;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -207,6 +209,11 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         avh.mvQuestion.setText(mQuestionContents.getQuestionText());
 //        avh.mvQuestion.loadUrl("file:///android_asset/html/passage.html");
         avh.mvExplanation.setText(mQuestionContents.getExplanation());
+        ParseFile image = mQuestionContents.getImage();
+        if (image != null) {
+            avh.ivImageFromQuestion.setParseFile(image);
+            avh.ivImageFromQuestion.loadInBackground();
+        }
 
         if(mQuestion.inBundle()) {
             int numInBundle = mQuestion.getNumberInBundle();
@@ -473,6 +480,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     private class ActivityViewHolder {
         private RelativeLayout rlQuestionHeader;
         private ProgressBar progressBar;
+        private ParseImageView ivImageFromQuestion;
         private WebView wvPassage;
         private CogniMathView mvQuestion;
         private EditText txtModifyQuestion;
@@ -489,6 +497,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         private ActivityViewHolder() {
             rlQuestionHeader = (RelativeLayout) findViewById(R.id.rlQuestionHeader);
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
+            ivImageFromQuestion = (ParseImageView) findViewById(R.id.ivImageFromQuestion);
             wvPassage = (WebView) findViewById(R.id.wvPassage);
             mvQuestion = (CogniMathView) findViewById(R.id.mvQuestion);
             txtModifyQuestion = (EditText) findViewById(R.id.txtModifyQuestion);
