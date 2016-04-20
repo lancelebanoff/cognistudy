@@ -35,6 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -43,7 +44,7 @@ import bolts.Task;
 public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, ChallengeQueryAdapter.ViewHolder> {
 
     private MainFragment mFragment;
-    private QueryUtils.ParseQueryBuilder<Challenge> mQueryBuilder;
+    public QueryUtils.ParseQueryBuilder<Challenge> mQueryBuilder;
     private QueryUtilsCacheThenNetworkHelper mCacheThenNetworkHelper;
     private ChallengeRecyclerView mChallengeRecyclerView;
 
@@ -139,6 +140,22 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
         query.include(Challenge.Columns.user2Data + "." + ChallengeUserData.Columns.publicUserData);
         query.orderByDescending(Challenge.Columns.timeLastPlayed);
         return query;
+    }
+
+    public Task<List<Challenge>> loadFromLocalDatastore() {
+        return mQueryBuilder.buildQuery().fromLocalDatastore().findInBackground().continueWith(new Continuation<List<Challenge>, List<Challenge>>() {
+            @Override
+            public List<Challenge> then(Task<List<Challenge>> task) throws Exception {
+                final List<Challenge> list = task.getResult();
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onDataLoaded(list);
+                    }
+                });
+                return list;
+            }
+        });
     }
 
     public Task<List<Challenge>> loadFromNetwork() {

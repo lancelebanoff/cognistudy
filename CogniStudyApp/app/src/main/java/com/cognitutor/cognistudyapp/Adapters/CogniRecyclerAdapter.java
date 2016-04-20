@@ -99,11 +99,13 @@ public abstract class CogniRecyclerAdapter<T extends ParseObject, U extends Recy
         }
 
         //Find all of the new objects that were not in the list previously so we can return them
+        listIterator = list.iterator();
         List<T> newObjects = new ArrayList<>();
         while (listIterator.hasNext()) {
             newObj = listIterator.next();
             boolean found = false;
-            for (int i = firstChangedIdx.get(); i < mItems.size(); i++) {
+//            for (int i = firstChangedIdx.get(); i < mItems.size(); i++) { //To be used when listIterator is not re-initialized
+            for (int i = 0; i < mItems.size(); i++) {
                 oldObj = mItems.get(i);
                 if (newObj.getObjectId().equals(oldObj.getObjectId())) {
                     found = true;

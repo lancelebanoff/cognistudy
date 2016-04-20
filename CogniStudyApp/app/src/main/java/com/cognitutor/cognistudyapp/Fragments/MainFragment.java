@@ -58,6 +58,8 @@ import pl.droidsonroids.gif.GifImageView;
 
 public class MainFragment extends CogniPushListenerFragment implements View.OnClickListener {
 
+
+    public static boolean loadFromLocalDatastore = false;
     private final int NUM_ADAPTERS = 4;
 
     private TutorRequestAdapter tutorRequestAdapter;
@@ -123,13 +125,25 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                 break;
         }
 
-        loadChallengesAndTutorRequests();
+        if(!loadFromLocalDatastore) {
+            loadChallengesAndTutorRequestsFromNetwork();
+        }
+        else {
+            loadChallengesFromLocalDatastore();
+            loadFromLocalDatastore = false;
+        }
         showOrHideArrow();
         setSwipeRefreshLayout(getView());
         initializeBroadcastReceiver();
     }
 
-    private void loadChallengesAndTutorRequests() {
+    private void loadChallengesFromLocalDatastore() {
+        for(ChallengeQueryAdapter adapter : adapterList) {
+            adapter.loadFromLocalDatastore();
+        }
+    }
+
+    private void loadChallengesAndTutorRequestsFromNetwork() {
         mNumAdaptersLoaded.set(0);
         loadChallengesFromNetwork();
         tutorRequestAdapter.loadTutorRequests(true);
@@ -174,6 +188,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
                             }
                             // Delete unaccepted challenges
                             if (!challenge.getAccepted()) {
+                                ParseObject.unpinAllInBackground(challenge.getObjectId());
                                 final HashMap<String, Object> params = new HashMap<>();
                                 params.put(Challenge.Columns.objectId, challenge.getObjectId());
                                 try {
@@ -280,7 +295,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                loadChallengesAndTutorRequests();
+                loadChallengesAndTutorRequestsFromNetwork();
                 if (mSwipeRefreshLayout != null) {
                     mSwipeRefreshLayout.setRefreshing(false);
                 }
@@ -386,7 +401,7 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     @Override
     public void onReceiveHandler() {
-        loadChallengesAndTutorRequests();
+        loadChallengesAndTutorRequestsFromNetwork();
     }
 
     // Refreshes challenge list when other activity finishes
@@ -395,8 +410,12 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
             @Override
             public void onReceive(Context arg0, Intent intent) {
                 if (intent.getExtras().containsKey(Constants.IntentExtra.REFRESH_CHALLENGE_LIST)) {
+                    loadFromLocalDatastore = true;
+//                    loadChallengesFromNetwork();
+
                     for(ChallengeQueryAdapter adapter : adapterList) {
-                        adapter.loadObjects(); //TODO: Does this work?
+                        adapter.loadFromLocalDatastore();
+//                        adapter.loadObjects(); //TODO: Does this work?
                     }
                 }
             }

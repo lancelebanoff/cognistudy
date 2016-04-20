@@ -52,7 +52,7 @@ public abstract class ParseRecyclerQueryAdapter<T extends ParseObject, U extends
         extends RecyclerView.Adapter<U>
 {
 
-    private final QueryFactory<T> mFactory;
+    public final QueryFactory<T> mFactory;
     private final boolean hasStableIds;
     public final List<T> mItems;
 

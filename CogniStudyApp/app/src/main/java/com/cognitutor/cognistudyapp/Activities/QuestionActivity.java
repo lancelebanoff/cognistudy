@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.cognitutor.cognistudyapp.Adapters.AnswerAdapter;
 import com.cognitutor.cognistudyapp.Custom.AnswerListView;
+import com.cognitutor.cognistudyapp.Custom.AnsweredQuestionActivity;
 import com.cognitutor.cognistudyapp.Custom.BookmarkButton;
 import com.cognitutor.cognistudyapp.Custom.ClickableListItem;
 import com.cognitutor.cognistudyapp.Custom.CogniMathView;
@@ -117,6 +118,7 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CogniMathView.resetNumRunning();
         setContentView(R.layout.activity_question);
         mIntent = getIntent();
 
@@ -437,12 +439,14 @@ public abstract class QuestionActivity extends CogniActivity implements View.OnC
         avh.vgPostAnswer.setVisibility(View.VISIBLE);
         ClickableListItem.setQuestionAnswered(true);
 
-        listView.post(new Runnable() {
-            @Override
-            public void run() {
-                listView.timedScrollToPosition(listView.getAdapter().getCount() - 1, 750);
-            }
-        });
+        if(!(this instanceof AnsweredQuestionActivity)) {
+            listView.post(new Runnable() {
+                @Override
+                public void run() {
+                    listView.timedScrollToPosition(listView.getAdapter().getCount() - 1, 750);
+                }
+            });
+        }
 
         new Thread(new Runnable() {
             @Override
