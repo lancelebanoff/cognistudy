@@ -38,40 +38,36 @@ public abstract class QuestionMetaObject extends ParseObject{
         }
         query.addDescendingOrder(Columns.createdAt);
 
-        ParseQuery<Question> questionQuery = Question.getQuery();
-        boolean includeQuestionQuery = false;
-        if(!subject.equals(Constants.Subject.ALL_SUBJECTS)) {
-            questionQuery.whereEqualTo(Question.Columns.subject, subject);
-            includeQuestionQuery = true;
-        }
-        if(!category.equals(Constants.Category.ALL_CATEGORIES)) {
-            questionQuery.whereEqualTo(Question.Columns.category, category);
-            includeQuestionQuery = true;
+        ParseQuery<Response> responseQuery = Response.getQuery();
+        boolean isBookmark = clazz == Bookmark.class;
+        if(isBookmark) {
+            query.whereMatchesQuery(Columns.response, responseQuery);
         }
 
-        ParseQuery<Response> responseQuery = Response.getQuery();
-        boolean includeResponseQuery = false;
+        if(!subject.equals(Constants.Subject.ALL_SUBJECTS)) {
+            if(isBookmark)
+                responseQuery.whereEqualTo(Response.Columns.subject, subject);
+            else
+                query.whereEqualTo(Response.Columns.subject, subject);
+        }
+        if(!category.equals(Constants.Category.ALL_CATEGORIES)) {
+            if(isBookmark)
+                responseQuery.whereEqualTo(Response.Columns.category, category);
+            else
+                query.whereEqualTo(Response.Columns.category, category);
+        }
+
         if(clazz == Response.class) {
             query.include(Response.Columns.question);
         }
-        else if(clazz == Bookmark.class) {
+        else if(isBookmark) {
             query.include(Bookmark.Columns.response + "." + Response.Columns.question);
-            includeResponseQuery = true;
-            responseQuery.whereMatchesQuery(Response.Columns.question, questionQuery);
         }
         else {
             query.include(SuggestedQuestion.Columns.question);
             query.include(SuggestedQuestion.Columns.response);
         }
 
-        if(includeQuestionQuery) {
-            if(includeResponseQuery) {
-                query.whereMatchesQuery(Columns.response, responseQuery);
-            }
-            else {
-                query.whereMatchesQuery(Columns.question, questionQuery);
-            }
-        }
         return query;
     }
 
