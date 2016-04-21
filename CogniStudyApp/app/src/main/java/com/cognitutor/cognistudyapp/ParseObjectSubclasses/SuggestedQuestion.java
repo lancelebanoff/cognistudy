@@ -37,16 +37,11 @@ public class SuggestedQuestion extends QuestionMetaObject {
     }
 
     @Override
-    public String getSubject() {
-        try {
-            getQuestion().fetchFromLocalDatastore();
-        } catch (ParseException e) { e.printStackTrace(); }
-        return getQuestion().getSubject();
-    }
+    public String getSubject() { return getString(Columns.subject); }
 
     @Override
     public String getCategory() {
-        return getQuestion().getCategory();
+        return getString(Columns.category);
     }
 
     @Override
@@ -68,6 +63,8 @@ public class SuggestedQuestion extends QuestionMetaObject {
         public static final String question = "question";
         public static final String response = "response";
         public static final String answeredInt = "answeredInt";
+        public static final String subject = "subject";
+        public static final String category = "category";
         public static final String tutor = "tutor";
     }
 
