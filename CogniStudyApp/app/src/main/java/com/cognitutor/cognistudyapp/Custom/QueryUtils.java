@@ -239,8 +239,9 @@ public class QueryUtils {
                      final OnDataLoadedListener<T> listener, ParseQueryBuilder<T> builder) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
-        final ParseQuery<T> networkQuery = builder.buildQuery();
-        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, null);
+        final ParseQuery<T> fullNetworkQuery = builder.buildQuery();
+        final ParseQuery<T> networkUpdatedAtQuery = builder.buildQuery();
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, builder, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, null);
     }
 
     /**
@@ -259,8 +260,7 @@ public class QueryUtils {
                        final boolean deleteOldPinnedResults, final OnDataLoadedListener<T> listener, ParseQueryBuilder<T> builder) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromPin(pinName);
-        final ParseQuery<T> networkQuery = builder.buildQuery();
-        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, null);
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, builder, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, null);
     }
 
     /**
@@ -280,8 +280,7 @@ public class QueryUtils {
                                                                                          ParseQueryBuilder<T> builder) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
-        final ParseQuery<T> networkQuery = builder.buildQuery();
-        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.NO_NAME, null, false, null);
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, builder, listener, PinNameOption.NO_NAME, null, false, null);
     }
 
     /**
@@ -299,23 +298,7 @@ public class QueryUtils {
             final OnDataLoadedListener<T> listener, ParseQueryBuilder<T> builder) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
-        final ParseQuery<T> networkQuery = builder.buildQuery();
-        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.OBJECT_ID, null, false, null);
-    }
-
-    /**
-     * Finds objects using query 1 and then updates the results using query2
-     * @param pinName
-     * @param listener
-     * @param query1 The local data query to be executed first
-     * @param query2 The network data query to be executed second
-     * @param <T>
-     * @return
-     */
-    public static <T extends ParseObject> Task<List<T>> findQuery1ThenQuery2InBackground(
-            final String pinName, final OnDataLoadedListener<T> listener, ParseQuery<T> query1, ParseQuery<T> query2) {
-
-        return new QueryUtils().doFindCacheThenNetworkInBackground(query1, query2, listener, PinNameOption.CONSTANT, pinName, false, null);
+        return new QueryUtils().doFindCacheThenNetworkInBackground(localDataQuery, builder, listener, PinNameOption.OBJECT_ID, null, false, null);
     }
 
     enum PinNameOption {
@@ -323,10 +306,16 @@ public class QueryUtils {
     }
 
     protected <T extends ParseObject> Task<List<T>> doFindCacheThenNetworkInBackground(
-            final ParseQuery<T> localDataQuery, final ParseQuery<T> networkQuery, final OnDataLoadedListener<T> listener,
+            final ParseQuery<T> localDataQuery, ParseQueryBuilder<T> builder, final OnDataLoadedListener<T> listener,
             final PinNameOption pinNameOption, final String pinName, final boolean deleteOldPinnedResults, final QueryUtilsCacheThenNetworkHelper helper) {
 
         final long startTime = System.currentTimeMillis();
+
+        List<String> keys = new ArrayList<>();
+        keys.add(Constants.ParseObjectColumns.updatedAt);
+        keys.add(Constants.ParseObjectColumns.objectId);
+        final ParseQuery<T> networkUpdatedAtQuery = builder.buildQuery().selectKeys(keys);
+        final ParseQuery<T> networkFullQuery = builder.buildQuery();
 
         return localDataQuery.findInBackground().continueWithTask(new Continuation<List<T>, Task<List<T>>>() {
             @Override
@@ -344,60 +333,68 @@ public class QueryUtils {
                 if (listener != null)
                     listener.onDataLoaded(localResults);
 
-                return networkQuery.findInBackground().continueWith(new Continuation<List<T>, List<T>>() {
-                    @Override
-                    public List<T> then(Task<List<T>> task) throws Exception {
-                        final List<T> networkResults;
-                        if(task.getResult() == null) {
-                            networkResults = new ArrayList<T>();
-                        }
-                        else {
-                            networkResults = task.getResult();
-                        }
-
-                        final List<T> combined = new ArrayList<T>();
-                        for (T fromNetwork : networkResults) {
-                            addFromLocalOrNetwork(fromNetwork, localResults, combined);
-                        }
-
-                        if (localResults.size() > 0)
-                            Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
-
-                        if (isCancelled(helper, startTime))
-                            return null;
-
-                        List<T> newObjectsToPin = combined;
-                        if (listener != null)
-                            newObjectsToPin = listener.onDataLoaded(combined);
-
-                        //Delete old pinned objects that were not found on the network
-                        if (deleteOldPinnedResults) { //TODO: && App.isNetworkConnected()
-                            if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
-                                ParseObject.unpinAllInBackground(pinName);
-                            } else if (pinNameOption == PinNameOption.OBJECT_ID) {
-                                for (T obj : localResults) {
-                                    if(validateUnpin(obj))
-                                        ParseObject.unpinAllInBackground(obj.getObjectId());
+                return networkUpdatedAtQuery
+                        .findInBackground().continueWithTask(new Continuation<List<T>, Task<List<T>>>() {
+                            @Override
+                            public Task<List<T>> then(Task<List<T>> task) throws Exception {
+                                final List<T> networkResults;
+                                if (task.getResult() == null) {
+                                    networkResults = new ArrayList<T>();
+                                } else {
+                                    networkResults = task.getResult();
                                 }
-                            }
-                        }
 
-                        if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
-                            if (deleteOldPinnedResults) {
-                                ParseObject.pinAllInBackground(pinName, combined);
-                            } else {
-                                ParseObject.pinAllInBackground(pinName, newObjectsToPin);
+                                final List<T> combined = new ArrayList<T>();
+                                List<String> newAndUpdatedObjectIds = new ArrayList<String>();
+                                for (T fromNetwork : networkResults) {
+                                    addFromLocalOrNetwork(fromNetwork, localResults, combined, newAndUpdatedObjectIds);
+                                }
+
+                                if (localResults.size() > 0)
+                                    Log.w("cacheThenNetwork", localResults.size() + "local objects not in network results");
+
+                                if (isCancelled(helper, startTime))
+                                    return null;
+
+                                return networkFullQuery
+                                        .whereContainedIn(Constants.ParseObjectColumns.objectId, newAndUpdatedObjectIds)
+                                        .findInBackground().continueWith(new Continuation<List<T>, List<T>>() {
+                                    @Override
+                                    public List<T> then(Task<List<T>> task) throws Exception {
+                                        List<T> newObjectsToPin = combined;
+                                        if (listener != null)
+                                            newObjectsToPin = listener.onDataLoaded(combined);
+
+                                        //Delete old pinned objects that were not found on the network
+                                        if (deleteOldPinnedResults) { //TODO: && App.isNetworkConnected()
+                                            if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
+                                                ParseObject.unpinAllInBackground(pinName);
+                                            } else if (pinNameOption == PinNameOption.OBJECT_ID) {
+                                                for (T obj : localResults) {
+                                                    if (validateUnpin(obj))
+                                                        ParseObject.unpinAllInBackground(obj.getObjectId());
+                                                }
+                                            }
+                                        }
+
+                                        if (pinNameOption == PinNameOption.CONSTANT && pinName != null) {
+                                            if (deleteOldPinnedResults) {
+                                                ParseObject.pinAllInBackground(pinName, combined);
+                                            } else {
+                                                ParseObject.pinAllInBackground(pinName, newObjectsToPin);
+                                            }
+                                        } else if (pinNameOption == PinNameOption.OBJECT_ID) {
+                                            for (T obj : newObjectsToPin) {
+                                                obj.pinInBackground(obj.getObjectId()); //TODO: Why wait for completion?
+                                            }
+                                        } else if (pinNameOption == PinNameOption.NO_NAME) { //deleteOldPinnedResults not implemented for this case
+                                            ParseObject.pinAllInBackground(newObjectsToPin);
+                                        }
+                                        return combined;
+                                    }
+                                });
                             }
-                        } else if (pinNameOption == PinNameOption.OBJECT_ID) {
-                            for (T obj : newObjectsToPin) {
-                                obj.pinInBackground(obj.getObjectId()); //TODO: Why wait for completion?
-                            }
-                        } else if (pinNameOption == PinNameOption.NO_NAME) { //deleteOldPinnedResults not implemented for this case
-                            ParseObject.pinAllInBackground(newObjectsToPin);
-                        }
-                        return combined;
-                    }
-                });
+                        });
             }
         });
     }
@@ -406,7 +403,8 @@ public class QueryUtils {
         //For challenges, only unpin the object if it has ended (Otherwise, it may be the other user's turn so it would
         // need to show up in another recyclerview.
         return obj.getObjectId() != null &&
-                (!obj.getClass().equals(Challenge.class) || ((Challenge) obj).getHasEnded());
+//                (!obj.getClass().equals(Challenge.class) || ((Challenge) obj).getHasEnded());
+                !obj.getClass().equals(Challenge.class);
     }
 
     /**
@@ -518,7 +516,8 @@ public class QueryUtils {
         });
     }
 
-    private static <T extends ParseObject> void addFromLocalOrNetwork(T fromNetwork, List<T> localResults, List<T> combined) {
+    private static <T extends ParseObject> void addFromLocalOrNetwork(T fromNetwork, List<T> localResults, List<T> combined,
+                                                                                  List<String> newAndUpdatedObjectIds) {
 
         String networkId = fromNetwork.getObjectId();
         Date networkUpdatedAt = fromNetwork.getUpdatedAt();
@@ -529,8 +528,10 @@ public class QueryUtils {
             String localId = fromLocal.getObjectId();
             Date localUpdatedAt = fromLocal.getUpdatedAt();
             if(localId != null && networkId.equals(localId)) {
-                if(localUpdatedAt == null || networkUpdatedAt.after(localUpdatedAt))
+                if(localUpdatedAt == null || networkUpdatedAt.after(localUpdatedAt)) {
                     combined.add(fromNetwork);
+                    newAndUpdatedObjectIds.add(networkId);
+                }
                 else
                     combined.add(fromLocal);
                 localResults.remove(fromLocal);
@@ -539,6 +540,7 @@ public class QueryUtils {
         }
         //No local result was found to match fromNetwork
         combined.add(fromNetwork);
+        newAndUpdatedObjectIds.add(networkId);
     }
 
     //This is the old verson that does not preserve the order of the network results

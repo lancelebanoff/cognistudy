@@ -163,82 +163,73 @@ function getRandomQuestion(category, fetchedAnsQuesIds, additionalQuestionIds, s
 		allQuestionIds = allQuestionIds.concat(bundleQuestionIds);
 	printAnsweredQuestionIds(allQuestionIds);
 
-	var countQuery = new Parse.Query("CategoryStats")
+	var quesQuery = new Parse.Query("Question")
 	.equalTo("category", category);
 
-	countQuery.first({ useMasterKey: true,
-		success: function(countObject) {
+	if(skipBundles) {
+		quesQuery.equalTo("inBundle", false);
+	}
 
-			var numRemaining;
+	quesQuery.count({ useMasterKey: true,
+		success: function(total) {
 
-			countObject.fetch({
-				success: function(countObject) {
+			console.log("Total = " + total);
+			var numAnswered = allQuestionIds.length;
+			var numRemaining = total - numAnswered;
+			console.log("numRemaining = " + numRemaining);
 
-					var numAnswered = allQuestionIds.length;
-					var total;
-					console.log(countObject.get("category") + " numActive " + countObject.get("numActive"));
-					if(!skipBundles)
-						total = countObject.get("numActive");
-					else
-						total = countObject.get("numActiveNotInBundle");
-					console.log("Total = " + total);
-					numRemaining = total - numAnswered;
-					console.log("numRemaining = " + numRemaining);
-
-					var reset = false;
-					if(!skipBundles && numRemaining < 3) {
-						console.log("Resetting singles and bundles");
-						fetchedAnsQuesIds.set("singleQuestionIds", []);
-						fetchedAnsQuesIds.set("bundleQuestionIds", []);
-						reset = true;
+			var reset = false;
+			if(!skipBundles && numRemaining < 3) {
+				console.log("Resetting singles and bundles");
+				fetchedAnsQuesIds.set("singleQuestionIds", []);
+				fetchedAnsQuesIds.set("bundleQuestionIds", []);
+				reset = true;
+			}
+			else if(skipBundles && numRemaining < 1) { 
+				console.log("Resetting singles only");
+				fetchedAnsQuesIds.set("singleQuestionIds", []);
+				reset = true;
+			}
+			if(reset) {
+				fetchedAnsQuesIds.save({
+					success: function(obj) {
+						//Try again now that the answeredQuestionIds have been reset
+						getRandomQuestion(category, obj, additionalQuestionIds, skipBundles).then(
+							function(question) {
+								promise.resolve(question);
+							}, function(error) {
+								promise.reject("Error getting question after reset");
+						}); 
+					}, error: function(error) {
+						promise.reject("Error resetting answeredQuestionIds and saving object");
 					}
-					else if(skipBundles && numRemaining < 1) { 
-						console.log("Resetting singles only");
-						fetchedAnsQuesIds.set("singleQuestionIds", []);
-						reset = true;
-					}
-					if(reset) {
-						fetchedAnsQuesIds.save({
-							success: function(obj) {
-								//Try again now that the answeredQuestionIds have been reset
-								getRandomQuestion(category, obj, additionalQuestionIds, skipBundles).then(
-									function(question) {
-										promise.resolve(question);
-									}, function(error) {
-										promise.reject("Error getting question after reset");
-								}); 
-							}, error: function(error) {
-								promise.reject("Error resetting answeredQuestionIds and saving object");
-							}
-						});
-					}
-					else {
-						var skipNum = Math.max(0, Math.floor(Math.random()*numRemaining));
+				});
+			}
+			else {
+				var skipNum = Math.max(0, Math.floor(Math.random()*numRemaining));
 
-						console.log("skipNum = " + skipNum);
+				console.log("skipNum = " + skipNum);
 
-						var query = new Parse.Query("Question")
-						.equalTo("isActive", true)
-						.equalTo("test", false)
-						.equalTo("category", category)
-						.notContainedIn("objectId", allQuestionIds)
-						.skip(skipNum)
-						.limit(1);
+				var query = new Parse.Query("Question")
+				.equalTo("isActive", true)
+				.equalTo("test", false)
+				.equalTo("category", category)
+				.notContainedIn("objectId", allQuestionIds)
+				.skip(skipNum)
+				.limit(1);
 
-						if(skipBundles) {
-							query = query.equalTo("inBundle", false);
-						}
+				if(skipBundles) {
+					query = query.equalTo("inBundle", false);
+				}
 
-						query.first({
-							success: function(result) {
-								// console.log("In getRandomQuestion: questionId = " + result.id);
-								promise.resolve(result);
-							}, error: function(error) { promise.reject("Error getting random question"); }
-						});
-					}
-				}, error: function(error) { promise.reject("Error fetching QuestionCount"); }
-			});
-		}, error: function(error) { promise.reject("Error getting QuestionCount"); }
+				query.first({
+					success: function(result) {
+						// console.log("In getRandomQuestion: questionId = " + result.id);
+						promise.resolve(result);
+					}, error: function(error) { promise.reject("Error getting random question"); }
+				});
+			}
+		}, error: function(error) { promise.reject("Error finding applicable Questions"); }
 	});
 	return promise;
 }

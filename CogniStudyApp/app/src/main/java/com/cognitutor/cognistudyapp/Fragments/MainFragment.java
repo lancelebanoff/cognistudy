@@ -145,8 +145,43 @@ public class MainFragment extends CogniPushListenerFragment implements View.OnCl
 
     private void loadChallengesAndTutorRequestsFromNetwork() {
         mNumAdaptersLoaded.set(0);
-        loadChallengesFromNetwork();
-        tutorRequestAdapter.loadTutorRequests(true);
+        unpinDeletedChallenges().continueWith(new Continuation<Void, Object>() {
+            @Override
+            public Object then(Task<Void> task) throws Exception {
+                loadChallengesFromNetwork();
+                tutorRequestAdapter.loadTutorRequests(true);
+                return null;
+            }
+        });
+    }
+
+    private Task<Void> unpinDeletedChallenges() {
+        return Challenge.getQuery().fromLocalDatastore().findInBackground().continueWithTask(new Continuation<List<Challenge>, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<List<Challenge>> task) throws Exception {
+                final List<String> objectIds = new ArrayList<String>();
+                for(Challenge localChallenge : task.getResult()) {
+                    objectIds.add(localChallenge.getObjectId());
+                }
+                List<String> keys = new ArrayList<String>();
+                keys.add(Constants.ParseObjectColumns.objectId);
+                return Challenge.getQuery()
+                .whereContainedIn(Constants.ParseObjectColumns.objectId, objectIds)
+                .selectKeys(keys)
+                .findInBackground().continueWith(new Continuation<List<Challenge>, Void>() {
+                    @Override
+                    public Void then(Task<List<Challenge>> task) throws Exception {
+                        for(Challenge networkChallenge : task.getResult()) {
+                            objectIds.remove(networkChallenge.getObjectId());
+                        }
+                        for(String noLongerExistsId : objectIds) {
+                            ParseObject.unpinAllInBackground(noLongerExistsId);
+                        }
+                        return null;
+                    }
+                });
+            }
+        });
     }
 
     private void createAllListViews(final View rootView) {
