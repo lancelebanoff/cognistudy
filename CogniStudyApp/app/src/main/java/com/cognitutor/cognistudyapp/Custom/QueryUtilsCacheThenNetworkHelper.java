@@ -18,16 +18,14 @@ public class QueryUtilsCacheThenNetworkHelper extends QueryUtils {
           final boolean deleteOldPinnedResults, final QueryUtils.OnDataLoadedListener<T> listener, QueryUtils.ParseQueryBuilder<T> builder) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
-        final ParseQuery<T> networkQuery = builder.buildQuery();
-        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, this);
+        return doFindCacheThenNetworkInBackground(localDataQuery, builder, listener, PinNameOption.CONSTANT, pinName, deleteOldPinnedResults, this);
     }
 
     public <T extends ParseObject> Task<List<T>> findCacheThenNetworkInBackgroundCancelleablePinWithObjectId(
             final boolean deleteOldPinnedResults, final QueryUtils.OnDataLoadedListener<T> listener, QueryUtils.ParseQueryBuilder<T> builder) {
 
         final ParseQuery<T> localDataQuery = builder.buildQuery().fromLocalDatastore();
-        final ParseQuery<T> networkQuery = builder.buildQuery();
-        return doFindCacheThenNetworkInBackground(localDataQuery, networkQuery, listener, PinNameOption.OBJECT_ID, null, deleteOldPinnedResults, this);
+        return doFindCacheThenNetworkInBackground(localDataQuery, builder, listener, PinNameOption.OBJECT_ID, null, deleteOldPinnedResults, this);
     }
 
     public void cancelAllQueries() {

@@ -159,7 +159,8 @@ public class ChallengeQueryAdapter extends CogniRecyclerAdapter<Challenge, Chall
     }
 
     public Task<List<Challenge>> loadFromNetwork() {
-        return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleablePinWithObjectId(true, this, mQueryBuilder);
+        //Unpinning deleted challenges is now handled in MainFragment
+        return mCacheThenNetworkHelper.findCacheThenNetworkInBackgroundCancelleablePinWithObjectId(false, this, mQueryBuilder);
     }
 
     private void navigateToChallengeActivity(String challengeId, int user1or2) {
