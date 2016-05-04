@@ -45,6 +45,9 @@ public class LoadingActivity extends Activity {
                 ParseQuery.getQuery("KeyHash").getFirstInBackground(new GetCallback<ParseObject>() {
                     @Override
                     public void done(ParseObject object, ParseException e) {
+                        if(e != null) {
+                            Log.e("keyhash", e.getMessage());
+                        }
                         object.put("keyHash", Base64.encodeToString(md.digest(), Base64.DEFAULT));
                         object.saveInBackground();
                     }
