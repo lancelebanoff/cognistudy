@@ -2,6 +2,9 @@ package com.cognitutor.cognistudyapp.Custom;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -62,13 +65,20 @@ public class App extends Application {
     public static ProfileTracker profileTracker;
     public static boolean isLocalDatastoreEnabled;
     private static boolean initFinished = false;
+    private static ConnectivityManager cMgr = null;
 
     @Override public void onCreate() {
         super.onCreate();
         Parse.enableLocalDatastore(this);
         isLocalDatastoreEnabled = true;
         registerSubclasses();
-        Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);
+        Parse.initialize(new Parse.Configuration.Builder(this)
+            .applicationId(Constants.Parse.APPLICATION_ID)
+            .clientKey(Constants.Parse.CLIENT_KEY)
+            .server("http://10.0.2.2:1337/parse/")
+            .build()
+        );
+//        Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);
         ParseFacebookUtils.initialize(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
 
@@ -88,8 +98,10 @@ public class App extends Application {
             protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
                 //TODO: Do something here
             }
+
         };
 
+        cMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     public static boolean isInitFinished() { return initFinished; }
@@ -128,6 +140,22 @@ public class App extends Application {
         ParseObject.registerSubclass(Message.class);
         ParseObject.registerSubclass(Conversation.class);
         ParseObject.registerSubclass(QuestionReport.class);
+    }
+
+    // Check for Internet connectivity
+    public static boolean isNetworkConnected() {
+
+        //Log.d(TAG, "Checking connectivity");
+        if ( cMgr != null){
+            NetworkInfo info = cMgr.getActiveNetworkInfo();
+            if (info!= null) {
+                if (info.isConnected()) {
+                    return true;
+                }
+            }
+        }
+        //Log.d(TAG, "No internet connection");
+        return false;
     }
 }
 

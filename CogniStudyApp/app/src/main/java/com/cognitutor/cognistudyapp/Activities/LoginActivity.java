@@ -280,6 +280,7 @@ public class LoginActivity extends AuthenticationActivity implements LoaderCallb
     private boolean signUpUser(final String email, final String password) {
 
         if (!isPasswordValid(password)) {
+            setWaiting(false);
             mPasswordView.setError(getString(R.string.error_invalid_password));
             mPasswordView.requestFocus();
             return false;
