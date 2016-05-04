@@ -1,4 +1,4 @@
-var common = require('cloud/common.js');
+var common = require('./cloud/common.js');
 
 function myContains(a, obj) {
     var i = a.length;

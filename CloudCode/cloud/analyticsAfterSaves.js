@@ -1,4 +1,4 @@
-var common = require("cloud/common.js");
+var common = require("./cloud/common.js");
 
 Parse.Cloud.afterSave("StudentCategoryDayStats", function(request) {
 	setACLIfNew(request.object, "StudentCategoryDayStats");
@@ -37,7 +37,6 @@ Parse.Cloud.afterSave("StudentTotalRollingStats", function(request) {
 });
 
 function setACLIfNew(obj, className) {
-	Parse.Cloud.useMasterKey();
 	var isNew = common.isNewObject(obj);
 	if(!isNew)
 		return;

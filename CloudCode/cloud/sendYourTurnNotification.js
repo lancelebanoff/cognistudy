@@ -1,4 +1,4 @@
-var common = require("cloud/common.js");
+var common = require("./cloud/common.js");
 
 Parse.Cloud.define("sendYourTurnNotification", function(request, response) {
 	response.success("deprecated function");

@@ -1,4 +1,4 @@
-var common = require("cloud/common.js");
+var common = require("./cloud/common.js");
 
 function deleteAllObjectsFromClasses(classes, key, value) {
 
