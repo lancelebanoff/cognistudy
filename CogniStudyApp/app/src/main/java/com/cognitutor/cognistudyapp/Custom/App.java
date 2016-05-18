@@ -75,7 +75,8 @@ public class App extends Application {
         Parse.initialize(new Parse.Configuration.Builder(this)
             .applicationId(Constants.Parse.APPLICATION_ID)
             .clientKey(Constants.Parse.CLIENT_KEY)
-            .server("http://10.0.2.2:1337/parse/")
+//            .server("http://10.0.2.2:1337/parse/")
+            .server("http://192.168.56.1:1337/parse/")
             .build()
         );
 //        Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);

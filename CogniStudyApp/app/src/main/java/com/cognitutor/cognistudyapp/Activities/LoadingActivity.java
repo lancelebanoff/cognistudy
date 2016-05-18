@@ -28,37 +28,37 @@ public class LoadingActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
-        logKeyHash();
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         doNavigate(getDestination());
     }
 
-    private void logKeyHash() {
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(
-                    "com.cognitutor.cognistudyapp",
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                final MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-                ParseQuery.getQuery("KeyHash").getFirstInBackground(new GetCallback<ParseObject>() {
-                    @Override
-                    public void done(ParseObject object, ParseException e) {
-                        if(e != null) {
-                            Log.e("keyhash", e.getMessage());
-                        }
-                        object.put("keyHash", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-                        object.saveInBackground();
-                    }
-                });
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-
-        } catch (NoSuchAlgorithmException e) {
-
-        }
-    }
+    //Causes an error with the new parse server
+//    private void logKeyHash() {
+//        try {
+//            PackageInfo info = getPackageManager().getPackageInfo(
+//                    "com.cognitutor.cognistudyapp",
+//                    PackageManager.GET_SIGNATURES);
+//            for (Signature signature : info.signatures) {
+//                final MessageDigest md = MessageDigest.getInstance("SHA");
+//                md.update(signature.toByteArray());
+//                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+//                ParseQuery.getQuery("KeyHash").getFirstInBackground(new GetCallback<ParseObject>() {
+//                    @Override
+//                    public void done(ParseObject object, ParseException e) {
+//                        if(e != null) {
+//                            Log.e("keyhash", e.getMessage());
+//                        }
+//                        object.put("keyHash", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+//                        object.saveInBackground();
+//                    }
+//                });
+//            }
+//        } catch (PackageManager.NameNotFoundException e) {
+//
+//        } catch (NoSuchAlgorithmException e) {
+//
+//        }
+//    }
 
     public static Class getDestination() {
 
