@@ -69,16 +69,16 @@ public class App extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
-        Parse.enableLocalDatastore(this);
-        isLocalDatastoreEnabled = true;
         registerSubclasses();
         Parse.initialize(new Parse.Configuration.Builder(this)
             .applicationId(Constants.Parse.APPLICATION_ID)
+            .enableLocalDataStore()
             .clientKey(Constants.Parse.CLIENT_KEY)
 //            .server("http://10.0.2.2:1337/parse/")
             .server("http://192.168.56.1:1337/parse/")
             .build()
         );
+        isLocalDatastoreEnabled = true;
 //        Parse.initialize(this, Constants.Parse.APPLICATION_ID, Constants.Parse.CLIENT_KEY);
         ParseFacebookUtils.initialize(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
