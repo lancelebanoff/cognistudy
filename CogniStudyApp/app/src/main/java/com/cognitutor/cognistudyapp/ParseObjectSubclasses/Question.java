@@ -88,7 +88,7 @@ public class Question extends ParseObject {
                 int randomIndex = new Random().nextInt(categories.size());
                 params.put("category", categories.get(randomIndex));
 
-                return ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.CHOOSE_THREE_QUESTIONS, params);
+                return ParseCloud.callFunctionInBackground(Constants.CloudCodeFunction.CHOOSE_RANDOM_QUESTIONS, params);
             }
         }).continueWith(new Continuation<List<Question>, List<String>>() {
             @Override
