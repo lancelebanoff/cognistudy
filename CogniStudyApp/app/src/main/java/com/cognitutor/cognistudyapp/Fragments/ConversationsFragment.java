@@ -76,15 +76,15 @@ public class ConversationsFragment extends CogniPushListenerFragment implements 
         }).continueWith(new Continuation<List<Conversation>, Void>() {
             @Override
             public Void then(Task<List<Conversation>> task) throws Exception {
-                showOrHideNoMessagesText();
+                showOrHideNoMessagesText(task.getResult());
                 return null;
             }
         });
     }
 
-    private void showOrHideNoMessagesText() {
+    private void showOrHideNoMessagesText(List<Conversation> conversations) {
         TextView txtNoMessages = (TextView) getActivity().findViewById(R.id.txtNoMessages);
-        if (mConversationAdapter.getItemCount() == 0) {
+        if (conversations.isEmpty()) {
             txtNoMessages.setVisibility(View.VISIBLE);
         } else {
             txtNoMessages.setVisibility(View.GONE);
